@@ -1076,7 +1076,7 @@ if(window.location.search.indexOf('test=1')>-1){
 // GOOGLE SHEET LOGGING
 function trackClick(label) {
   // Log click to Google Sheet
-  var url = 'https://script.google.com/macros/s/AKfycbyjPOS3a63UFeICyfbvLVE25V8hgQOncWvuowlIq40Uam2ml3SHfexNqFHPKVHRqrZv/exec';
+  var url = 'https://script.google.com/macros/s/AKfycbyP-6R7HXMC4BteUPTjch4kpYvVIEOl3HA2gdWoe1p_Uy1FKVsPNkoP7Vygq-_MBg-W/exec';
   fetch(url, {
     method: 'POST',
     body: JSON.stringify({
@@ -1095,7 +1095,7 @@ function trackClick(label) {
 }
 
 function logToSheet(name, email, bucket, answers) {
-  var url = 'https://script.google.com/macros/s/AKfycbyjPOS3a63UFeICyfbvLVE25V8hgQOncWvuowlIq40Uam2ml3SHfexNqFHPKVHRqrZv/exec';
+  var url = 'https://script.google.com/macros/s/AKfycbyP-6R7HXMC4BteUPTjch4kpYvVIEOl3HA2gdWoe1p_Uy1FKVsPNkoP7Vygq-_MBg-W/exec';
   var payload = {
     name: name,
     email: email,
