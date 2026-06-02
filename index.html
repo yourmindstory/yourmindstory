@@ -1123,26 +1123,19 @@ function logToSheet(name, email, bucket, answers) {
 
 // MAILERLITE
 function mlSubscribe(name,email){
-  var KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiZDJiYWNjODE3OTE0NDQwYTg5NzM5ZmVkNDFiMTI2N2VkOTkyNjRjZmE3N2YxYzQ3N2JlZWY3MGQzOWE0ZTM1ODMyZTE1MTJjMzg4NTI0MTMiLCJpYXQiOjE3ODAyNjI0MTguOTY4NjMxLCJuYmYiOjE3ODAyNjI0MTguOTY4NjMzLCJleHAiOjQ5MzU5MzYwMTguOTYxOTI0LCJzdWIiOiIyMDgzOTk4Iiwic2NvcGVzIjpbXX0.IP4u7AIeAh__iiDGcMzfJpNtxP09N4UIfjqtZa3vE4hseLNXNxp5jbt9hRXjHtDWL6I7iAPqJCJrPTWcjU-VDRgHfrbKlCArnIboEsNiVSPk_4gjVsCHc1l70J5kclBQRqTiGQL9RtZ3CXd_fZmOnR1PHiRSbSc6GiVqJGfS5fM9CRAibXShiKl-65zbDiqtDZHKZVrmxCuh1wn_BdWIBoP5C_zd30x7PDbp8ImgZE2V3RXXYDykC7lwsSPczdPQCHyVbBZurdhz1N3Yi0HOodJISWf-89lG3sueWB-vKZE-53RigBpy5epR_g-5ppSnrQmOKu5N7gunlZUgVomgfbRUd3wxdCAAJaYGy2ivDTAMEA-Rf6CtW9a58dHcbppwOPkbnkvMDto37r1YM7KJJMapXtzm5HLxqHHw4VJcO6NOtXbZ3IwmoporZk3OLVFhDAB0VJa402igYPvK7_Z7ftM1X2eq3rIisawe6dqIxTaFXW32NmaCnT4AqI7PviXQPjEipl6aJb_rfzkozZrbP8zcaA8QAxoKWEBvgN9yP5-6q1Sr-tsPHJI9p8A45SWdICcDwAgTqd0OBI8e9T-HHAaKOgDJdM-p6HMNgyskXfa6OuGFFt20I9Y2On32ent8yIgwEYWK4S8tOTQcoPthyi2AQ2i0hI738dntieqMRgc
-
-';
+  var KEY='YOUR_MAILERLITE_API_KEY';
   if(KEY.indexOf('YOUR_')===0) return;
   fetch('https://connect.mailerlite.com/api/subscribers',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY},
-    body:JSON.stringify({email:email,fields:{name:name},groups:[187450471408994069})
+    body:JSON.stringify({email:email,fields:{name:name},groups:['YOUR_GENERAL_GROUP_ID']})
   }).catch(function(){});
 }
 
 function mlTag(email,bucket){
-  var KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiZDJiYWNjODE3OTE0NDQwYTg5NzM5ZmVkNDFiMTI2N2VkOTkyNjRjZmE3N2YxYzQ3N2JlZWY3MGQzOWE0ZTM1ODMyZTE1MTJjMzg4NTI0MTMiLCJpYXQiOjE3ODAyNjI0MTguOTY4NjMxLCJuYmYiOjE3ODAyNjI0MTguOTY4NjMzLCJleHAiOjQ5MzU5MzYwMTguOTYxOTI0LCJzdWIiOiIyMDgzOTk4Iiwic2NvcGVzIjpbXX0.IP4u7AIeAh__iiDGcMzfJpNtxP09N4UIfjqtZa3vE4hseLNXNxp5jbt9hRXjHtDWL6I7iAPqJCJrPTWcjU-VDRgHfrbKlCArnIboEsNiVSPk_4gjVsCHc1l70J5kclBQRqTiGQL9RtZ3CXd_fZmOnR1PHiRSbSc6GiVqJGfS5fM9CRAibXShiKl-65zbDiqtDZHKZVrmxCuh1wn_BdWIBoP5C_zd30x7PDbp8ImgZE2V3RXXYDykC7lwsSPczdPQCHyVbBZurdhz1N3Yi0HOodJISWf-89lG3sueWB-vKZE-53RigBpy5epR_g-5ppSnrQmOKu5N7gunlZUgVomgfbRUd3wxdCAAJaYGy2ivDTAMEA-Rf6CtW9a58dHcbppwOPkbnkvMDto37r1YM7KJJMapXtzm5HLxqHHw4VJcO6NOtXbZ3IwmoporZk3OLVFhDAB0VJa402igYPvK7_Z7ftM1X2eq3rIisawe6dqIxTaFXW32NmaCnT4AqI7PviXQPjEipl6aJb_rfzkozZrbP8zcaA8QAxoKWEBvgN9yP5-6q1Sr-tsPHJI9p8A45SWdICcDwAgTqd0OBI8e9T-HHAaKOgDJdM-p6HMNgyskXfa6OuGFFt20I9Y2On32ent8yIgwEYWK4S8tOTQcoPthyi2AQ2i0hI738dntieqMRgc
-
-';
+  var KEY='YOUR_MAILERLITE_API_KEY';
   if(KEY.indexOf('YOUR_')===0) return;
-  var map={'Stabilise':'187448713241691652','Break the Pull':'187448773941658850
-','Restore Self Trust':'187448946610669492
-','Return to Yourself':'187449041969219418
-'};
+  var map={'Stabilise':'YOUR_STABILISE_ID','Break the Pull':'YOUR_BREAK_PULL_ID','Restore Self Trust':'YOUR_RESTORE_TRUST_ID','Return to Yourself':'YOUR_RETURN_SELF_ID'};
   var gid=map[bucket];
   if(!gid) return;
   fetch('https://connect.mailerlite.com/api/subscribers/'+encodeURIComponent(email)+'/groups/'+gid,{
