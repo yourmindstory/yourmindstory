@@ -34,7 +34,6 @@ h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:400;line-height:1.2;
 /* HERO */
 #hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:70px 22px;position:relative;}
 #hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(122,92,122,0.13) 0%,rgba(184,112,128,0.07) 50%,transparent 70%);pointer-events:none;}
-#gender-screen{display:none;flex-direction:column;align-items:center;justify-content:center;}
 .brand{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold);margin-bottom:44px;opacity:0;animation:rise 0.8s ease forwards 0.1s;}
 .hero-h1{font-size:clamp(38px,8vw,66px);font-weight:300;margin-bottom:26px;opacity:0;animation:rise 0.8s ease forwards 0.3s;}
 .hero-h1 em{font-style:italic;color:var(--rose-l);}
@@ -221,16 +220,6 @@ footer{text-align:center;padding:44px 22px;border-top:1px solid var(--border);fo
 .qnav{flex-direction:column;}
 .btn-next{width:100%;text-align:center;}
 }
-
-.gs-hidden{display:none;}
-.gs-visible{display:flex;min-height:100vh;align-items:center;justify-content:center;padding:40px 24px;}
-.gs-inner{text-align:center;width:100%;max-width:360px;}
-.gs-eyebrow{font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;}
-.gs-title{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,9vw,64px);margin-bottom:44px;line-height:1.1;}
-.gs-btns{display:flex;flex-direction:column;gap:14px;}
-.gs-btn{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:20px 32px;border-radius:8px;font-family:'Cormorant Garamond',serif;font-size:clamp(22px,5vw,28px);cursor:pointer;font-weight:300;letter-spacing:0.04em;width:100%;}
-.gs-woman{border-color:var(--rose);}
-.gs-btn:hover{background:var(--bg3);}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
@@ -359,7 +348,9 @@ footer{text-align:center;padding:44px 22px;border-top:1px solid var(--border);fo
         <span style="font-size:13px;color:var(--muted);">PDF - delivered immediately. Yours to keep.</span>
       </div>
       <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=ZcdmX&qty%5BZcdmX%5D=1" class="btn-buy" target="_blank" style="margin-bottom:16px;">Get The Book - £4.99</a>
-
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:4px;">Due to the nature of immediate digital access, all sales are final.</p>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:4px;">For educational and personal development purposes only. Results vary. This is not traditional therapy and does not replace professional mental health care or crisis support.</p>
+      <p style="font-size:11px;color:var(--muted);text-align:center;">Not suitable for severe mental health conditions or crisis situations.</p>
     </div>
   </div>
 </div>
@@ -447,7 +438,8 @@ footer{text-align:center;padding:44px 22px;border-top:1px solid var(--border);fo
 
 <footer>
   <span class="fbrand">Your Mind Story</span>
-  yourmindstory.co.uk &nbsp;·&nbsp; Onye, Clinical CBT Hypnotherapist<br><br>
+  yourmindstory.co.uk &nbsp;·&nbsp; Onye, Clinical CBT Hypnotherapist<br>
+  For educational and personal development purposes only.<br><br>
   &copy; 2026 Your Mind Story. All rights reserved.
 </footer>
 
@@ -463,6 +455,11 @@ var multi = {};
 var open = {};
 
 var QS = [
+  {id:'q0',n:'00',part:0,name:'About you',
+   text:'How do you identify?',
+   sub:'',
+   type:'s',req:true,
+   opts:['Woman','Man','Non-binary','Prefer not to say']},
   {id:'q1',n:'01',part:1,name:'Where you are right now',
    text:'Which of these best describes your situation today?',
    sub:'Choose the one that feels most true, even if it is not perfect.',
@@ -699,25 +696,6 @@ var LOW_SCORE = {
   truth:'Knowing what this is before your body sounds the alarm is the smartest thing you can do right now.'
 };
 
-
-var userGender = '';
-
-function setGender(g) {
-  userGender = g;
-  var gs = document.getElementById('gender-screen');
-  if(gs) { gs.classList.remove('gs-visible'); gs.classList.add('gs-hidden'); }
-  document.getElementById('quiz').classList.add('show');
-  window.scrollTo(0,0);
-}
-
-function showGenderScreen() {
-  var hero = document.getElementById('hero');
-  var gs = document.getElementById('gender-screen');
-  if(hero) hero.style.display = 'none';
-  if(gs) { gs.classList.remove('gs-hidden'); gs.classList.add('gs-visible'); }
-  window.scrollTo(0,0);
-}
-
 function score(qid,opts){
   var v = single[qid];
   if(v===undefined||v===null) return 0;
@@ -746,7 +724,8 @@ function calcBucket(){
 }
 
 function startQuiz(){
-  showGenderScreen();
+  document.getElementById('hero').style.display='none';
+  document.getElementById('quiz').classList.add('show');
   renderQ();
   window.scrollTo(0,0);
 }
@@ -763,7 +742,7 @@ function renderQ(){
   if(q.part===1){
     ph.innerHTML='<div class="part-label">Part One - What\'s happening in your body</div><h2 class="part-title">What is this doing to you?</h2><p class="part-sub">Answer honestly. Not how you think you should feel. How you actually feel right now, today. There are no wrong answers. There is only information.</p>';
   } else {
-    ph.innerHTML='';
+    ph.innerHTML='<div class="part-label">Part Two - Help me send you something more specific</div><h2 class="part-title">Two more minutes</h2><p class="part-sub">The more you share, the more specific I can be. Answer what feels right. Skip what does not.</p>';
   }
 
   // Question body
@@ -859,7 +838,7 @@ function submitGate(){
   uname=document.getElementById('fname').value.trim();
   uemail=document.getElementById('femail').value.trim();
   if(!uname||!uemail||!agreed) return;
-  mlSubscribe(uname,uemail,userGender);
+  mlSubscribe(uname,uemail);
   // Build answers object
   var answers = {};
   for(var i=0;i<QS.length;i++){
@@ -873,7 +852,6 @@ function submitGate(){
     }
   }
   var bucket=calcBucket();
-  answers['q0'] = userGender;
   logToSheet(uname,uemail,bucket,answers);
   document.getElementById('gate').classList.remove('show');
   document.getElementById('calc').classList.add('show');
@@ -1144,20 +1122,27 @@ function logToSheet(name, email, bucket, answers) {
 }
 
 // MAILERLITE
-function mlSubscribe(name,email,gender){
-  var KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiZDJiYWNjODE3OTE0NDQwYTg5NzM5ZmVkNDFiMTI2N2VkOTkyNjRjZmE3N2YxYzQ3N2JlZWY3MGQzOWE0ZTM1ODMyZTE1MTJjMzg4NTI0MTMiLCJpYXQiOjE3ODAyNjI0MTguOTY4NjMxLCJuYmYiOjE3ODAyNjI0MTguOTY4NjMzLCJleHAiOjQ5MzU5MzYwMTguOTYxOTI0LCJzdWIiOiIyMDgzOTk4Iiwic2NvcGVzIjpbXX0.IP4u7AIeAh__iiDGcMzfJpNtxP09N4UIfjqtZa3vE4hseLNXNxp5jbt9hRXjHtDWL6I7iAPqJCJrPTWcjU-VDRgHfrbKlCArnIboEsNiVSPk_4gjVsCHc1l70J5kclBQRqTiGQL9RtZ3CXd_fZmOnR1PHiRSbSc6GiVqJGfS5fM9CRAibXShiKl-65zbDiqtDZHKZVrmxCuh1wn_BdWIBoP5C_zd30x7PDbp8ImgZE2V3RXXYDykC7lwsSPczdPQCHyVbBZurdhz1N3Yi0HOodJISWf-89lG3sueWB-vKZE-53RigBpy5epR_g-5ppSnrQmOKu5N7gunlZUgVomgfbRUd3wxdCAAJaYGy2ivDTAMEA-Rf6CtW9a58dHcbppwOPkbnkvMDto37r1YM7KJJMapXtzm5HLxqHHw4VJcO6NOtXbZ3IwmoporZk3OLVFhDAB0VJa402igYPvK7_Z7ftM1X2eq3rIisawe6dqIxTaFXW32NmaCnT4AqI7PviXQPjEipl6aJb_rfzkozZrbP8zcaA8QAxoKWEBvgN9yP5-6q1Sr-tsPHJI9p8A45SWdICcDwAgTqd0OBI8e9T-HHAaKOgDJdM-p6HMNgyskXfa6OuGFFt20I9Y2On32ent8yIgwEYWK4S8tOTQcoPthyi2AQ2i0hI738dntieqMRgc';
+function mlSubscribe(name,email){
+  var KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiZDJiYWNjODE3OTE0NDQwYTg5NzM5ZmVkNDFiMTI2N2VkOTkyNjRjZmE3N2YxYzQ3N2JlZWY3MGQzOWE0ZTM1ODMyZTE1MTJjMzg4NTI0MTMiLCJpYXQiOjE3ODAyNjI0MTguOTY4NjMxLCJuYmYiOjE3ODAyNjI0MTguOTY4NjMzLCJleHAiOjQ5MzU5MzYwMTguOTYxOTI0LCJzdWIiOiIyMDgzOTk4Iiwic2NvcGVzIjpbXX0.IP4u7AIeAh__iiDGcMzfJpNtxP09N4UIfjqtZa3vE4hseLNXNxp5jbt9hRXjHtDWL6I7iAPqJCJrPTWcjU-VDRgHfrbKlCArnIboEsNiVSPk_4gjVsCHc1l70J5kclBQRqTiGQL9RtZ3CXd_fZmOnR1PHiRSbSc6GiVqJGfS5fM9CRAibXShiKl-65zbDiqtDZHKZVrmxCuh1wn_BdWIBoP5C_zd30x7PDbp8ImgZE2V3RXXYDykC7lwsSPczdPQCHyVbBZurdhz1N3Yi0HOodJISWf-89lG3sueWB-vKZE-53RigBpy5epR_g-5ppSnrQmOKu5N7gunlZUgVomgfbRUd3wxdCAAJaYGy2ivDTAMEA-Rf6CtW9a58dHcbppwOPkbnkvMDto37r1YM7KJJMapXtzm5HLxqHHw4VJcO6NOtXbZ3IwmoporZk3OLVFhDAB0VJa402igYPvK7_Z7ftM1X2eq3rIisawe6dqIxTaFXW32NmaCnT4AqI7PviXQPjEipl6aJb_rfzkozZrbP8zcaA8QAxoKWEBvgN9yP5-6q1Sr-tsPHJI9p8A45SWdICcDwAgTqd0OBI8e9T-HHAaKOgDJdM-p6HMNgyskXfa6OuGFFt20I9Y2On32ent8yIgwEYWK4S8tOTQcoPthyi2AQ2i0hI738dntieqMRgc
+
+';
   if(KEY.indexOf('YOUR_')===0) return;
   fetch('https://connect.mailerlite.com/api/subscribers',{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY},
-    body:JSON.stringify({email:email,fields:{name:name,gender:gender||''},groups:['187450471408994069']})
+    body:JSON.stringify({email:email,fields:{name:name},groups:[187450471408994069})
   }).catch(function(){});
 }
 
 function mlTag(email,bucket){
-  var KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiZDJiYWNjODE3OTE0NDQwYTg5NzM5ZmVkNDFiMTI2N2VkOTkyNjRjZmE3N2YxYzQ3N2JlZWY3MGQzOWE0ZTM1ODMyZTE1MTJjMzg4NTI0MTMiLCJpYXQiOjE3ODAyNjI0MTguOTY4NjMxLCJuYmYiOjE3ODAyNjI0MTguOTY4NjMzLCJleHAiOjQ5MzU5MzYwMTguOTYxOTI0LCJzdWIiOiIyMDgzOTk4Iiwic2NvcGVzIjpbXX0.IP4u7AIeAh__iiDGcMzfJpNtxP09N4UIfjqtZa3vE4hseLNXNxp5jbt9hRXjHtDWL6I7iAPqJCJrPTWcjU-VDRgHfrbKlCArnIboEsNiVSPk_4gjVsCHc1l70J5kclBQRqTiGQL9RtZ3CXd_fZmOnR1PHiRSbSc6GiVqJGfS5fM9CRAibXShiKl-65zbDiqtDZHKZVrmxCuh1wn_BdWIBoP5C_zd30x7PDbp8ImgZE2V3RXXYDykC7lwsSPczdPQCHyVbBZurdhz1N3Yi0HOodJISWf-89lG3sueWB-vKZE-53RigBpy5epR_g-5ppSnrQmOKu5N7gunlZUgVomgfbRUd3wxdCAAJaYGy2ivDTAMEA-Rf6CtW9a58dHcbppwOPkbnkvMDto37r1YM7KJJMapXtzm5HLxqHHw4VJcO6NOtXbZ3IwmoporZk3OLVFhDAB0VJa402igYPvK7_Z7ftM1X2eq3rIisawe6dqIxTaFXW32NmaCnT4AqI7PviXQPjEipl6aJb_rfzkozZrbP8zcaA8QAxoKWEBvgN9yP5-6q1Sr-tsPHJI9p8A45SWdICcDwAgTqd0OBI8e9T-HHAaKOgDJdM-p6HMNgyskXfa6OuGFFt20I9Y2On32ent8yIgwEYWK4S8tOTQcoPthyi2AQ2i0hI738dntieqMRgc';
+  var KEY='eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiZDJiYWNjODE3OTE0NDQwYTg5NzM5ZmVkNDFiMTI2N2VkOTkyNjRjZmE3N2YxYzQ3N2JlZWY3MGQzOWE0ZTM1ODMyZTE1MTJjMzg4NTI0MTMiLCJpYXQiOjE3ODAyNjI0MTguOTY4NjMxLCJuYmYiOjE3ODAyNjI0MTguOTY4NjMzLCJleHAiOjQ5MzU5MzYwMTguOTYxOTI0LCJzdWIiOiIyMDgzOTk4Iiwic2NvcGVzIjpbXX0.IP4u7AIeAh__iiDGcMzfJpNtxP09N4UIfjqtZa3vE4hseLNXNxp5jbt9hRXjHtDWL6I7iAPqJCJrPTWcjU-VDRgHfrbKlCArnIboEsNiVSPk_4gjVsCHc1l70J5kclBQRqTiGQL9RtZ3CXd_fZmOnR1PHiRSbSc6GiVqJGfS5fM9CRAibXShiKl-65zbDiqtDZHKZVrmxCuh1wn_BdWIBoP5C_zd30x7PDbp8ImgZE2V3RXXYDykC7lwsSPczdPQCHyVbBZurdhz1N3Yi0HOodJISWf-89lG3sueWB-vKZE-53RigBpy5epR_g-5ppSnrQmOKu5N7gunlZUgVomgfbRUd3wxdCAAJaYGy2ivDTAMEA-Rf6CtW9a58dHcbppwOPkbnkvMDto37r1YM7KJJMapXtzm5HLxqHHw4VJcO6NOtXbZ3IwmoporZk3OLVFhDAB0VJa402igYPvK7_Z7ftM1X2eq3rIisawe6dqIxTaFXW32NmaCnT4AqI7PviXQPjEipl6aJb_rfzkozZrbP8zcaA8QAxoKWEBvgN9yP5-6q1Sr-tsPHJI9p8A45SWdICcDwAgTqd0OBI8e9T-HHAaKOgDJdM-p6HMNgyskXfa6OuGFFt20I9Y2On32ent8yIgwEYWK4S8tOTQcoPthyi2AQ2i0hI738dntieqMRgc
+
+';
   if(KEY.indexOf('YOUR_')===0) return;
-  var map={'Stabilise':'YOUR_STABILISE_ID','Break the Pull':' 187448773941658850','Restore Self Trust':'187448946610669492','Return to Yourself':'187449041969219418'};
+  var map={'Stabilise':'187448713241691652','Break the Pull':'187448773941658850
+','Restore Self Trust':'187448946610669492
+','Return to Yourself':'187449041969219418
+'};
   var gid=map[bucket];
   if(!gid) return;
   fetch('https://connect.mailerlite.com/api/subscribers/'+encodeURIComponent(email)+'/groups/'+gid,{
