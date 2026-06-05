@@ -31,6 +31,7 @@
     .body-line+.body-line{margin-top:14px;}
     .strong-line{display:block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--fg);margin-top:16px;}
     .pull-quote{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(16px,4vw,20px);line-height:1.4;color:rgba(242,239,232,0.70);padding-left:16px;border-left:1px solid rgba(242,239,232,0.15);margin:24px 0;display:block;}
+    .legal-note{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);line-height:1.75;color:rgba(242,239,232,0.45);padding:16px;border:1px solid rgba(242,239,232,0.08);margin:24px 0;display:block;}
     .cta-block{margin-top:48px;padding-top:40px;border-top:1px solid var(--rule);text-align:center;}
     .cta-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.55);line-height:1.85;display:block;margin-bottom:24px;}
     .btn-primary{display:inline-block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;text-decoration:none;transition:opacity 0.2s;}
@@ -65,6 +66,11 @@
     <span class="body-line" style="margin-top:14px;">It is intermittent reinforcement. One of the most powerful neurological conditioning mechanisms that exists. Closeness, then distance. Warmth, then withdrawal. Your brain does not just process that. It locks in. It begins to function like a slot machine, constantly scanning and replaying, trying to get back to how it felt at the start.</span>
     <span class="pull-quote">That is not a character flaw. It is conditioning.</span>
 
+    <span class="section-head" style="margin-top:32px;">This is not just a theory</span>
+    <span class="body-line">In March 2026 a Los Angeles jury confirmed what you have been living. A case against Meta concluded that intermittent reinforcement, the same mechanism that keeps you in this loop, overrides human agency. It was legally classified as a defective design.</span>
+    <span class="body-line" style="margin-top:14px;">You were not weak. You were not obsessing. You were responding exactly as a human brain responds to one of the most powerful conditioning patterns that exists. That is now on the record.</span>
+    <span class="legal-note">You were not addicted to him. You were conditioned by the pattern. There is a difference. And it matters for how you get out.</span>
+
     <span class="section-head" style="margin-top:32px;">Why thinking your way out is not working</span>
     <span class="body-line">Because this is not a thinking problem. You did not get conditioned into this through logic, so you cannot get out of it through logic. This is why you can understand avoidant attachment perfectly and still feel the pull every morning.</span>
     <span class="strong-line">Understanding the pattern is one layer. Interrupting the loop is another.</span>
@@ -72,14 +78,15 @@
 
     <span class="section-head" style="margin-top:32px;">What you actually want back</span>
     <span class="body-line">You do not need more information. You want space.</span>
-    <span class="body-line" style="margin-top:10px;">A quiet mind. To stop waking up and thinking about him first. To stop the checking and the replaying. To finally feel like yourself again.</span>
+    <span class="body-line" style="margin-top:10px;">A quiet mind. To stop waking up and thinking about him first. To stop the checking and the replaying. To feel like yourself again.</span>
     <span class="pull-quote">Your nervous system does not know the difference yet between home and hell.</span>
     <span class="body-line">The word yet is doing everything. You are not stuck forever. You are stuck right now. And there is a specific tool for that.</span>
   </div>
 
+  <!-- CTA — smart: if she has a result, show it; if not, send to quiz -->
   <div class="cta-block a4">
-    <span class="cta-text">The assessment tells you exactly which part of your nervous system has been most affected, and points you to the specific tool built for that area. If you have not taken it yet, that is where this starts.</span>
-    <a href="quiz.html" class="btn-primary">Take the free assessment</a>
+    <span class="cta-text" id="cta-text">The assessment tells you exactly which part of your nervous system has been most affected, and points you to the specific tool built for that area.</span>
+    <a href="quiz.html" class="btn-primary" id="cta-btn">Take the free assessment</a>
   </div>
 
   <footer>
@@ -93,5 +100,18 @@
 
 </div>
 </main>
+
+<script>
+  // If she has already taken the assessment, show her result link instead
+  try {
+    var r = JSON.parse(sessionStorage.getItem('yms_result') || '{}');
+    if (r.bucket && r.page) {
+      var ctaText = document.getElementById('cta-text');
+      var ctaBtn  = document.getElementById('cta-btn');
+      if (ctaText) ctaText.textContent = 'You have already taken the assessment. Your result is waiting for you.';
+      if (ctaBtn)  { ctaBtn.href = r.page; ctaBtn.textContent = 'See your result'; }
+    }
+  } catch(e) {}
+</script>
 </body>
 </html>

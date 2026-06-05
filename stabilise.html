@@ -94,6 +94,9 @@
     /* DISCLAIMER */
     .safety{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(242,239,232,0.22);line-height:1.65;margin-top:36px;padding-top:20px;border-top:1px solid var(--rule);display:block;}
 
+    /* SCENE SET */
+    .scene-set{display:block;font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(15px,3.6vw,18px);color:rgba(242,239,232,0.40);line-height:1.6;margin-bottom:24px;}
+
     footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
     .footer-links{display:flex;gap:28px;}
     .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.22);text-decoration:none;}
@@ -130,7 +133,8 @@
   <!-- SECTION 2: REVIEWS -->
   <div class="a4">
     <span class="reviews-head">What happens when the alarm starts to quiet</span>
-    
+    <span class="scene-set">She wakes up. Reaches for her phone. And realises she has not thought about him yet. That is the morning this is building toward.</span>
+
         <div class="review">
           <span class="review-text">"For the first time in 5 weeks I actually slept."</span>
           <span class="review-attr">C, TikTok</span>
@@ -155,16 +159,33 @@
     <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=MlUoB&cart_links%5B%5D=ZcdmX&qty%5BMlUoB%5D=1&qty%5BZcdmX%5D=1" class="btn-primary">Get Calm the Spiral, £27</a>
 
     <!-- DETAIL COPY for those who keep reading -->
-    <span class="product-desc">A CBT hypnotherapy audio designed to reach underneath the thoughts, to where the loop actually lives. Not the story of what happened. The loop that keeps running regardless of what you know.</span>
-    <span class="social-proof">340 women across this community have used these resources. Women using this have found the alarm softens. The checking becomes less automatic. They sleep better. They wake up and realise they have not thought about him yet.</span>
-    <span class="objection">If you have tried talking to friends, journalling, or therapy and you are still here, those tools were reaching for the story. This reaches for the loop. One therapy session costs more. And therapy works at the level of the story. This works at the level of the loop.</span>
+    <span class="product-desc">The mistake most women make is trying to think their way out of something that lives in the body, not the mind. That is why understanding the pattern has not been enough. This does not ask you to understand anything. It works on the loop directly.</span>
+    <span class="product-desc" style="margin-top:10px;">You do not have to keep managing this alone. You get to put it down.</span>
+
+    <!-- WHAT IS INCLUDED toggle for Calm the Spiral -->
+    <button class="bundle-toggle" onclick="toggleCalm()" style="margin-bottom:20px;">What is included</button>
+    <div class="bundle-detail" id="calm-detail">
+      <div class="bundle-detail-line">
+        <span class="bundle-detail-name">Calm the Spiral</span>
+        <span class="bundle-detail-desc">The main audio. For when the loop is active. When you cannot stop thinking, cannot settle, cannot get your mind back. Whether you are still in it or out of it.</span>
+      </div>
+      <div class="bundle-detail-line">
+        <span class="bundle-detail-name">Bonus: The Emergency Reset</span>
+        <span class="bundle-detail-desc">A two-minute nervous system interrupt for the moments the spiral spikes between listens. Use it in the moment. As many times as you need.</span>
+      </div>
+      <div class="bundle-detail-line" style="border-bottom:1px solid var(--rule);padding-bottom:10px;">
+        <span class="bundle-detail-desc">Two MP3 files. Immediate access, start tonight. Lifetime access on any device. Listen daily for 21 days. Start with the audio that matches your result — that is the one built for exactly where you are. The Emergency Reset can be used at any time, day or night, whenever the spike hits.</span>
+      </div>
+    </div>
+
+    <span class="social-proof">More than 340 women across this community are using these resources. Women using this have found the alarm softens. The checking becomes less automatic. They sleep better. They wake up and realise they have not thought about him yet.</span>
+    <span class="objection">If you have tried talking to friends, journalling, or therapy and you are still here, those tools were reaching for the story. This reaches for the loop. One therapy session costs more. And it works at the level of the story. This works at the level of the loop.</span>
     <span class="cost-inaction">The trauma does not leave with him. While he has already moved on, your nervous system is still running the loop.</span>
 
-    
       <div class="bundle-block">
         <span class="bundle-label">Best value</span>
         <span class="bundle-name">The Reset Bundle</span>
-        <span class="bundle-price"><s>£81</s> &nbsp;£57 &nbsp;&mdash; save £24</span>
+        <span class="bundle-price"><s>£81</s> &nbsp;£57 &nbsp;— save £24</span>
         <button class="bundle-toggle" onclick="toggleBundle()">What is included</button>
         
         <div class="bundle-detail" id="bundle-detail">
@@ -185,7 +206,7 @@
             <span class="bundle-detail-desc">A two-minute nervous system interrupt for the moments the spiral spikes between listens.</span>
           </div>
           <div class="bundle-detail-line" style="border-bottom:1px solid var(--rule);padding-bottom:10px;">
-            <span class="bundle-detail-desc">Three MP3 files. Immediate access. Lifetime access on any device. Listen in order for 7 to 14 days. That is the protocol.</span>
+            <span class="bundle-detail-desc">Four MP3 files. Immediate access. Lifetime access on any device. Listen daily for 21 days. Start with the audio that matches your result — that is the one built for exactly where you are. The Emergency Reset can be used at any time, day or night, whenever the spike hits.</span>
           </div>
         </div>
 
@@ -194,10 +215,12 @@
 
     
       <div class="book-block">
-        <span class="book-label">Not there yet</span>
-        <span class="book-name">It's Not Him. It's The Hook</span>
-        <span class="book-desc">Names exactly what is happening and why thinking your way out of it is not working. Start here.</span>
-        <a href="guide.html" style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:13px;color:rgba(242,239,232,0.35);text-decoration:underline;">Read free</a>
+        <span class="book-label">Not ready yet</span>
+        <span class="book-name">Start with the book. £4.99.</span>
+        <span class="book-desc">Names exactly what is happening and why thinking your way out of it is not working.</span>
+        <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=ZcdmX&qty%5BZcdmX%5D=1" style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:13px;color:rgba(242,239,232,0.35);text-decoration:underline;">Get The Bare Minimum</a>
+        <span style="display:block;margin-top:8px;font-family:'DM Sans',sans-serif;font-weight:300;font-size:13px;color:rgba(242,239,232,0.25);">Or read the free guide first.</span>
+        <a href="guide.html" style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:13px;color:rgba(242,239,232,0.25);text-decoration:underline;">It's Not Him. It's The Hook.</a>
       </div>
 
   </div>
@@ -208,10 +231,7 @@
     </div>
 
   
-    <span class="ps a6">Whilst these tools provide the immediate support you need right now, I am also building the full recovery system. Your results today show exactly which area needs attention first.</span>
-
-  
-    <span class="safety">Due to the nature of immediate digital access, all sales are final. If you need support after completing the full protocol, contact us and we will help you get the most from the audios. For educational and personal development purposes only. Results vary. Not a substitute for professional mental health care or crisis support. Do not listen whilst driving or operating machinery.</span>
+    <span class="safety">Due to the nature of immediate digital access, all sales are final. If you need support getting the most from the audios within 21 days of purchase, contact us and we will help you. For educational and personal development purposes only. Results vary. Not a substitute for professional mental health care or crisis support. Do not listen whilst driving or operating machinery.</span>
 
   
   <footer>
@@ -270,12 +290,12 @@
     
     <div class="modal-section">
       <span class="modal-label">How to use</span>
-      <span class="modal-text">Listen to all three daily for 7 to 14 days. In order. That is the protocol.</span>
+      <span class="modal-text">Listen daily for 21 days. Start with the audio that matches your result — that is the one built for exactly where you are. The Emergency Reset can be used at any time, day or night, whenever the spike hits.</span>
     </div>
     
     <div class="modal-section">
       <span class="modal-label">What you get</span>
-      <span class="modal-text">Three MP3 files. Immediate access, start tonight. Lifetime access, yours to keep and return to on any device, forever. Built on Cognitive Behavioural Hypnotherapy by a qualified CBT Hypnotherapist.</span>
+      <span class="modal-text">Four MP3 files. Immediate access, start tonight. Lifetime access, yours to keep and return to on any device, forever. Built on Cognitive Behavioural Hypnotherapy by a qualified CBT Hypnotherapist.</span>
     </div>
   </div>
 </div>
@@ -284,6 +304,15 @@
 function showBundleModal() { document.getElementById('bundleModal').classList.add('show'); }
 function closeBundleModal() { document.getElementById('bundleModal').classList.remove('show'); }
 document.getElementById('bundleModal').addEventListener('click', function(e) { if(e.target === this) closeBundleModal(); });
+
+function toggleCalm(){
+  var d=document.getElementById('calm-detail');
+  var btns=document.querySelectorAll('.bundle-toggle');
+  var isOpen=d.classList.contains('open');
+  d.classList.toggle('open');
+  // update just the first toggle button text
+  if(btns[0]) btns[0].textContent=isOpen?'What is included':'Hide details';
+}
 </script>
 
 </main>
