@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restore Self Trust - Your Mind Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0D0B14;--fg:#F2EFE8;--rule:rgba(242,239,232,0.07);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
+    @media(min-width:768px){.page{padding:0 64px 80px;}}
+    .inner{width:100%;max-width:580px;}
+    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    .a1{opacity:0;animation:up 0.9s ease forwards 0.1s;}
+    .a2{opacity:0;animation:up 1s ease forwards 0.3s;}
+    .a3{opacity:0;animation:up 1s ease forwards 0.5s;}
+    .a4{opacity:0;animation:up 1s ease forwards 0.7s;}
+    .a5{opacity:0;animation:up 1s ease forwards 0.9s;}
+    .a6{opacity:0;animation:up 1s ease forwards 1.1s;}
+    hr.rule{width:100%;border:none;border-top:1px solid var(--rule);}
+
+    /* HEADER */
+    .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:48px;}
+    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(242,239,232,0.45);display:block;text-align:center;}
+
+    /* RESULT */
+    .result-eyebrow{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.28);display:block;margin-bottom:12px;}
+    .result-bucket{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(28px,7vw,44px);line-height:1.05;color:var(--fg);text-shadow:0 0 20px rgba(242,239,232,0.20),0 0 50px rgba(242,239,232,0.10);display:block;margin-bottom:8px;}
+    .result-tagline{font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(14px,3.2vw,16px);color:rgba(242,239,232,0.60);display:block;margin-bottom:36px;letter-spacing:0.02em;}
+
+    /* CONTENT */
+    .body-line{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:rgba(242,239,232,0.60);}
+    .body-line+.body-line{margin-top:14px;}
+    .gut-punch{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);line-height:1.2;color:var(--fg);margin-bottom:24px;display:block;}
+    .shame-remove{font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--fg);margin-top:20px;display:block;}
+    .interrupt{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(15px,3.6vw,18px);color:rgba(242,239,232,0.55);margin-top:20px;display:block;}
+
+    /* REVIEWS */
+    .reviews-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);color:var(--fg);margin-bottom:24px;display:block;}
+    .review{padding:24px 0;border-top:1px solid var(--rule);}
+    .review:last-of-type{border-bottom:1px solid var(--rule);margin-bottom:0;}
+    .review-text{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(16px,4vw,20px);line-height:1.5;color:var(--fg);display:block;margin-bottom:8px;}
+    .review-attr{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(242,239,232,0.30);text-transform:uppercase;}
+
+    /* PRIMARY PRODUCT — button comes FIRST after reviews per brand doc */
+    .product-block{margin-top:48px;padding-top:40px;border-top:1px solid var(--rule);}
+    .product-eyebrow{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.28);display:block;margin-bottom:10px;}
+    .product-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5.5vw,30px);color:var(--fg);display:block;margin-bottom:4px;line-height:1.1;}
+    .product-price{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.45);display:block;margin-bottom:20px;}
+
+    /* BUTTON FIRST — above all copy per Master System Prompt + branding gold */
+    .btn-primary{display:block;width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;text-decoration:none;text-align:center;transition:opacity 0.2s;margin-bottom:32px;}
+    .btn-primary:hover{opacity:0.86;}
+
+    /* DETAIL COPY — below button for those who keep reading */
+    .product-desc{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.58);line-height:1.85;display:block;margin-bottom:10px;}
+    .social-proof{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.55);line-height:1.85;display:block;margin-bottom:20px;}
+    .objection{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.45);line-height:1.75;display:block;margin-bottom:20px;}
+    .cost-inaction{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(14px,3.2vw,16px);color:rgba(242,239,232,0.55);line-height:1.6;display:block;margin-bottom:28px;}
+
+    /* BUNDLE BLOCK */
+    .bundle-block{margin-top:36px;padding:28px;border:1px solid rgba(242,239,232,0.10);}
+    .bundle-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.35);display:block;margin-bottom:8px;}
+    .bundle-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,22px);color:var(--fg);display:block;margin-bottom:6px;}
+    .bundle-price{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.45);display:block;margin-bottom:8px;}
+    .bundle-price s{opacity:0.5;}
+    .bundle-toggle{font-family:'DM Sans',sans-serif;font-weight:300;font-size:12px;letter-spacing:0.06em;color:rgba(242,239,232,0.40);cursor:pointer;background:none;border:none;padding:0;text-decoration:underline;text-decoration-color:rgba(242,239,232,0.15);display:block;margin-bottom:16px;text-align:left;}
+    .bundle-detail{display:none;margin-bottom:20px;}
+    .bundle-detail.open{display:block;}
+    .bundle-detail-line{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.50);line-height:1.75;padding:10px 0;border-top:1px solid var(--rule);}
+    .bundle-detail-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(14px,3.2vw,16px);color:rgba(242,239,232,0.75);display:block;margin-bottom:4px;}
+    .bundle-detail-desc{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.8vw,13px);color:rgba(242,239,232,0.45);line-height:1.7;}
+    .btn-bundle{display:block;width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:18px 32px;cursor:pointer;text-decoration:none;text-align:center;transition:opacity 0.2s;}
+    .btn-bundle:hover{opacity:0.86;}
+
+    /* NOT READY */
+    .book-block{margin-top:28px;padding-top:28px;border-top:1px solid var(--rule);}
+    .book-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.28);display:block;margin-bottom:8px;}
+    .book-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(16px,4vw,20px);color:rgba(242,239,232,0.65);display:block;margin-bottom:6px;}
+    .book-desc{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.40);line-height:1.75;display:block;margin-bottom:14px;}
+
+    /* ONYE */
+    .onye-block{margin-top:40px;padding-top:28px;border-top:1px solid var(--rule);}
+    .onye-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.45);line-height:1.85;display:block;}
+
+    /* PS */
+    .ps{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.8vw,13px);color:rgba(242,239,232,0.35);line-height:1.75;margin-top:40px;padding-top:28px;border-top:1px solid var(--rule);display:block;}
+
+    /* DISCLAIMER */
+    .safety{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(242,239,232,0.22);line-height:1.65;margin-top:36px;padding-top:20px;border-top:1px solid var(--rule);display:block;}
+
+    footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
+    .footer-links{display:flex;gap:28px;}
+    .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.22);text-decoration:none;}
+    :focus-visible{outline:1px solid rgba(242,239,232,0.4);outline-offset:4px;}
+</style>
+</head>
+<body>
+<main class="page" role="main">
+<div class="inner">
+
+  <header class="hdr a1">
+    <span class="wm">Your Mind Story</span>
+  </header>
+
+  <!-- RESULT IDENTITY -->
+  <div class="a2">
+    <span class="result-eyebrow">Your result</span>
+    <span class="result-bucket" id="greeting">Here is why you cannot feel like yourself.</span>
+    <span class="result-tagline">Make a decision and actually stay in it.</span>
+  </div>
+
+  <hr class="rule a2" style="margin-bottom:32px;">
+
+  <!-- SECTION 1: MECHANISM -->
+  <div class="a3">
+    <span class="gut-punch">You know exactly what you need to do. You just cannot make yourself do it. That is not weakness. That is conditioning.</span>
+    <span class="body-line">You have known for a while. And then something happens and you do not do it. The gap between knowing and doing is not a character flaw.</span><span class="body-line">This is what it looks like when repeated uncertainty has taught you not to trust your own instincts.</span>
+    <span class="shame-remove">Not because something is wrong with you. Because something happened to you.</span>
+    <span class="interrupt">The loop does not stop on its own. But it can be interrupted.</span>
+  </div>
+
+  <hr class="rule a3" style="margin:40px 0 36px;">
+
+  <!-- SECTION 2: REVIEWS -->
+  <div class="a4">
+    <span class="reviews-head">What happens when you start trusting yourself again</span>
+    
+        <div class="review">
+          <span class="review-text">"Successfully maintained no contact for 20 days."</span>
+          <span class="review-attr">Britt, verified buyer</span>
+        </div>
+        <div class="review">
+          <span class="review-text">"My peace of mind is all I want and need. It was money well spent."</span>
+          <span class="review-attr">K, verified buyer</span>
+        </div>
+        <div class="review">
+          <span class="review-text">"I honestly listen so frequently. It puts me right back where I need to be."</span>
+          <span class="review-attr">JH</span>
+        </div>
+  </div>
+
+  <!-- SECTION 3: PRODUCT — button FIRST, above all detail copy -->
+  <div class="product-block a5">
+    <span class="product-eyebrow">The tool for this result</span>
+    <span class="product-name">No Contact Reset</span>
+    <span class="product-price">£27</span>
+
+    <!-- BUY BUTTON FIRST — within three swipes of opening per brand doc -->
+    <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=nP3J1&cart_links%5B%5D=ZcdmX&qty%5BnP3J1%5D=1&qty%5BZcdmX%5D=1" class="btn-primary">Get No Contact Reset, £27</a>
+
+    <!-- DETAIL COPY for those who keep reading -->
+    <span class="product-desc">A CBT hypnotherapy audio designed to reach the conditioned helplessness underneath the knowing-doing gap, where logic runs out. Not the story of what happened. The pattern that keeps running regardless of what you understand.</span>
+    <span class="social-proof">340 women across this community have used these resources. Women using this have found the gap starts to close. They make a decision and stay in it.</span>
+    <span class="objection">If you have tried therapy, journalling, or books and you are still here, those tools were reaching for the understanding. This reaches for the pattern underneath. One therapy session costs more. And therapy works at the level of the story. This works at the level of the loop.</span>
+    <span class="cost-inaction">The trauma does not leave with him. While he has already moved on, your nervous system is still wired for the same dynamic.</span>
+
+    
+      <div class="bundle-block">
+        <span class="bundle-label">Best value</span>
+        <span class="bundle-name">The Reset Bundle</span>
+        <span class="bundle-price"><s>£81</s> &nbsp;£57 &nbsp;&mdash; save £24</span>
+        <button class="bundle-toggle" onclick="toggleBundle()">What is included</button>
+        
+        <div class="bundle-detail" id="bundle-detail">
+          <div class="bundle-detail-line">
+            <span class="bundle-detail-name">Calm the Spiral</span>
+            <span class="bundle-detail-desc">For when the loop is active. When you cannot stop thinking, cannot settle, cannot get your mind back. Whether you are still in it or out of it. This one brings you out of the immediate spiral.</span>
+          </div>
+          <div class="bundle-detail-line">
+            <span class="bundle-detail-name">No Contact Reset</span>
+            <span class="bundle-detail-desc">For when the impulse comes. When you are in no contact and your body is trying to override it. This one interrupts the pull before it reaches your hands.</span>
+          </div>
+          <div class="bundle-detail-line">
+            <span class="bundle-detail-name">Attachment Rewire Reset</span>
+            <span class="bundle-detail-desc">For the pattern underneath both. The conditioning that may have been there before him and will still be there after him if it goes unchallenged. This one works at the deeper level.</span>
+          </div>
+          <div class="bundle-detail-line">
+            <span class="bundle-detail-name">Bonus: The Emergency Reset</span>
+            <span class="bundle-detail-desc">A two-minute nervous system interrupt for the moments the spiral spikes between listens.</span>
+          </div>
+          <div class="bundle-detail-line" style="border-bottom:1px solid var(--rule);padding-bottom:10px;">
+            <span class="bundle-detail-desc">Three MP3 files. Immediate access. Lifetime access on any device. Listen in order for 7 to 14 days. That is the protocol.</span>
+          </div>
+        </div>
+
+        <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=nIr1N&cart_links%5B%5D=ZcdmX&qty%5BnIr1N%5D=1&qty%5BZcdmX%5D=1" class="btn-bundle">Get the Reset Bundle, £57</a>
+      </div>
+
+    
+      <div class="book-block">
+        <span class="book-label">Not there yet</span>
+        <span class="book-name">It's Not Him. It's The Hook</span>
+        <span class="book-desc">Names exactly what is happening and why thinking your way out of it is not working. Start here.</span>
+        <a href="guide.html" style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:13px;color:rgba(242,239,232,0.35);text-decoration:underline;">Read free</a>
+      </div>
+
+  </div>
+
+  
+    <div class="onye-block a6">
+      <span class="onye-text">I am Onye, Clinical Cognitive-Behavioural Hypnotherapist. I have lived this. I have seen hundreds of women go through exactly this. Women who could see it clearly and still could not stop it. Your nervous system needs to settle before anything else can shift. Not more thinking. Not more understanding. These self-guided audios are designed to support you in getting there.</span>
+    </div>
+
+  
+    <span class="ps a6">Whilst these tools provide the immediate support you need right now, I am also building the full recovery system. Your results today show exactly which area needs attention first.</span>
+
+  
+    <span class="safety">Due to the nature of immediate digital access, all sales are final. If you need support after completing the full protocol, contact us and we will help you get the most from the audios. For educational and personal development purposes only. Results vary. Not a substitute for professional mental health care or crisis support. Do not listen whilst driving or operating machinery.</span>
+
+  
+  <footer>
+    <nav class="footer-links">
+      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </footer>
+
+
+</div>
+
+<style>
+.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(13,11,20,0.8); }
+.modal.show { display:flex; align-items:center; justify-content:center; }
+.modal-content { background:var(--bg); padding:40px 32px; max-width:520px; max-height:80vh; overflow-y:auto; border:1px solid rgba(242,239,232,0.10); }
+.modal-close { position:absolute; top:16px; right:20px; font-size:24px; color:rgba(242,239,232,0.45); cursor:pointer; }
+.modal-head { font-family:'Gilda Display',serif; font-style:italic; font-size:clamp(20px,5vw,26px); color:var(--fg); margin-bottom:20px; }
+.modal-section { margin-bottom:20px; }
+.modal-label { font-size:11px; letter-spacing:0.10em; text-transform:uppercase; color:rgba(242,239,232,0.28); display:block; margin-bottom:8px; }
+.modal-text { font-size:clamp(14px,3.2vw,15px); line-height:1.75; color:rgba(242,239,232,0.65); margin-bottom:12px; }
+.modal-text strong { color:var(--fg); font-weight:400; }
+</style>
+
+<div id="bundleModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="document.getElementById('bundleModal').classList.remove('show')">&times;</span>
+    <span class="modal-head">What is in the Reset Bundle</span>
+    
+    <div class="modal-section">
+      <span class="modal-label">Three structured audios</span>
+      <span class="modal-text">The spiral that will not stop. The impulse to reach out. And the deeper pattern underneath both that keeps pulling you back toward him, or toward the same dynamic in someone new.</span>
+      <span class="modal-text">One audio handles one of those things. This bundle handles all three.</span>
+    </div>
+    
+    <div class="modal-section">
+      <span class="modal-label">Calm the Spiral</span>
+      <span class="modal-text">For when the loop is active. When you cannot stop thinking, cannot settle, cannot get your mind back. Whether you are still in it or out of it. This one brings you out of the immediate spiral.</span>
+    </div>
+    
+    <div class="modal-section">
+      <span class="modal-label">No Contact Reset</span>
+      <span class="modal-text">For when the impulse comes. When you are in no contact and your body is trying to override it. This one interrupts the pull before reaching out.</span>
+    </div>
+    
+    <div class="modal-section">
+      <span class="modal-label">Attachment Rewire Reset</span>
+      <span class="modal-text">For the pattern underneath both. The conditioning that may have been there before him and will still be there after him if it goes unchallenged. This one works at the deeper level.</span>
+    </div>
+    
+    <div class="modal-section">
+      <span class="modal-label">Plus bonus</span>
+      <span class="modal-text"><strong>The Emergency Reset.</strong> A short two minute nervous system interrupt for the moments the spiral spikes between listens.</span>
+    </div>
+    
+    <div class="modal-section">
+      <span class="modal-label">How to use</span>
+      <span class="modal-text">Listen to all three daily for 7 to 14 days. In order. That is the protocol.</span>
+    </div>
+    
+    <div class="modal-section">
+      <span class="modal-label">What you get</span>
+      <span class="modal-text">Three MP3 files. Immediate access, start tonight. Lifetime access, yours to keep and return to on any device, forever. Built on Cognitive Behavioural Hypnotherapy by a qualified CBT Hypnotherapist.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function showBundleModal() { document.getElementById('bundleModal').classList.add('show'); }
+function closeBundleModal() { document.getElementById('bundleModal').classList.remove('show'); }
+document.getElementById('bundleModal').addEventListener('click', function(e) { if(e.target === this) closeBundleModal(); });
+</script>
+
+</main>
+
+<script>
+  try{
+    var r=JSON.parse(sessionStorage.getItem('yms_result')||'{}');
+    if(r.name){
+      var el=document.getElementById('greeting');
+      if(el) el.textContent=r.name+', here is why you cannot feel like yourself.';
+    }
+  }catch(e){}
+  function toggleBundle(){
+    var d=document.getElementById('bundle-detail');
+    var btn=document.querySelector('.bundle-toggle');
+    if(d.classList.contains('open')){
+      d.classList.remove('open');
+      btn.textContent='What is included';
+    } else {
+      d.classList.add('open');
+      btn.textContent='Hide details';
+    }
+  }
+</script>
+
+</body>
+</html>

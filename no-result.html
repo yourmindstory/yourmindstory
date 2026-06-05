@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Results - Your Mind Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0D0B14;--fg:#F2EFE8;--rule:rgba(242,239,232,0.07);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
+    @media(min-width:768px){.page{padding:0 64px 80px;}}
+    .inner{width:100%;max-width:580px;}
+
+    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    .a1{opacity:0;animation:up 0.9s ease forwards 0.1s;}
+    .a2{opacity:0;animation:up 1s ease forwards 0.35s;}
+    .a3{opacity:0;animation:up 1s ease forwards 0.55s;}
+    .a4{opacity:0;animation:up 1s ease forwards 0.75s;}
+    .a5{opacity:0;animation:up 1s ease forwards 0.95s;}
+
+    /* HEADER */
+    .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:48px;}
+    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(242,239,232,0.45);display:block;}
+
+    /* RESULT HEADING */
+    .result-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.28);display:block;margin-bottom:14px;}
+    .result-head{
+      font-family:'Gilda Display',serif;
+      font-style:italic;
+      font-size:clamp(24px,6vw,34px);
+      line-height:1.1;
+      color:var(--fg);
+      text-shadow:0 0 40px rgba(242,239,232,0.10),0 0 80px rgba(242,239,232,0.05);
+      display:block;
+      margin-bottom:28px;
+    }
+
+    /* OPENING COPY */
+    .opening{margin-bottom:48px;}
+    .body-line{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:rgba(242,239,232,0.60);}
+    .body-line+.body-line{margin-top:12px;}
+
+    /* PRODUCT CARDS */
+    .cards{display:flex;flex-direction:column;gap:1px;margin-bottom:48px;}
+
+    .card{
+      padding:28px 0;
+      border-top:1px solid var(--rule);
+    }
+    .card:last-child{border-bottom:1px solid var(--rule);}
+
+    .card-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.28);display:block;margin-bottom:10px;}
+    .card-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5vw,26px);color:var(--fg);display:block;margin-bottom:14px;line-height:1.15;}
+    .card-desc{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.58);line-height:1.85;display:block;margin-bottom:22px;}
+
+    .btn-primary{
+      display:inline-block;
+      font-family:'DM Sans',sans-serif;
+      font-weight:400;
+      font-size:clamp(11px,2.6vw,13px);
+      letter-spacing:0.15em;
+      text-transform:uppercase;
+      color:var(--bg);
+      background:var(--fg);
+      border:none;
+      padding:16px 28px;
+      cursor:pointer;
+      text-decoration:none;
+      text-align:center;
+      transition:opacity 0.2s;
+    }
+    .btn-primary:hover{opacity:0.86;}
+
+    .btn-secondary{
+      display:inline-block;
+      font-family:'DM Sans',sans-serif;
+      font-weight:300;
+      font-size:clamp(11px,2.6vw,13px);
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:rgba(242,239,232,0.55);
+      background:none;
+      border:1px solid rgba(242,239,232,0.18);
+      padding:16px 28px;
+      cursor:pointer;
+      text-decoration:none;
+      text-align:center;
+      transition:border-color 0.2s,color 0.2s;
+    }
+    .btn-secondary:hover{border-color:rgba(242,239,232,0.35);color:rgba(242,239,232,0.75);}
+
+    /* CLOSING */
+    .closing{text-align:center;padding-top:12px;}
+    .closing-line{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.35);display:block;margin-bottom:6px;}
+    .closing-link{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,15px);color:rgba(242,239,232,0.40);text-decoration:none;transition:color 0.2s;}
+    .closing-link:hover{color:rgba(242,239,232,0.65);}
+
+    footer{margin-top:52px;padding-top:28px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
+    .footer-links{display:flex;gap:28px;}
+    .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.22);text-decoration:none;}
+    .disclaimer{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(242,239,232,0.18);text-align:center;line-height:1.6;}
+    :focus-visible{outline:1px solid rgba(242,239,232,0.4);outline-offset:4px;}
+  </style>
+</head>
+<body>
+<main class="page" role="main">
+<div class="inner">
+
+  <header class="hdr a1">
+    <span class="wm">Your Mind Story</span>
+  </header>
+
+  <div class="a2">
+    <span class="result-label">Your results</span>
+    <span class="result-head" id="result-head">Your nervous system is not in high alert right now.</span>
+  </div>
+
+  <div class="opening a3">
+    <span class="body-line">You might be earlier in this than you realise. Or further along than you think.</span>
+    <span class="body-line">Either way, you came here for a reason. These two things are worth your time.</span>
+  </div>
+
+  <!-- CARD 1: FREE GUIDE -->
+  <div class="cards a4">
+    <div class="card">
+      <span class="card-label">Free</span>
+      <span class="card-name">It's Not Him. It's The Hook.</span>
+      <span class="card-desc">You have probably tried to think your way out of this. This names why that does not work, and what is actually happening in your nervous system when you love someone who runs hot and cold. Read it now.</span>
+      <a href="guide.html" class="btn-primary">Read the free guide</a>
+    </div>
+
+    <!-- CARD 2: THE BOOK -->
+    <div class="card">
+      <span class="card-label">The book, £4.99</span>
+      <span class="card-name">The Bare Minimum</span>
+      <span class="card-desc">If you have ever adjusted yourself to keep the peace, you need the language this book gives you. It names the five things your nervous system actually needs to stay well in love. Not preferences. The baseline. You will read it in one sitting. You will come back to it.</span>
+      <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=ZcdmX&qty%5BZcdmX%5D=1" class="btn-secondary">Get the book</a>
+    </div>
+  </div>
+
+  <!-- CLOSING -->
+  <div class="closing a5">
+    <span class="closing-line">You know where to find me.</span>
+    <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" class="closing-link">@dontsleepwithavoidantmen</a>
+  </div>
+
+  <footer>
+    <nav class="footer-links">
+      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+    <p class="disclaimer">Educational and personal development use only. Not a substitute for professional therapy or medical advice.</p>
+  </footer>
+
+</div>
+</main>
+
+<script>
+  try{
+    var r=JSON.parse(sessionStorage.getItem('yms_result')||'{}');
+    if(r.name){
+      var el=document.getElementById('result-head');
+      if(el) el.textContent=r.name+', your nervous system is not in high alert right now.';
+    }
+  }catch(e){}
+</script>
+</body>
+</html>

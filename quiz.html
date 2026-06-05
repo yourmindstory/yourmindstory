@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>When an Avoidant Loves You - Your Mind Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0D0B14; --fg:#F2EFE8; --rule:rgba(242,239,232,0.07); }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
+    @media(min-width:768px){.page{padding:0 64px 80px;}}
+    .inner{width:100%;max-width:560px;}
+
+    /* HEADER */
+    .q-header{padding-top:52px;padding-bottom:36px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:40px;}
+    .q-wordmark{font-family:'Gilda Display',serif;font-style:normal;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(242,239,232,0.50);display:block;}
+    .q-title{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5.5vw,30px);color:var(--fg);display:block;margin-top:20px;line-height:1.1;}
+    .q-sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.6vw,13px);color:rgba(242,239,232,0.35);margin-top:10px;display:block;line-height:1.6;}
+
+    /* PROGRESS */
+    .progress{margin-bottom:44px;}
+    .progress-label{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:rgba(242,239,232,0.28);margin-bottom:10px;}
+    .progress-bg{width:100%;height:1px;background:rgba(242,239,232,0.10);}
+    .progress-fill{height:1px;background:rgba(242,239,232,0.45);transition:width 0.5s ease;}
+
+    /* SCREENS */
+    .screen{display:none;}
+    .screen.active{display:block;animation:fadeup 0.4s ease forwards;}
+    @keyframes fadeup{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+    /* SECTION INTRO */
+    .section-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5vw,26px);color:var(--fg);line-height:1.15;margin-bottom:20px;display:block;}
+    .section-body{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,16px);line-height:1.85;color:rgba(242,239,232,0.58);}
+    .section-body p+p{margin-top:10px;}
+
+    /* QUESTION */
+    .q-label{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.28);margin-bottom:8px;}
+    .q-name{display:block;font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,15px);color:rgba(242,239,232,0.40);margin-bottom:10px;}
+    .q-text{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.7;color:var(--fg);margin-bottom:26px;}
+    .q-text.quote{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(17px,4vw,21px);padding-left:16px;border-left:1px solid rgba(242,239,232,0.15);line-height:1.5;margin-bottom:12px;}
+    .q-text.quote-sub{font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.65);margin-bottom:26px;}
+
+    /* OPTIONS */
+    .options{display:flex;flex-direction:column;gap:10px;}
+    .opt{display:flex;align-items:flex-start;gap:14px;cursor:pointer;padding:16px 18px;border:1px solid rgba(242,239,232,0.08);transition:border-color 0.2s,background 0.2s;}
+    .opt:hover{border-color:rgba(242,239,232,0.20);}
+    .opt.selected{border-color:rgba(242,239,232,0.45);background:rgba(242,239,232,0.04);}
+    .opt input{display:none;}
+    .dot{width:16px;height:16px;min-width:16px;border:1px solid rgba(242,239,232,0.28);border-radius:50%;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;}
+    .opt.selected .dot{border-color:rgba(242,239,232,0.65);}
+    .dot::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--fg);opacity:0;transition:opacity 0.2s;}
+    .opt.selected .dot::after{opacity:1;}
+    .opt-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);line-height:1.65;color:rgba(242,239,232,0.68);}
+    .opt.selected .opt-text{color:var(--fg);}
+    .opt.cb .dot{border-radius:2px;}
+    .opt.cb.selected .dot::after{width:8px;height:5px;border-radius:0;background:transparent;border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(-45deg) translateY(-1px);}
+
+    /* TEXTAREA */
+    .q-textarea{width:100%;background:rgba(242,239,232,0.03);border:1px solid rgba(242,239,232,0.10);border-bottom:1px solid rgba(242,239,232,0.18);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);line-height:1.7;padding:16px 18px;resize:none;min-height:110px;outline:none;transition:border-color 0.2s;}
+    .q-textarea:focus{border-color:rgba(242,239,232,0.32);}
+    .q-textarea::placeholder{color:rgba(242,239,232,0.20);}
+
+    /* BUTTONS */
+    .btn-row{margin-top:32px;display:flex;gap:12px;align-items:center;}
+    .btn-next{flex:1;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:18px 24px;cursor:pointer;transition:opacity 0.2s;}
+    .btn-next:hover{opacity:0.86;}
+    .btn-next:disabled{opacity:0.30;cursor:not-allowed;}
+    .btn-skip{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(242,239,232,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;}
+    .btn-skip:hover{color:rgba(242,239,232,0.50);}
+
+    /* CAPTURE */
+    .cap-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5.5vw,28px);color:var(--fg);display:block;margin-bottom:12px;line-height:1.15;}
+    .cap-sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.55);line-height:1.8;display:block;margin-bottom:32px;}
+    .field-wrap{margin-bottom:16px;}
+    .field-lbl{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.30);margin-bottom:8px;}
+    .field-in{width:100%;background:rgba(242,239,232,0.03);border:1px solid rgba(242,239,232,0.10);border-bottom:1px solid rgba(242,239,232,0.20);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.4vw,16px);padding:14px 16px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;border-radius:0;}
+    .field-in:focus{border-color:rgba(242,239,232,0.36);}
+    .field-in::placeholder{color:rgba(242,239,232,0.20);}
+    .err{font-size:12px;color:rgba(242,239,232,0.50);margin-top:6px;display:none;}
+    .err.show{display:block;}
+    .consent-wrap{margin:20px 0 28px;}
+    .consent-lbl{display:flex;align-items:flex-start;gap:12px;cursor:pointer;}
+    .consent-lbl input{display:none;}
+    .cbox{width:16px;height:16px;min-width:16px;border:1px solid rgba(242,239,232,0.28);border-radius:2px;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;}
+    .consent-lbl.ticked .cbox{border-color:rgba(242,239,232,0.65);background:rgba(242,239,232,0.06);}
+    .ccheck{font-size:9px;color:var(--fg);opacity:0;transition:opacity 0.15s;}
+    .consent-lbl.ticked .ccheck{opacity:1;}
+    .consent-txt{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,2.8vw,14px);line-height:1.7;color:rgba(242,239,232,0.50);}
+    .plink{color:rgba(242,239,232,0.35);text-decoration:underline;text-decoration-color:rgba(242,239,232,0.15);}
+    .disclaimer-small{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(242,239,232,0.22);line-height:1.65;margin-top:14px;}
+    .btn-submit{width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;transition:opacity 0.2s;}
+    .btn-submit:hover{opacity:0.86;}
+    .btn-submit:disabled{opacity:0.32;cursor:not-allowed;}
+    .thankyou{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.32);text-align:center;margin-top:16px;display:block;}
+    :focus-visible{outline:1px solid rgba(242,239,232,0.4);outline-offset:4px;}
+    /* Hide full header after intro screen — reduces scroll on question screens */
+    .q-header.compact {
+      padding-top: 28px;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .q-header.compact .q-title,
+    .q-header.compact .q-sub {
+      display: none;
+    }
+    .q-header.compact .q-wordmark {
+      font-size: clamp(11px, 2.5vw, 13px);
+      letter-spacing: 0.20em;
+      color: rgba(242,239,232,0.30);
+    }
+  </style>
+</head>
+<body>
+<main class="page" role="main">
+<div class="inner">
+
+  <header class="q-header" id="quiz-header">
+    <span class="q-wordmark">Your Mind Story</span>
+    <span class="q-title">When an Avoidant Loves You</span>
+    <span class="q-sub">And what loving him has done, or is doing, to your nervous system</span>
+  </header>
+
+  <div class="progress" aria-label="Progress">
+    <span class="progress-label" id="prog-label">Section 1 of 2</span>
+    <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
+  </div>
+
+  <form id="quiz-form" novalidate>
+
+  <!-- S0: INTRO -->
+  <div class="screen active" id="s0">
+    <span class="section-head">This is not a personality quiz.</span>
+    <div class="section-body">
+      <p>This is a map of how this dynamic may be showing up in your body and your nervous system.</p>
+      <p>Answer honestly. Not how you think you should feel. How you actually feel right now, today.</p>
+      <p>There are no wrong answers here. Only honest ones.</p>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" onclick="go(1)">Begin</button></div>
+  </div>
+
+  <!-- S1: GENDER (required, no skip) -->
+  <div class="screen" id="s1">
+    <div class="options" role="radiogroup" aria-label="Gender">
+      <label class="opt" data-q="gender"><input type="radio" name="gender" value="Woman"><span class="dot"></span><span class="opt-text">Woman</span></label>
+      <label class="opt" data-q="gender"><input type="radio" name="gender" value="Man"><span class="dot"></span><span class="opt-text">Man</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" id="btn1" onclick="go(2)" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- S2: PART ONE INTRO -->
+  <div class="screen" id="s2">
+    <span class="section-head">Part One, what is happening in your body</span>
+    <div class="section-body">
+      <p>These seven questions explore how this dynamic may be showing up in your body and nervous system.</p>
+      <p>There is no right answer, only your answer.</p>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" onclick="go(3)">Continue</button></div>
+  </div>
+
+  <!-- S3: Q1 THE ALARM IN YOUR BODY -->
+  <div class="screen" id="s3">
+    <span class="q-label">Question 1</span>
+    <span class="q-name">The alarm in your body</span>
+    <span class="q-text">When he goes quiet, takes longer to reply, pulls back, or contact drops, what happens in your body?</span>
+    <div class="options" role="radiogroup" aria-label="Q1">
+      <label class="opt" data-score="0"><input type="radio" name="q1" value="0"><span class="dot"></span><span class="opt-text">Nothing much. I feel fine and carry on with my day.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q1" value="1"><span class="dot"></span><span class="opt-text">I notice some unease but I can redirect myself.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q1" value="2"><span class="dot"></span><span class="opt-text">I feel a physical jolt. A tightness. A low dread I cannot shake until I hear from him.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q1" value="3"><span class="dot"></span><span class="opt-text">My whole system goes into alert. I cannot function normally until I know he is still there.</span></label>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn3" onclick="go(4)" disabled>Next</button></div>
+  </div>
+
+  <!-- S4: Q2 THE CHECKING -->
+  <div class="screen" id="s4">
+    <span class="q-label">Question 2</span>
+    <span class="q-name">The checking</span>
+    <span class="q-text">How often do you check your phone, his social media, or anything else connected to him?</span>
+    <div class="options" role="radiogroup" aria-label="Q2">
+      <label class="opt" data-score="0"><input type="radio" name="q2" value="0"><span class="dot"></span><span class="opt-text">Rarely or never. I do not feel the pull.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q2" value="1"><span class="dot"></span><span class="opt-text">More than I would like, but I can redirect myself.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q2" value="2"><span class="dot"></span><span class="opt-text">Frequently throughout the day. It has become automatic.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q2" value="3"><span class="dot"></span><span class="opt-text">Constantly. I check before I have even decided to. It is like breathing.</span></label>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn4" onclick="go(5)" disabled>Next</button></div>
+  </div>
+
+  <!-- S5: Q3 THE SELF-BLAME -->
+  <div class="screen" id="s5">
+    <span class="q-label">Question 3</span>
+    <span class="q-name">The self-blame</span>
+    <span class="q-text">When things go wrong, he pulls back, goes cold, or disappears, what do you tell yourself?</span>
+    <div class="options" role="radiogroup" aria-label="Q3">
+      <label class="opt" data-score="0"><input type="radio" name="q3" value="0"><span class="dot"></span><span class="opt-text">This is his pattern. It is not about me.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q3" value="1"><span class="dot"></span><span class="opt-text">I know it is not my fault, but I still find myself analysing what I said.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q3" value="2"><span class="dot"></span><span class="opt-text">I go over everything I did, looking for what I got wrong.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q3" value="3"><span class="dot"></span><span class="opt-text">Something is fundamentally broken in the way I love. I genuinely believe that.</span></label>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn5" onclick="go(6)" disabled>Next</button></div>
+  </div>
+
+  <!-- S6: Q4 THE PULL -->
+  <div class="screen" id="s6">
+    <span class="q-label">Question 4</span>
+    <span class="q-name">The pull</span>
+    <span class="q-text">When a relationship feels calm, consistent and drama-free, how does that feel in your body?</span>
+    <div class="options" role="radiogroup" aria-label="Q4">
+      <label class="opt" data-score="0"><input type="radio" name="q4" value="0"><span class="dot"></span><span class="opt-text">It feels like safety. That is exactly what I want.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q4" value="1"><span class="dot"></span><span class="opt-text">It feels good but something in me keeps waiting for it to go wrong.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q4" value="2"><span class="dot"></span><span class="opt-text">I want it but I do not trust it when I have it.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q4" value="3"><span class="dot"></span><span class="opt-text">Honestly it feels a bit flat. I need to feel something to know it is real.</span></label>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn6" onclick="go(7)" disabled>Next</button></div>
+  </div>
+
+  <!-- S7: Q5 KNOWING-DOING GAP -->
+  <div class="screen" id="s7">
+    <span class="q-label">Question 5</span>
+    <span class="q-name">The knowing-doing gap</span>
+    <span class="q-text quote">"I know exactly what I need to do. I just cannot make myself do it."</span>
+    <span class="q-text quote-sub">How true is this for you right now?</span>
+    <div class="options" role="radiogroup" aria-label="Q5">
+      <label class="opt" data-score="0"><input type="radio" name="q5" value="0"><span class="dot"></span><span class="opt-text">Not true. When I decide something, I follow through.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q5" value="1"><span class="dot"></span><span class="opt-text">Somewhat true. I struggle but I get there eventually.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q5" value="2"><span class="dot"></span><span class="opt-text">Very true. The gap between knowing and doing feels enormous.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q5" value="3"><span class="dot"></span><span class="opt-text">Completely true. Knowing makes no difference. My body does what it wants regardless.</span></label>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn7" onclick="go(8)" disabled>Next</button></div>
+  </div>
+
+  <!-- S8: Q6 THE LOST SELF -->
+  <div class="screen" id="s8">
+    <span class="q-label">Question 6</span>
+    <span class="q-name">The lost self</span>
+    <span class="q-text">Since this dynamic began, or ended, how connected do you feel to yourself?</span>
+    <div class="options" role="radiogroup" aria-label="Q6">
+      <label class="opt" data-score="0"><input type="radio" name="q6" value="0"><span class="dot"></span><span class="opt-text">Fully connected. I know exactly who I am.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q6" value="1"><span class="dot"></span><span class="opt-text">Slightly wobbly but mostly intact.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q6" value="2"><span class="dot"></span><span class="opt-text">I recognise myself less. I have lost ground I need to get back.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q6" value="3"><span class="dot"></span><span class="opt-text">I do not recognise myself at all. I am not sure who I am outside of this.</span></label>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn8" onclick="go(9)" disabled>Next</button></div>
+  </div>
+
+  <!-- S9: Q7 WHERE YOU ARE NOW -->
+  <div class="screen" id="s9">
+    <span class="q-label">Question 7</span>
+    <span class="q-name">Where you are right now</span>
+    <span class="q-text">Which of these best describes your situation today?</span>
+    <div class="options" role="radiogroup" aria-label="Q7">
+      <label class="opt"><input type="radio" name="q7" value="together"><span class="dot"></span><span class="opt-text">We are still together, we are working on it.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="contact"><span class="dot"></span><span class="opt-text">We are still in contact, on and off, or still in the dynamic hoping things will change.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="ended"><span class="dot"></span><span class="opt-text">It has ended, but I cannot stop thinking about him and I am struggling to move forward.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="out"><span class="dot"></span><span class="opt-text">I have been out of it for a while, but I am still not free of it and I am not sure why.</span></label>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn9" onclick="go(10)" disabled>Next</button></div>
+  </div>
+
+  <!-- S10: PART TWO INTRO -->
+  <div class="screen" id="s10">
+    <span class="section-head" style="font-size:clamp(14px,3.2vw,16px);color:rgba(242,239,232,0.50);margin-bottom:6px;">Just two more minutes.</span>
+    <span class="section-head">Help me send you something more specific</span>
+    <div class="section-body">
+      <p>These questions are optional. Answer what feels right. Skip what does not.</p>
+    </div>
+    <div class="btn-row"><button type="button" class="btn-next" onclick="go(11)">Continue</button></div>
+  </div>
+
+  <!-- S11: Q8 THE FUTURE -->
+  <div class="screen" id="s11">
+    <span class="q-label">Question 8</span>
+    <span class="q-text">When you imagine a future without him in your thoughts, what comes up?</span>
+    <div class="options" role="radiogroup" aria-label="Q8">
+      <label class="opt"><input type="radio" name="q8" value="relief"><span class="dot"></span><span class="opt-text">Relief. I just want my mind back.</span></label>
+      <label class="opt"><input type="radio" name="q8" value="empty"><span class="dot"></span><span class="opt-text">Emptiness. I do not know who I am without this.</span></label>
+      <label class="opt"><input type="radio" name="q8" value="hope"><span class="dot"></span><span class="opt-text">Hope. I know there is something better but I cannot access it yet.</span></label>
+      <label class="opt"><input type="radio" name="q8" value="nothing"><span class="dot"></span><span class="opt-text">Nothing. I cannot even imagine it yet.</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" id="btn11" onclick="go(12)" disabled>Next</button>
+      <button type="button" class="btn-skip" onclick="go(12)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S12: Q9 WHAT YOU HAVE TRIED -->
+  <div class="screen" id="s12">
+    <span class="q-label">Question 9</span>
+    <span class="q-text">What have you already tried?</span>
+    <div class="options" role="group" aria-label="Q9">
+      <label class="opt cb"><input type="checkbox" name="q9" value="therapy"><span class="dot"></span><span class="opt-text">Therapy or counselling</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="books"><span class="dot"></span><span class="opt-text">Self-help books or courses</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="friends"><span class="dot"></span><span class="opt-text">Talking to friends or family until they were exhausted by it</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="journalling"><span class="dot"></span><span class="opt-text">Journalling or mindfulness</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="blocking"><span class="dot"></span><span class="opt-text">Blocking and unblocking him</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="nothing"><span class="dot"></span><span class="opt-text">Nothing yet, I only just started looking for answers</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" onclick="go(13)">Next</button>
+      <button type="button" class="btn-skip" onclick="go(13)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S13: Q10 ON A BAD DAY -->
+  <div class="screen" id="s13">
+    <span class="q-label">Question 10</span>
+    <span class="q-text">On a bad day, which of these are true?</span>
+    <div class="options" role="group" aria-label="Q10">
+      <label class="opt cb"><input type="checkbox" name="q10" value="concentrate"><span class="dot"></span><span class="opt-text">I cannot concentrate at work or on basic tasks</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="checking"><span class="dot"></span><span class="opt-text">I check my phone constantly even when I know I should not</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="replaying"><span class="dot"></span><span class="opt-text">I replay conversations on a loop in my head</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="physical"><span class="dot"></span><span class="opt-text">I feel it physically, chest tightness, nausea, restlessness</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="defending"><span class="dot"></span><span class="opt-text">I find myself defending him to people who can see what I cannot</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="hollow"><span class="dot"></span><span class="opt-text">I look fine on the outside and feel completely hollow underneath</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" onclick="go(14)">Next</button>
+      <button type="button" class="btn-skip" onclick="go(14)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S14: Q11 WHAT FEELS OUT OF REACH -->
+  <div class="screen" id="s14">
+    <span class="q-label">Question 11</span>
+    <span class="q-text">What feels most out of reach right now?</span>
+    <div class="options" role="radiogroup" aria-label="Q11">
+      <label class="opt"><input type="radio" name="q11" value="spiral"><span class="dot"></span><span class="opt-text">Stopping the spiral, the checking, the replaying, the dread</span></label>
+      <label class="opt"><input type="radio" name="q11" value="nocontact"><span class="dot"></span><span class="opt-text">Actually staying no contact once I have decided to</span></label>
+      <label class="opt"><input type="radio" name="q11" value="understanding"><span class="dot"></span><span class="opt-text">Understanding why I keep ending up here</span></label>
+      <label class="opt"><input type="radio" name="q11" value="myself"><span class="dot"></span><span class="opt-text">Feeling like myself again</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" id="btn14" onclick="go(15)" disabled>Next</button>
+      <button type="button" class="btn-skip" onclick="go(15)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S15: Q12 THE ONE THING -->
+  <div class="screen" id="s15">
+    <span class="q-label">Question 12</span>
+    <span class="q-text">The one thing stopping me from starting my recovery right now is:</span>
+    <div class="options" role="radiogroup" aria-label="Q12">
+      <label class="opt"><input type="radio" name="q12" value="wontwork"><span class="dot"></span><span class="opt-text">I do not believe anything will work, I have tried everything already</span></label>
+      <label class="opt"><input type="radio" name="q12" value="notready"><span class="dot"></span><span class="opt-text">I am not sure I am ready to let go of him yet</span></label>
+      <label class="opt"><input type="radio" name="q12" value="wheretostart"><span class="dot"></span><span class="opt-text">I want to start but I do not know where to begin</span></label>
+      <label class="opt"><input type="radio" name="q12" value="mysituation"><span class="dot"></span><span class="opt-text">I am worried this will not work for my specific situation</span></label>
+      <label class="opt"><input type="radio" name="q12" value="money"><span class="dot"></span><span class="opt-text">Money is a barrier right now</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" id="btn15" onclick="go(16)" disabled>Next</button>
+      <button type="button" class="btn-skip" onclick="go(16)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S16: Q13 IN YOUR OWN WORDS -->
+  <div class="screen" id="s16">
+    <span class="q-label">Question 13</span>
+    <span class="q-text">What is it costing you to still be in this loop? Tell me in your own words.</span>
+    <textarea class="q-textarea" name="q13" id="q13" placeholder="I just want my mind back. I cannot function anymore. Write whatever is true for you." rows="5"></textarea>
+    <div class="btn-row">
+      <button type="button" class="btn-next" onclick="go(17)">Next</button>
+      <button type="button" class="btn-skip" onclick="go(17)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S17: Q14 WORKSHOP -->
+  <div class="screen" id="s17">
+    <span class="q-label">Question 14</span>
+    <span class="q-text">I am running a live online workshop on recovering from avoidant relationships. One hour. Would you like to know when it happens?</span>
+    <div class="options" role="radiogroup" aria-label="Q14" style="margin-top:20px;">
+      <label class="opt"><input type="radio" name="q14" value="yes"><span class="dot"></span><span class="opt-text">Yes, tell me when.</span></label>
+      <label class="opt"><input type="radio" name="q14" value="no"><span class="dot"></span><span class="opt-text">Not right now.</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" id="btn17" onclick="go(18)" disabled>Next</button>
+      <button type="button" class="btn-skip" onclick="go(18)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S18: Q15 EARLY ACCESS -->
+  <div class="screen" id="s18">
+    <span class="q-label">Question 15</span>
+    <span class="q-text">One last thing. I am looking for 10 women to go through the complete system before it launches publicly, at a significantly reduced price. Would you like to be considered?</span>
+    <div class="options" role="radiogroup" aria-label="Q15" style="margin-top:20px;">
+      <label class="opt"><input type="radio" name="q15" value="yes"><span class="dot"></span><span class="opt-text">Yes. I want my mind back. Tell me more.</span></label>
+      <label class="opt"><input type="radio" name="q15" value="no"><span class="dot"></span><span class="opt-text">No thank you.</span></label>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-next" id="btn18" onclick="go(19)" disabled>Next</button>
+      <button type="button" class="btn-skip" onclick="go(19)">Skip</button>
+    </div>
+  </div>
+
+  <!-- S19: RESULTS CAPTURE -->
+  <div class="screen" id="s19">
+    <span class="cap-head">Your results are ready.</span>
+    <span class="cap-sub">Enter your details and they will appear on the next page. I will email them to you too.</span>
+    <div class="field-wrap">
+      <label class="field-lbl" for="fname">Your name</label>
+      <input class="field-in" type="text" id="fname" name="fname" autocomplete="given-name" placeholder="First name">
+    </div>
+    <div class="field-wrap">
+      <label class="field-lbl" for="femail">Email address</label>
+      <input class="field-in" type="email" id="femail" name="femail" autocomplete="email" placeholder="your@email.com">
+      <span class="err" id="email-err">Please enter a valid email address.</span>
+    </div>
+    <div class="consent-wrap">
+      <label class="consent-lbl" id="consent-lbl">
+        <input type="checkbox" id="consent">
+        <span class="cbox"><span class="ccheck">&#10003;</span></span>
+        <span class="consent-txt">Yes, send my results and occasional support for what I am going through. I can unsubscribe any time. <a href="privacy.html" class="plink">Privacy policy</a></span>
+      </label>
+      <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(242,239,232,0.28);text-decoration:underline;">Full terms</a></p>
+    </div>
+    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()">See my results</button>
+    <span class="thankyou">Thank you for sharing this with me today.</span>
+  </div>
+
+  </form>
+</div>
+</main>
+
+<script>
+// SCORING - Master System Prompt V8.3
+// Stabilise      = Q1 + Q3
+// Break the Pull = Q2 + Q5
+// Restore Self T = Q3 + Q5
+// Return to Self = Q4 + Q6
+// Tiebreaker: lowest index
+
+var SHEET = 'https://script.google.com/macros/s/AKfycbyP-6R7HXMC4BteUPTjch4kpYvVIEOl3HA2gdWoe1p_Uy1FKVsPNkoP7Vygq-_MBg-W/exec';
+var current = 0;
+
+function updateProgress(n) {
+  var pct = Math.round((n / 19) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = n >= 10 ? 'Section 2 of 2' : 'Section 1 of 2';
+}
+
+function go(n) {
+  var prev = document.getElementById('s' + current);
+  if (prev) prev.classList.remove('active');
+  current = n;
+  var next = document.getElementById('s' + n);
+  if (next) { next.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  updateProgress(n);
+  // Compact header after intro screen
+  var hdr = document.getElementById('quiz-header');
+  if (hdr) {
+    if (n > 0) { hdr.classList.add('compact'); }
+    else { hdr.classList.remove('compact'); }
+  }
+}
+
+document.addEventListener('click', function(e) {
+  var label = e.target.closest('.opt');
+  if (!label) return;
+  var isCheckbox = label.querySelector('input[type="checkbox"]');
+  if (isCheckbox) {
+    label.classList.toggle('selected');
+    isCheckbox.checked = label.classList.contains('selected');
+  } else {
+    var grp = label.closest('.options');
+    if (grp) grp.querySelectorAll('.opt').forEach(function(l) { l.classList.remove('selected'); });
+    label.classList.add('selected');
+    var radio = label.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+    // Enable next button
+    var scr = document.getElementById('s' + current);
+    if (scr) { var btn = scr.querySelector('.btn-next'); if (btn) btn.disabled = false; }
+  }
+});
+
+document.getElementById('consent').addEventListener('change', function() {
+  document.getElementById('consent-lbl').classList.toggle('ticked', this.checked);
+});
+
+function sc(name) {
+  var el = document.querySelector('input[name="' + name + '"]:checked');
+  return el ? parseInt(el.value) || 0 : 0;
+}
+
+function getBucket() {
+  var q1=sc('q1'), q2=sc('q2'), q3=sc('q3'), q4=sc('q4'), q5=sc('q5'), q6=sc('q6');
+  var buckets = [
+    {name:'stabilise',          score:q1+q3, page:'stabilise.html'},
+    {name:'break-the-pull',     score:q2+q5, page:'break-the-pull.html'},
+    {name:'restore-self-trust', score:q3+q5, page:'restore-self-trust.html'},
+    {name:'return-to-yourself', score:q4+q6, page:'return-to-yourself.html'}
+  ];
+  if (buckets.every(function(b) { return b.score === 0; })) return {name:'no-result', page:'no-result.html'};
+  return buckets.reduce(function(best, curr) { return curr.score > best.score ? curr : best; });
+}
+
+function submitQuiz() {
+  var email = document.getElementById('femail').value.trim();
+  var name  = document.getElementById('fname').value.trim();
+  var consent = document.getElementById('consent').checked;
+  var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  document.getElementById('email-err').classList.toggle('show', !ok);
+  if (!ok) return;
+
+  var btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Calculating your results...';
+
+  var result = getBucket();
+
+  function val(n) { var el = document.querySelector('input[name="'+n+'"]:checked'); return el ? el.value : ''; }
+  function multi(n) { return Array.from(document.querySelectorAll('input[name="'+n+'"]:checked')).map(function(c){return c.value;}).join(', '); }
+
+  var row = [
+    new Date().toISOString(), name||'Anonymous', email,
+    result.name, val('gender'),
+    val('q1'),val('q2'),val('q3'),val('q4'),val('q5'),val('q6'),
+    val('q7'),val('q8'),multi('q9'),multi('q10'),val('q11'),val('q12'),
+    document.getElementById('q13').value||'',val('q14'),val('q15'),
+    consent ? 'yes' : 'no'
+  ];
+
+  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, consent:consent})); } catch(e) {}
+
+  fetch(SHEET + '?action=write', {method:'POST', body:JSON.stringify({row:row})}).catch(function(){});
+  setTimeout(function() { window.location.href = result.page; }, 400);
+}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var header = document.getElementById('quiz-header');
+  function updateHeader(){
+    var activeScreen = document.querySelector('.screen.active');
+    if(activeScreen && activeScreen.id !== 's0'){
+      header.style.display = 'none';
+    } else {
+      header.style.display = 'block';
+    }
+  }
+  window.addEventListener('scroll', updateHeader);
+  updateHeader();
+});
+</script>
+
+</body>
+</html>

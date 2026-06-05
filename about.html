@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Onye - Your Mind Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#F2EFE8;--fg:#0D0B14;--rule:rgba(13,11,20,0.07);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
+    @media(min-width:768px){.page{padding:0 64px 80px;}}
+    .inner{width:100%;max-width:580px;}
+    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    .a1{opacity:0;animation:up 0.9s ease forwards 0.1s;}
+    .a2{opacity:0;animation:up 1s ease forwards 0.3s;}
+    .a3{opacity:0;animation:up 1s ease forwards 0.5s;}
+    .a4{opacity:0;animation:up 1s ease forwards 0.7s;}
+    .a5{opacity:0;animation:up 1s ease forwards 0.9s;}
+    hr.rule{width:100%;border:none;border-top:1px solid var(--rule);}
+    nav.top{padding:28px 0;display:flex;justify-content:space-between;align-items:center;width:100%;border-bottom:1px solid var(--rule);margin-bottom:52px;}
+    .nav-wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,15px);letter-spacing:0.20em;text-transform:uppercase;color:var(--fg);text-decoration:none;}
+    .nav-cta{font-family:'DM Sans',sans-serif;font-weight:400;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--bg);background:var(--fg);padding:12px 20px;text-decoration:none;transition:opacity 0.2s;}
+    .nav-cta:hover{opacity:0.80;}
+    .eyebrow{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.35);display:block;margin-bottom:12px;}
+    h1{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(30px,7vw,48px);line-height:1.05;color:var(--fg);margin-bottom:36px;}
+    .body-line{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.9;color:rgba(13,11,20,0.65);}
+    .body-line+.body-line{margin-top:16px;}
+    .strong-line{font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--fg);margin-top:20px;display:block;}
+    .pull-quote{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5vw,28px);line-height:1.2;color:var(--fg);padding-left:20px;border-left:1px solid rgba(13,11,20,0.15);margin:36px 0;display:block;}
+    .section-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);color:var(--fg);display:block;margin-bottom:16px;margin-top:40px;}
+    .book-card{margin-top:40px;padding:24px;border:1px solid rgba(13,11,20,0.10);}
+    .book-lbl{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.35);display:block;margin-bottom:8px;}
+    .book-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,22px);color:var(--fg);display:block;margin-bottom:8px;}
+    .book-desc{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(13,11,20,0.55);line-height:1.75;display:block;margin-bottom:16px;}
+    .btn-dark{display:inline-block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--bg);background:var(--fg);padding:14px 24px;text-decoration:none;transition:opacity 0.2s;}
+    .btn-dark:hover{opacity:0.80;}
+    .invite{margin-top:48px;padding:32px;background:rgba(13,11,20,0.04);text-align:center;}
+    .invite-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(13,11,20,0.65);line-height:1.85;display:block;margin-bottom:20px;}
+    .btn-outline{display:inline-block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg);border:1px solid rgba(13,11,20,0.25);padding:14px 24px;text-decoration:none;transition:border-color 0.2s;}
+    .btn-outline:hover{border-color:rgba(13,11,20,0.55);}
+    footer{margin-top:56px;padding-top:28px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
+    .footer-links{display:flex;gap:28px;}
+    .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.30);text-decoration:none;}
+    .disclaimer{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(13,11,20,0.22);text-align:center;line-height:1.6;}
+    :focus-visible{outline:1px solid rgba(13,11,20,0.4);outline-offset:4px;}
+  </style>
+</head>
+<body>
+<main class="page" role="main">
+<div class="inner">
+
+  <nav class="top a1">
+    <a href="index.html" class="nav-wm">Your Mind Story</a>
+    <a href="quiz.html" class="nav-cta">Take the assessment</a>
+  </nav>
+
+  <div class="a2">
+    <span class="eyebrow">About</span>
+    <h1>This is not about him. It never was.</h1>
+  </div>
+
+  <div class="a3">
+    <span class="body-line">I am Onye. Clinical Cognitive-Behavioural Hypnotherapist.</span>
+    <span class="body-line">I did not come to this through a textbook. I came to this because I lived it. I went through an avoidant dynamic myself. I know what it is to understand the pattern completely and still not be able to stop the loop. I know what it is to check before you have decided to. To replay the same conversation for the fourth time in a day. To look completely fine to everyone around you and feel completely hollowed out underneath.</span>
+    <span class="pull-quote">The only reason I got out sooner than most is because I had the tools. I knew how to work with what was happening in my nervous system. So I built those tools specifically for this.</span>
+    <span class="body-line">I trained in Cognitive-Behavioural Hypnotherapy because I could see that one modality on its own was not enough. CBT reaches the thoughts. Hypnotherapy reaches underneath them. Combined, they can reach where this actually lives.</span>
+    <span class="body-line">After my own experience, I went back to my training and built a framework specifically for the nervous system impact of avoidant relationship dynamics. Six areas. Four audios. Tools that do not ask you to understand him. Tools that work on what the dynamic has done to you.</span>
+    <span class="strong-line">Everyone else in this space is talking about him. His patterns. His behaviour. His diagnosis.</span>
+    <span class="strong-line">I talk about what that dynamic has done to your nervous system. And what it actually takes to interrupt the loop.</span>
+    <span class="body-line" style="margin-top:20px;">I came to TikTok to share what I knew. The account grew because women were tired of being told to understand him better. They already understood. They needed something that could reach where this actually lives.</span>
+    <span class="body-line">12 million views later, the account is called @dontsleepwithavoidantmen. The brand is called Your Mind Story. Because this was never about him. It is about the story you are living in your own mind, and what happens when you change it.</span>
+  </div>
+
+  <hr class="rule a4" style="margin:40px 0;">
+
+  <div class="a4">
+    <span class="section-head">A resource worth having</span>
+    <div class="book-card">
+      <span class="book-lbl">The book, £4.99</span>
+      <span class="book-name">The Bare Minimum</span>
+      <span class="book-desc">The five things your nervous system actually needs to stay well in a relationship. Not preferences. The baseline. You will read it in one sitting. You will come back to it.</span>
+      <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=ZcdmX&qty%5BZcdmX%5D=1" class="btn-dark">Get the book</a>
+    </div>
+  </div>
+
+  <div class="invite a5">
+    <span class="invite-text">If you have not taken the assessment yet, that is the place to start. It will tell you exactly which part of your nervous system has been most affected, and point you to the specific tool built for that area.</span>
+    <a href="quiz.html" class="btn-outline">Take the free assessment</a>
+  </div>
+
+  <footer>
+    <nav class="footer-links">
+      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+    <p class="disclaimer">Educational and personal development use only. Not a substitute for professional therapy or medical advice.</p>
+  </footer>
+
+</div>
+</main>
+</body>
+</html>
