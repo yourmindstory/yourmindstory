@@ -70,6 +70,9 @@
     .btn-next{flex:1;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:18px 24px;cursor:pointer;transition:opacity 0.2s;}
     .btn-next:hover{opacity:0.86;}
     .btn-next:disabled{opacity:0.30;cursor:not-allowed;}
+    .btn-back{display:none;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(242,239,232,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;margin-bottom:8px;}
+    .btn-back:hover{color:rgba(242,239,232,0.50);}
+    .btn-back::before{content:'← ';}
     .btn-skip{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(242,239,232,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;}
     .btn-skip:hover{color:rgba(242,239,232,0.50);}
 
@@ -130,6 +133,8 @@
     <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
   </div>
 
+  <button type="button" class="btn-back" onclick="goBack()">Back</button>
+
   <form id="quiz-form" novalidate>
 
   <!-- S0: INTRO -->
@@ -138,7 +143,6 @@
     <div class="section-body">
       <p>This is a map of how this dynamic may be showing up in your body and your nervous system.</p>
       <p>Answer honestly. Not how you think you should feel. How you actually feel right now, today.</p>
-      <p>There are no wrong answers here. Only honest ones.</p>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" onclick="go(1)">Begin</button></div>
   </div>
@@ -159,7 +163,6 @@
     <span class="section-head">Part One, what is happening in your body</span>
     <div class="section-body">
       <p>These seven questions explore how this dynamic may be showing up in your body and nervous system.</p>
-      <p>There is no right answer, only your answer.</p>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" onclick="go(3)">Continue</button></div>
   </div>
@@ -362,7 +365,7 @@
   <div class="screen" id="s16">
     <span class="q-label">Question 13</span>
     <span class="q-text">What is it costing you to still be in this loop? Tell me in your own words.</span>
-    <textarea class="q-textarea" name="q13" id="q13" placeholder="I just want my mind back. I cannot function anymore. Write whatever is true for you." rows="5"></textarea>
+    <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through a day without..." rows="5"></textarea>
     <div class="btn-row">
       <button type="button" class="btn-next" onclick="go(17)">Next</button>
       <button type="button" class="btn-skip" onclick="go(17)">Skip</button>
@@ -378,21 +381,7 @@
       <label class="opt"><input type="radio" name="q14" value="no"><span class="dot"></span><span class="opt-text">Not right now.</span></label>
     </div>
     <div class="btn-row">
-      <button type="button" class="btn-next" id="btn17" onclick="go(18)" disabled>Next</button>
-      <button type="button" class="btn-skip" onclick="go(18)">Skip</button>
-    </div>
-  </div>
-
-  <!-- S18: Q15 EARLY ACCESS -->
-  <div class="screen" id="s18">
-    <span class="q-label">Question 15</span>
-    <span class="q-text">One last thing. I am building the full system, four audios each targeting a specific layer of what this dynamic has done to your nervous system. Before it launches, I am looking for a small group of women to go through it first. If you are interested in being considered, let me know below.</span>
-    <div class="options" role="radiogroup" aria-label="Q15" style="margin-top:20px;">
-      <label class="opt"><input type="radio" name="q15" value="yes"><span class="dot"></span><span class="opt-text">Yes. I want my mind back. Tell me more.</span></label>
-      <label class="opt"><input type="radio" name="q15" value="no"><span class="dot"></span><span class="opt-text">No thank you.</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn18" onclick="go(19)" disabled>Next</button>
+      <button type="button" class="btn-next" id="btn17" onclick="go(19)" disabled>Next</button>
       <button type="button" class="btn-skip" onclick="go(19)">Skip</button>
     </div>
   </div>
@@ -418,7 +407,8 @@
       </label>
       <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(242,239,232,0.28);text-decoration:underline;">Full terms</a></p>
     </div>
-    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()">See my results</button>
+    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>See my results</button>
+    <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
     <span class="thankyou">Thank you for sharing this with me today.</span>
   </div>
 
@@ -461,25 +451,79 @@ function go(n) {
 document.addEventListener('click', function(e) {
   var label = e.target.closest('.opt');
   if (!label) return;
-  var isCheckbox = label.querySelector('input[type="checkbox"]');
-  if (isCheckbox) {
-    label.classList.toggle('selected');
-    isCheckbox.checked = label.classList.contains('selected');
+  var input = label.querySelector('input');
+  if (!input) return;
+
+  if (input.type === 'checkbox') {
+    // Toggle checkbox manually
+    input.checked = !input.checked;
+    label.classList.toggle('selected', input.checked);
   } else {
+    // Radio — deselect siblings, select this
     var grp = label.closest('.options');
-    if (grp) grp.querySelectorAll('.opt').forEach(function(l) { l.classList.remove('selected'); });
+    if (grp) grp.querySelectorAll('.opt').forEach(function(l) {
+      l.classList.remove('selected');
+      var r = l.querySelector('input[type="radio"]');
+      if (r) r.checked = false;
+    });
     label.classList.add('selected');
-    var radio = label.querySelector('input[type="radio"]');
-    if (radio) radio.checked = true;
-    // Enable next button
+    input.checked = true;
+    // Enable next button for this screen
     var scr = document.getElementById('s' + current);
     if (scr) { var btn = scr.querySelector('.btn-next'); if (btn) btn.disabled = false; }
   }
 });
 
+// Consent toggles submit button
 document.getElementById('consent').addEventListener('change', function() {
   document.getElementById('consent-lbl').classList.toggle('ticked', this.checked);
+  document.getElementById('btn-submit').disabled = !this.checked;
 });
+
+// Back navigation
+var history_stack = [];
+function go(n) {
+  var prev = document.getElementById('s' + current);
+  if (prev) prev.classList.remove('active');
+  history_stack.push(current);
+  current = n;
+  var next = document.getElementById('s' + n);
+  if (next) { next.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  updateProgress(n);
+  // Show/hide back button on each screen
+  updateBackBtn(n);
+  // Compact header after intro screen
+  var hdr = document.getElementById('quiz-header');
+  if (hdr) {
+    if (n > 0) { hdr.classList.add('compact'); }
+    else { hdr.classList.remove('compact'); }
+  }
+}
+
+function goBack() {
+  if (history_stack.length === 0) return;
+  var prev_screen = history_stack.pop();
+  var curr = document.getElementById('s' + current);
+  if (curr) curr.classList.remove('active');
+  current = prev_screen;
+  var prev = document.getElementById('s' + current);
+  if (prev) { prev.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  updateProgress(current);
+  updateBackBtn(current);
+  var hdr = document.getElementById('quiz-header');
+  if (hdr) {
+    if (current > 0) { hdr.classList.add('compact'); }
+    else { hdr.classList.remove('compact'); }
+  }
+}
+
+function updateBackBtn(n) {
+  // Show back button on all screens except s0 (intro) and s19 (capture)
+  var backBtns = document.querySelectorAll('.btn-back');
+  backBtns.forEach(function(b) {
+    b.style.display = (n > 0 && n < 19) ? 'block' : 'none';
+  });
+}
 
 function sc(name) {
   var el = document.querySelector('input[name="' + name + '"]:checked');
@@ -502,9 +546,10 @@ function submitQuiz() {
   var email = document.getElementById('femail').value.trim();
   var name  = document.getElementById('fname').value.trim();
   var consent = document.getElementById('consent').checked;
-  var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  document.getElementById('email-err').classList.toggle('show', !ok);
-  if (!ok) return;
+  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  document.getElementById('email-err').classList.toggle('show', !emailOk);
+  document.getElementById('consent-err').classList.toggle('show', !consent);
+  if (!emailOk || !consent) return;
 
   var btn = document.getElementById('btn-submit');
   btn.disabled = true;
@@ -515,19 +560,40 @@ function submitQuiz() {
   function val(n) { var el = document.querySelector('input[name="'+n+'"]:checked'); return el ? el.value : ''; }
   function multi(n) { return Array.from(document.querySelectorAll('input[name="'+n+'"]:checked')).map(function(c){return c.value;}).join(', '); }
 
-  var row = [
-    new Date().toISOString(), name||'Anonymous', email,
-    result.name, val('gender'),
-    val('q1'),val('q2'),val('q3'),val('q4'),val('q5'),val('q6'),
-    val('q7'),val('q8'),multi('q9'),multi('q10'),val('q11'),val('q12'),
-    document.getElementById('q13').value||'',val('q14'),val('q15'),
-    consent ? 'yes' : 'no'
-  ];
+  // Send in the flat object format the Apps Script expects
+  var payload = {
+    name: name || 'Anonymous',
+    email: email,
+    bucket: result.name,
+    q1: val('q1'),
+    q2: val('q2'),
+    q3: val('q3'),
+    q4: val('q4'),
+    q5: val('q5'),
+    q6: val('q6'),
+    q7: val('q7'),
+    q8: val('q8'),
+    q9: multi('q9'),
+    q10: multi('q10'),
+    q11: val('q11'),
+    q12: val('q12'),
+    q13: document.getElementById('q13').value || '',
+    q14: val('q14'),
+    gender: val('gender'),
+    consent: consent ? 'yes' : 'no'
+  };
 
-  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, consent:consent})); } catch(e) {}
+  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent})); } catch(e) {}
 
-  fetch(SHEET + '?action=write', {method:'POST', body:JSON.stringify({row:row})}).catch(function(){});
-  setTimeout(function() { window.location.href = result.page; }, 400);
+  try {
+    fetch(SHEET, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {}
+
+  setTimeout(function() { window.location.href = result.page; }, 600);
 }
 </script>
 
