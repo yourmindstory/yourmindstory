@@ -70,6 +70,9 @@
     .btn-next{flex:1;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:18px 24px;cursor:pointer;transition:opacity 0.2s;}
     .btn-next:hover{opacity:0.86;}
     .btn-next:disabled{opacity:0.30;cursor:not-allowed;}
+    .btn-back{display:none;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(242,239,232,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;margin-bottom:8px;}
+    .btn-back:hover{color:rgba(242,239,232,0.50);}
+    .btn-back::before{content:'← ';}
     .btn-skip{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(242,239,232,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;}
     .btn-skip:hover{color:rgba(242,239,232,0.50);}
 
@@ -98,7 +101,11 @@
     .btn-submit:disabled{opacity:0.32;cursor:not-allowed;}
     .thankyou{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.32);text-align:center;margin-top:16px;display:block;}
     :focus-visible{outline:1px solid rgba(242,239,232,0.4);outline-offset:4px;}
-    /* Hide full header after intro screen — reduces scroll on question screens */
+    body { transition: background-color 1.2s ease; }
+
+    /* Capture screen uses same dark styling as quiz */
+
+    /* Hide full header after intro screen */
     .q-header.compact {
       padding-top: 28px;
       padding-bottom: 20px;
@@ -130,6 +137,8 @@
     <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
   </div>
 
+  <button type="button" class="btn-back" onclick="goBack()">Back</button>
+
   <form id="quiz-form" novalidate>
 
   <!-- S0: INTRO -->
@@ -138,7 +147,6 @@
     <div class="section-body">
       <p>This is a map of how this dynamic may be showing up in your body and your nervous system.</p>
       <p>Answer honestly. Not how you think you should feel. How you actually feel right now, today.</p>
-      <p>There are no wrong answers here. Only honest ones.</p>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" onclick="go(1)">Begin</button></div>
   </div>
@@ -159,7 +167,6 @@
     <span class="section-head">Part One, what is happening in your body</span>
     <div class="section-body">
       <p>These seven questions explore how this dynamic may be showing up in your body and nervous system.</p>
-      <p>There is no right answer, only your answer.</p>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" onclick="go(3)">Continue</button></div>
   </div>
@@ -170,10 +177,10 @@
     <span class="q-name">The alarm in your body</span>
     <span class="q-text">When he goes quiet, takes longer to reply, pulls back, or contact drops, what happens in your body?</span>
     <div class="options" role="radiogroup" aria-label="Q1">
-      <label class="opt" data-score="0"><input type="radio" name="q1" value="0"><span class="dot"></span><span class="opt-text">Nothing much. I feel fine and carry on with my day.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q1" value="1"><span class="dot"></span><span class="opt-text">I notice some unease but I can redirect myself.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q1" value="2"><span class="dot"></span><span class="opt-text">I feel a physical jolt. A tightness. A low dread I cannot shake until I hear from him.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q1" value="3"><span class="dot"></span><span class="opt-text">My whole system goes into alert. I cannot function normally until I know he is still there.</span></label>
+      <label class="opt" data-score="0"><input type="radio" name="q1" value="Nothing much. I feel fine and carry on with my day."><span class="dot"></span><span class="opt-text">Nothing much. I feel fine and carry on with my day.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q1" value="I notice some unease but I can redirect myself."><span class="dot"></span><span class="opt-text">I notice some unease but I can redirect myself.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q1" value="I feel a physical jolt. A tightness. A low dread I cannot shake until I hear from him."><span class="dot"></span><span class="opt-text">I feel a physical jolt. A tightness. A low dread I cannot shake until I hear from him.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q1" value="My whole system goes into alert. I cannot function normally until I know he is still there."><span class="dot"></span><span class="opt-text">My whole system goes into alert. I cannot function normally until I know he is still there.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn3" onclick="go(4)" disabled>Next</button></div>
   </div>
@@ -184,10 +191,10 @@
     <span class="q-name">The checking</span>
     <span class="q-text">How often do you check your phone, his social media, or anything else connected to him?</span>
     <div class="options" role="radiogroup" aria-label="Q2">
-      <label class="opt" data-score="0"><input type="radio" name="q2" value="0"><span class="dot"></span><span class="opt-text">Rarely or never. I do not feel the pull.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q2" value="1"><span class="dot"></span><span class="opt-text">More than I would like, but I can redirect myself.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q2" value="2"><span class="dot"></span><span class="opt-text">Frequently throughout the day. It has become automatic.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q2" value="3"><span class="dot"></span><span class="opt-text">Constantly. I check before I have even decided to. It is like breathing.</span></label>
+      <label class="opt" data-score="0"><input type="radio" name="q2" value="Rarely or never. I do not feel the pull."><span class="dot"></span><span class="opt-text">Rarely or never. I do not feel the pull.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q2" value="More than I would like, but I can redirect myself."><span class="dot"></span><span class="opt-text">More than I would like, but I can redirect myself.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q2" value="Frequently throughout the day. It has become automatic."><span class="dot"></span><span class="opt-text">Frequently throughout the day. It has become automatic.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q2" value="Constantly. I check before I have even decided to. It is like breathing."><span class="dot"></span><span class="opt-text">Constantly. I check before I have even decided to. It is like breathing.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn4" onclick="go(5)" disabled>Next</button></div>
   </div>
@@ -198,10 +205,10 @@
     <span class="q-name">The self-blame</span>
     <span class="q-text">When things go wrong, he pulls back, goes cold, or disappears, what do you tell yourself?</span>
     <div class="options" role="radiogroup" aria-label="Q3">
-      <label class="opt" data-score="0"><input type="radio" name="q3" value="0"><span class="dot"></span><span class="opt-text">This is his pattern. It is not about me.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q3" value="1"><span class="dot"></span><span class="opt-text">I know it is not my fault, but I still find myself analysing what I said.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q3" value="2"><span class="dot"></span><span class="opt-text">I go over everything I did, looking for what I got wrong.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q3" value="3"><span class="dot"></span><span class="opt-text">Something is fundamentally broken in the way I love. I genuinely believe that.</span></label>
+      <label class="opt" data-score="0"><input type="radio" name="q3" value="This is his pattern. It is not about me."><span class="dot"></span><span class="opt-text">This is his pattern. It is not about me.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q3" value="I know it is not my fault, but I still find myself analysing what I said."><span class="dot"></span><span class="opt-text">I know it is not my fault, but I still find myself analysing what I said.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q3" value="I go over everything I did, looking for what I got wrong."><span class="dot"></span><span class="opt-text">I go over everything I did, looking for what I got wrong.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q3" value="Something is fundamentally broken in the way I love. I genuinely believe that."><span class="dot"></span><span class="opt-text">Something is fundamentally broken in the way I love. I genuinely believe that.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn5" onclick="go(6)" disabled>Next</button></div>
   </div>
@@ -212,10 +219,10 @@
     <span class="q-name">The pull</span>
     <span class="q-text">When a relationship feels calm, consistent and drama-free, how does that feel in your body?</span>
     <div class="options" role="radiogroup" aria-label="Q4">
-      <label class="opt" data-score="0"><input type="radio" name="q4" value="0"><span class="dot"></span><span class="opt-text">It feels like safety. That is exactly what I want.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q4" value="1"><span class="dot"></span><span class="opt-text">It feels good but something in me keeps waiting for it to go wrong.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q4" value="2"><span class="dot"></span><span class="opt-text">I want it but I do not trust it when I have it.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q4" value="3"><span class="dot"></span><span class="opt-text">Honestly it feels a bit flat. I need to feel something to know it is real.</span></label>
+      <label class="opt" data-score="0"><input type="radio" name="q4" value="It feels like safety. That is exactly what I want."><span class="dot"></span><span class="opt-text">It feels like safety. That is exactly what I want.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q4" value="It feels good but something in me keeps waiting for it to go wrong."><span class="dot"></span><span class="opt-text">It feels good but something in me keeps waiting for it to go wrong.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q4" value="I want it but I do not trust it when I have it."><span class="dot"></span><span class="opt-text">I want it but I do not trust it when I have it.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q4" value="Honestly it feels a bit flat. I need to feel something to know it is real."><span class="dot"></span><span class="opt-text">Honestly it feels a bit flat. I need to feel something to know it is real.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn6" onclick="go(7)" disabled>Next</button></div>
   </div>
@@ -227,10 +234,10 @@
     <span class="q-text quote">"I know exactly what I need to do. I just cannot make myself do it."</span>
     <span class="q-text quote-sub">How true is this for you right now?</span>
     <div class="options" role="radiogroup" aria-label="Q5">
-      <label class="opt" data-score="0"><input type="radio" name="q5" value="0"><span class="dot"></span><span class="opt-text">Not true. When I decide something, I follow through.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q5" value="1"><span class="dot"></span><span class="opt-text">Somewhat true. I struggle but I get there eventually.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q5" value="2"><span class="dot"></span><span class="opt-text">Very true. The gap between knowing and doing feels enormous.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q5" value="3"><span class="dot"></span><span class="opt-text">Completely true. Knowing makes no difference. My body does what it wants regardless.</span></label>
+      <label class="opt" data-score="0"><input type="radio" name="q5" value="Not true. When I decide something, I follow through."><span class="dot"></span><span class="opt-text">Not true. When I decide something, I follow through.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q5" value="Somewhat true. I struggle but I get there eventually."><span class="dot"></span><span class="opt-text">Somewhat true. I struggle but I get there eventually.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q5" value="Very true. The gap between knowing and doing feels enormous."><span class="dot"></span><span class="opt-text">Very true. The gap between knowing and doing feels enormous.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q5" value="Completely true. Knowing makes no difference. My body does what it wants regardless."><span class="dot"></span><span class="opt-text">Completely true. Knowing makes no difference. My body does what it wants regardless.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn7" onclick="go(8)" disabled>Next</button></div>
   </div>
@@ -241,10 +248,10 @@
     <span class="q-name">The lost self</span>
     <span class="q-text">Since this dynamic began, or ended, how connected do you feel to yourself?</span>
     <div class="options" role="radiogroup" aria-label="Q6">
-      <label class="opt" data-score="0"><input type="radio" name="q6" value="0"><span class="dot"></span><span class="opt-text">Fully connected. I know exactly who I am.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q6" value="1"><span class="dot"></span><span class="opt-text">Slightly wobbly but mostly intact.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q6" value="2"><span class="dot"></span><span class="opt-text">I recognise myself less. I have lost ground I need to get back.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q6" value="3"><span class="dot"></span><span class="opt-text">I do not recognise myself at all. I am not sure who I am outside of this.</span></label>
+      <label class="opt" data-score="0"><input type="radio" name="q6" value="Fully connected. I know exactly who I am."><span class="dot"></span><span class="opt-text">Fully connected. I know exactly who I am.</span></label>
+      <label class="opt" data-score="1"><input type="radio" name="q6" value="Slightly wobbly but mostly intact."><span class="dot"></span><span class="opt-text">Slightly wobbly but mostly intact.</span></label>
+      <label class="opt" data-score="2"><input type="radio" name="q6" value="I recognise myself less. I have lost ground I need to get back."><span class="dot"></span><span class="opt-text">I recognise myself less. I have lost ground I need to get back.</span></label>
+      <label class="opt" data-score="3"><input type="radio" name="q6" value="I do not recognise myself at all. I am not sure who I am outside of this."><span class="dot"></span><span class="opt-text">I do not recognise myself at all. I am not sure who I am outside of this.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn8" onclick="go(9)" disabled>Next</button></div>
   </div>
@@ -255,10 +262,10 @@
     <span class="q-name">Where you are right now</span>
     <span class="q-text">Which of these best describes your situation today?</span>
     <div class="options" role="radiogroup" aria-label="Q7">
-      <label class="opt"><input type="radio" name="q7" value="together"><span class="dot"></span><span class="opt-text">We are still together, we are working on it.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="contact"><span class="dot"></span><span class="opt-text">We are still in contact, on and off, or still in the dynamic hoping things will change.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="ended"><span class="dot"></span><span class="opt-text">It has ended, but I cannot stop thinking about him and I am struggling to move forward.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="out"><span class="dot"></span><span class="opt-text">I have been out of it for a while, but I am still not free of it and I am not sure why.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="We are still together, we are working on it."><span class="dot"></span><span class="opt-text">We are still together, we are working on it.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="We are still in contact, on and off, or still in the dynamic hoping things will change."><span class="dot"></span><span class="opt-text">We are still in contact, on and off, or still in the dynamic hoping things will change.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="It has ended, but I cannot stop thinking about him and I am struggling to move forward."><span class="dot"></span><span class="opt-text">It has ended, but I cannot stop thinking about him and I am struggling to move forward.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="I have been out of it for a while, but I am still not free of it and I am not sure why."><span class="dot"></span><span class="opt-text">I have been out of it for a while, but I am still not free of it and I am not sure why.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn9" onclick="go(10)" disabled>Next</button></div>
   </div>
@@ -278,10 +285,10 @@
     <span class="q-label">Question 8</span>
     <span class="q-text">When you imagine a future without him in your thoughts, what comes up?</span>
     <div class="options" role="radiogroup" aria-label="Q8">
-      <label class="opt"><input type="radio" name="q8" value="relief"><span class="dot"></span><span class="opt-text">Relief. I just want my mind back.</span></label>
-      <label class="opt"><input type="radio" name="q8" value="empty"><span class="dot"></span><span class="opt-text">Emptiness. I do not know who I am without this.</span></label>
-      <label class="opt"><input type="radio" name="q8" value="hope"><span class="dot"></span><span class="opt-text">Hope. I know there is something better but I cannot access it yet.</span></label>
-      <label class="opt"><input type="radio" name="q8" value="nothing"><span class="dot"></span><span class="opt-text">Nothing. I cannot even imagine it yet.</span></label>
+      <label class="opt"><input type="radio" name="q8" value="Relief. I just want my mind back."><span class="dot"></span><span class="opt-text">Relief. I just want my mind back.</span></label>
+      <label class="opt"><input type="radio" name="q8" value="Emptiness. I do not know who I am without this."><span class="dot"></span><span class="opt-text">Emptiness. I do not know who I am without this.</span></label>
+      <label class="opt"><input type="radio" name="q8" value="Hope. I know there is something better but I cannot access it yet."><span class="dot"></span><span class="opt-text">Hope. I know there is something better but I cannot access it yet.</span></label>
+      <label class="opt"><input type="radio" name="q8" value="Nothing. I cannot even imagine it yet."><span class="dot"></span><span class="opt-text">Nothing. I cannot even imagine it yet.</span></label>
     </div>
     <div class="btn-row">
       <button type="button" class="btn-next" id="btn11" onclick="go(12)" disabled>Next</button>
@@ -294,12 +301,12 @@
     <span class="q-label">Question 9</span>
     <span class="q-text">What have you already tried?</span>
     <div class="options" role="group" aria-label="Q9">
-      <label class="opt cb"><input type="checkbox" name="q9" value="therapy"><span class="dot"></span><span class="opt-text">Therapy or counselling</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="books"><span class="dot"></span><span class="opt-text">Self-help books or courses</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="friends"><span class="dot"></span><span class="opt-text">Talking to friends or family until they were exhausted by it</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="journalling"><span class="dot"></span><span class="opt-text">Journalling or mindfulness</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="blocking"><span class="dot"></span><span class="opt-text">Blocking and unblocking him</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="nothing"><span class="dot"></span><span class="opt-text">Nothing yet, I only just started looking for answers</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="Therapy or counselling"><span class="dot"></span><span class="opt-text">Therapy or counselling</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="Self-help books or courses"><span class="dot"></span><span class="opt-text">Self-help books or courses</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="Talking to friends or family until they were exhausted by it"><span class="dot"></span><span class="opt-text">Talking to friends or family until they were exhausted by it</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="Journalling or mindfulness"><span class="dot"></span><span class="opt-text">Journalling or mindfulness</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="Blocking and unblocking him"><span class="dot"></span><span class="opt-text">Blocking and unblocking him</span></label>
+      <label class="opt cb"><input type="checkbox" name="q9" value="Nothing yet, I only just started looking for answers"><span class="dot"></span><span class="opt-text">Nothing yet, I only just started looking for answers</span></label>
     </div>
     <div class="btn-row">
       <button type="button" class="btn-next" onclick="go(13)">Next</button>
@@ -312,12 +319,12 @@
     <span class="q-label">Question 10</span>
     <span class="q-text">On a bad day, which of these are true?</span>
     <div class="options" role="group" aria-label="Q10">
-      <label class="opt cb"><input type="checkbox" name="q10" value="concentrate"><span class="dot"></span><span class="opt-text">I cannot concentrate at work or on basic tasks</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="checking"><span class="dot"></span><span class="opt-text">I check my phone constantly even when I know I should not</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="replaying"><span class="dot"></span><span class="opt-text">I replay conversations on a loop in my head</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="physical"><span class="dot"></span><span class="opt-text">I feel it physically, chest tightness, nausea, restlessness</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="defending"><span class="dot"></span><span class="opt-text">I find myself defending him to people who can see what I cannot</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="hollow"><span class="dot"></span><span class="opt-text">I look fine on the outside and feel completely hollow underneath</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="I cannot concentrate at work or on basic tasks"><span class="dot"></span><span class="opt-text">I cannot concentrate at work or on basic tasks</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="I check my phone constantly even when I know I should not"><span class="dot"></span><span class="opt-text">I check my phone constantly even when I know I should not</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="I replay conversations on a loop in my head"><span class="dot"></span><span class="opt-text">I replay conversations on a loop in my head</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="I feel it physically, chest tightness, nausea, restlessness"><span class="dot"></span><span class="opt-text">I feel it physically, chest tightness, nausea, restlessness</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="I find myself defending him to people who can see what I cannot"><span class="dot"></span><span class="opt-text">I find myself defending him to people who can see what I cannot</span></label>
+      <label class="opt cb"><input type="checkbox" name="q10" value="I look fine on the outside and feel completely hollow underneath"><span class="dot"></span><span class="opt-text">I look fine on the outside and feel completely hollow underneath</span></label>
     </div>
     <div class="btn-row">
       <button type="button" class="btn-next" onclick="go(14)">Next</button>
@@ -330,10 +337,10 @@
     <span class="q-label">Question 11</span>
     <span class="q-text">What feels most out of reach right now?</span>
     <div class="options" role="radiogroup" aria-label="Q11">
-      <label class="opt"><input type="radio" name="q11" value="spiral"><span class="dot"></span><span class="opt-text">Stopping the spiral, the checking, the replaying, the dread</span></label>
-      <label class="opt"><input type="radio" name="q11" value="nocontact"><span class="dot"></span><span class="opt-text">Actually staying no contact once I have decided to</span></label>
-      <label class="opt"><input type="radio" name="q11" value="understanding"><span class="dot"></span><span class="opt-text">Understanding why I keep ending up here</span></label>
-      <label class="opt"><input type="radio" name="q11" value="myself"><span class="dot"></span><span class="opt-text">Feeling like myself again</span></label>
+      <label class="opt"><input type="radio" name="q11" value="Stopping the spiral, the checking, the replaying, the dread"><span class="dot"></span><span class="opt-text">Stopping the spiral, the checking, the replaying, the dread</span></label>
+      <label class="opt"><input type="radio" name="q11" value="Actually staying no contact once I have decided to"><span class="dot"></span><span class="opt-text">Actually staying no contact once I have decided to</span></label>
+      <label class="opt"><input type="radio" name="q11" value="Understanding why I keep ending up here"><span class="dot"></span><span class="opt-text">Understanding why I keep ending up here</span></label>
+      <label class="opt"><input type="radio" name="q11" value="Feeling like myself again"><span class="dot"></span><span class="opt-text">Feeling like myself again</span></label>
     </div>
     <div class="btn-row">
       <button type="button" class="btn-next" id="btn14" onclick="go(15)" disabled>Next</button>
@@ -346,12 +353,12 @@
     <span class="q-label">Question 12</span>
     <span class="q-text">The one thing stopping me from starting my recovery right now is:</span>
     <div class="options" role="radiogroup" aria-label="Q12">
-      <label class="opt"><input type="radio" name="q12" value="wontwork"><span class="dot"></span><span class="opt-text">I do not believe anything will work, I have tried everything already</span></label>
-      <label class="opt"><input type="radio" name="q12" value="notready"><span class="dot"></span><span class="opt-text">I am not sure I am ready to let go of him yet</span></label>
-      <label class="opt"><input type="radio" name="q12" value="wheretostart"><span class="dot"></span><span class="opt-text">I want to start but I do not know where to begin</span></label>
-      <label class="opt"><input type="radio" name="q12" value="mysituation"><span class="dot"></span><span class="opt-text">I am worried this will not work for my specific situation</span></label>
-      <label class="opt"><input type="radio" name="q12" value="nottired"><span class="dot"></span><span class="opt-text">I am not tired enough of it yet</span></label>
-      <label class="opt"><input type="radio" name="q12" value="money"><span class="dot"></span><span class="opt-text">Money is a barrier right now</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I do not believe anything will work, I have tried everything already"><span class="dot"></span><span class="opt-text">I do not believe anything will work, I have tried everything already</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I am not sure I am ready to let go of him yet"><span class="dot"></span><span class="opt-text">I am not sure I am ready to let go of him yet</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I want to start but I do not know where to begin"><span class="dot"></span><span class="opt-text">I want to start but I do not know where to begin</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I am worried this will not work for my specific situation"><span class="dot"></span><span class="opt-text">I am worried this will not work for my specific situation</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I am not tired enough of it yet"><span class="dot"></span><span class="opt-text">I am not tired enough of it yet</span></label>
+      <label class="opt"><input type="radio" name="q12" value="Money is a barrier right now"><span class="dot"></span><span class="opt-text">Money is a barrier right now</span></label>
     </div>
     <div class="btn-row">
       <button type="button" class="btn-next" id="btn15" onclick="go(16)" disabled>Next</button>
@@ -363,9 +370,9 @@
   <div class="screen" id="s16">
     <span class="q-label">Question 13</span>
     <span class="q-text">What is it costing you to still be in this loop? Tell me in your own words.</span>
-    <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through a day without..." rows="5"></textarea>
+    <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through a day without..." rows="5" oninput="document.getElementById('btn13').disabled = this.value.trim().length === 0;"></textarea>
     <div class="btn-row">
-      <button type="button" class="btn-next" onclick="go(17)">Next</button>
+      <button type="button" class="btn-next" id="btn13" onclick="go(17)" disabled>Next</button>
     </div>
   </div>
 
@@ -374,25 +381,11 @@
     <span class="q-label">Question 14</span>
     <span class="q-text">I am running a live online workshop on recovering from avoidant relationships. One hour. Would you like to know when it happens?</span>
     <div class="options" role="radiogroup" aria-label="Q14" style="margin-top:20px;">
-      <label class="opt"><input type="radio" name="q14" value="yes"><span class="dot"></span><span class="opt-text">Yes, tell me when.</span></label>
-      <label class="opt"><input type="radio" name="q14" value="no"><span class="dot"></span><span class="opt-text">Not right now.</span></label>
+      <label class="opt"><input type="radio" name="q14" value="Yes, tell me when."><span class="dot"></span><span class="opt-text">Yes, tell me when.</span></label>
+      <label class="opt"><input type="radio" name="q14" value="Not right now."><span class="dot"></span><span class="opt-text">Not right now.</span></label>
     </div>
     <div class="btn-row">
-      <button type="button" class="btn-next" id="btn17" onclick="go(18)" disabled>Next</button>
-      <button type="button" class="btn-skip" onclick="go(18)">Skip</button>
-    </div>
-  </div>
-
-  <!-- S18: Q15 EARLY ACCESS -->
-  <div class="screen" id="s18">
-    <span class="q-label">Question 15</span>
-    <span class="q-text">One last thing. I am building the full system, four audios each targeting a specific layer of what this dynamic has done to your nervous system. Before it launches, I am looking for a small group of women to go through it first. If you are interested in being considered, let me know below.</span>
-    <div class="options" role="radiogroup" aria-label="Q15" style="margin-top:20px;">
-      <label class="opt"><input type="radio" name="q15" value="yes"><span class="dot"></span><span class="opt-text">Yes. I want my mind back. Tell me more.</span></label>
-      <label class="opt"><input type="radio" name="q15" value="no"><span class="dot"></span><span class="opt-text">No thank you.</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn18" onclick="go(19)" disabled>Next</button>
+      <button type="button" class="btn-next" id="btn17" onclick="go(19)" disabled>Next</button>
       <button type="button" class="btn-skip" onclick="go(19)">Skip</button>
     </div>
   </div>
@@ -418,13 +411,15 @@
       </label>
       <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(242,239,232,0.28);text-decoration:underline;">Full terms</a></p>
     </div>
-    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()">See my results</button>
+    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>See my results</button>
+    <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
     <span class="thankyou">Thank you for sharing this with me today.</span>
   </div>
 
   </form>
 </div>
 </main>
+</div>
 
 <script>
 // SCORING - Master System Prompt V8.3
@@ -443,13 +438,53 @@ function updateProgress(n) {
   document.getElementById('prog-label').textContent = n >= 10 ? 'Section 2 of 2' : 'Section 1 of 2';
 }
 
+document.addEventListener('click', function(e) {
+  var label = e.target.closest('.opt');
+  if (!label) return;
+  var input = label.querySelector('input');
+  if (!input) return;
+
+  if (input.type === 'checkbox') {
+    // Toggle checkbox manually
+    input.checked = !input.checked;
+    label.classList.toggle('selected', input.checked);
+  } else {
+    // Radio — deselect siblings, select this
+    var grp = label.closest('.options');
+    if (grp) grp.querySelectorAll('.opt').forEach(function(l) {
+      l.classList.remove('selected');
+      var r = l.querySelector('input[type="radio"]');
+      if (r) r.checked = false;
+    });
+    label.classList.add('selected');
+    input.checked = true;
+    // Enable next button for this screen
+    var scr = document.getElementById('s' + current);
+    if (scr) { var btn = scr.querySelector('.btn-next'); if (btn) btn.disabled = false; }
+  }
+});
+
+// Consent toggles submit button
+var consentEl = document.getElementById('consent');
+if (consentEl) {
+  consentEl.addEventListener('change', function() {
+    document.getElementById('consent-lbl').classList.toggle('ticked', this.checked);
+    document.getElementById('btn-submit').disabled = !this.checked;
+  });
+}
+
+// Back navigation
+var history_stack = [];
 function go(n) {
   var prev = document.getElementById('s' + current);
   if (prev) prev.classList.remove('active');
+  history_stack.push(current);
   current = n;
   var next = document.getElementById('s' + n);
   if (next) { next.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
   updateProgress(n);
+  // Show/hide back button on each screen
+  updateBackBtn(n);
   // Compact header after intro screen
   var hdr = document.getElementById('quiz-header');
   if (hdr) {
@@ -458,32 +493,36 @@ function go(n) {
   }
 }
 
-document.addEventListener('click', function(e) {
-  var label = e.target.closest('.opt');
-  if (!label) return;
-  var isCheckbox = label.querySelector('input[type="checkbox"]');
-  if (isCheckbox) {
-    label.classList.toggle('selected');
-    isCheckbox.checked = label.classList.contains('selected');
-  } else {
-    var grp = label.closest('.options');
-    if (grp) grp.querySelectorAll('.opt').forEach(function(l) { l.classList.remove('selected'); });
-    label.classList.add('selected');
-    var radio = label.querySelector('input[type="radio"]');
-    if (radio) radio.checked = true;
-    // Enable next button
-    var scr = document.getElementById('s' + current);
-    if (scr) { var btn = scr.querySelector('.btn-next'); if (btn) btn.disabled = false; }
+function goBack() {
+  if (history_stack.length === 0) return;
+  var prev_screen = history_stack.pop();
+  var curr = document.getElementById('s' + current);
+  if (curr) curr.classList.remove('active');
+  current = prev_screen;
+  var prev = document.getElementById('s' + current);
+  if (prev) { prev.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  updateProgress(current);
+  updateBackBtn(current);
+  var hdr = document.getElementById('quiz-header');
+  if (hdr) {
+    if (current > 0) { hdr.classList.add('compact'); }
+    else { hdr.classList.remove('compact'); }
   }
-});
+}
 
-document.getElementById('consent').addEventListener('change', function() {
-  document.getElementById('consent-lbl').classList.toggle('ticked', this.checked);
-});
+function updateBackBtn(n) {
+  // Show back button on all screens except s0 (intro) and s19 (capture)
+  var backBtns = document.querySelectorAll('.btn-back');
+  backBtns.forEach(function(b) {
+    b.style.display = (n > 0 && n < 19) ? 'block' : 'none';
+  });
+}
 
 function sc(name) {
   var el = document.querySelector('input[name="' + name + '"]:checked');
-  return el ? parseInt(el.value) || 0 : 0;
+  if (!el) return 0;
+  var label = el.closest('[data-score]');
+  return label ? parseInt(label.getAttribute('data-score')) || 0 : 0;
 }
 
 function getBucket() {
@@ -502,9 +541,10 @@ function submitQuiz() {
   var email = document.getElementById('femail').value.trim();
   var name  = document.getElementById('fname').value.trim();
   var consent = document.getElementById('consent').checked;
-  var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  document.getElementById('email-err').classList.toggle('show', !ok);
-  if (!ok) return;
+  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  document.getElementById('email-err').classList.toggle('show', !emailOk);
+  document.getElementById('consent-err').classList.toggle('show', !consent);
+  if (!emailOk || !consent) return;
 
   var btn = document.getElementById('btn-submit');
   btn.disabled = true;
@@ -515,23 +555,43 @@ function submitQuiz() {
   function val(n) { var el = document.querySelector('input[name="'+n+'"]:checked'); return el ? el.value : ''; }
   function multi(n) { return Array.from(document.querySelectorAll('input[name="'+n+'"]:checked')).map(function(c){return c.value;}).join(', '); }
 
-  var row = [
-    new Date().toISOString(), name||'Anonymous', email,
-    result.name, val('gender'),
-    val('q1'),val('q2'),val('q3'),val('q4'),val('q5'),val('q6'),
-    val('q7'),val('q8'),multi('q9'),multi('q10'),val('q11'),val('q12'),
-    document.getElementById('q13').value||'',val('q14'),val('q15'),
-    consent ? 'yes' : 'no'
-  ];
+  // Send in the flat object format the Apps Script expects
+  var payload = {
+    name: name || 'Anonymous',
+    email: email,
+    bucket: result.name,
+    q1: val('q1'),
+    q2: val('q2'),
+    q3: val('q3'),
+    q4: val('q4'),
+    q5: val('q5'),
+    q6: val('q6'),
+    q7: val('q7'),
+    q8: val('q8'),
+    q9: multi('q9'),
+    q10: multi('q10'),
+    q11: val('q11'),
+    q12: val('q12'),
+    q13: document.getElementById('q13').value || '',
+    q14: val('q14'),
+    gender: val('gender'),
+    consent: consent ? 'yes' : 'no'
+  };
 
-  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, consent:consent})); } catch(e) {}
+  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent})); } catch(e) {}
 
-  fetch(SHEET + '?action=write', {method:'POST', body:JSON.stringify({row:row})}).catch(function(){});
-  setTimeout(function() { window.location.href = result.page; }, 400);
+  try {
+    fetch(SHEET, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {}
+
+  // Extract bucket name from result.page filename
+  setTimeout(function() { window.location.href = result.page; }, 600);
 }
-</script>
 
-<script>
 document.addEventListener('DOMContentLoaded', function(){
   var header = document.getElementById('quiz-header');
   function updateHeader(){
