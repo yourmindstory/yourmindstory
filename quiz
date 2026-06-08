@@ -1,0 +1,223 @@
+<div class="screen" id="s17">
+    <span class="cap-head">Your Nervous System Profile is Ready</span>
+    <span class="cap-sub">Enter your details below to process your scoring bucket and receive your personalized recovery map.</span>
+    
+    <div class="field-wrap">
+      <label class="field-lbl" for="firstName">First Name</label>
+      <input type="text" class="field-in" id="firstName" name="firstName" placeholder="Alex" required>
+    </div>
+
+    <div class="field-wrap">
+      <label class="field-lbl" for="lastName">Last Name</label>
+      <input type="text" class="field-in" id="lastName" name="lastName" placeholder="Smith" required>
+    </div>
+
+    <div class="field-wrap">
+      <label class="field-lbl" for="email">Email Address</label>
+      <input type="email" class="field-in" id="email" name="email" placeholder="alex@example.com" required>
+      <span class="err" id="email-err">Please enter a valid email address.</span>
+    </div>
+
+    <div class="consent-wrap">
+      <label class="consent-lbl" id="consent-label">
+        <input type="checkbox" id="consent" required>
+        <span class="cbox"><span class="ccheck">✓</span></span>
+        <span class="consent-txt">I agree to receive my insights and ongoing educational strategies. Read the <a href="#" class="plink" target="_blank">Privacy Policy</a>.</span>
+      </label>
+    </div>
+
+    <button type="submit" class="btn-submit" id="btn-submit" disabled>Generate My Mind Story</button>
+    <span class="thankyou" id="status-msg" style="display:none;">Processing secure transmission...</span>
+  </div>
+
+</form>
+</div>
+</main>
+
+<script>
+  // Web App Configuration
+  const WEB_APP_URL = "YOUR_SCRIPT_DEPLOYMENT_URL_HERE"; 
+
+  // State tracking variables
+  let currentScreen = 0;
+  const totalScreens = 17; 
+  let historyStack = [0];
+
+  // DOM Elements
+  const quizForm = document.getElementById('quiz-form');
+  const quizHeader = document.getElementById('quiz-header');
+  const progLabel = document.getElementById('prog-label');
+  const progFill = document.getElementById('prog-fill');
+  const backBtn = document.querySelector('.btn-back');
+  const submitBtn = document.getElementById('btn-submit');
+
+  // Input & Option Interactivity Setup
+  document.querySelectorAll('.opt').forEach(opt => {
+    opt.addEventListener('click', function(e) {
+      const input = this.querySelector('input');
+      if (!input) return;
+      
+      if (input.type === 'radio') {
+        this.closest('.options').querySelectorAll('.opt').forEach(sibling => {
+          sibling.classList.remove('selected');
+        });
+        this.classList.add('selected');
+        input.checked = true;
+      } else if (input.type === 'checkbox') {
+        if (e.target !== input) {
+          input.checked = !input.checked;
+        }
+        this.classList.toggle('selected', input.checked);
+      }
+
+      // Enable respective "Next" buttons instantly
+      const currentScreenEl = this.closest('.screen');
+      const nextBtn = currentScreenEl.querySelector('.btn-next');
+      if (nextBtn) nextBtn.disabled = false;
+    });
+  });
+
+  // Watch lead form constraints to enable final submit button
+  const reqFields = ['firstName', 'lastName', 'email'];
+  const consentCb = document.getElementById('consent');
+  const consentLbl = document.getElementById('consent-label');
+
+  // Checkbox visually toggles checked state 
+  consentCb.addEventListener('change', function() {
+    consentLbl.classList.toggle('ticked', this.checked);
+    validateLeadForm();
+  });
+  reqFields.forEach(id => document.getElementById(id).addEventListener('input', validateLeadForm));
+
+  function validateLeadForm() {
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById('email').value);
+    const fnValid = document.getElementById('firstName').value.trim().length > 0;
+    const lnValid = document.getElementById('lastName').value.trim().length > 0;
+    
+    document.getElementById('email-err').classList.toggle('show', !emailValid && document.getElementById('email').value.length > 4);
+    submitBtn.disabled = !(emailValid && fnValid && lnValid && consentCb.checked);
+  }
+
+  // Master Navigation Controller
+  window.go = function(targetScreenId) {
+    const currentScreenEl = document.getElementById(`s${currentScreen}`);
+    const targetScreenEl = document.getElementById(`s${targetScreenId}`);
+    if (!targetScreenEl) return;
+
+    if (currentScreenEl) currentScreenEl.classList.remove('active');
+    targetScreenEl.classList.add('active');
+
+    if (historyStack[historyStack.length - 1] !== targetScreenId) {
+      historyStack.push(targetScreenId);
+    }
+    
+    currentScreen = targetScreenId;
+    updateUI();
+  };
+
+  window.goBack = function() {
+    if (historyStack.length <= 1) return;
+    const currentScreenId = historyStack.pop();
+    const previousScreenId = historyStack[historyStack.length - 1];
+
+    const currentScreenEl = document.getElementById(`s${currentScreenId}`);
+    const previousScreenEl = document.getElementById(`s${previousScreenId}`);
+
+    if (currentScreenEl) currentScreenEl.classList.remove('active');
+    if (previousScreenEl) previousScreenEl.classList.add('active');
+
+    currentScreen = previousScreenId;
+    updateUI();
+  };
+
+  function updateUI() {
+    quizHeader.classList.toggle('compact', currentScreen > 0);
+    backBtn.style.display = (currentScreen === 0 || currentScreen === 17) ? 'none' : 'inline-block';
+    progLabel.textContent = currentScreen <= 9 ? "Section 1 of 2" : "Section 2 of 2";
+    
+    const progressPercent = Math.min(Math.round((currentScreen / totalScreens) * 100), 100);
+    progFill.style.width = `${progressPercent}%`;
+
+    // Dynamic background adjustment for aesthetics
+    if (currentScreen >= 3 && currentScreen <= 8) {
+      document.body.style.backgroundColor = '#0A0910'; 
+    } else if (currentScreen > 9) {
+      document.body.style.backgroundColor = '#0F0E17';
+    } else {
+      document.body.style.backgroundColor = '#0D0B14';
+    }
+  }
+
+  // Calculate Nervous System Score Bucket
+  function getScoredBucket() {
+    let totalScore = 0;
+    document.querySelectorAll('.opt.selected[data-score]').forEach(el => {
+      totalScore += parseInt(el.getAttribute('data-score'), 10);
+    });
+    
+    if (totalScore <= 5) return "Regulated / Anchored";
+    if (totalScore <= 11) return "Mild Alarm / Dysregulated";
+    return "High Alert / Hyper-Activated";
+  }
+
+  // Gather Multi-Select Checkboxes securely
+  function getCheckedValues(name) {
+    const values = [];
+    document.querySelectorAll(`input[name="${name}"]:checked`).forEach(cb => {
+      values.push(cb.value);
+    });
+    return values.join(', '); // Comma separated for single cell placement
+  }
+
+  // Intercept Form Submission and POST data 
+  quizForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    submitBtn.disabled = true;
+    const statusMsg = document.getElementById('status-msg');
+    statusMsg.style.display = 'block';
+    statusMsg.textContent = "Processing secure transmission...";
+
+    // Build matching payload structure for sheet appendRow API
+    const payload = {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      bucket: getScoredBucket(),
+      gender: quizForm.elements['gender']?.value || "",
+      q1: quizForm.elements['q1']?.value || "",
+      q2: quizForm.elements['q2']?.value || "",
+      q3: quizForm.elements['q3']?.value || "",
+      q4: quizForm.elements['q4']?.value || "",
+      q5: quizForm.elements['q5']?.value || "",
+      q6: quizForm.elements['q6']?.value || "",
+      q7: quizForm.elements['q7']?.value || "",
+      q8: quizForm.elements['q8']?.value || "",
+      q9: getCheckedValues('q9'),   // Checkbox arrays parsed safely
+      q10: getCheckedValues('q10'), // Checkbox arrays parsed safely
+      q11: quizForm.elements['q11']?.value || "",
+      q12: quizForm.elements['q12']?.value || "",
+      q13: document.getElementById('q13').value.trim(),
+      q14: "" // Placeholder value to satisfy script index mapping safely if unused
+    };
+
+    // Cross-Origin Post transmission targeting Apps Script deployment
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors", // Crucial bypass configuration for basic cross-domain tracking
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      statusMsg.textContent = "Your details have been saved successfully!";
+      // Optional redirection or confirmation panel function call here
+    })
+    .catch(error => {
+      console.error("Submission error:", error);
+      statusMsg.textContent = "Submission failed. Please try again.";
+      submitBtn.disabled = false;
+    });
+  });
+</script>
+</body>
+</html>
