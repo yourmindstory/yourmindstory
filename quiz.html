@@ -528,10 +528,10 @@ function sc(name) {
 function getBucket() {
   var q1=sc('q1'), q2=sc('q2'), q3=sc('q3'), q4=sc('q4'), q5=sc('q5'), q6=sc('q6');
   var buckets = [
-    {name:'stabilise',          score:q1+q3, page:'stabilise.html'},
-    {name:'break-the-pull',     score:q2+q5, page:'break-the-pull.html'},
-    {name:'restore-self-trust', score:q3+q5, page:'restore-self-trust.html'},
-    {name:'return-to-yourself', score:q4+q6, page:'return-to-yourself.html'}
+    {name:'stabilise',          score:q1+q3, page:'stabilise-intro.html'},
+    {name:'break-the-pull',     score:q2+q5, page:'break-the-pull-intro.html'},
+    {name:'restore-self-trust', score:q3+q5, page:'restore-self-trust-intro.html'},
+    {name:'return-to-yourself', score:q4+q6, page:'return-to-yourself-intro.html'}
   ];
   if (buckets.every(function(b) { return b.score === 0; })) return {name:'no-result', page:'no-result.html'};
   return buckets.reduce(function(best, curr) { return curr.score > best.score ? curr : best; });

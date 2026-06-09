@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Result - Your Mind Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#F2EFE8;--fg:#0D0B14;--rule:rgba(13,11,20,0.07);--muted:rgba(13,11,20,0.55);--dim:rgba(13,11,20,0.35);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;}
+    .inner{width:100%;max-width:520px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+    @keyframes up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+    .l1{opacity:0;animation:up 0.9s ease forwards 0.2s;}
+    .l2{opacity:0;animation:up 0.9s ease forwards 0.7s;}
+    .l3{opacity:0;animation:up 0.9s ease forwards 1.2s;}
+    .btn-wrap{opacity:0;animation:up 0.9s ease forwards 1.9s;}
+    .line{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5.5vw,30px);line-height:1.5;color:var(--fg);display:block;}
+    .rule{width:40px;height:1px;background:rgba(13,11,20,0.15);margin:32px auto;display:block;}
+    .btn{display:inline-block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 40px;cursor:pointer;text-decoration:none;transition:opacity 0.2s;margin-top:48px;}
+    .btn:hover{opacity:0.82;}
+    .wm{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(13,11,20,0.25);position:fixed;bottom:28px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+  </style>
+</head>
+<body>
+<div class="inner">
+  <span class="line l1">I look fine on the outside.</span>
+  <span class="rule l2"></span>
+  <span class="line l2">I feel completely hollow underneath.</span>
+  <span class="rule l2"></span>
+  <span class="line l3">I just want to feel like myself again.</span>
+  <div class="btn-wrap">
+    <a href="return-to-yourself.html" class="btn">Help me stop this</a>
+  </div>
+</div>
+<span class="wm">Your Mind Story</span>
+</body>
+</html>
