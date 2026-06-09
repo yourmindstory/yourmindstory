@@ -1,22 +1,344 @@
-// This intercepts the submit button click
-quizForm.addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  // 1. It gathers all the answers from the quiz screens (q1, q2, q3, etc.)
-  const payload = {
-    firstName: document.getElementById('firstName').value.trim(),
-    lastName: document.getElementById('lastName').value.trim(),
-    email: document.getElementById('email').value.trim(),
-    bucket: getScoredBucket(),
-    // ... all your other quiz questions are gathered here
-  };
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Mind Story</title>
+  <meta name="description" content="When an avoidant loves you, your nervous system pays the price. Find out exactly what it is doing to yours.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0D0B14;
+      --fg: #F2EFE8;
+      --rule-color: rgba(242,239,232,0.07);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 48px;
+    }
+    @media (min-width: 768px) { .page { padding: 0 64px; } }
+    .inner {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    @keyframes up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .a1 { opacity:0; animation: up 0.9s ease forwards 0.10s; }
+    .a2 { opacity:0; animation: in 0.7s ease forwards 0.35s; }
+    .a3 { opacity:0; animation: up 1.0s ease forwards 0.50s; }
+    .a4 { opacity:0; animation: up 1.0s ease forwards 0.75s; }
+    .a5 { opacity:0; animation: up 0.9s ease forwards 0.95s; }
+    .a6 { opacity:0; animation: in 0.8s ease forwards 1.20s; }
+    .a7 { opacity:0; animation: in 0.8s ease forwards 1.38s; }
+    .a8 { opacity:0; animation: in 0.9s ease forwards 1.55s; }
+    hr.rule {
+      width: 100%;
+      border: none;
+      border-top: 1px solid var(--rule-color);
+    }
 
-  // 2. It shoots that data across the internet to your Google Script
-  fetch(WEB_APP_URL, {
-    method: "POST",
-    mode: "no-cors", 
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload) // <-- This turns the answers into text the script can read
-  })
-  // ... handling success or failure
-});
+    /* 1. BRAND BLOCK */
+    .brand {
+      padding-top: 64px;
+      text-align: center;
+      width: 100%;
+    }
+    .wordmark {
+      font-family: 'Gilda Display', serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: clamp(14px, 3.4vw, 18px);
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--fg);
+      display: block;
+    }
+    .quiz-name {
+      font-family: 'Gilda Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(23px, 5.8vw, 33px);
+      color: rgba(242,239,232,0.68);
+      display: block;
+      margin-top: 32px;
+      line-height: 1.12;
+      letter-spacing: 0.01em;
+    }
+
+    .rule-1 { margin: 44px 0; }
+
+    /* 3. TAGLINE - halo effect: Moon White glowing into Night Sky */
+    .tagline {
+      font-family: 'Gilda Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(26px, 6.8vw, 42px);
+      line-height: 1.09;
+      color: #F2EFE8;
+      text-align: center;
+      letter-spacing: -0.005em;
+      width: 100%;
+      padding-bottom: 44px;
+      text-shadow:
+        0 0 20px rgba(242,239,232,0.25),
+        0 0 50px rgba(242,239,232,0.15),
+        0 0 100px rgba(242,239,232,0.08);
+    }
+
+    /* 4. BODY */
+    .body-block {
+      width: 100%;
+      text-align: center;
+      padding-bottom: 46px;
+    }
+    .body-line {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(15px, 3.6vw, 17px);
+      line-height: 1.85;
+      color: rgba(242,239,232,0.60);
+    }
+    .body-line + .body-line { margin-top: 16px; }
+
+    /* 5. CTA */
+    .cta-block {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 20px;
+    }
+    .cta-btn {
+      display: block;
+      width: 100%;
+      max-width: 420px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: clamp(11px, 2.6vw, 13px);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--fg);
+      border: none;
+      padding: 20px 32px;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: opacity 0.2s ease;
+    }
+    .cta-btn:hover  { opacity: 0.86; }
+    .cta-btn:active { opacity: 0.70; }
+    .friction {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(10px, 2.3vw, 12px);
+      letter-spacing: 0.07em;
+      color: rgba(242,239,232,0.36);
+      gap: 8px;
+    }
+    .friction-dot { color: rgba(242,239,232,0.18); }
+
+    /* 6. CREDENTIAL */
+    .credential-block {
+      width: 100%;
+      text-align: center;
+      padding-top: 38px;
+      padding-bottom: 30px;
+    }
+    .cred-name {
+      display: block;
+      font-family: 'Gilda Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(13px, 3vw, 15px);
+      color: rgba(242,239,232,0.35);
+      letter-spacing: 0.03em;
+      margin-bottom: 5px;
+    }
+    .cred-title {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(9px, 2vw, 11px);
+      letter-spacing: 0.10em;
+      color: rgba(242,239,232,0.24);
+      text-transform: uppercase;
+    }
+
+    /* 7. MOMENTUM */
+    .rule-2 { margin-bottom: 32px; }
+    .momentum {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      padding-bottom: 60px;
+    }
+    @media (min-width: 520px) {
+      .momentum { flex-direction: row; justify-content: center; gap: 0; }
+    }
+    .m-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    @media (min-width: 520px) {
+      .m-item { padding: 0 20px; border-right: 1px solid var(--rule-color); }
+      .m-item:last-child { border-right: none; }
+    }
+    .m-num {
+      font-family: 'Gilda Display', serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: clamp(18px, 4.5vw, 22px);
+      color: rgba(242,239,232,0.75);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .m-label {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(10px, 2.2vw, 11px);
+      letter-spacing: 0.08em;
+      color: rgba(242,239,232,0.42);
+      text-transform: uppercase;
+    }
+
+    /* 8. FOOTER */
+    footer {
+      width: 100%;
+      border-top: 1px solid var(--rule-color);
+      padding: 30px 0 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .footer-links { display: flex; gap: 28px; }
+    .footer-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: 10px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: rgba(242,239,232,0.25);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: rgba(242,239,232,0.50); }
+    :focus-visible { outline: 1px solid rgba(242,239,232,0.4); outline-offset: 4px; }
+  </style>
+</head>
+<body>
+<main class="page" role="main">
+  <div class="inner">
+
+    <div class="brand a1">
+      <span class="wordmark">Your Mind Story</span>
+      <span class="quiz-name">When an Avoidant Loves You</span>
+    </div>
+
+    <hr class="rule rule-1 a2" aria-hidden="true">
+
+    <h1 class="tagline a3">
+      Your nervous system does not know the difference yet between home and hell.
+    </h1>
+
+    <div class="body-block a4">
+      <span class="body-line">Whether you are still in it or you have left, your nervous system is responding the same way.</span>
+      <span class="body-line">You do not have to be ready to let go of him. You just have to be tired of feeling like this.</span>
+    </div>
+
+    <div class="cta-block a5">
+      <a href="quiz.html" class="cta-btn">Start getting your mind back</a>
+      <div class="friction">
+        <span>Free</span>
+        <span class="friction-dot">&middot;</span>
+        <span>4 minutes</span>
+        <span class="friction-dot">&middot;</span>
+        <span>Your results instantly</span>
+      </div>
+    </div>
+
+    <div class="credential-block a6">
+      <span class="cred-name">Onye</span>
+      <span class="cred-title">Clinical Cognitive-Behavioural Hypnotherapist</span>
+    </div>
+
+    <hr class="rule rule-2 a7" aria-hidden="true">
+    <div class="momentum a7" aria-label="Social proof">
+      <div class="m-item">
+        <span class="m-num">12 million</span>
+        <span class="m-label">views on TikTok</span>
+      </div>
+      <div class="m-item">
+        <span class="m-num" id="quiz-count">266</span>
+        <span class="m-label">have taken this assessment</span>
+      </div>
+      <div class="m-item">
+        <span class="m-num">13 new</span>
+        <span class="m-label">arrive every day</span>
+      </div>
+    </div>
+
+    <footer class="a8" role="contentinfo">
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+      </nav>
+    </footer>
+
+  </div>
+</main>
+<script>
+  (function(){
+    var SHEET='https://script.google.com/macros/s/AKfycbyP-6R7HXMC4BteUPTjch4kpYvVIEOl3HA2gdWoe1p_Uy1FKVsPNkoP7Vygq-_MBg-W/exec';
+    var el=document.getElementById('quiz-count');
+    if(!el) return;
+    function fetchCount(){
+      fetch(SHEET+'?action=read&t='+Date.now())
+        .then(function(r){return r.text();})
+        .then(function(txt){
+          try{
+            var rows=JSON.parse(txt);
+            var n=rows.filter(function(r){return r[1]&&r[1]!=='Name'&&r[1]!=='CLICK_TRACK'&&r[2];}).length;
+            if(n>0) el.textContent=n+200;
+          }catch(e){}
+        }).catch(function(){});
+    }
+    fetchCount();
+    setInterval(fetchCount, 60000);
+  })();
+</script>
+</body>
+</html>
