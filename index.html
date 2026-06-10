@@ -326,12 +326,12 @@
     var el=document.getElementById('quiz-count');
     if(!el) return;
     function fetchCount(){
-      fetch(SHEET+'?action=read&t='+Date.now())
+      fetch(SHEET+'?action=read&t='+Date.now(), {mode:'no-cors'})
         .then(function(r){return r.text();})
         .then(function(txt){
           try{
             var rows=JSON.parse(txt);
-            var n=rows.filter(function(r){return r[1]&&r[1]!=='Name'&&r[1]!=='CLICK_TRACK'&&r[2];}).length;
+            var n=rows.filter(function(r){return r[2]&&r[2]!=='Email'&&r[2].indexOf('@')>-1;}).length;
             if(n>0) el.textContent=n+200;
           }catch(e){}
         }).catch(function(){});
