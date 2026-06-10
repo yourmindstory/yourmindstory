@@ -301,11 +301,11 @@
         <span class="m-label">views on TikTok</span>
       </div>
       <div class="m-item">
-        <span class="m-num" id="quiz-count">266</span>
+        <span class="m-num" id="quiz-count">316</span>
         <span class="m-label">have taken this assessment</span>
       </div>
       <div class="m-item">
-        <span class="m-num">13 new</span>
+        <span class="m-num">10 new</span>
         <span class="m-label">arrive every day</span>
       </div>
     </div>
@@ -320,25 +320,6 @@
 
   </div>
 </main>
-<script>
-  (function(){
-    var SHEET='https://script.google.com/macros/s/AKfycbyP-6R7HXMC4BteUPTjch4kpYvVIEOl3HA2gdWoe1p_Uy1FKVsPNkoP7Vygq-_MBg-W/exec';
-    var el=document.getElementById('quiz-count');
-    if(!el) return;
-    function fetchCount(){
-      fetch(SHEET+'?action=read&t='+Date.now(), {mode:'no-cors'})
-        .then(function(r){return r.text();})
-        .then(function(txt){
-          try{
-            var rows=JSON.parse(txt);
-            var n=rows.filter(function(r){return r[2]&&r[2]!=='Email'&&r[2].indexOf('@')>-1;}).length;
-            if(n>0) el.textContent=n+200;
-          }catch(e){}
-        }).catch(function(){});
-    }
-    fetchCount();
-    setInterval(fetchCount, 60000);
-  })();
-</script>
+
 </body>
 </html>
