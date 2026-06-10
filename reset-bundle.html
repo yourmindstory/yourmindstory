@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Reset Bundle - Your Mind Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#F2EFE8;--fg:#1A0A2E;--rule:rgba(26,10,46,0.08);--muted:rgba(26,10,46,0.70);--dim:rgba(26,10,46,0.60);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 100px;}
+    @media(min-width:768px){.page{padding:0 64px 100px;}}
+    .inner{width:100%;max-width:580px;}
+    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    .a1{opacity:0;animation:up 0.9s ease forwards 0.1s;}
+    .a2{opacity:0;animation:up 1s ease forwards 0.3s;}
+    .a3{opacity:0;animation:up 1s ease forwards 0.5s;}
+    .a4{opacity:0;animation:up 1s ease forwards 0.7s;}
+    hr.rule{width:100%;border:none;border-top:1px solid var(--rule);margin:40px 0;}
+    .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:52px;}
+    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:var(--dim);display:block;text-align:center;}
+    .body-line{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--muted);}
+    .body-line+.body-line{margin-top:12px;}
+    .strong-line{display:block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--fg);margin-top:14px;}
+    .cost-item{display:block;font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);color:var(--fg);line-height:1.6;}
+    .what-item{padding:18px 0;border-bottom:1px solid var(--rule);}
+    .what-item:first-child{border-top:1px solid var(--rule);}
+    .what-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(17px,4.2vw,21px);color:var(--fg);display:block;margin-bottom:6px;}
+    .what-desc{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:var(--muted);line-height:1.75;display:block;}
+    .review-text{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);line-height:1.4;color:var(--fg);display:block;margin-bottom:8px;}
+    .review-attr{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:var(--dim);text-transform:uppercase;}
+    .btn-primary{display:block;width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:22px 32px;cursor:pointer;text-decoration:none;text-align:center;transition:opacity 0.2s;}
+    .btn-primary:hover{opacity:0.82;}
+    .product-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:var(--dim);display:block;margin-top:12px;text-align:center;}
+    .cta-sub{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(14px,3.2vw,16px);color:var(--muted);display:block;margin-top:14px;text-align:center;}
+    .safety{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(26,10,46,0.55);line-height:1.65;margin-top:40px;padding-top:20px;border-top:1px solid var(--rule);display:block;}
+    footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
+    .footer-links{display:flex;gap:28px;}
+    .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(26,10,46,0.55);text-decoration:none;}
+    :focus-visible{outline:1px solid rgba(26,10,46,0.4);outline-offset:4px;}
+  </style>
+</head>
+<body>
+<main class="page" role="main">
+<div class="inner">
+
+  <header class="hdr a1">
+    <span class="wm">Your Mind Story</span>
+  </header>
+
+
+  <!-- PERSONALISED GREETING -->
+  <div id="greeting-wrap" style="display:none;text-align:center;margin-bottom:40px;">
+    <span id="greeting-name" style="font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(16px,4vw,20px);color:var(--dim);"></span>
+  </div>
+
+  <!-- 1. WHAT YOU HAVE TRIED -->
+  <div class="a2">
+    <span class="body-line">You have talked to your friends until they were exhausted by it. You have tried therapy. You have journalled. You still cannot find yourself.</span>
+    <span class="strong-line" style="margin-top:20px;">Everything you have tried works at the level of the mind.</span>
+    <span class="strong-line">This does not live in your mind.</span>
+  </div>
+
+  <hr class="rule a2">
+
+  <!-- 2. WHAT IT IS COSTING -->
+  <div class="a3">
+    <span class="body-line" style="margin-bottom:20px;">What is it costing you?</span>
+    <span class="cost-item">Your peace.</span>
+    <span class="cost-item">Your sleep.</span>
+    <span class="cost-item">Your sense of who you are.</span>
+    <span class="cost-item">Yourself.</span>
+  </div>
+
+  <hr class="rule a3">
+
+  <!-- 3. WHAT THE PRODUCT DOES -->
+  <div class="a3">
+    <span class="strong-line">The Reset Bundle works across both layers.</span>
+    <span class="body-line" style="margin-top:12px;">Rooted in CBT hypnotherapy. Two audios targeting the spiral and the pull. Put your headphones in, follow the voice. Listen daily for 21 days. Start with whichever is loudest right now.</span>
+  </div>
+
+  <hr class="rule a3">
+
+  <!-- 4. WHAT YOU GET -->
+  <div class="a3">
+    <div class="what-item">
+      <span class="what-name">Calm the Spiral</span>
+      <span class="what-desc">For when the loop is active. When you cannot stop thinking, cannot settle, cannot get your mind back.</span>
+    </div>
+    <div class="what-item">
+      <span class="what-name">No Contact Reset</span>
+      <span class="what-desc">For when your body is trying to override the decision you have already made.</span>
+    </div>
+    <div class="what-item">
+      <span class="what-name">Bonus: The Emergency Reset</span>
+      <span class="what-desc">A two minute interrupt for when the spiral spikes. Use it in the moment, as many times as you need.</span>
+    </div>
+    <div class="what-item" style="border-bottom:none;">
+      <span class="what-desc">Three MP3 files. Immediate access. Start tonight. Lifetime access on any device.</span>
+    </div>
+  </div>
+
+  <hr class="rule a4">
+
+  <!-- 5. ONE REVIEW -->
+  <div class="a4">
+    <span class="review-text">"I gained my nervous system back."</span>
+    <span class="review-attr">Verified buyer</span>
+  </div>
+
+  <!-- BUTTON -->
+  <div class="a4" style="margin-top:48px;">
+    <a href="https://payhip.com/buy?s=1&cart_links%5B%5D=nIr1N&cart_links%5B%5D=ZcdmX&qty%5BnIr1N%5D=1&qty%5BZcdmX%5D=1" class="btn-primary">Yes. I want my mind back.</a>
+    <span class="product-label">The Reset Bundle, £57</span>
+    <span class="cta-sub">You do not have to be ready to let go. You just have to be tired of not recognising yourself anymore.</span>
+  </div>
+
+  <span class="safety">Due to the nature of immediate digital access, all sales are final. If you are having trouble with the audios or need support getting the most from them, contact us and we will help you. For educational and personal development purposes only. Results vary. Not a substitute for professional mental health care or crisis support. Do not listen whilst driving or operating machinery.</span>
+
+  <footer>
+    <nav class="footer-links">
+      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </footer>
+
+</div>
+</main>
+<script>
+  try {
+    var r = JSON.parse(sessionStorage.getItem('yms_result') || '{}');
+    if (r.name && r.name !== 'Anonymous') {
+      var wrap = document.getElementById('greeting-wrap');
+      var el = document.getElementById('greeting-name');
+      if (wrap && el) {
+        el.textContent = r.name + ', this was built for where you are right now.';
+        wrap.style.display = 'block';
+      }
+    }
+  } catch(e) {}
+</script>
+</body>
+</html>
