@@ -95,7 +95,7 @@
     .consent-lbl.ticked .ccheck{opacity:1;}
     .consent-txt{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,2.8vw,14px);line-height:1.7;color:rgba(242,239,232,0.50);}
     .plink{color:rgba(242,239,232,0.35);text-decoration:underline;text-decoration-color:rgba(242,239,232,0.15);}
-    .disclaimer-small{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(242,239,232,0.22);line-height:1.65;margin-top:14px;}
+    .disclaimer-small{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(242,239,232,0.50);line-height:1.65;margin-top:14px;}
     .btn-submit{width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;transition:opacity 0.2s;}
     .btn-submit:hover{opacity:0.86;}
     .btn-submit:disabled{opacity:0.32;cursor:not-allowed;}
@@ -317,7 +317,7 @@
       <label class="opt cb"><input type="checkbox" name="q9" value="Nothing yet, I only just started looking for answers"><span class="dot"></span><span class="opt-text">Nothing yet, I only just started looking for answers</span></label>
     </div>
     <div class="btn-row">
-      <button type="button" class="btn-next" onclick="go(13)">Next</button>
+      <button type="button" class="btn-next" id="btn12" onclick="go(13)" disabled>Next</button>
       <button type="button" class="btn-skip" onclick="go(13)">Skip</button>
     </div>
   </div>
@@ -389,7 +389,7 @@
     <span class="q-label">Question 14</span>
     <span class="q-text">I am running a live online workshop on recovering from avoidant relationships. One hour. Would you like to know when it happens?</span>
     <div class="options" role="radiogroup" aria-label="Q14" style="margin-top:20px;">
-      <label class="opt"><input type="radio" name="q14" value="Yes, tell me when."><span class="dot"></span><span class="opt-text">Yes, tell me when.</span></label>
+      <label class="opt"><input type="radio" name="q14" value="Yes, save me a seat."><span class="dot"></span><span class="opt-text">Yes, save me a seat.</span></label>
       <label class="opt"><input type="radio" name="q14" value="Not right now."><span class="dot"></span><span class="opt-text">Not right now.</span></label>
     </div>
     <div class="btn-row">
@@ -441,6 +441,13 @@ var SHEET = 'https://script.google.com/macros/s/AKfycbyP-6R7HXMC4BteUPTjch4kpYvV
 var current = 0;
 var selectedGender = '';
 
+// Generates a permanent, unique token for this result so it can be
+// looked back up later (email link, etc). Not used for redirect logic
+// yet — just captured and stored against her row for when that's built.
+function makeResultToken() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
 function updateProgress(n) {
   var pct = Math.round((n / 19) * 100);
   document.getElementById('prog-fill').style.width = pct + '%';
@@ -457,6 +464,16 @@ document.addEventListener('click', function(e) {
     // Toggle checkbox manually
     input.checked = !input.checked;
     label.classList.toggle('selected', input.checked);
+    // Enable Next button for this checkbox group only if at least one box is checked
+    var grp = label.closest('.options');
+    if (grp) {
+      var anyChecked = grp.querySelector('input[type="checkbox"]:checked') !== null;
+      var scr = label.closest('.screen');
+      if (scr) {
+        var btn = scr.querySelector('.btn-next');
+        if (btn) btn.disabled = !anyChecked;
+      }
+    }
   } else {
     // Radio — deselect siblings, select this
     var grp = label.closest('.options');
@@ -562,6 +579,7 @@ function submitQuiz() {
   btn.textContent = 'Calculating your results...';
 
   var result = getBucket();
+  var resultToken = makeResultToken();
 
   function val(n) { var el = document.querySelector('input[name="'+n+'"]:checked'); return el ? el.value : ''; }
   function multi(n) { return Array.from(document.querySelectorAll('input[name="'+n+'"]:checked')).map(function(c){return c.value;}).join(', '); }
@@ -571,6 +589,7 @@ function submitQuiz() {
     name: name || 'Anonymous',
     email: email,
     bucket: result.name,
+    token: resultToken,
     q1: val('q1'),
     q2: val('q2'),
     q3: val('q3'),
@@ -589,7 +608,7 @@ function submitQuiz() {
     consent: consent ? 'yes' : 'no'
   };
 
-  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent})); } catch(e) {}
+  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent, token:resultToken})); } catch(e) {}
 
   try {
     fetch(SHEET, {
