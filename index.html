@@ -75,11 +75,21 @@
     :focus-visible { outline: 1px solid rgba(242,239,232,0.4); outline-offset: 4px; }
 
     .headline {
-      font-family: 'Gilda Display', serif;
-      font-style: italic;
-      font-size: clamp(20px, 5.2vw, 26px);
-      line-height: 1.35;
+      font-family: 'DM Sans', sans-serif;
+      font-style: normal;
+      font-weight: 400;
+      font-size: clamp(20px, 5.2vw, 22px);
+      line-height: 1.4;
+      letter-spacing: -0.005em;
       color: var(--fg);
+      margin-bottom: 6px;
+    }
+    .headline-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(14px, 3.4vw, 15px);
+      line-height: 1.6;
+      color: rgba(242,239,232,0.75);
       margin-bottom: 40px;
     }
 
@@ -269,16 +279,19 @@
 
   <div class="inner">
 
-    <h1 class="headline a2">If you can't stop thinking about him, that's not weakness.<br>That's your nervous system doing exactly what it learned to do.</h1>
+    <span class="wordmark a1">Your Mind Story</span>
+
+    <h1 class="headline a2">It doesn't make sense that this has this much power over you.<br>And it feels like he doesn't feel any of it.</h1>
+    <p class="headline-sub a2">Worst of all, you're replaying what happened, checking your phone for him, and still looking fine on the outside while you fall apart inside, and no one knows.</p>
 
     <div class="fork-wrap a2">
       <div class="fork-path">
         <span class="fork-heading">Already know what you need?</span>
-        <a href="https://payhip.com/YourMindStory" class="fork-btn" onclick="gtag('event','door_click',{'door':'shop'});">Shop</a>
+        <a href="https://payhip.com/YourMindStory" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'store'});">Shop</a>
       </div>
       <div class="fork-path">
         <span class="fork-heading">Not sure where to start?</span>
-        <a href="quiz-landing-page.html" class="fork-btn" onclick="gtag('event','door_click',{'door':'quiz'});">Take the free quiz</a>
+        <a href="quiz-landing-page.html" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'quiz'});">Take the free quiz</a>
       </div>
     </div>
 
