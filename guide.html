@@ -93,15 +93,15 @@
   <!-- CTA — smart: if she has a result, show it; if not, send to quiz -->
   <div class="cta-block a4">
     <span class="cta-text" id="cta-text">The assessment tells you exactly which part of your nervous system has been most affected, and points you to the specific tool built for that area.</span>
-    <a href="quiz.html" class="btn-primary" id="cta-btn">Take the free assessment</a>
+    <a href="quiz.html" class="btn-primary" id="cta-btn" onclick="gtag('event','cta_click',{'cta':'guide_to_quiz'});">Take the free quiz</a>
   </div>
 
   <footer>
     <nav class="footer-links">
-      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
-      <a href="https://payhip.com/YourMindStory">The Audios</a>
-      <a href="about.html">About</a>
-      <a href="privacy.html">Privacy</a>
+      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" onclick="gtag('event','footer_click',{'link':'tiktok'});">TikTok</a>
+      <a href="https://payhip.com/YourMindStory" onclick="gtag('event','footer_click',{'link':'shop'});">Shop</a>
+      <a href="about.html" onclick="gtag('event','footer_click',{'link':'about'});">About</a>
+      <a href="privacy.html" onclick="gtag('event','footer_click',{'link':'privacy'});">Privacy</a>
     </nav>
     <p class="disclaimer">Educational and personal development use only. Not a substitute for professional therapy or medical advice.</p>
   </footer>

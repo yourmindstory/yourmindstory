@@ -66,8 +66,8 @@
 <div class="inner">
 
   <nav class="top a1">
-    <a href="index.html" class="nav-wm">Your Mind Story</a>
-    <a href="quiz.html" class="nav-cta">Take the quiz</a>
+    <a href="index.html" class="nav-wm" onclick="gtag('event','nav_click',{'link':'home'});">Your Mind Story</a>
+    <a href="quiz.html" class="nav-cta" onclick="gtag('event','nav_click',{'link':'quiz'});">Take the quiz</a>
   </nav>
 
   <div class="a2">
@@ -128,20 +128,20 @@
         <span class="book-desc">If you have ever adjusted yourself to keep the peace, this names the five things your nervous system actually needs to stay well in love. Not preferences. Not wishful thinking. The baseline your nervous system requires, and what happens when it does not get it.</span>
         <span class="book-desc">You will read it in one sitting. You will come back to it.</span>
       </div>
-      <a href="https://payhip.com/b/ZcdmX" class="btn-dark">Get the book</a>
+      <a href="https://payhip.com/b/ZcdmX" class="btn-dark" onclick="gtag('event','buy_click',{'product':'bare_minimum_book'});">Get the book</a>
     </div>
   </div>
 
   <div class="invite a5">
     <span class="invite-text">If you have not taken this quiz yet, that is the place to start. It will tell you exactly which part of your nervous system may have been most affected, and put you to the specific tool designed for that attachment injury.</span>
-    <a href="quiz.html" class="btn-outline">Take the free quiz</a>
+    <a href="quiz.html" class="btn-outline" onclick="gtag('event','cta_click',{'cta':'take_free_quiz'});">Take the free quiz</a>
   </div>
 
   <footer>
     <nav class="footer-links">
-      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
-      <a href="https://payhip.com/YourMindStory">Shop</a>
-      <a href="privacy.html">Privacy</a>
+      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" onclick="gtag('event','footer_click',{'link':'tiktok'});">TikTok</a>
+      <a href="https://payhip.com/YourMindStory" onclick="gtag('event','footer_click',{'link':'shop'});">Shop</a>
+      <a href="privacy.html" onclick="gtag('event','footer_click',{'link':'privacy'});">Privacy</a>
     </nav>
     <p class="disclaimer">Educational and personal development use only. Not a substitute for professional therapy or medical advice.</p>
   </footer>
