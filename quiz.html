@@ -381,38 +381,40 @@
       <span class="q-text">What is the impact of this dynamic costing you? Tell me in your own words.</span>
       <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through the day without." rows="5" oninput="document.getElementById('btn13').disabled = this.value.trim().length === 0;"></textarea>
       <div class="btn-row">
-        <button type="button" class="btn-next" id="btn13" onclick="showQ13Transition()" disabled>Submit</button>
+        <button type="button" class="btn-next" id="btn13" onclick="go(19)" disabled>Submit</button>
       </div>
-    </div>
-    <div id="q13-transition" style="display:none;">
-      <span class="q-text" style="text-align:center;display:block;margin-top:60px;">Whatever it's costing you, you don't have to feel like this anymore.</span>
     </div>
   </div>
 
   <!-- S19: RESULTS CAPTURE -->
   <div class="screen" id="s19">
-    <span class="cap-head">Your results are ready.</span>
-    <span class="cap-sub">Enter your details and they will appear on the next page. I will email them to you too.</span>
-    <div class="field-wrap">
-      <label class="field-lbl" for="fname">Your name</label>
-      <input class="field-in" type="text" id="fname" name="fname" autocomplete="given-name" placeholder="First name">
+    <div id="s19-form">
+      <span class="cap-head">Your results are ready.</span>
+      <span class="cap-sub">Enter your details and they will appear on the next page. I will email them to you too.</span>
+      <div class="field-wrap">
+        <label class="field-lbl" for="fname">Your name</label>
+        <input class="field-in" type="text" id="fname" name="fname" autocomplete="given-name" placeholder="First name">
+      </div>
+      <div class="field-wrap">
+        <label class="field-lbl" for="femail">Email address</label>
+        <input class="field-in" type="email" id="femail" name="femail" autocomplete="email" placeholder="your@email.com">
+        <span class="err" id="email-err">Please enter a valid email address.</span>
+      </div>
+      <div class="consent-wrap">
+        <label class="consent-lbl" id="consent-lbl">
+          <input type="checkbox" id="consent">
+          <span class="cbox"><span class="ccheck">&#10003;</span></span>
+          <span class="consent-txt">Yes, send my results and occasional support for what I am going through. I can unsubscribe any time. <a href="privacy.html" class="plink">Privacy policy</a></span>
+        </label>
+        <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(242,239,232,0.28);text-decoration:underline;">Full terms</a></p>
+      </div>
+      <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>See my results</button>
+      <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
+      <span class="thankyou">Thank you for sharing this with me today.</span>
     </div>
-    <div class="field-wrap">
-      <label class="field-lbl" for="femail">Email address</label>
-      <input class="field-in" type="email" id="femail" name="femail" autocomplete="email" placeholder="your@email.com">
-      <span class="err" id="email-err">Please enter a valid email address.</span>
+    <div id="s19-transition" style="display:none;">
+      <span class="q-text" style="text-align:center;display:block;margin-top:60px;">Whatever it's costing you, you don't have to feel like this anymore.</span>
     </div>
-    <div class="consent-wrap">
-      <label class="consent-lbl" id="consent-lbl">
-        <input type="checkbox" id="consent">
-        <span class="cbox"><span class="ccheck">&#10003;</span></span>
-        <span class="consent-txt">Yes, send my results and occasional support for what I am going through. I can unsubscribe any time. <a href="privacy.html" class="plink">Privacy policy</a></span>
-      </label>
-      <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(242,239,232,0.28);text-decoration:underline;">Full terms</a></p>
-    </div>
-    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>See my results</button>
-    <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
-    <span class="thankyou">Thank you for sharing this with me today.</span>
   </div>
 
   </form>
@@ -438,12 +440,6 @@ var selectedSituation = '';
 // yet — just captured and stored against her row for when that's built.
 function makeResultToken() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
-
-function showQ13Transition() {
-  document.getElementById('q13-question').style.display = 'none';
-  document.getElementById('q13-transition').style.display = 'block';
-  setTimeout(function() { go(19); }, 1800);
 }
 
 function updateProgress(n) {
@@ -528,9 +524,9 @@ function goBack() {
   current = prev_screen;
   var prev = document.getElementById('s' + current);
   if (prev) { prev.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
-  if (current === 16) {
-    document.getElementById('q13-question').style.display = 'block';
-    document.getElementById('q13-transition').style.display = 'none';
+  if (current === 19) {
+    document.getElementById('s19-form').style.display = 'block';
+    document.getElementById('s19-transition').style.display = 'none';
   }
   updateProgress(current);
   updateBackBtn(current);
@@ -577,9 +573,9 @@ function submitQuiz() {
   document.getElementById('consent-err').classList.toggle('show', !consent);
   if (!emailOk || !consent) return;
 
-  var btn = document.getElementById('btn-submit');
-  btn.disabled = true;
-  btn.textContent = 'Calculating your results...';
+  // Show the "whatever it's costing you" message now that email + consent are captured
+  document.getElementById('s19-form').style.display = 'none';
+  document.getElementById('s19-transition').style.display = 'block';
 
   var result = getBucket();
   var resultToken = makeResultToken();
@@ -624,7 +620,7 @@ function submitQuiz() {
   } catch(e) {}
 
   // Extract bucket name from result.page filename
-  setTimeout(function() { window.location.href = result.page; }, 600);
+  setTimeout(function() { window.location.href = result.page; }, 1800);
 }
 
 document.addEventListener('DOMContentLoaded', function(){
