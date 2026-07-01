@@ -156,7 +156,7 @@
       <p>This is a map of how this dynamic may be showing up in your body and your nervous system.</p>
       <p>Answer honestly. Not how you think you should feel. How you actually feel right now, today.</p>
     </div>
-    <div class="btn-row"><button type="button" class="btn-next" onclick="go(1)">Begin</button></div>
+    <div class="btn-row"><button type="button" class="btn-next" onclick="gtag('event','quiz_start');go(1)">Begin</button></div>
   </div>
 
   <!-- S1: GENDER (required, no skip) -->
@@ -270,10 +270,10 @@
     <span class="q-name">Where you are right now</span>
     <span class="q-text">Which of these best describes your situation today?</span>
     <div class="options" role="radiogroup" aria-label="Q7">
-      <label class="opt"><input type="radio" name="q7" value="We are still together, we are working on it."><span class="dot"></span><span class="opt-text">We are still together, we are working on it.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="We are still in contact, on and off, or still in the dynamic hoping things will change."><span class="dot"></span><span class="opt-text">We are still in contact, on and off, or still in the dynamic hoping things will change.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="It has ended, but I cannot stop thinking about him and I am struggling to move forward."><span class="dot"></span><span class="opt-text">It has ended, but I cannot stop thinking about him and I am struggling to move forward.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="I have been out of it for a while, but I am still not free of it and I am not sure why."><span class="dot"></span><span class="opt-text">I have been out of it for a while, but I am still not free of it and I am not sure why.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="We're still together. I'm trying to make it work."><span class="dot"></span><span class="opt-text">We're still together. I'm trying to make it work.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="We're on and off, or I'm still hoping things will change."><span class="dot"></span><span class="opt-text">We're on and off, or I'm still hoping things will change.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="It's ended, but I can't stop thinking about him."><span class="dot"></span><span class="opt-text">It's ended, but I can't stop thinking about him.</span></label>
+      <label class="opt"><input type="radio" name="q7" value="I've been out for a while, but I still don't feel free, and I don't know why."><span class="dot"></span><span class="opt-text">I've been out for a while, but I still don't feel free, and I don't know why.</span></label>
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn9" onclick="go(10)" disabled>Next</button></div>
   </div>
@@ -359,14 +359,14 @@
   <!-- S15: Q12 THE ONE THING -->
   <div class="screen" id="s15">
     <span class="q-label">Question 12</span>
-    <span class="q-text">The one thing stopping me from starting my recovery right now is:</span>
+    <span class="q-text">The one thing stopping me from finding peace in this situation is:</span>
     <div class="options" role="radiogroup" aria-label="Q12">
-      <label class="opt"><input type="radio" name="q12" value="I do not believe anything will work, I have tried everything already"><span class="dot"></span><span class="opt-text">I do not believe anything will work, I have tried everything already</span></label>
       <label class="opt"><input type="radio" name="q12" value="I am not sure I am ready to let go of him yet"><span class="dot"></span><span class="opt-text">I am not sure I am ready to let go of him yet</span></label>
       <label class="opt"><input type="radio" name="q12" value="I want to start but I do not know where to begin"><span class="dot"></span><span class="opt-text">I want to start but I do not know where to begin</span></label>
-      <label class="opt"><input type="radio" name="q12" value="I am worried this will not work for my specific situation"><span class="dot"></span><span class="opt-text">I am worried this will not work for my specific situation</span></label>
-      <label class="opt"><input type="radio" name="q12" value="I am not tired enough of it yet"><span class="dot"></span><span class="opt-text">I am not tired enough of it yet</span></label>
       <label class="opt"><input type="radio" name="q12" value="Money is a barrier right now"><span class="dot"></span><span class="opt-text">Money is a barrier right now</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I do not believe anything will work, I have tried everything already"><span class="dot"></span><span class="opt-text">I do not believe anything will work, I have tried everything already</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I have never actually tried hypnotherapy"><span class="dot"></span><span class="opt-text">I have never actually tried hypnotherapy</span></label>
+      <label class="opt"><input type="radio" name="q12" value="I have tried hypnotherapy before and I am not sure it would work for this"><span class="dot"></span><span class="opt-text">I have tried hypnotherapy before and I am not sure it would work for this</span></label>
     </div>
     <div class="btn-row">
       <button type="button" class="btn-next" id="btn15" onclick="go(16)" disabled>Next</button>
@@ -376,25 +376,16 @@
 
   <!-- S16: Q13 IN YOUR OWN WORDS -->
   <div class="screen" id="s16">
-    <span class="q-label">Question 13</span>
-    <span class="q-text">What is it costing you to still be in this loop? Tell me in your own words.</span>
-    <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through a day without..." rows="5" oninput="document.getElementById('btn13').disabled = this.value.trim().length === 0;"></textarea>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn13" onclick="go(17)" disabled>Next</button>
+    <div id="q13-question">
+      <span class="q-label">Question 13</span>
+      <span class="q-text">What is the impact of this dynamic costing you? Tell me in your own words.</span>
+      <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through the day without." rows="5" oninput="document.getElementById('btn13').disabled = this.value.trim().length === 0;"></textarea>
+      <div class="btn-row">
+        <button type="button" class="btn-next" id="btn13" onclick="showQ13Transition()" disabled>Submit</button>
+      </div>
     </div>
-  </div>
-
-  <!-- S17: Q14 WORKSHOP -->
-  <div class="screen" id="s17">
-    <span class="q-label">Question 14</span>
-    <span class="q-text">I am running a live online workshop on recovering from avoidant relationships. One hour. Would you like to know when it happens?</span>
-    <div class="options" role="radiogroup" aria-label="Q14" style="margin-top:20px;">
-      <label class="opt"><input type="radio" name="q14" value="Yes, save me a seat."><span class="dot"></span><span class="opt-text">Yes, save me a seat.</span></label>
-      <label class="opt"><input type="radio" name="q14" value="Not right now."><span class="dot"></span><span class="opt-text">Not right now.</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn17" onclick="go(19)" disabled>Next</button>
-      <button type="button" class="btn-skip" onclick="go(19)">Skip</button>
+    <div id="q13-transition" style="display:none;">
+      <span class="q-text" style="text-align:center;display:block;margin-top:60px;">Whatever it's costing you, you don't have to feel like this anymore.</span>
     </div>
   </div>
 
@@ -437,15 +428,22 @@
 // Return to Self = Q4 + Q6
 // Tiebreaker: lowest index
 
-var SHEET = 'https://script.google.com/macros/s/AKfycbzCoLzYpllp2NThCV5Zzil5SLGvN_-ohf8G2qEriQlvo11EnEi2TKOh1CXDFd_048mg/exec';
+var SHEET = 'https://script.google.com/macros/s/AKfycbyhP9iqlmz8nFkI1UvZVQjE4fRaiR8oh7wDd40bQNL6KqOXqfJERRS89j4XA-MkZ-Hj/exec';
 var current = 0;
 var selectedGender = '';
+var selectedSituation = '';
 
 // Generates a permanent, unique token for this result so it can be
 // looked back up later (email link, etc). Not used for redirect logic
 // yet — just captured and stored against her row for when that's built.
 function makeResultToken() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function showQ13Transition() {
+  document.getElementById('q13-question').style.display = 'none';
+  document.getElementById('q13-transition').style.display = 'block';
+  setTimeout(function() { go(19); }, 1800);
 }
 
 function updateProgress(n) {
@@ -486,6 +484,7 @@ document.addEventListener('click', function(e) {
     input.checked = true;
     // Capture gender immediately when selected
     if (input.name === 'gender') selectedGender = input.value;
+    if (input.name === 'q7') selectedSituation = input.value;
     // Enable next button for this screen
     var scr = document.getElementById('s' + current);
     if (scr) { var btn = scr.querySelector('.btn-next'); if (btn) btn.disabled = false; }
@@ -529,6 +528,10 @@ function goBack() {
   current = prev_screen;
   var prev = document.getElementById('s' + current);
   if (prev) { prev.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  if (current === 16) {
+    document.getElementById('q13-question').style.display = 'block';
+    document.getElementById('q13-transition').style.display = 'none';
+  }
   updateProgress(current);
   updateBackBtn(current);
   var hdr = document.getElementById('quiz-header');
@@ -580,6 +583,7 @@ function submitQuiz() {
 
   var result = getBucket();
   var resultToken = makeResultToken();
+  gtag('event', 'quiz_complete', {'bucket': result.name, 'situation': selectedSituation});
 
   function val(n) { var el = document.querySelector('input[name="'+n+'"]:checked'); return el ? el.value : ''; }
   function multi(n) { return Array.from(document.querySelectorAll('input[name="'+n+'"]:checked')).map(function(c){return c.value;}).join(', '); }
@@ -605,6 +609,7 @@ function submitQuiz() {
     q13: document.getElementById('q13').value || '',
     q14: val('q14'),
     gender: selectedGender,
+    situation: selectedSituation,
     consent: consent ? 'yes' : 'no'
   };
 
