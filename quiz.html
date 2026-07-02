@@ -99,7 +99,7 @@
     .btn-submit{width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;transition:opacity 0.2s;}
     .btn-submit:hover{opacity:0.86;}
     .btn-submit:disabled{opacity:0.32;cursor:not-allowed;}
-    .thankyou{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.32);text-align:center;margin-top:16px;display:block;}
+    .thankyou{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.32);text-align:center;margin-top:16px;display:none;}
     :focus-visible{outline:1px solid rgba(242,239,232,0.4);outline-offset:4px;}
     body { transition: background-color 1.2s ease; }
 
@@ -381,7 +381,7 @@
       <span class="q-text">What is the impact of this dynamic costing you? Tell me in your own words.</span>
       <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through the day without." rows="5" oninput="document.getElementById('btn13').disabled = this.value.trim().length === 0;"></textarea>
       <div class="btn-row">
-        <button type="button" class="btn-next" id="btn13" onclick="showQ13Transition()" disabled>Submit</button>
+        <button type="button" class="btn-next" id="btn13" onclick="go(19)" disabled>Submit</button>
       </div>
     </div>
     <div id="q13-transition" style="display:none;">
@@ -412,11 +412,15 @@
     </div>
     <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>See my results</button>
     <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
-    <span class="thankyou">Thank you for sharing this with me today.</span>
   </div>
 
   </form>
 </div>
+
+  <!-- POST-SUBMIT TRANSITION: shows after email capture, before results page -->
+  <div id="post-submit-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0D0B14;z-index:9999;align-items:center;justify-content:center;padding:32px;box-sizing:border-box;">
+    <span style="font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);color:#F2EFE8;text-align:center;display:block;line-height:1.6;">Whatever it’s costing you, you don’t have to feel like this anymore.</span>
+  </div>
 </main>
 </div>
 
@@ -622,7 +626,9 @@ function submitQuiz() {
   } catch(e) {}
 
   // Extract bucket name from result.page filename
-  setTimeout(function() { window.location.href = result.page; }, 600);
+  var overlay = document.getElementById('post-submit-overlay');
+  overlay.style.display = 'flex';
+  setTimeout(function() { window.location.href = result.page; }, 2200);
 }
 
 document.addEventListener('DOMContentLoaded', function(){
@@ -642,13 +648,4 @@ document.addEventListener('DOMContentLoaded', function(){
 
 </body>
 </html>
-      header.style.display = 'block';
-    }
-  }
-  window.addEventListener('scroll', updateHeader);
-  updateHeader();
-});
-</script>
 
-</body>
-</html>
