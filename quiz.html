@@ -617,18 +617,9 @@ function submitQuiz() {
 
   try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent, token:resultToken})); } catch(e) {}
 
-  var payloadStr = JSON.stringify(payload);
   try {
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(SHEET, new Blob([payloadStr], {type: 'text/plain'}));
-    } else {
-      fetch(SHEET, {
-        method: 'POST',
-        headers: {'Content-Type': 'text/plain'},
-        body: payloadStr,
-        keepalive: true
-      }).catch(function() {});
-    }
+    var qs = new URLSearchParams({data: JSON.stringify(payload)}).toString();
+    fetch(SHEET + '?' + qs, {mode: 'no-cors', keepalive: true}).catch(function() {});
   } catch(e) {}
 
   // Extract bucket name from result.page filename
