@@ -15,30 +15,36 @@
     .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
     @media(min-width:768px){.page{padding:0 64px 80px;}}
     .inner{width:100%;max-width:560px;}
+
     /* HEADER */
     .q-header{padding-top:52px;padding-bottom:36px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:40px;}
     .q-wordmark{font-family:'Gilda Display',serif;font-style:normal;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(242,239,232,0.50);display:block;}
     .q-title{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5.5vw,30px);color:var(--fg);display:block;margin-top:20px;line-height:1.1;}
     .q-sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.6vw,13px);color:rgba(242,239,232,0.35);margin-top:10px;display:block;line-height:1.6;}
+
     /* PROGRESS */
     .progress{margin-bottom:44px;}
     .progress-label{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:rgba(242,239,232,0.28);margin-bottom:10px;}
     .progress-bg{width:100%;height:1px;background:rgba(242,239,232,0.10);}
     .progress-fill{height:1px;background:rgba(242,239,232,0.45);transition:width 0.5s ease;}
+
     /* SCREENS */
     .screen{display:none;}
     .screen.active{display:block;animation:fadeup 0.4s ease forwards;}
     @keyframes fadeup{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
     /* SECTION INTRO */
     .section-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5vw,26px);color:var(--fg);line-height:1.15;margin-bottom:20px;display:block;}
     .section-body{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,16px);line-height:1.85;color:rgba(242,239,232,0.58);}
     .section-body p+p{margin-top:10px;}
+
     /* QUESTION */
     .q-label{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.28);margin-bottom:8px;}
     .q-name{display:block;font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,15px);color:rgba(242,239,232,0.40);margin-bottom:10px;}
     .q-text{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.7;color:var(--fg);margin-bottom:26px;}
     .q-text.quote{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(17px,4vw,21px);padding-left:16px;border-left:1px solid rgba(242,239,232,0.15);line-height:1.5;margin-bottom:12px;}
     .q-text.quote-sub{font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.65);margin-bottom:26px;}
+
     /* OPTIONS */
     .options{display:flex;flex-direction:column;gap:10px;}
     .opt{display:flex;align-items:flex-start;gap:14px;cursor:pointer;padding:16px 18px;border:1px solid rgba(242,239,232,0.08);transition:border-color 0.2s,background 0.2s;}
@@ -53,10 +59,12 @@
     .opt.selected .opt-text{color:var(--fg);}
     .opt.cb .dot{border-radius:2px;}
     .opt.cb.selected .dot::after{width:8px;height:5px;border-radius:0;background:transparent;border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(-45deg) translateY(-1px);}
+
     /* TEXTAREA */
     .q-textarea{width:100%;background:rgba(242,239,232,0.03);border:1px solid rgba(242,239,232,0.10);border-bottom:1px solid rgba(242,239,232,0.18);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);line-height:1.7;padding:16px 18px;resize:none;min-height:110px;outline:none;transition:border-color 0.2s;}
     .q-textarea:focus{border-color:rgba(242,239,232,0.32);}
     .q-textarea::placeholder{color:rgba(242,239,232,0.20);}
+
     /* BUTTONS */
     .btn-row{margin-top:32px;display:flex;gap:12px;align-items:center;}
     .btn-next{flex:1;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:18px 24px;cursor:pointer;transition:opacity 0.2s;}
@@ -67,6 +75,7 @@
     .btn-back::before{content:'← ';}
     .btn-skip{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(242,239,232,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;}
     .btn-skip:hover{color:rgba(242,239,232,0.50);}
+
     /* CAPTURE */
     .cap-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5.5vw,28px);color:var(--fg);display:block;margin-bottom:12px;line-height:1.15;}
     .cap-sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(242,239,232,0.55);line-height:1.8;display:block;margin-bottom:32px;}
@@ -93,6 +102,9 @@
     .thankyou{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,14px);color:rgba(242,239,232,0.32);text-align:center;margin-top:16px;display:none;}
     :focus-visible{outline:1px solid rgba(242,239,232,0.4);outline-offset:4px;}
     body { transition: background-color 1.2s ease; }
+
+    /* Capture screen uses same dark styling as quiz */
+
     /* Hide full header after intro screen */
     .q-header.compact {
       padding-top: 28px;
@@ -121,17 +133,22 @@
 <body>
 <main class="page" role="main">
 <div class="inner">
+
   <header class="q-header" id="quiz-header">
     <span class="q-wordmark">Your Mind Story</span>
     <span class="q-title">When an Avoidant Loves You</span>
     <span class="q-sub">And what loving him has done, or is doing, to your nervous system</span>
   </header>
+
   <div class="progress" aria-label="Progress">
     <span class="progress-label" id="prog-label">Section 1 of 2</span>
     <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
   </div>
+
   <button type="button" class="btn-back" onclick="goBack()">Back</button>
+
   <form id="quiz-form" novalidate>
+
   <!-- S0: INTRO -->
   <div class="screen active" id="s0">
     <span class="section-head">This is not a personality quiz.</span>
@@ -141,6 +158,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" onclick="gtag('event','quiz_start');go(1)">Begin</button></div>
   </div>
+
   <!-- S1: GENDER (required, no skip) -->
   <div class="screen" id="s1">
     <div class="options" role="radiogroup" aria-label="Gender">
@@ -151,6 +169,7 @@
       <button type="button" class="btn-next" id="btn1" onclick="go(2)" disabled>Next</button>
     </div>
   </div>
+
   <!-- S2: PART ONE INTRO -->
   <div class="screen" id="s2">
     <span class="section-head">Part One, what is happening in your body</span>
@@ -159,6 +178,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" onclick="go(3)">Continue</button></div>
   </div>
+
   <!-- S3: Q1 THE ALARM IN YOUR BODY -->
   <div class="screen" id="s3">
     <span class="q-label">Question 1</span>
@@ -172,6 +192,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn3" onclick="go(4)" disabled>Next</button></div>
   </div>
+
   <!-- S4: Q2 THE CHECKING -->
   <div class="screen" id="s4">
     <span class="q-label">Question 2</span>
@@ -185,6 +206,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn4" onclick="go(5)" disabled>Next</button></div>
   </div>
+
   <!-- S5: Q3 THE SELF-BLAME -->
   <div class="screen" id="s5">
     <span class="q-label">Question 3</span>
@@ -198,6 +220,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn5" onclick="go(6)" disabled>Next</button></div>
   </div>
+
   <!-- S6: Q4 THE PULL -->
   <div class="screen" id="s6">
     <span class="q-label">Question 4</span>
@@ -211,6 +234,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn6" onclick="go(7)" disabled>Next</button></div>
   </div>
+
   <!-- S7: Q5 KNOWING-DOING GAP -->
   <div class="screen" id="s7">
     <span class="q-label">Question 5</span>
@@ -225,6 +249,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn7" onclick="go(8)" disabled>Next</button></div>
   </div>
+
   <!-- S8: Q6 THE LOST SELF -->
   <div class="screen" id="s8">
     <span class="q-label">Question 6</span>
@@ -238,6 +263,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn8" onclick="go(9)" disabled>Next</button></div>
   </div>
+
   <!-- S9: Q7 WHERE YOU ARE NOW -->
   <div class="screen" id="s9">
     <span class="q-label">Question 7</span>
@@ -251,6 +277,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" id="btn9" onclick="go(10)" disabled>Next</button></div>
   </div>
+
   <!-- S10: PART TWO INTRO -->
   <div class="screen" id="s10">
     <span class="section-head" style="font-size:clamp(14px,3.2vw,16px);color:rgba(242,239,232,0.50);margin-bottom:6px;">Just two more minutes.</span>
@@ -260,6 +287,7 @@
     </div>
     <div class="btn-row"><button type="button" class="btn-next" onclick="go(11)">Continue</button></div>
   </div>
+
   <!-- S11: Q8 THE FUTURE -->
   <div class="screen" id="s11">
     <span class="q-label">Question 8</span>
@@ -275,6 +303,7 @@
       <button type="button" class="btn-skip" onclick="go(12)">Skip</button>
     </div>
   </div>
+
   <!-- S12: Q9 WHAT YOU HAVE TRIED -->
   <div class="screen" id="s12">
     <span class="q-label">Question 9</span>
@@ -292,6 +321,7 @@
       <button type="button" class="btn-skip" onclick="go(13)">Skip</button>
     </div>
   </div>
+
   <!-- S13: Q10 ON A BAD DAY -->
   <div class="screen" id="s13">
     <span class="q-label">Question 10</span>
@@ -309,6 +339,7 @@
       <button type="button" class="btn-skip" onclick="go(14)">Skip</button>
     </div>
   </div>
+
   <!-- S14: Q11 WHAT FEELS OUT OF REACH -->
   <div class="screen" id="s14">
     <span class="q-label">Question 11</span>
@@ -324,6 +355,7 @@
       <button type="button" class="btn-skip" onclick="go(15)">Skip</button>
     </div>
   </div>
+
   <!-- S15: Q12 THE ONE THING -->
   <div class="screen" id="s15">
     <span class="q-label">Question 12</span>
@@ -341,6 +373,7 @@
       <button type="button" class="btn-skip" onclick="go(16)">Skip</button>
     </div>
   </div>
+
   <!-- S16: Q13 IN YOUR OWN WORDS -->
   <div class="screen" id="s16">
     <div id="q13-question">
@@ -355,6 +388,7 @@
       <span class="q-text" style="text-align:center;display:block;margin-top:60px;">Whatever it's costing you, you don't have to feel like this anymore.</span>
     </div>
   </div>
+
   <!-- S19: RESULTS CAPTURE -->
   <div class="screen" id="s19">
     <span class="cap-head">Your results are ready.</span>
@@ -379,14 +413,17 @@
     <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>See my results</button>
     <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
   </div>
+
   </form>
 </div>
+
   <!-- POST-SUBMIT TRANSITION: shows after email capture, before results page -->
   <div id="post-submit-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0D0B14;z-index:9999;align-items:center;justify-content:center;padding:32px;box-sizing:border-box;">
     <span style="font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);color:#F2EFE8;text-align:center;display:block;line-height:1.6;">Whatever it’s costing you, you don’t have to feel like this anymore.</span>
   </div>
 </main>
 </div>
+
 <script>
 // SCORING - Master System Prompt V8.3
 // Stabilise      = Q1 + Q3
@@ -394,32 +431,37 @@
 // Restore Self T = Q3 + Q5
 // Return to Self = Q4 + Q6
 // Tiebreaker: lowest index
-// FIXED LINE 316: Points exactly to your deployed dynamic Google Web App
+
 var SHEET = 'https://script.google.com/macros/s/AKfycbzBKQ9JVm4YPtfTHmYjKjVai-sVT31qQZVoG7e949OCenhHBNVPV2RSuUcXBmyE3I3Q/exec';
 var current = 0;
 var selectedGender = '';
 var selectedSituation = '';
+
 // Generates a permanent, unique token for this result so it can be
 // looked back up later (email link, etc). Not used for redirect logic
 // yet — just captured and stored against her row for when that's built.
 function makeResultToken() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
+
 function showQ13Transition() {
   document.getElementById('q13-question').style.display = 'none';
   document.getElementById('q13-transition').style.display = 'block';
   setTimeout(function() { go(19); }, 1800);
 }
+
 function updateProgress(n) {
   var pct = Math.round((n / 19) * 100);
   document.getElementById('prog-fill').style.width = pct + '%';
   document.getElementById('prog-label').textContent = n >= 10 ? 'Section 2 of 2' : 'Section 1 of 2';
 }
+
 document.addEventListener('click', function(e) {
   var label = e.target.closest('.opt');
   if (!label) return;
   var input = label.querySelector('input');
   if (!input) return;
+
   if (input.type === 'checkbox') {
     // Toggle checkbox manually
     input.checked = !input.checked;
@@ -452,6 +494,7 @@ document.addEventListener('click', function(e) {
     if (scr) { var btn = scr.querySelector('.btn-next'); if (btn) btn.disabled = false; }
   }
 });
+
 // Consent toggles submit button
 var consentEl = document.getElementById('consent');
 if (consentEl) {
@@ -460,6 +503,7 @@ if (consentEl) {
     document.getElementById('btn-submit').disabled = !this.checked;
   });
 }
+
 // Back navigation
 var history_stack = [];
 function go(n) {
@@ -479,6 +523,7 @@ function go(n) {
     else { hdr.classList.remove('compact'); }
   }
 }
+
 function goBack() {
   if (history_stack.length === 0) return;
   var prev_screen = history_stack.pop();
@@ -499,6 +544,7 @@ function goBack() {
     else { hdr.classList.remove('compact'); }
   }
 }
+
 function updateBackBtn(n) {
   // Show back button on all screens except s0 (intro) and s19 (capture)
   var backBtns = document.querySelectorAll('.btn-back');
@@ -506,12 +552,14 @@ function updateBackBtn(n) {
     b.style.display = (n > 0 && n < 19) ? 'block' : 'none';
   });
 }
+
 function sc(name) {
   var el = document.querySelector('input[name="' + name + '"]:checked');
   if (!el) return 0;
   var label = el.closest('[data-score]');
   return label ? parseInt(label.getAttribute('data-score')) || 0 : 0;
 }
+
 function getBucket() {
   var q1=sc('q1'), q2=sc('q2'), q3=sc('q3'), q4=sc('q4'), q5=sc('q5'), q6=sc('q6');
   var buckets = [
@@ -523,6 +571,7 @@ function getBucket() {
   if (buckets.every(function(b) { return b.score === 0; })) return {name:'no-result', page:'no-result.html'};
   return buckets.reduce(function(best, curr) { return curr.score > best.score ? curr : best; });
 }
+
 function submitQuiz() {
   var email = document.getElementById('femail').value.trim();
   var name  = document.getElementById('fname').value.trim();
@@ -531,14 +580,18 @@ function submitQuiz() {
   document.getElementById('email-err').classList.toggle('show', !emailOk);
   document.getElementById('consent-err').classList.toggle('show', !consent);
   if (!emailOk || !consent) return;
+
   var btn = document.getElementById('btn-submit');
   btn.disabled = true;
   btn.textContent = 'Calculating your results...';
+
   var result = getBucket();
   var resultToken = makeResultToken();
   gtag('event', 'quiz_complete', {'bucket': result.name, 'situation': selectedSituation});
+
   function val(n) { var el = document.querySelector('input[name="'+n+'"]:checked'); return el ? el.value : ''; }
   function multi(n) { return Array.from(document.querySelectorAll('input[name="'+n+'"]:checked')).map(function(c){return c.value;}).join(', '); }
+
   // Send in the flat object format the Apps Script expects
   var payload = {
     name: name || 'Anonymous',
@@ -561,19 +614,21 @@ function submitQuiz() {
     gender: selectedGender,
     consent: consent ? 'yes' : 'no'
   };
+
   try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent, token:resultToken})); } catch(e) {}
-  try {
-    fetch(SHEET, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify(payload)
-    });
-  } catch(e) {}
+
+  fetch(SHEET, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify(payload)
+  }).catch(function() {});
+
   // Extract bucket name from result.page filename
   var overlay = document.getElementById('post-submit-overlay');
   overlay.style.display = 'flex';
   setTimeout(function() { window.location.href = result.page; }, 2200);
 }
+
 document.addEventListener('DOMContentLoaded', function(){
   var header = document.getElementById('quiz-header');
   function updateHeader(){
@@ -588,5 +643,7 @@ document.addEventListener('DOMContentLoaded', function(){
   updateHeader();
 });
 </script>
+
 </body>
-</html>  is this correct?                                                                                                                              
+</html>
+                                                                                                                                                      
