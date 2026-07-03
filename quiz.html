@@ -432,7 +432,7 @@
 // Return to Self = Q4 + Q6
 // Tiebreaker: lowest index
 
-var SHEET = 'https://script.google.com/macros/s/AKfycbyhP9iqlmz8nFkI1UvZVQjE4fRaiR8oh7wDd40bQNL6KqOXqfJERRS89j4XA-MkZ-Hj/exec';
+var SHEET = 'quiz-submit.php';
 var current = 0;
 var selectedGender = '';
 var selectedSituation = '';
@@ -618,8 +618,12 @@ function submitQuiz() {
   try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent, token:resultToken})); } catch(e) {}
 
   try {
-    var qs = new URLSearchParams({data: JSON.stringify(payload)}).toString();
-    fetch(SHEET + '?' + qs, {mode: 'no-cors', keepalive: true}).catch(function() {});
+    fetch(SHEET, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+      keepalive: true
+    }).catch(function() {});
   } catch(e) {}
 
   // Extract bucket name from result.page filename
