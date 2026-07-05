@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Check-In, Reset Series, Your Mind Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0D0B14;
+      --fg:#F2EFE8;
+      --rule:rgba(242,239,232,0.07);
+      --muted:rgba(242,239,232,0.45);
+      --dim:rgba(242,239,232,0.50);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+
+    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 100px;}
+    @media(min-width:768px){.page{padding:0 64px 100px;}}
+    .inner{width:100%;max-width:580px;}
+
+    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+    .a1{opacity:0;animation:up 0.9s ease forwards 0.1s;}
+    .a2{opacity:0;animation:up 1s ease forwards 0.3s;}
+    .a3{opacity:0;animation:up 1s ease forwards 0.5s;}
+    .a4{opacity:0;animation:up 1s ease forwards 0.7s;}
+    .a5{opacity:0;animation:up 1s ease forwards 0.9s;}
+    .a6{opacity:0;animation:up 1s ease forwards 1.1s;}
+
+    hr.rule{width:100%;border:none;border-top:1px solid var(--rule);}
+
+    .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:48px;}
+    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:var(--muted);display:block;}
+
+    .eyebrow{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:12px;}
+    .page-title{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(26px,6.5vw,38px);line-height:1.08;color:var(--fg);display:block;margin-bottom:16px;}
+    .intro-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--muted);display:block;}
+    .tracking-note{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);line-height:1.75;color:var(--dim);display:block;margin-top:16px;}
+
+    .day-select{margin:32px 0;padding:20px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+    .day-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:14px;}
+    .day-options{display:flex;gap:10px;flex-wrap:wrap;}
+    .day-btn{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(11px,2.5vw,13px);letter-spacing:0.08em;color:var(--muted);background:none;border:1px solid rgba(242,239,232,0.15);padding:10px 18px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
+    .day-btn:hover{border-color:rgba(242,239,232,0.35);color:var(--fg);}
+    .day-btn.selected{background:var(--fg);color:var(--bg);border-color:var(--fg);}
+
+    /* Day-specific context shown above scored questions */
+    .day-context{display:none;padding:16px 0;margin-bottom:8px;}
+    .day-context.visible{display:block;}
+    .day-context-text{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(16px,4vw,20px);color:rgba(242,239,232,0.55);line-height:1.4;display:block;}
+
+    .field-block{margin-bottom:36px;}
+    .field-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:10px;}
+    .field-input{width:100%;background:none;border:none;border-bottom:1px solid rgba(242,239,232,0.20);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);padding:10px 0;outline:none;transition:border-color 0.2s;}
+    .field-input:focus{border-bottom-color:rgba(242,239,232,0.55);}
+    .field-input::placeholder{color:var(--dim);}
+
+    .section-marker{display:flex;align-items:center;gap:14px;margin:48px 0 28px;}
+    .section-num{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(28px,7vw,40px);color:rgba(242,239,232,0.10);line-height:1;flex-shrink:0;}
+    .section-title{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);color:var(--fg);line-height:1.2;}
+
+    .q-block{margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--rule);}
+    .q-block:last-of-type{border-bottom:none;margin-bottom:0;}
+    .q-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--fg);display:block;margin-bottom:6px;}
+    .q-area{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:20px;}
+
+    .slider-wrap{position:relative;padding-bottom:28px;}
+    .slider{-webkit-appearance:none;appearance:none;width:100%;height:1px;background:rgba(242,239,232,0.15);outline:none;cursor:pointer;}
+    .slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--fg);cursor:pointer;transition:transform 0.15s;}
+    .slider::-webkit-slider-thumb:hover{transform:scale(1.2);}
+    .slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--fg);cursor:pointer;border:none;}
+    .slider-labels{display:flex;justify-content:space-between;margin-top:10px;}
+    .slider-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.06em;color:var(--dim);max-width:45%;line-height:1.4;}
+    .slider-label:last-child{text-align:right;}
+    .slider-val{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5vw,28px);color:var(--fg);text-align:center;display:block;margin-top:12px;min-height:36px;transition:opacity 0.2s;}
+
+    .textarea-field{width:100%;background:none;border:none;border-bottom:1px solid rgba(242,239,232,0.20);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;padding:10px 0;outline:none;resize:none;min-height:80px;transition:border-color 0.2s;}
+    .textarea-field:focus{border-bottom-color:rgba(242,239,232,0.55);}
+    .textarea-field::placeholder{color:var(--dim);}
+
+    .reflection-block{margin:48px 0;padding:32px;border:1px solid rgba(242,239,232,0.10);}
+    .reflection-prompt{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,22px);color:var(--fg);display:block;margin-bottom:20px;line-height:1.3;}
+    .reflection-input{width:100%;background:none;border:none;border-bottom:1px solid rgba(242,239,232,0.20);color:var(--fg);font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(16px,4vw,20px);padding:10px 0;outline:none;transition:border-color 0.2s;}
+    .reflection-input:focus{border-bottom-color:rgba(242,239,232,0.55);}
+    .reflection-input::placeholder{color:rgba(242,239,232,0.35);font-style:italic;}
+
+    .consent-block{margin:32px 0;display:flex;align-items:flex-start;gap:14px;}
+    .consent-check{width:16px;height:16px;border:1px solid rgba(242,239,232,0.40);background:none;cursor:pointer;flex-shrink:0;margin-top:3px;appearance:none;-webkit-appearance:none;transition:background 0.2s,border-color 0.2s;}
+    .consent-check:checked{background:var(--fg);border-color:var(--fg);}
+    .consent-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.8vw,13px);color:var(--muted);line-height:1.75;}
+
+    .summary{display:none;margin:40px 0 0;padding:28px;border:1px solid rgba(242,239,232,0.10);}
+    .summary.visible{display:block;}
+    .summary-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,22px);color:var(--fg);display:block;margin-bottom:6px;}
+    .summary-sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.8vw,13px);color:var(--dim);display:block;margin-bottom:20px;line-height:1.6;}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule);}
+    .summary-row:last-child{border-bottom:none;}
+    .summary-q{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.8vw,13px);color:var(--muted);flex:1;padding-right:16px;}
+    .summary-score{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5vw,26px);color:var(--fg);}
+    .summary-denom{font-size:13px;color:var(--dim);font-style:normal;}
+
+    .btn-submit{display:block;width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;text-align:center;transition:opacity 0.2s;margin-top:32px;}
+    .btn-submit:hover{opacity:0.86;}
+    .btn-submit:disabled{opacity:0.35;cursor:not-allowed;}
+
+    .thankyou{display:none;text-align:center;padding:64px 0;}
+    .thankyou.visible{display:block;}
+    .ty-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(28px,7vw,44px);color:var(--fg);display:block;margin-bottom:16px;}
+    .ty-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--muted);display:block;}
+
+    footer{margin-top:56px;padding-top:28px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
+    .footer-links{display:flex;gap:28px;}
+    .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.40);text-decoration:none;}
+    .disclaimer{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(242,239,232,0.35);text-align:center;line-height:1.6;}
+    :focus-visible{outline:1px solid rgba(242,239,232,0.4);outline-offset:4px;}
+  </style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-0MFXQ5ETCD');
+</script>
+</head>
+<body>
+<main class="page" role="main">
+<div class="inner">
+
+  <header class="hdr a1">
+    <span class="wm">Your Mind Story</span>
+  </header>
+
+  <div id="form-wrap">
+
+    <div class="a2">
+      <span class="eyebrow">Reset Series, check-in</span>
+      <span class="page-title" id="page-heading">Where are you right now?</span>
+      <span class="intro-text">Honest answers only. Not how you think you should feel. How you actually feel today.</span>
+      <span class="tracking-note">Tracking your own progress is part of how the shift happens. Women who check in notice the movement sooner.</span>
+    </div>
+
+    <!-- DAY SELECTOR -->
+    <div class="day-select a3">
+      <span class="day-label">Which check-in is this</span>
+      <div class="day-options">
+        <button type="button" class="day-btn" data-day="0" onclick="selectDay(this)">Day 0, before I start</button>
+        <button type="button" class="day-btn" data-day="7" onclick="selectDay(this)">Day 7, midway</button>
+        <button type="button" class="day-btn" data-day="21" onclick="selectDay(this)">Day 21, after</button>
+      </div>
+    </div>
+
+    <!-- NAME -->
+    <div class="field-block a3" id="name-block">
+      <span class="field-label">Your name</span>
+      <input type="text" class="field-input" id="uname" placeholder="first name" autocomplete="given-name">
+    </div>
+
+    <!-- EMAIL, pre-filled from URL, hidden if present -->
+    <div class="field-block a3" id="email-block">
+      <span class="field-label">Your email address</span>
+      <input type="email" class="field-input" id="email" placeholder="the one you used to purchase" autocomplete="email">
+    </div>
+
+    <hr class="rule a3">
+
+    <!-- SECTION 1: SCORED QUESTIONS -->
+    <div class="a4">
+      <div class="section-marker">
+        <span class="section-num">01</span>
+        <span class="section-title" id="s1-title">Where the spiral is right now</span>
+      </div>
+
+      <!-- Day-specific framing -->
+      <div class="day-context" id="ctx-d0">
+        <span class="day-context-text">Before your first listen. Take a moment to notice where you are today.</span>
+      </div>
+      <div class="day-context" id="ctx-d7">
+        <span class="day-context-text">Seven days in. Notice what is different, even if the shifts feel small. Small is real.</span>
+      </div>
+      <div class="day-context" id="ctx-d21">
+        <span class="day-context-text">Twenty-one days. Before you score, take a moment. Notice where you actually are now.</span>
+      </div>
+
+      <!-- Q1: The alarm -->
+      <div class="q-block">
+        <span class="q-text" id="q1-text">When something reminds you of him, a notification, a song, a quiet moment, how loud is the alarm in your body?</span>
+        <span class="q-area">The alarm</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" class="slider" id="q1" oninput="updateSlider('q1','v1')">
+          <div class="slider-labels">
+            <span class="slider-label">Barely there</span>
+            <span class="slider-label">Deafening</span>
+          </div>
+          <span class="slider-val" id="v1">5</span>
+        </div>
+      </div>
+
+      <!-- Q2: The checking -->
+      <div class="q-block">
+        <span class="q-text" id="q2-text">How automatic is the checking right now: his profile, his status, anything connected to him?</span>
+        <span class="q-area">The checking</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" class="slider" id="q2" oninput="updateSlider('q2','v2')">
+          <div class="slider-labels">
+            <span class="slider-label">I decide to look</span>
+            <span class="slider-label">I do it before I know I have</span>
+          </div>
+          <span class="slider-val" id="v2">5</span>
+        </div>
+      </div>
+
+      <!-- Q3: The break -->
+      <div class="q-block">
+        <span class="q-text" id="q3-text">Has no contact actually held, or has it been broken and restarted?</span>
+        <span class="q-area">The break</span>
+        <div class="day-options" id="q3-options" style="margin-top:4px;">
+          <button type="button" class="day-btn" data-val="1" onclick="selectQ3(this)">Held completely, no slips</button>
+          <button type="button" class="day-btn" data-val="4" onclick="selectQ3(this)">One small slip, caught myself</button>
+          <button type="button" class="day-btn" data-val="7" onclick="selectQ3(this)">Broken and restarted more than once</button>
+          <button type="button" class="day-btn" data-val="10" onclick="selectQ3(this)">In contact with him right now</button>
+        </div>
+        <input type="hidden" id="q3" value="5">
+      </div>
+
+      <!-- Q4: Physical -->
+      <div class="q-block">
+        <span class="q-text" id="q4-text">How present are the physical feelings: the tightness, the restlessness, the low dread that sits in your chest?</span>
+        <span class="q-area">The physical response</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" class="slider" id="q4" oninput="updateSlider('q4','v4')">
+          <div class="slider-labels">
+            <span class="slider-label">Not there</span>
+            <span class="slider-label">There all the time</span>
+          </div>
+          <span class="slider-val" id="v4">5</span>
+        </div>
+      </div>
+
+      <!-- Q5: Sleep -->
+      <div class="q-block" style="border-bottom:none;margin-bottom:0;">
+        <span class="q-text" id="q5-text">How is your sleep? Is he there when you wake up, before you have even decided to think about him?</span>
+        <span class="q-area">Sleep and presence</span>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="10" value="5" class="slider" id="q5" oninput="updateSlider('q5','v5')">
+          <div class="slider-labels">
+            <span class="slider-label">Sleeping well, not my first thought</span>
+            <span class="slider-label">Broken sleep, he is there the moment I wake</span>
+          </div>
+          <span class="slider-val" id="v5">5</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE SCORE PREVIEW -->
+    <div class="summary a4" id="score-preview">
+      <span class="summary-head">Your scores</span>
+      <span class="summary-sub">These numbers are yours. Come back on Day 7 and Day 21 to see where you have moved from here.</span>
+      <div id="summary-rows"></div>
+    </div>
+
+    <hr class="rule a5" style="margin:48px 0;">
+
+    <!-- SECTION 2: OPEN TEXT -->
+    <div class="a5">
+      <div class="section-marker">
+        <span class="section-num">02</span>
+        <span class="section-title">In your own words</span>
+      </div>
+
+      <div class="q-block" id="ot1-block">
+        <span class="q-text" id="ot1-q">What is happening for you right now that brought you here today?</span>
+        <textarea class="textarea-field" id="ot1" placeholder="Write as much or as little as feels right." rows="4"></textarea>
+      </div>
+
+      <div class="q-block" style="border-bottom:none;" id="ot2-block">
+        <span class="q-text" id="ot2-q">What do you most want to feel different by Day 21?</span>
+        <textarea class="textarea-field" id="ot2" placeholder="There is no wrong answer." rows="4"></textarea>
+      </div>
+    </div>
+
+    <hr class="rule a6" style="margin:48px 0;">
+
+    <!-- SECTION 3: CLOSING REFLECTION -->
+    <div class="a6">
+      <div class="section-marker">
+        <span class="section-num">03</span>
+        <span class="section-title">One sentence, yours</span>
+      </div>
+
+      <div class="reflection-block">
+        <span class="reflection-prompt" id="reflection-prompt">Right now, I would describe where I am as...</span>
+        <input type="text" class="reflection-input" id="reflection" placeholder="finish this in your own words">
+      </div>
+
+      <div class="consent-block" id="consent-block" style="display:none;">
+        <input type="checkbox" class="consent-check" id="consent">
+        <label for="consent" class="consent-text">If your experience could help someone else who is exactly where you were on Day 0, I would love to share it anonymously. Tick yes to pass it forward.</label>
+      </div>
+
+      <button type="button" class="btn-submit" id="submit-btn" onclick="submitForm()">Save my check-in</button>
+    </div>
+
+  </div>
+
+  <!-- RESULTS, shown after submit -->
+  <div class="thankyou" id="thankyou">
+    <div style="text-align:left;">
+      <span class="ty-head" id="ty-head">Saved.</span>
+      <span class="ty-text" id="ty-text" style="margin-bottom:40px;display:block;"></span>
+
+      <!-- OVERALL BAND -->
+      <div id="overall-band" style="padding:24px;border:1px solid rgba(242,239,232,0.10);margin-bottom:40px;">
+        <span style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:8px;">Your overall picture</span>
+        <span id="overall-score" style="font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(28px,7vw,38px);color:var(--fg);display:block;margin-bottom:12px;"></span>
+        <span id="overall-interp" style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:var(--muted);line-height:1.85;display:block;"></span>
+      </div>
+
+      <!-- PER AREA SCORES -->
+      <div style="margin-bottom:40px;">
+        <span style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:20px;">Area by area</span>
+        <div id="area-results"></div>
+      </div>
+
+      <!-- COMPARISON, shown Day 7 and Day 21 if prior data in localStorage -->
+      <div id="comparison-wrap" style="display:none;margin-bottom:40px;">
+        <span style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:20px;">Where you have moved</span>
+        <div id="comparison-table"></div>
+      </div>
+
+      <!-- NEXT STEP -->
+      <div style="padding:24px;border:1px solid rgba(242,239,232,0.10);margin-bottom:40px;">
+        <span id="next-text" style="font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:var(--muted);line-height:1.85;display:block;"></span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <nav class="footer-links">
+      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" onclick="gtag('event','footer_click',{'link':'tiktok'});">TikTok</a>
+      <a href="https://payhip.com/YourMindStory" onclick="gtag('event','footer_click',{'link':'shop'});">Shop</a>
+      <a href="about.html" onclick="gtag('event','footer_click',{'link':'about'});">About</a>
+      <a href="privacy.html" onclick="gtag('event','footer_click',{'link':'privacy'});">Privacy</a>
+    </nav>
+    <p class="disclaimer">Educational and personal development use only. Not a substitute for professional therapy or medical advice.</p>
+  </footer>
+
+</div>
+</main>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbwXBW9nwk4OzP6rr22SAJ2BGnQ1NR1ywSC0OyfFvw9zTkGqeA9GEN8zM9e1bwQ7v8FPkQ/exec';
+var PRODUCT   = 'Reset Series';
+
+// ─── READ EMAIL FROM URL PARAM ───────────────────────────────────────────────
+(function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var emailParam = params.get('email');
+    if (emailParam) {
+      document.getElementById('email').value = emailParam;
+      document.getElementById('email-block').style.display = 'none'; // hidden, already known
+    }
+    // Also auto-select day if passed
+    var dayParam = params.get('day');
+    if (dayParam) {
+      var btn = document.querySelector('[data-day="'+dayParam+'"]');
+      if (btn) selectDay(btn);
+    }
+  } catch(e){}
+})();
+
+// ─── DAY SELECTOR ────────────────────────────────────────────────────────────
+var selectedDay = null;
+
+var dayContent = {
+  '0': {
+    heading:   'Where are you right now?',
+    s1title:   'Where the spiral is right now',
+    ctx:       'ctx-d0',
+    ot1q:      'What is happening for you right now that brought you here today?',
+    ot2q:      'What do you most want to feel different by Day 21?',
+    reflection:'Right now, I would describe where I am as...',
+    tyText:    'Your check-in is recorded. Come back on Day 7 and you will be able to see where you have moved from here.'
+  },
+  '7': {
+    heading:   'Seven days in. What is shifting?',
+    s1title:   'Where the spiral is now',
+    ctx:       'ctx-d7',
+    ot1q:      'What have you noticed in the last seven days, even if the shifts feel small?',
+    ot2q:      'What has surprised you?',
+    reflection:'At day seven, I would describe where I am as...',
+    tyText:    'Your Day 7 check-in is recorded. Come back on Day 21 for your final check-in.'
+  },
+  '21': {
+    heading:   'Twenty-one days. Notice where you are.',
+    s1title:   'Where the spiral is now',
+    ctx:       'ctx-d21',
+    ot1q:      'What has changed since Day 0, even the things you almost did not notice?',
+    ot2q:      'What would you say to someone who is where you were on Day 0?',
+    reflection:'After 21 days, I would describe where I am as...',
+    tyText:    'Your Day 21 check-in is complete. Thank you for tracking this.'
+  }
+};
+
+function selectDay(btn) {
+  document.querySelectorAll('.day-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedDay = btn.getAttribute('data-day');
+
+  var c = dayContent[selectedDay];
+  if (!c) return;
+
+  // Update headings and questions
+  document.getElementById('page-heading').textContent = c.heading;
+  document.getElementById('s1-title').textContent = c.s1title;
+  document.getElementById('ot1-q').textContent = c.ot1q;
+  document.getElementById('ot2-q').textContent = c.ot2q;
+  document.getElementById('reflection-prompt').textContent = c.reflection;
+
+  // Show correct day context
+  ['ctx-d0','ctx-d7','ctx-d21'].forEach(function(id){
+    document.getElementById(id).classList.remove('visible');
+  });
+  document.getElementById(c.ctx).classList.add('visible');
+
+  // Only show consent on Day 0
+  var cb = document.getElementById('consent-block');
+  if (cb) cb.style.display = selectedDay === '0' ? 'flex' : 'none';
+  // Auto-check consent on Day 7 and 21 (already given on Day 0)
+  var chk = document.getElementById('consent');
+  if (chk && selectedDay !== '0') chk.checked = true;
+}
+
+// ─── SLIDERS ─────────────────────────────────────────────────────────────────
+var qNames = {
+  q1: 'The alarm',
+  q2: 'The checking',
+  q3: 'The break',
+  q4: 'The physical response',
+  q5: 'Sleep and presence'
+};
+
+function updateSlider(sliderId, valId) {
+  var v = document.getElementById(sliderId).value;
+  document.getElementById(valId).textContent = v;
+  refreshPreview();
+}
+
+// ─── Q3: THE BREAK (button choice, not a slider) ─────────────────────────────
+var q3Chosen = false;
+function selectQ3(btn) {
+  document.querySelectorAll('#q3-options .day-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  document.getElementById('q3').value = btn.getAttribute('data-val');
+  q3Chosen = true;
+  refreshPreview();
+}
+
+function refreshPreview() {
+  var rows = '';
+  ['q1','q2','q3','q4','q5'].forEach(function(id) {
+    var val = document.getElementById(id).value;
+    rows += '<div class="summary-row">'
+          + '<span class="summary-q">' + qNames[id] + '</span>'
+          + '<span class="summary-score">' + val + '<span class="summary-denom"> /10</span></span>'
+          + '</div>';
+  });
+  document.getElementById('summary-rows').innerHTML = rows;
+  document.getElementById('score-preview').classList.add('visible');
+}
+
+// Init sliders
+['q1','q2','q3','q4','q5'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) el.dispatchEvent(new Event('input'));
+});
+
+// ─── SUBMIT ──────────────────────────────────────────────────────────────────
+function submitForm() {
+  var emailEl = document.getElementById('email');
+  var email   = emailEl.value.trim();
+
+  if (!email || !email.includes('@')) {
+    alert('We need your email address to save your check-in. Please enter the one you used to purchase.');
+    document.getElementById('email-block').style.display = 'block';
+    emailEl.focus();
+    return;
+  }
+  if (selectedDay === null) {
+    alert('Please select which check-in this is before saving.');
+    return;
+  }
+  if (!q3Chosen) {
+    alert('Please choose which best describes your no contact right now before saving.');
+    return;
+  }
+
+  var nameVal = document.getElementById('uname').value.trim();
+  if (!nameVal) {
+    alert('Please enter your name before saving.');
+    document.getElementById('uname').focus();
+    return;
+  }
+
+  var ot1 = document.getElementById('ot1').value.trim();
+  var ot2 = document.getElementById('ot2').value.trim();
+  var ref = document.getElementById('reflection').value.trim();
+  if (!ot1 || !ot2 || !ref) {
+    alert('Please complete all the written sections before saving your check-in.');
+    return;
+  }
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  var payload = {
+    action:      'checkin',
+    name:        document.getElementById('uname').value.trim() || 'Anonymous',
+    email:       email,
+    product:     PRODUCT,
+    day:         selectedDay,
+    timestamp:   new Date().toISOString(),
+    q1_alarm:           document.getElementById('q1').value,
+    q2_checking:        document.getElementById('q2').value,
+    q3_loop:            document.getElementById('q3').value,
+    q4_physical:        document.getElementById('q4').value,
+    q5_sleep:           document.getElementById('q5').value,
+    open1:              document.getElementById('ot1').value,
+    open2:              document.getElementById('ot2').value,
+    reflection:         document.getElementById('reflection').value,
+    consent:            document.getElementById('consent').checked ? 'yes' : 'no'
+  };
+
+  try {
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(payload)
+    });
+  } catch(e) {}
+
+  setTimeout(function(){ showThankYou(); }, 600);
+}
+
+// ─── SCORING BANDS ───────────────────────────────────────────────────────────
+var areaCopy = {
+  q1: { name: 'The Alarm',            low: 'Low', mid: 'Moderate', high: 'High' },
+  q2: { name: 'The Checking',         low: 'Low', mid: 'Moderate', high: 'High' },
+  q3: { name: 'The Break',            low: 'Low', mid: 'Moderate', high: 'High' },
+  q4: { name: 'The Physical Response',low: 'Low', mid: 'Moderate', high: 'High' },
+  q5: { name: 'Sleep and Presence',   low: 'Low', mid: 'Moderate', high: 'High' }
+};
+
+function getBand(score) {
+  if (score <= 3) return 'low';
+  if (score <= 6) return 'mid';
+  return 'high';
+}
+
+function getAreaInterp(id, score) {
+  var band = getBand(score);
+  return areaCopy[id][band];
+}
+
+function getOverallInterp(total) {
+  if (total <= 16) return { label: 'Settling', text: 'This is lower than where you started.' };
+  if (total <= 33) return { label: 'Still active', text: 'Still present. Still running.' };
+  return { label: 'Heightened', text: 'This is still high.' };
+}
+
+function showThankYou() {
+  // Scores
+  var scores = {
+    q1: parseInt(document.getElementById('q1').value),
+    q2: parseInt(document.getElementById('q2').value),
+    q3: parseInt(document.getElementById('q3').value),
+    q4: parseInt(document.getElementById('q4').value),
+    q5: parseInt(document.getElementById('q5').value)
+  };
+  var total = scores.q1 + scores.q2 + scores.q3 + scores.q4 + scores.q5;
+
+  // Save scores and written responses to localStorage
+  try {
+    var stored = JSON.parse(localStorage.getItem('yms_checkin') || '{}');
+    stored['day' + selectedDay] = {
+      scores: scores,
+      open1: document.getElementById('ot1').value.trim(),
+      open2: document.getElementById('ot2').value.trim(),
+      reflection: document.getElementById('reflection').value.trim()
+    };
+    localStorage.setItem('yms_checkin', JSON.stringify(stored));
+  } catch(e) {}
+
+  // Day message
+  var c = selectedDay ? dayContent[selectedDay] : null;
+  if (c) document.getElementById('ty-text').textContent = c.tyText;
+
+  // Overall band
+  var overall = getOverallInterp(total);
+  document.getElementById('overall-score').textContent = overall.label + ', ' + total + ' / 50';
+  document.getElementById('overall-interp').textContent = overall.text;
+
+  // Per area
+  var areaHtml = '';
+  ['q1','q2','q3','q4','q5'].forEach(function(id) {
+    var s = scores[id];
+    var interp = getAreaInterp(id, s);
+    areaHtml += '<div style="padding:16px 0;border-bottom:1px solid var(--rule);">'
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">'
+      + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);">' + areaCopy[id].name + '</span>'
+      + '<span style="font-family:\'Gilda Display\',serif;font-style:italic;font-size:clamp(22px,5vw,28px);color:var(--fg);">' + s + '<span style="font-size:13px;color:var(--dim);font-style:normal;"> /10</span></span>'
+      + '</div>'
+      + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:var(--muted);line-height:1.75;display:block;">' + interp + '</span>'
+      + '</div>';
+  });
+  document.getElementById('area-results').innerHTML = areaHtml;
+
+  // Comparison, show if we have prior data
+  try {
+    var stored = JSON.parse(localStorage.getItem('yms_checkin') || '{}');
+    var days = [];
+    if (stored.day0 && stored.day0.scores) days.push({ label: 'Day 0', scores: stored.day0.scores });
+    if (stored.day7 && stored.day7.scores && selectedDay !== '0') days.push({ label: 'Day 7', scores: stored.day7.scores });
+    if (stored.day21 && stored.day21.scores && selectedDay === '21') days.push({ label: 'Day 21', scores: stored.day21.scores });
+
+    if (days.length > 1) {
+      var compHtml = '<div style="padding:16px 0;border-bottom:1px solid var(--rule);display:flex;justify-content:flex-end;gap:32px;">';
+      days.forEach(function(d) { compHtml += '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);">' + d.label + '</span>'; });
+      compHtml += '</div>';
+      ['q1','q2','q3','q4','q5'].forEach(function(id) {
+        compHtml += '<div style="padding:14px 0;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;">'
+          + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--dim);flex:1;">' + areaCopy[id].name + '</span>'
+          + '<div style="display:flex;gap:32px;">';
+        days.forEach(function(d) {
+          var prev = d.scores[id];
+          var curr = scores[id];
+          var diff = d.label === 'Day ' + selectedDay ? '' : (curr < prev ? ' ↓' : curr > prev ? ' ↑' : '');
+          compHtml += '<span style="font-family:\'Gilda Display\',serif;font-style:italic;font-size:clamp(18px,4vw,22px);color:var(--fg);">' + d.scores[id] + diff + '</span>';
+        });
+        compHtml += '</div></div>';
+      });
+      document.getElementById('comparison-table').innerHTML = compHtml;
+      document.getElementById('comparison-wrap').style.display = 'block';
+    }
+  } catch(e) {}
+
+  // Next step message by day
+  var day21msg = '';
+  if (selectedDay === '21') {
+    if (total > 33) {
+      day21msg = 'Take a screenshot of this to keep your record. There is more work to do and you know where to focus. Keep listening. The other audios have been designed to work with every area. Your quiz result told you where to start. The rest is there when you are ready.';
+    } else if (total > 16) {
+      day21msg = 'Take a screenshot of this to keep your record. Some areas are settling. Keep listening. The other audios have been designed to work with every area. Your quiz result told you where to start. The rest is there when you are ready.';
+    } else {
+      day21msg = 'Take a screenshot of this to keep your record. You can come back to this at any time. The other audios have been designed to work with every area. Your quiz result told you where to start. The rest is there when you are ready.';
+    }
+  }
+  var nextMessages = {
+    '0':  'These are your numbers today. Come back on Day 7 to see where you have moved.',
+    '7':  'Seven days in. Your Day 0 numbers are alongside these so you can see the movement. Come back on Day 21 for the full picture.',
+    '21': day21msg
+  };
+  document.getElementById('next-text').textContent = nextMessages[selectedDay] || nextMessages['0'];
+
+  // Day 21 — always show the full journey button
+  if (selectedDay === '21') {
+    var stored21 = {};
+    try { stored21 = JSON.parse(localStorage.getItem('yms_checkin') || '{}'); } catch(e) {}
+    var journeyBtn = document.createElement('button');
+    journeyBtn.textContent = 'See how far you have come';
+    journeyBtn.style.cssText = "display:block;width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;margin-top:24px;margin-bottom:40px;";
+    journeyBtn.onclick = function() { showFullJourney(stored21); };
+    document.getElementById('next-text').parentNode.appendChild(journeyBtn);
+  }
+
+  // Show results, hide form
+  document.getElementById('form-wrap').style.display = 'none';
+  document.getElementById('thankyou').classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showFullJourney(stored) {
+  var dayLabels = { day0: 'Day 0', day7: 'Day 7', day21: 'Day 21' };
+  var questions = { open1: null, open2: null, reflection: null };
+
+  // Build question text per day from dayContent
+  var q1Labels = { day0: 'What is happening for you right now that brought you here today?', day7: 'What have you noticed in the last seven days, even if the shifts feel small?', day21: 'What has changed since Day 0, even the things you almost did not notice?' };
+  var q2Labels = { day0: 'What do you most want to feel different by Day 21?', day7: 'What has surprised you?', day21: 'What would you say to someone who is where you were on Day 0?' };
+  var refLabels = { day0: 'Right now, I would describe where I am as...', day7: 'At day seven, I would describe where I am as...', day21: 'After 21 days, I would describe where I am as...' };
+
+  var html = '<div id="full-journey" style="margin-top:48px;padding-top:40px;border-top:1px solid var(--rule);">';
+  html += '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:32px;">Your return so far</span>';
+
+  ['day0','day7','day21'].forEach(function(key) {
+    var d = stored[key];
+    if (!d) return;
+    html += '<div style="margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--rule);">';
+    html += '<span style="font-family:\'Gilda Display\',serif;font-style:italic;font-size:clamp(20px,5vw,26px);color:var(--fg);display:block;margin-bottom:24px;">' + dayLabels[key] + '</span>';
+
+    // Scores row
+    html += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;">';
+    ['q1','q2','q3','q4','q5'].forEach(function(id) {
+      html += '<div style="flex:1;min-width:80px;padding:12px;border:1px solid rgba(242,239,232,0.08);">'
+        + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:9px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:4px;">' + areaCopy[id].name + '</span>'
+        + '<span style="font-family:\'Gilda Display\',serif;font-style:italic;font-size:clamp(18px,4vw,22px);color:var(--fg);">' + d.scores[id] + '</span>'
+        + '</div>';
+    });
+    html += '</div>';
+
+    // Written responses
+    if (d.open1) {
+      html += '<div style="margin-bottom:20px;">'
+        + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:8px;">' + (q1Labels[key] || '') + '</span>'
+        + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:var(--muted);line-height:1.85;display:block;">' + d.open1 + '</span>'
+        + '</div>';
+    }
+    if (d.open2) {
+      html += '<div style="margin-bottom:20px;">'
+        + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:8px;">' + (q2Labels[key] || '') + '</span>'
+        + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:var(--muted);line-height:1.85;display:block;">' + d.open2 + '</span>'
+        + '</div>';
+    }
+    if (d.reflection) {
+      html += '<div>'
+        + '<span style="font-family:\'DM Sans\',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:8px;">' + (refLabels[key] || '') + '</span>'
+        + '<span style="font-family:\'Gilda Display\',serif;font-style:italic;font-size:clamp(16px,4vw,20px);color:var(--fg);line-height:1.4;display:block;">' + d.reflection + '</span>'
+        + '</div>';
+    }
+    html += '</div>';
+  });
+
+
+  html += '</div>';
+
+  var existing = document.getElementById('full-journey');
+  if (existing) { existing.outerHTML = html; }
+  else { document.getElementById('thankyou').insertAdjacentHTML('beforeend', html); }
+  document.getElementById('full-journey').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
