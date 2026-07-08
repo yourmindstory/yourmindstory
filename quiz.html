@@ -606,7 +606,8 @@ function submitQuiz() {
     q14: val('q14'),
     gender: selectedGender,
     situation: selectedSituation,
-    consent: consent ? 'yes' : 'no'
+    consent: consent ? 'yes' : 'no',
+    key: 'URf3YWE_CvM6wxLMabxgzwRg75WUiX1h'
   };
 
   try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent, token:resultToken})); } catch(e) {}
