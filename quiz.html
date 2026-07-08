@@ -561,7 +561,7 @@ function getBucket() {
     {name:'return-to-yourself', score:q4+q6, page:'return-to-yourself.html'}
   ];
   if (buckets.every(function(b) { return b.score === 0; })) return {name:'no-result', page:'no-result.html'};
-  return buckets.reduce(function(best, curr) { return curr.score > best.score ? curr : best; });
+  var maxScore = Math.max.apply(null, buckets.map(function(b){return b.score;})); var topBuckets = buckets.filter(function(b){return b.score === maxScore;}); if (topBuckets.length > 1) { return buckets.filter(function(b){return b.name === 'restore-self-trust';})[0]; } return topBuckets[0];
 }
 
 function submitQuiz() {
