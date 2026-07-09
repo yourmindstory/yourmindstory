@@ -1,0 +1,32 @@
+# Your Mind Story - robots.txt
+# Standard search crawlers: allowed
+User-agent: *
+Allow: /
+
+# AI / answer-engine crawlers: explicitly allowed (this is the point of the whole GEO push -
+# these are the bots that let the site show up in ChatGPT, Claude, Perplexity, and Google AI Overviews answers)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+Sitemap: https://yourmindstory.co.uk/sitemap.xml
