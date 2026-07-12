@@ -546,16 +546,26 @@ function submitQuiz() {
 
   try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent, token:resultToken})); } catch(e) {}
 
+  var __sent = false;
   try {
-    fetch(SHEET, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify(payload)
-    });
+    if (navigator.sendBeacon) {
+      var __blob = new Blob([JSON.stringify(payload)], {type: 'text/plain;charset=UTF-8'});
+      __sent = navigator.sendBeacon(SHEET, __blob);
+    }
   } catch(e) {}
+  if (!__sent) {
+    try {
+      fetch(SHEET, {
+        method: 'POST',
+        mode: 'no-cors',
+        keepalive: true,
+        body: JSON.stringify(payload)
+      });
+    } catch(e) {}
+  }
 
   // Extract bucket name from result.page filename
-  setTimeout(function() { window.location.href = result.page; }, 1800);
+  window.location.href = result.page;
 }
 
 document.addEventListener('DOMContentLoaded', function(){
