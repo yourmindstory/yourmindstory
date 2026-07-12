@@ -300,103 +300,7 @@
       <label class="opt"><input type="radio" name="q7" value="It's ended, but I can't stop thinking about him."><span class="dot"></span><span class="opt-text">It's ended, but I can't stop thinking about him.</span></label>
       <label class="opt"><input type="radio" name="q7" value="I've been out for a while, but I still don't feel free, and I don't know why."><span class="dot"></span><span class="opt-text">I've been out for a while, but I still don't feel free, and I don't know why.</span></label>
     </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn9" onclick="go(10)" disabled>Next</button></div>
-  </div>
-
-  <!-- S10: PART TWO INTRO -->
-  <div class="screen" id="s10">
-    <span class="section-head" style="font-size:clamp(14px,3.2vw,16px);color:rgba(242,239,232,0.50);margin-bottom:6px;">Just two more minutes.</span>
-    <span class="section-head">Help me send you something more specific</span>
-    <div class="section-body">
-      <p>These questions are optional. Answer what feels right. Skip what does not.</p>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" onclick="go(11)">Continue</button></div>
-  </div>
-
-  <!-- S11: Q8 THE FUTURE -->
-  <div class="screen" id="s11">
-    <span class="q-label">Question 8</span>
-    <span class="q-text">When you imagine a future without him in your thoughts, what comes up?</span>
-    <div class="options" role="radiogroup" aria-label="Q8">
-      <label class="opt"><input type="radio" name="q8" value="Relief. I just want my mind back."><span class="dot"></span><span class="opt-text">Relief. I just want my mind back.</span></label>
-      <label class="opt"><input type="radio" name="q8" value="Emptiness. I do not know who I am without this."><span class="dot"></span><span class="opt-text">Emptiness. I do not know who I am without this.</span></label>
-      <label class="opt"><input type="radio" name="q8" value="Hope. I know there is something better but I cannot access it yet."><span class="dot"></span><span class="opt-text">Hope. I know there is something better but I cannot access it yet.</span></label>
-      <label class="opt"><input type="radio" name="q8" value="Nothing. I cannot even imagine it yet."><span class="dot"></span><span class="opt-text">Nothing. I cannot even imagine it yet.</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn11" onclick="go(12)" disabled>Next</button>
-      <button type="button" class="btn-skip" onclick="go(12)">Skip</button>
-    </div>
-  </div>
-
-  <!-- S12: Q9 WHAT YOU HAVE TRIED -->
-  <div class="screen" id="s12">
-    <span class="q-label">Question 9</span>
-    <span class="q-text">What have you already tried?</span>
-    <div class="options" role="group" aria-label="Q9">
-      <label class="opt cb"><input type="checkbox" name="q9" value="Therapy or counselling"><span class="dot"></span><span class="opt-text">Therapy or counselling</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="Self-help books or courses"><span class="dot"></span><span class="opt-text">Self-help books or courses</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="Talking to friends or family until they were exhausted by it"><span class="dot"></span><span class="opt-text">Talking to friends or family until they were exhausted by it</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="Journalling or mindfulness"><span class="dot"></span><span class="opt-text">Journalling or mindfulness</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="Blocking and unblocking him"><span class="dot"></span><span class="opt-text">Blocking and unblocking him</span></label>
-      <label class="opt cb"><input type="checkbox" name="q9" value="Nothing yet, I only just started looking for answers"><span class="dot"></span><span class="opt-text">Nothing yet, I only just started looking for answers</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn12" onclick="go(13)" disabled>Next</button>
-      <button type="button" class="btn-skip" onclick="go(13)">Skip</button>
-    </div>
-  </div>
-
-  <!-- S13: Q10 ON A BAD DAY -->
-  <div class="screen" id="s13">
-    <span class="q-label">Question 10</span>
-    <span class="q-text">On a bad day, which of these are true?</span>
-    <div class="options" role="group" aria-label="Q10">
-      <label class="opt cb"><input type="checkbox" name="q10" value="I cannot concentrate at work or on basic tasks"><span class="dot"></span><span class="opt-text">I cannot concentrate at work or on basic tasks</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="I check my phone constantly even when I know I should not"><span class="dot"></span><span class="opt-text">I check my phone constantly even when I know I should not</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="I replay conversations on a loop in my head"><span class="dot"></span><span class="opt-text">I replay conversations on a loop in my head</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="I feel it physically, chest tightness, nausea, restlessness"><span class="dot"></span><span class="opt-text">I feel it physically, chest tightness, nausea, restlessness</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="I find myself defending him to people who can see what I cannot"><span class="dot"></span><span class="opt-text">I find myself defending him to people who can see what I cannot</span></label>
-      <label class="opt cb"><input type="checkbox" name="q10" value="I look fine on the outside and feel completely hollow underneath"><span class="dot"></span><span class="opt-text">I look fine on the outside and feel completely hollow underneath</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" onclick="go(14)">Next</button>
-      <button type="button" class="btn-skip" onclick="go(14)">Skip</button>
-    </div>
-  </div>
-
-  <!-- S14: Q11 WHAT FEELS OUT OF REACH -->
-  <div class="screen" id="s14">
-    <span class="q-label">Question 11</span>
-    <span class="q-text">What feels most out of reach right now?</span>
-    <div class="options" role="radiogroup" aria-label="Q11">
-      <label class="opt"><input type="radio" name="q11" value="Stopping the spiral, the checking, the replaying, the dread"><span class="dot"></span><span class="opt-text">Stopping the spiral, the checking, the replaying, the dread</span></label>
-      <label class="opt"><input type="radio" name="q11" value="Actually staying no contact once I have decided to"><span class="dot"></span><span class="opt-text">Actually staying no contact once I have decided to</span></label>
-      <label class="opt"><input type="radio" name="q11" value="Understanding why I keep ending up here"><span class="dot"></span><span class="opt-text">Understanding why I keep ending up here</span></label>
-      <label class="opt"><input type="radio" name="q11" value="Feeling like myself again"><span class="dot"></span><span class="opt-text">Feeling like myself again</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn14" onclick="go(15)" disabled>Next</button>
-      <button type="button" class="btn-skip" onclick="go(15)">Skip</button>
-    </div>
-  </div>
-
-  <!-- S15: Q12 THE ONE THING -->
-  <div class="screen" id="s15">
-    <span class="q-label">Question 12</span>
-    <span class="q-text">The one thing stopping me from finding peace in this situation is:</span>
-    <div class="options" role="radiogroup" aria-label="Q12">
-      <label class="opt"><input type="radio" name="q12" value="I am not sure I am ready to let go of him yet"><span class="dot"></span><span class="opt-text">I am not sure I am ready to let go of him yet</span></label>
-      <label class="opt"><input type="radio" name="q12" value="I want to start but I do not know where to begin"><span class="dot"></span><span class="opt-text">I want to start but I do not know where to begin</span></label>
-      <label class="opt"><input type="radio" name="q12" value="Money is a barrier right now"><span class="dot"></span><span class="opt-text">Money is a barrier right now</span></label>
-      <label class="opt"><input type="radio" name="q12" value="I do not believe anything will work, I have tried everything already"><span class="dot"></span><span class="opt-text">I do not believe anything will work, I have tried everything already</span></label>
-      <label class="opt"><input type="radio" name="q12" value="I have never actually tried hypnotherapy"><span class="dot"></span><span class="opt-text">I have never actually tried hypnotherapy</span></label>
-      <label class="opt"><input type="radio" name="q12" value="I have tried hypnotherapy before and I am not sure it would work for this"><span class="dot"></span><span class="opt-text">I have tried hypnotherapy before and I am not sure it would work for this</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn15" onclick="go(16)" disabled>Next</button>
-      <button type="button" class="btn-skip" onclick="go(16)">Skip</button>
-    </div>
+    <div class="btn-row"><button type="button" class="btn-next" id="btn9" onclick="go(16)" disabled>Next</button></div>
   </div>
 
   <!-- S16: Q13 IN YOUR OWN WORDS -->
@@ -437,7 +341,7 @@ var selectedSituation = '';
 // Screens that represent an actual question the person is looking at.
 // Used to fire a checkpoint event every time they reach one, so we can
 // see exactly where in the quiz people stop.
-var QUESTION_CHECKPOINTS = {1:'gender',3:'q1',4:'q2',5:'q3',6:'q4',7:'q5',8:'q6',9:'q7',11:'q8',12:'q9',13:'q10',14:'q11',15:'q12',16:'q13'};
+var QUESTION_CHECKPOINTS = {1:'gender',3:'q1',4:'q2',5:'q3',6:'q4',7:'q5',8:'q6',9:'q7',16:'q13'};
 
 // Generates a permanent, unique token for this result so it can be
 // looked back up later (email link, etc). Not used for redirect logic
@@ -632,11 +536,6 @@ function submitQuiz() {
     q5: val('q5'),
     q6: val('q6'),
     q7: val('q7'),
-    q8: val('q8'),
-    q9: multi('q9'),
-    q10: multi('q10'),
-    q11: val('q11'),
-    q12: val('q12'),
     q13: document.getElementById('q13').value || '',
     q14: val('q14'),
     gender: selectedGender,
