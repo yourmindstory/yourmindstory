@@ -173,32 +173,7 @@
       <p>This is a map of how this dynamic may be showing up in your body and your nervous system.</p>
       <p>Answer honestly. Not how you think you should feel. How you actually feel right now, today.</p>
     </div>
-    <div class="btn-row"><button type="button" class="btn-next" onclick="gtag('event','quiz_start');go('0b')">Begin</button></div>
-  </div>
-
-  <!-- S0B: EARLY LEAD CAPTURE -->
-  <div class="screen" id="s0b">
-    <span class="cap-head">Before we begin.</span>
-    <span class="cap-sub">Give me your name and email so I can send your results straight to you the moment you're done.</span>
-    <div class="field-wrap">
-      <label class="field-lbl" for="fname">Your name</label>
-      <input class="field-in" type="text" id="fname" name="fname" autocomplete="given-name" placeholder="First name">
-    </div>
-    <div class="field-wrap">
-      <label class="field-lbl" for="femail">Email address</label>
-      <input class="field-in" type="email" id="femail" name="femail" autocomplete="email" placeholder="your@email.com">
-      <span class="err" id="email-err">Please enter a valid email address.</span>
-    </div>
-    <div class="consent-wrap">
-      <label class="consent-lbl" id="consent-lbl">
-        <input type="checkbox" id="consent">
-        <span class="cbox"><span class="ccheck">&#10003;</span></span>
-        <span class="consent-txt">Yes, send my results and occasional support for what I am going through. I can unsubscribe any time. <a href="privacy.html" class="plink">Privacy policy</a></span>
-      </label>
-      <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(242,239,232,0.28);text-decoration:underline;">Full terms</a></p>
-    </div>
-    <button type="button" class="btn-submit" id="btn-submit" onclick="submitPartialLead()" disabled>Continue</button>
-    <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
+    <div class="btn-row"><button type="button" class="btn-next" onclick="gtag('event','quiz_start');go(1)">Begin</button></div>
   </div>
 
   <!-- S1: GENDER (required, no skip) -->
@@ -327,9 +302,34 @@
       <span class="q-text">What is the impact of this dynamic costing you? Tell me in your own words.</span>
       <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through the day without." rows="5" oninput="document.getElementById('btn13').disabled = this.value.trim().length === 0;"></textarea>
       <div class="btn-row">
-        <button type="button" class="btn-next" id="btn13" onclick="submitQuiz()" disabled>Submit</button>
+        <button type="button" class="btn-next" id="btn13" onclick="go('0b'); document.getElementById('prog-fill').style.width='95%';" disabled>Submit</button>
       </div>
     </div>
+  </div>
+
+  <!-- S0B: EARLY LEAD CAPTURE -->
+  <div class="screen" id="s0b">
+    <span class="cap-head">Before we begin.</span>
+    <span class="cap-sub">Give me your name and email so I can send your results straight to you the moment you're done.</span>
+    <div class="field-wrap">
+      <label class="field-lbl" for="fname">Your name</label>
+      <input class="field-in" type="text" id="fname" name="fname" autocomplete="given-name" placeholder="First name" oninput="checkLeadReady()">
+    </div>
+    <div class="field-wrap">
+      <label class="field-lbl" for="femail">Email address</label>
+      <input class="field-in" type="email" id="femail" name="femail" autocomplete="email" placeholder="your@email.com" oninput="checkLeadReady()">
+      <span class="err" id="email-err">Please enter a valid email address.</span>
+    </div>
+    <div class="consent-wrap">
+      <label class="consent-lbl" id="consent-lbl">
+        <input type="checkbox" id="consent">
+        <span class="cbox"><span class="ccheck">&#10003;</span></span>
+        <span class="consent-txt">Yes, send my results and occasional support for what I am going through. I can unsubscribe any time. <a href="privacy.html" class="plink">Privacy policy</a></span>
+      </label>
+      <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(242,239,232,0.28);text-decoration:underline;">Full terms</a></p>
+    </div>
+    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>Continue</button>
+    <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
   </div>
 
   <!-- S19: FINALIZING -->
@@ -418,7 +418,6 @@ var consentEl = document.getElementById('consent');
 if (consentEl) {
   consentEl.addEventListener('change', function() {
     document.getElementById('consent-lbl').classList.toggle('ticked', this.checked);
-    document.getElementById('btn-submit').disabled = !this.checked;
   });
 }
 
@@ -496,6 +495,13 @@ function getBucket() {
 // Fired from the early capture screen (s0b), before any questions are answered.
 // Writes a lightweight partial lead so we still have her name/email even if
 // she abandons the quiz partway through.
+function checkLeadReady() {
+  var email = document.getElementById('femail').value.trim();
+  var name  = document.getElementById('fname').value.trim();
+  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  document.getElementById('btn-submit').disabled = !(emailOk && name.length > 0);
+}
+
 function submitPartialLead() {
   var email = document.getElementById('femail').value.trim();
   var name  = document.getElementById('fname').value.trim();
@@ -528,7 +534,9 @@ function submitQuiz() {
   var name  = document.getElementById('fname').value.trim();
   var consent = document.getElementById('consent').checked;
   var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!emailOk || !consent) { go('0b'); return; }
+  if (!emailOk) { go('0b'); return; }
+
+  gtag('event', 'quiz_lead_captured');
 
   go(19);
 
