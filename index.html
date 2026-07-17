@@ -46,6 +46,17 @@
       text-transform: uppercase;
       color: var(--fg);
       margin-bottom: 48px;
+      text-shadow: 0 0 24px rgba(242,239,232,0.18);
+    }
+    .wm-ellipsis {
+      display: inline-block;
+      opacity: 0.45;
+      margin-left: 0.18em;
+      animation: wmPulse 3.4s ease-in-out infinite;
+    }
+    @keyframes wmPulse {
+      0%, 100% { opacity: 0.30; }
+      50% { opacity: 0.70; }
     }
 
     .doors {
@@ -331,7 +342,7 @@
 
   <div class="inner">
 
-    <span class="wordmark a1">Your Mind Story</span>
+    <span class="wordmark a1">Your Mind Story<span class="wm-ellipsis">&hellip;</span></span>
 
     <h1 class="headline a2">It doesn't make sense that this has this much power over you.<br>And it feels like he doesn't feel any of it.</h1>
     <p class="headline-sub a2">Worst of all, you're replaying what happened, checking your phone for him, and still looking fine on the outside while you fall apart inside, and no one knows.</p>

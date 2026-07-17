@@ -26,7 +26,9 @@
 
     /* HEADER */
     .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:48px;}
-    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(242,239,232,0.45);display:block;}
+    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(242,239,232,0.45);display:block;text-shadow:0 0 24px rgba(242,239,232,0.15);}
+    .wm-ellipsis{display:inline-block;opacity:0.45;margin-left:0.18em;animation:wmPulse 3.4s ease-in-out infinite;}
+    @keyframes wmPulse{0%,100%{opacity:0.30;}50%{opacity:0.70;}}
 
     /* RESULT HEADING */
     .result-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(242,239,232,0.50);display:block;margin-bottom:14px;}
@@ -127,7 +129,7 @@
 <div class="inner">
 
   <header class="hdr a1">
-    <span class="wm">Your Mind Story</span>
+    <span class="wm">Your Mind Story<span class="wm-ellipsis">&hellip;</span></span>
   </header>
 
   <div class="a2">

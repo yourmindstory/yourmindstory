@@ -75,6 +75,17 @@ letter-spacing: 0.26em;
 text-transform: uppercase;
 color: var(--fg);
 display: block;
+text-shadow: 0 0 24px rgba(242,239,232,0.18);
+}
+.wm-ellipsis {
+display: inline-block;
+opacity: 0.45;
+margin-left: 0.18em;
+animation: wmPulse 3.4s ease-in-out infinite;
+}
+@keyframes wmPulse {
+0%, 100% { opacity: 0.30; }
+50% { opacity: 0.70; }
 }
 .quiz-name {
 font-family: 'Gilda Display', serif;
@@ -393,7 +404,7 @@ gtag('config', 'G-0MFXQ5ETCD');
 <div class="inner">
 
 <div class="brand a1">
-<span class="wordmark">Your Mind Story</span>
+<span class="wordmark">Your Mind Story<span class="wm-ellipsis">&hellip;</span></span>
 <span class="quiz-name">When an Avoidant Loves You</span>
 </div>
 
