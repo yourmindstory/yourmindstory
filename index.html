@@ -36,6 +36,7 @@
     @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     .a1 { opacity: 0; animation: up 0.9s ease forwards 0.10s; }
     .a2 { opacity: 0; animation: up 1.0s ease forwards 0.35s; }
+    .a25 { opacity: 0; animation: up 1.0s ease forwards 0.55s; }
 
     .wordmark {
       font-family: 'Gilda Display', serif;
@@ -90,18 +91,39 @@
       font-size: clamp(14px, 3.4vw, 15px);
       line-height: 1.6;
       color: rgba(242,239,232,0.75);
-      margin-bottom: 40px;
+      margin-bottom: 28px;
+    }
+
+    /* TRUST BRIDGE - added so the fork isn't the very first thing people hit */
+    .proof-line {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      font-size: clamp(10px, 2.4vw, 11px);
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: rgba(242,239,232,0.40);
+      margin-bottom: 16px;
+      display: block;
+    }
+    .reassure-line {
+      font-family: 'Gilda Display', serif;
+      font-style: italic;
+      font-size: clamp(14px, 3.4vw, 16px);
+      line-height: 1.5;
+      color: rgba(242,239,232,0.70);
+      margin-bottom: 36px;
+      display: block;
     }
 
     .fork-wrap {
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       padding-bottom: 20px;
     }
     @media (min-width: 520px) {
-      .fork-wrap { flex-direction: row; gap: 16px; }
+      .fork-wrap { flex-direction: row; gap: 16px; align-items: stretch; }
     }
     .fork-path {
       flex: 1;
@@ -112,6 +134,11 @@
       padding: 28px 20px;
       border: 1px solid rgba(242,239,232,0.10);
     }
+    .fork-path-secondary {
+      border: none;
+      justify-content: center;
+      padding: 14px 20px;
+    }
     .fork-heading {
       font-family: 'Gilda Display', serif;
       font-style: italic;
@@ -119,6 +146,11 @@
       color: rgba(242,239,232,0.75);
       margin-bottom: 18px;
       line-height: 1.3;
+    }
+    .fork-path-secondary .fork-heading {
+      font-size: clamp(13px, 3vw, 14px);
+      color: rgba(242,239,232,0.45);
+      margin-bottom: 10px;
     }
     .fork-btn {
       display: block;
@@ -139,6 +171,25 @@
     }
     .fork-btn:hover { opacity: 0.86; }
     .fork-btn:active { opacity: 0.70; }
+
+    /* Secondary path (Shop) reads as a quiet link, not a competing button */
+    .fork-link {
+      display: inline-block;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: clamp(11px, 2.6vw, 12px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(242,239,232,0.55);
+      background: none;
+      border: none;
+      border-bottom: 1px solid rgba(242,239,232,0.25);
+      padding: 4px 2px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .fork-link:hover { color: rgba(242,239,232,0.85); border-color: rgba(242,239,232,0.55); }
 
     .credential-block {
       width: 100%;
@@ -272,9 +323,10 @@
 </button>
 <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
 <nav class="menu-panel" id="menuPanel" aria-label="Site menu">
-  <a href="https://payhip.com/YourMindStory" onclick="gtag('event','menu_click',{'link':'shop'});">Shop</a>
+  <a href="quiz-landing-page.html" onclick="gtag('event','menu_click',{'link':'quiz'});">Take the Quiz</a>
   <a href="why-this-works.html" onclick="gtag('event','menu_click',{'link':'why_this_works'});">Why This Works</a>
   <a href="about.html" onclick="gtag('event','menu_click',{'link':'about'});">About</a>
+  <a href="https://payhip.com/YourMindStory" onclick="gtag('event','menu_click',{'link':'shop'});">Shop</a>
 </nav>
 
   <div class="inner">
@@ -284,14 +336,17 @@
     <h1 class="headline a2">It doesn't make sense that this has this much power over you.<br>And it feels like he doesn't feel any of it.</h1>
     <p class="headline-sub a2">Worst of all, you're replaying what happened, checking your phone for him, and still looking fine on the outside while you fall apart inside, and no one knows.</p>
 
+    <span class="proof-line a25">14 million views on TikTok &middot; 471 women have already taken this</span>
+    <span class="reassure-line a25">You do not have to be ready to let go of him to start this. You just have to be tired of feeling like this.</span>
+
     <div class="fork-wrap a2">
-      <div class="fork-path">
-        <span class="fork-heading">Already know what you need?</span>
-        <a href="https://payhip.com/YourMindStory" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'store'});">Shop</a>
-      </div>
       <div class="fork-path">
         <span class="fork-heading">Not sure where to start?</span>
         <a href="quiz-landing-page.html" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'quiz'});">Take the free quiz</a>
+      </div>
+      <div class="fork-path fork-path-secondary">
+        <span class="fork-heading">Already know what you need?</span>
+        <a href="https://payhip.com/YourMindStory" class="fork-link" onclick="gtag('event','landing_click',{'destination':'store'});">Shop</a>
       </div>
     </div>
 
