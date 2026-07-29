@@ -250,7 +250,7 @@ function render() {
     html += '<div class="opts" id="opts-' + step.id + '">';
     step.options.forEach(function(o) {
       var cls = step.multi ? 'opt cb' : 'opt';
-      html += '<label class="' + cls + '" onclick="pick(this,\'' + step.id + '\',\'' + esc(o) + '\',' + !!step.multi + ')"><input type="' + (step.multi?'checkbox':'radio') + '"><span class="dot"></span><span class="opt-text">' + o + '</span></label>';
+      html += '<label class="' + cls + '" onclick="pick(this,\'' + step.id + '\',\'' + esc(o) + '\',' + !!step.multi + ')"><input type="' + (step.multi?'checkbox':'radio') + '" onclick="event.stopPropagation()"><span class="dot"></span><span class="opt-text">' + o + '</span></label>';
     });
     html += '</div>';
     html += '<div class="btn-row">';
