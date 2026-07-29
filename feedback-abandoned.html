@@ -152,7 +152,7 @@ function render() {
   if (step.type === 'intro') {
     html += '<div class="intro-head">Help me make this actually work for you.</div>';
     html += '<div class="intro-body">I’m trying to understand exactly where women get stuck, so I can make Your Mind Story clearer and more helpful. This takes under a minute.</div>';
-    html += '<div class="intro-body">As a thank you, I’ll send you The Bare Minimum, my book on the five things your nervous system actually needs to stay well in love, free.</div>';
+    html += '<div class="intro-body">As a thank you, I’ll send you The Bare Minimum | The Five Non-Negotiables a Woman Needs to Stay Healthy in Love, free.</div>';
     html += '<div class="btn-row"><button type="button" class="btn-primary" onclick="gtag(\'event\',\'interview_start\',{variant:VARIANT});go(1)">Begin</button></div>';
   }
   else if (step.type === 'options') {
@@ -175,7 +175,7 @@ function render() {
   else if (step.type === 'close') {
     html += '<div class="close-wrap">';
     html += '<span class="close-head">Thank you. You’ve genuinely helped me improve something for the next woman.</span>';
-    html += '<span class="close-body">As promised, here’s your copy of The Bare Minimum — the five things your nervous system actually needs to stay well in love.</span>';
+    html += '<span class="close-body">As promised, here’s your copy of The Bare Minimum | The Five Non-Negotiables a Woman Needs to Stay Healthy in Love.</span>';
     html += '<a class="btn-primary" style="display:inline-block;" href="' + BOOK_URL + '" target="_blank" rel="noopener" onclick="gtag(\'event\',\'book_claim_click\',{variant:VARIANT})">Get The Bare Minimum, free</a>';
     html += '<span class="signature">Onye</span>';
     html += '</div>';
