@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help me make this actually work for you - Your Mind Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-0MFXQ5ETCD');
+</script>
+<style>
+:root{--bg:#F2EFE8;--fg:#1A0A2E;--rule:rgba(26,10,46,0.08);--muted:#1A0A2E;--dim:rgba(26,10,46,0.50);--accent:#8A5A6B;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+.page{display:flex;flex-direction:column;align-items:center;padding:0 24px 100px;}
+@media(min-width:768px){.page{padding:0 24px 100px;}}
+.inner{width:100%;max-width:580px;}
+@keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.hdr{padding-top:48px;padding-bottom:28px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:40px;}
+.wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:var(--dim);display:block;text-align:center;}
+
+.intro-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(24px,6vw,34px);line-height:1.15;color:var(--fg);display:block;margin-bottom:22px;animation:up 0.5s ease forwards;}
+.intro-body{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--muted);display:block;animation:up 0.5s ease forwards;}
+.intro-body+.intro-body{margin-top:14px;}
+
+.choice-row{margin-top:34px;display:flex;flex-direction:column;gap:14px;animation:up 0.5s ease forwards;}
+.choice-card{display:block;width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.12em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:22px 28px;cursor:pointer;text-decoration:none;text-align:center;transition:opacity 0.2s;}
+.choice-card:hover{opacity:0.82;}
+.choice-card.secondary{background:none;border:1px solid var(--fg);color:var(--fg);}
+
+footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
+.footer-links{display:flex;gap:28px;}
+.footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(26,10,46,0.55);text-decoration:none;}
+:focus-visible{outline:1px solid rgba(26,10,46,0.4);outline-offset:4px;}
+</style>
+</head>
+<body>
+<main class="page" role="main">
+<div class="inner">
+
+<header class="hdr">
+<span class="wm">Your Mind Story</span>
+</header>
+
+<div class="intro-head">Help me make this actually work for you.</div>
+<div class="intro-body">I'm trying to understand exactly where women get stuck, so I can make Your Mind Story clearer and more helpful. This takes about 2 minutes, and there's an optional second part if you want to tell me more.</div>
+<div class="intro-body">As a thank you, I'll send you The Bare Minimum | The Five Non-Negotiables a Woman Needs to Stay Healthy in Love, free.</div>
+<div class="intro-body" style="margin-top:24px;">Which one describes you?</div>
+
+<div class="choice-row">
+<a class="choice-card" href="customer-insights-a.html" onclick="gtag('event','interview_router_click',{choice:'didnt-buy'})">I didn't buy today</a>
+<a class="choice-card secondary" href="customer-insights-b.html" onclick="gtag('event','interview_router_click',{choice:'bought'})">I bought something</a>
+</div>
+
+</div>
+</main>
+
+<footer>
+<nav class="footer-links">
+<a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a>
+<a href="https://payhip.com/YourMindStory">Shop</a>
+<a href="about.html">About</a>
+<a href="privacy.html">Privacy</a>
+</nav>
+</footer>
+
+</body>
+</html>
