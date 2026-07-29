@@ -112,7 +112,7 @@ footer{margin-top:40px;padding-top:24px;border-top:1px solid var(--rule);display
 
 <script>
 /* ============ CONFIG ============ */
-var VARIANT = 'didnt-buy';
+var VARIANT = 'bought';
 var SHEET = 'https://script.google.com/macros/s/AKfycbxMP4TxB9UsY1i8WuNsZjgj-BmMo0o6dAKu3OAKCDl1CrfDm7218CH5UvNXoWyjfViK/exec';
 var BOOK_URL = 'https://payhip.com/b/ZcdmX';
 
@@ -128,16 +128,18 @@ function getMeta() {
   return {
     traffic_source: traffic || '',
     quiz_bucket: yms.bucket || qs.get('bucket') || '',
-    reached_results: yms.bucket ? 'yes' : (qs.get('bucket') ? 'yes' : ''),
+    reached_results: yms.bucket ? 'yes' : (qs.get('bucket') ? 'yes' : 'yes'),
     product_clicked: qs.get('product') || '',
-    cart_status: qs.get('cart') || '',
-    purchase_status: 'no'
+    cart_status: qs.get('cart') || 'purchased',
+    purchase_status: 'yes'
   };
 }
 
 /* ============ STEPS ============ */
-/* type: intro | options | text | shorttext | scale | branch | close
-   stage: 1 = mandatory, 2 = optional */
+/* Bought variant: Q4 is already known ("Yes, and I bought") so it is never
+   shown as a question — we jump straight to the Stage 1B follow-up. The
+   objection-focused questions (5, 6, 7, 7b, 10) don't apply to a buyer, so
+   they're dropped. Stage 2 stays the same set of optional questions. */
 var STEPS = [
   {id:'intro', type:'intro', stage:1},
   {id:'q1', type:'options', stage:1, q:'How did you find me?', key:'q1_how_found',
@@ -148,32 +150,20 @@ var STEPS = [
     placeholder:'I’d tell her it’s...', encourage:'That’s really helpful.'},
   {id:'q3b', type:'options', stage:1, q:'How confident are you that you understand what Your Mind Story offers?', key:'q3b_confidence',
     options:['Very confident','Fairly confident','Not very confident','Not at all confident']},
-  {id:'q4', type:'options', stage:1, q:'Did you consider buying today?', key:'q4_considered_buying',
-    options:['Yes, and I bought','Almost, but I didn’t','No, I never considered it'], branch:true},
-  {id:'s1b', type:'text', stage:1, key:'stage1b_answer', dynamicQ:true, placeholder:'Honestly...'},
-  {id:'q5', type:'text', stage:1, q:'What almost convinced you to buy today?', key:'q5_almost_convinced',
-    placeholder:'It was almost...'},
-  {id:'q6', type:'text', stage:1, q:'Before deciding not to buy, what question were you still trying to answer?', key:'q6_still_deciding_question',
-    placeholder:'I was still trying to work out whether...'},
-  {id:'q7', type:'options', stage:1, q:'If you had to pick just ONE reason you didn’t buy today, what would it be?', key:'q7_reason_no_buy',
-    options:['I wasn’t convinced it would work for me','I wasn’t sure which product was right','I wanted more proof','I wanted to think about it','The price felt too high','I wasn’t ready','I realised it wasn’t the right fit','Other'],
-    encourage:'You’re about halfway there.'},
-  {id:'q7b', type:'text', stage:1, q:'What made that the biggest reason?', key:'q7b_why_reason',
-    placeholder:'Because...'},
+  {id:'s1b', type:'text', stage:1, q:'What made you decide to go ahead?', key:'stage1b_answer',
+    placeholder:'What made it click was...'},
   {id:'q8', type:'text', stage:1, q:'If you could change one thing about Your Mind Story, what would it be?', key:'q8_change_one_thing',
-    placeholder:'I’d change...'},
+    placeholder:'I’d change...', encourage:'You’re about halfway there.'},
   {id:'q9', type:'options', stage:1, q:'At today’s price, how did the product feel to you?', key:'q9_price_value',
     options:['Excellent value','Good value','About right','Slightly expensive','Too expensive']},
-  {id:'q10', type:'options', stage:1, q:'Why didn’t you buy today instead of later?', key:'q10_why_not_later',
-    options:['I wanted to think about it','I wasn’t ready','I wanted to compare other options','I don’t feel my situation is urgent','Other']},
   {id:'q11', type:'text', stage:1, q:'Is there anything I should have asked that I didn’t?', key:'q11_anything_else',
     placeholder:'You could have asked me...'},
 
   {id:'s2intro', type:'stage2intro', stage:1},
 
-  {id:'s2_1', type:'text', stage:2, q:'What do you think has been standing in the way of achieving that outcome?', key:'s2_outcome_blocker',
-    placeholder:'I think what’s been in the way is...'},
-  {id:'s2_2', type:'options', stage:2, multi:true, q:'Which of these would have helped you feel more confident?', key:'s2_confidence_helpers',
+  {id:'s2_1', type:'text', stage:2, q:'What almost stopped you from buying?', key:'s2_outcome_blocker',
+    placeholder:'The thing that almost stopped me was...'},
+  {id:'s2_2', type:'options', stage:2, multi:true, q:'Which of these would have made you feel even more confident before buying?', key:'s2_confidence_helpers',
     options:['More customer stories','More before-and-after experiences','More information about how the audios work','More information about me','Scientific evidence','A money-back guarantee','More sample audio','Something else']},
   {id:'s2_3', type:'text', stage:2, q:'Was there anything you expected to see that wasn’t there?', key:'s2_expected_missing',
     placeholder:'No, or... yes, I expected to see'},
@@ -183,29 +173,23 @@ var STEPS = [
   {id:'s2_6', type:'text', stage:2, q:'What part felt inaccurate, if anything?', key:'s2_inaccurate_part',
     placeholder:'None, or... the part about'},
   {id:'s2_7', type:'options', stage:2, q:'What, if anything, felt unclear?', key:'s2_unclear',
-    options:['No, it was all clear','Yes, something felt unclear'], unclearFollow:true},
+    options:['No, it was all clear','Yes, something felt unclear']},
   {id:'s2_7b', type:'options', stage:2, q:'Where did it feel unclear?', key:'s2_unclear_where',
     options:['Homepage','Quiz','Results page','Product pages','Checkout','Emails']},
-  {id:'s2_8', type:'text', stage:2, q:'What would make you come back?', key:'s2_comeback_reason',
-    placeholder:'I’d come back if...', encourage:'Nearly done. Thank you for this.'},
+  {id:'s2_8', type:'text', stage:2, q:'What would make the experience even better?', key:'s2_comeback_reason',
+    placeholder:'It would be even better if...', encourage:'Nearly done. Thank you for this.'},
   {id:'s2_9', type:'text', stage:2, q:'If you were in charge of Your Mind Story for one day, what’s the first thing you’d change?', key:'s2_one_day_change',
     placeholder:'The first thing I’d change is...'},
-  {id:'s2_10', type:'text', stage:2, q:'If I could wave a magic wand and change one thing that would have made today perfect for you, what would it be?', key:'s2_magic_wand',
+  {id:'s2_10', type:'text', stage:2, q:'If I could wave a magic wand and improve one thing about your experience, what would it be?', key:'s2_magic_wand',
     placeholder:'It would be...'},
 
   {id:'close', type:'close', stage:2}
 ];
 
-var BRANCH_Q = {
-  'Yes, and I bought': 'What made you decide to go ahead?',
-  'Almost, but I didn’t': 'What was happening in your mind when you decided not to buy?',
-  'No, I never considered it': 'What stopped you from even considering it?'
-};
-
 /* ============ ENGINE ============ */
-var answers = {};
-var order = [];      // resolved order of step ids actually shown
-var histIdx = [];     // history stack of indices into `order`
+var answers = {q4_considered_buying: 'Yes, and I bought'};
+var order = [];
+var histIdx = [];
 var cur = 0;
 var totalStage1 = STEPS.filter(function(s){return s.stage===1 && s.type!=='intro' && s.type!=='stage2intro';}).length;
 
@@ -214,7 +198,7 @@ function meta() { return getMeta(); }
 function buildInitialOrder() {
   order = [];
   for (var i=0;i<STEPS.length;i++) {
-    if (STEPS[i].id === 's2_7b') continue; // conditional, inserted dynamically
+    if (STEPS[i].id === 's2_7b') continue;
     order.push(STEPS[i].id);
   }
 }
@@ -230,7 +214,7 @@ function render() {
 
   if (step.type === 'intro') {
     html += '<div class="intro-head">Help me make this actually work for you.</div>';
-    html += '<div class="intro-body">I’m trying to understand exactly where women get stuck, so I can make Your Mind Story clearer and more helpful. This takes about 2 minutes. If you want to tell me more after that, there’s an optional second part.</div>';
+    html += '<div class="intro-body">I’m trying to understand exactly what worked, so I can make Your Mind Story even better for the next woman. This takes about 2 minutes. If you want to tell me more after that, there’s an optional second part.</div>';
     html += '<div class="intro-body">As a thank you, I’ll send you The Bare Minimum, my book on the five things your nervous system actually needs to stay well in love, free.</div>';
     html += '<div class="btn-row"><button type="button" class="btn-primary" onclick="gtag(\'event\',\'interview_start\',{variant:VARIANT});go(1)">Begin</button></div>';
   }
@@ -243,10 +227,9 @@ function render() {
     html += '</div>';
   }
   else if (step.type === 'options') {
-    var q = step.dynamicQ ? BRANCH_Q[answers['q4_considered_buying']] : step.q;
     html += '<span class="eyebrow">' + (step.stage===2?'Optional':'A question') + '</span>';
     if (step.encourage) html += '<span class="encourage">' + step.encourage + '</span>';
-    html += '<span class="q-text">' + q + '</span>';
+    html += '<span class="q-text">' + step.q + '</span>';
     html += '<div class="opts" id="opts-' + step.id + '">';
     step.options.forEach(function(o) {
       var cls = step.multi ? 'opt cb' : 'opt';
@@ -259,10 +242,9 @@ function render() {
     html += '</div>';
   }
   else if (step.type === 'text') {
-    var q2 = step.dynamicQ ? BRANCH_Q[answers['q4_considered_buying']] : step.q;
     html += '<span class="eyebrow">' + (step.stage===2?'Optional':'A question') + '</span>';
     if (step.encourage) html += '<span class="encourage">' + step.encourage + '</span>';
-    html += '<span class="q-text">' + q2 + '</span>';
+    html += '<span class="q-text">' + step.q + '</span>';
     html += '<textarea class="q-input" id="in-' + step.id + '" rows="4" placeholder="' + (step.placeholder||'') + '" oninput="onTextInput(\'' + step.id + '\')"></textarea>';
     html += '<div class="btn-row">';
     html += '<button type="button" class="btn-primary" id="next-btn" onclick="advance()" ' + (step.stage===1?'disabled':'') + '>Next</button>';
@@ -292,7 +274,6 @@ function render() {
 
   app.innerHTML = html;
 
-  // restore previous answer state visually
   if (step.type === 'options') restoreOptions(step);
   if (step.type === 'text') restoreText(step);
   if (step.type === 'scale') restoreScale(step);
@@ -367,7 +348,6 @@ function pickScale(el, id, n) {
 }
 
 function insertBranchFollowup() {
-  // s2_7 -> unclear follow-up only if "Yes"
   var idx = order.indexOf('s2_7');
   var already = order.indexOf('s2_7b') !== -1;
   if (answers['s2_unclear'] === 'Yes, something felt unclear' && !already) {
