@@ -9,7 +9,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
 <style>
-:root { --bg: #F6F4F0; --fg: #0D0B14; --rule-color: rgba(13,11,20,0.07); }
+:root { --bg: #F6F4F0; --fg: #0D0B14; --rule-color: rgba(13,11,20,0.07); 
+--gold: #D4B483;
+--sage: #A8B59B;
+--taupe: #B8A692;
+}
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-font-smoothing: antialiased; }
 body {
@@ -317,6 +321,130 @@ pointer-events: none;
 transition: opacity 0.32s ease;
 }
 .menu-overlay.open { opacity: 1; pointer-events: auto; }
+
+.hero-photo {
+width: 96px;
+height: 96px;
+border-radius: 50%;
+object-fit: cover;
+display: block;
+margin: 0 auto 32px;
+border: 2px solid var(--gold);
+}
+.accent-rule {
+width: 40px;
+height: 2px;
+background: var(--gold);
+border: none;
+margin: 40px auto;
+}
+.section {
+width: 100%;
+text-align: center;
+}
+.section-eyebrow {
+display: block;
+font-family: 'DM Sans', sans-serif;
+font-weight: 400;
+font-size: clamp(10px, 2.4vw, 11px);
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(--sage);
+margin-bottom: 14px;
+}
+.trust-stats {
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 28px 36px;
+margin-bottom: 6px;
+}
+.trust-stat { text-align: center; }
+.trust-stat-num {
+display: block;
+font-family: 'Gilda Display', serif;
+font-style: italic;
+font-size: clamp(22px, 5.5vw, 28px);
+color: var(--gold);
+margin-bottom: 4px;
+}
+.trust-stat-label {
+display: block;
+font-family: 'DM Sans', sans-serif;
+font-weight: 300;
+font-size: clamp(11px, 2.6vw, 12px);
+letter-spacing: 0.04em;
+color: rgba(13,11,20,0.60);
+}
+.mech-line {
+font-family: 'DM Sans', sans-serif;
+font-weight: 300;
+font-size: clamp(14px, 3.4vw, 15px);
+line-height: 1.7;
+color: rgba(13,11,20,0.78);
+margin-bottom: 16px;
+display: block;
+}
+.mech-line-em {
+font-family: 'Gilda Display', serif;
+font-style: italic;
+color: var(--fg);
+}
+.next-step-heading {
+font-family: 'Gilda Display', serif;
+font-style: italic;
+font-size: clamp(19px, 4.6vw, 22px);
+color: var(--fg);
+margin-bottom: 28px;
+display: block;
+}
+.next-step-cards {
+display: flex;
+flex-direction: column;
+gap: 18px;
+width: 100%;
+margin-bottom: 8px;
+}
+.next-step-card {
+border-top: 3px solid var(--sage);
+padding: 28px 20px 6px;
+text-align: center;
+}
+.next-step-card.gold { border-top-color: var(--gold); }
+.next-step-prompt {
+display: block;
+font-family: 'DM Sans', sans-serif;
+font-weight: 300;
+font-size: clamp(13px, 3.2vw, 14px);
+color: rgba(13,11,20,0.65);
+margin-bottom: 16px;
+}
+.about-preview-name {
+display: block;
+font-family: 'Gilda Display', serif;
+font-style: italic;
+font-size: clamp(17px, 4vw, 19px);
+color: var(--fg);
+margin-bottom: 4px;
+}
+.about-preview-title {
+display: block;
+font-family: 'DM Sans', sans-serif;
+font-weight: 300;
+font-size: clamp(10px, 2.4vw, 11px);
+letter-spacing: 0.10em;
+text-transform: uppercase;
+color: var(--taupe);
+margin-bottom: 14px;
+}
+.about-preview-line {
+display: block;
+font-family: 'DM Sans', sans-serif;
+font-weight: 300;
+font-size: clamp(13px, 3.2vw, 14px);
+color: rgba(13,11,20,0.70);
+margin-bottom: 20px;
+}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
@@ -365,28 +493,68 @@ y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
 
 <span class="wordmark a1">Your Mind Story<span class="wm-ellipsis">&hellip;</span></span>
 
-<h1 class="headline a2">You've been through something that changes you, and no one around you quite understands why.</h1>
-<p class="headline-sub a2">Replaying what happened. Checking your phone before you've decided to. Looking fine on the outside while you fall apart underneath.</p>
-<p class="headline-sub a2">You're not losing your mind. Almost every woman who's been through this says the same thing.</p>
-<p class="headline-sub a2">Your nervous system is dysregulated. That's not something you decide your way out of. It's something you calm your way out of, first.</p>
-<p class="headline-sub a2">So no, you don't have to decide anything right now. Look around.</p>
-<span class="reassure-line a25">Right now, your mind belongs to him. By the end of this, it belongs to you again.</span>
-<span class="reassure-line a25">The first step isn't knowing everything. It's calming your nervous system enough to see clearly.</span>
+<img src="profile_circle_clean_no_ring.png" alt="Onye, Clinical Cognitive-Behavioural Hypnotherapist" class="hero-photo a1">
+
+<h1 class="headline a2">Get Your Mind Back.</h1>
+<p class="headline-sub a2">If you can't stop thinking about him...</p>
+<p class="headline-sub a2">...and you know exactly what you need to do, but you just can't make yourself do it...</p>
+<p class="headline-sub a2">You're not losing your mind. You're caught in a pattern that keeps pulling you back, no matter how hard you try.</p>
+<p class="headline-sub a2">The problem isn't that you don't know what to do. It's that your body keeps pulling you back into the same pattern. That's why trying harder hasn't worked.</p>
+<p class="headline-sub a2">The first step isn't learning more. It's understanding what's keeping you stuck so you can finally move forward.</p>
 
 <div class="fork-wrap a2">
 <div class="fork-path">
-<span class="fork-heading">Not sure where to start?</span>
-<a href="quiz-landing-page.html" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'quiz'});">Take the free quiz</a>
-</div>
-<div class="fork-path fork-path-secondary">
-<span class="fork-heading">Already know what you need?</span>
-<a href="https://payhip.com/YourMindStory" class="fork-link" onclick="gtag('event','landing_click',{'destination':'store'});">Shop</a>
+<a href="quiz-landing-page.html" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'quiz'});">Take the Free Quiz</a>
+<span class="proof-line" style="margin-top:14px;margin-bottom:0;">Free &middot; 2 minutes &middot; Instant results</span>
 </div>
 </div>
 
-<div class="credential-block">
-<span class="cred-name">Onye</span>
-<span class="cred-title">Clinical Cognitive-Behavioural Hypnotherapist</span>
+<hr class="accent-rule">
+
+<div class="section">
+<div class="trust-stats">
+<div class="trust-stat"><span class="trust-stat-num">20M+</span><span class="trust-stat-label">Social media views</span></div>
+<div class="trust-stat"><span class="trust-stat-num">1,117+</span><span class="trust-stat-label">Quiz assessments completed</span></div>
+<div class="trust-stat"><span class="trust-stat-num">CBH</span><span class="trust-stat-label">Clinical Cognitive-Behavioural Hypnotherapist</span></div>
+</div>
+</div>
+
+<hr class="accent-rule">
+
+<div class="section">
+<span class="section-eyebrow">Why this approach is different</span>
+<span class="mech-line">You already know what you need to do.</span>
+<span class="mech-line">The question is&hellip;</span>
+<span class="mech-line"><span class="mech-line-em">Why can't you make it stick?</span></span>
+<span class="mech-line">The pattern you're caught in can make it feel as though you've lost the ability to follow through on what you already know is right for you.</span>
+<span class="mech-line">That's why trying harder, reading more books or understanding more hasn't been enough on its own.</span>
+<span class="mech-line">My approach begins by helping bridge the gap between what you already know and what you're able to do.</span>
+</div>
+
+<hr class="accent-rule">
+
+<div class="section">
+<span class="next-step-heading">Where would you like to begin?</span>
+<div class="next-step-cards">
+<div class="next-step-card">
+<span class="next-step-prompt">Not sure where to start?</span>
+<a href="quiz-landing-page.html" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'quiz_next_step'});">Take the Free Quiz</a>
+</div>
+<div class="next-step-card gold">
+<span class="next-step-prompt">Already know your first step?</span>
+<a href="https://payhip.com/YourMindStory" class="fork-btn" onclick="gtag('event','landing_click',{'destination':'store'});">Start Your First Session</a>
+</div>
+</div>
+</div>
+
+<hr class="accent-rule">
+
+<div class="section">
+<img src="profile_circle_clean_no_ring.png" alt="Onye, Clinical Cognitive-Behavioural Hypnotherapist" class="hero-photo">
+<span class="about-preview-name">Onye</span>
+<span class="about-preview-title">Clinical Cognitive-Behavioural Hypnotherapist</span>
+<span class="about-preview-line">Helping women get their mind back.</span>
+<a href="about.html" class="fork-link" onclick="gtag('event','landing_click',{'destination':'about'});">Meet Onye</a>
 </div>
 
 <footer role="contentinfo">
