@@ -3,463 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Mind Story</title>
-<meta name="description" content="When an avoidant loves you, your nervous system pays the price. Find out exactly what it is doing to yours.">
+<title>Free Quiz | Your Mind Story</title>
+<meta name="description" content="Where is this cycle affecting you most? Take the free quiz to find out which part of the pattern is showing up most strongly for you right now.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://yourmindstory.co.uk/quiz-landing-page.html">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
-<style>
-:root {
---bg: #F6F4F0;
---fg: #0D0B14;
---rule-color: rgba(13,11,20,0.07);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-font-smoothing: antialiased; }
-  body {
-background: var(--bg);
-color: var(--fg);
-font-family: 'DM Sans', sans-serif;
-font-weight: 300;
-min-height: 100vh;
-overflow-x: hidden;
-}
-.page {
-display: flex;
-flex-direction: column;
-align-items: center;
-padding: 0 48px;
-}
-@media (min-width: 768px) { .page { padding: 0 64px; } }
-.inner {
-width: 100%;
-max-width: 580px;
-display: flex;
-flex-direction: column;
-align-items: center;
-}
-@keyframes up {
-from { opacity: 0; transform: translateY(16px); }
-to { opacity: 1; transform: translateY(0); }
-}
-@keyframes in {
-from { opacity: 0; }
-to { opacity: 1; }
-}
-.a1 { opacity:0; animation: up 0.9s ease forwards 0.10s; }
-.a2 { opacity:0; animation: in 0.7s ease forwards 0.35s; }
-.a3 { opacity:0; animation: up 1.0s ease forwards 0.50s; }
-.a4 { opacity:0; animation: up 1.0s ease forwards 0.75s; }
-.a5 { opacity:0; animation: up 0.9s ease forwards 0.95s; }
-.a6 { opacity:0; animation: in 0.8s ease forwards 1.20s; }
-.a7 { opacity:0; animation: in 0.8s ease forwards 1.38s; }
-.a8 { opacity:0; animation: in 0.9s ease forwards 1.55s; }
-hr.rule {
-width: 100%;
-border: none;
-border-top: 1px solid var(--rule-color);
-}
-
-/* 1. BRAND BLOCK */
-.brand {
-padding-top: 64px;
-text-align: center;
-width: 100%;
-}
-.wordmark {
-font-family: 'Gilda Display', serif;
-font-style: normal;
-font-weight: 400;
-font-size: clamp(14px, 3.4vw, 18px);
-letter-spacing: 0.26em;
-text-transform: uppercase;
-color: var(--fg);
-display: block;
-text-shadow: 0 0 24px rgba(13,11,20,0.18);
-}
-.wm-ellipsis {
-display: inline-block;
-opacity: 0.45;
-margin-left: 0.18em;
-animation: wmPulse 3.4s ease-in-out infinite;
-}
-@keyframes wmPulse {
-0%, 100% { opacity: 0.30; }
-50% { opacity: 0.70; }
-}
-.quiz-name {
-font-family: 'Gilda Display', serif;
-font-style: italic;
-font-weight: 400;
-font-size: clamp(13px, 3vw, 15px);
-color: rgba(13,11,20,0.45);
-display: block;
-margin-top: 12px;
-line-height: 1.3;
-letter-spacing: 0.03em;
-}
-
-.rule-1 { margin: 44px 0; }
-
-/* 3. TAGLINE - halo effect: Moon White glowing into Night Sky */
-.tagline {
-font-family: 'DM Sans', sans-serif;
-font-style: normal;
-font-weight: 400;
-font-size: clamp(22px, 5.6vw, 28px);
-line-height: 1.4;
-letter-spacing: -0.005em;
-color: #0D0B14;
-text-align: center;
-width: 100%;
-padding-bottom: 44px;
-}
-
-/* 4. BODY */
-.body-block {
-width: 100%;
-text-align: center;
-padding-bottom: 46px;
-}
-.body-line {
-display: block;
-font-family: 'DM Sans', sans-serif;
-font-weight: 300;
-font-size: clamp(15px, 3.6vw, 17px);
-line-height: 1.85;
-color: rgba(13,11,20,0.80);
-}
-.body-line + .body-line { margin-top: 16px; }
-
-/* 5. CTA */
-.cta-block {
-width: 100%;
-display: flex;
-flex-direction: column;
-align-items: center;
-padding-bottom: 20px;
-}
-.cta-btn {
-display: block;
-width: 100%;
-max-width: 420px;
-font-family: 'DM Sans', sans-serif;
-font-weight: 400;
-font-size: clamp(11px, 2.6vw, 13px);
-letter-spacing: 0.15em;
-text-transform: uppercase;
-color: var(--bg);
-background: var(--fg);
-border: none;
-padding: 20px 32px;
-cursor: pointer;
-text-decoration: none;
-text-align: center;
-transition: opacity 0.2s ease;
-}
-.cta-btn:hover { opacity: 0.86; }
-.cta-btn:active { opacity: 0.70; }
-.friction {
-display: flex;
-align-items: center;
-justify-content: center;
-margin-top: 14px;
-font-family: 'DM Sans', sans-serif;
-font-weight: 400;
-font-size: clamp(11px, 2.4vw, 13px);
-letter-spacing: 0.07em;
-color: rgba(13,11,20,0.80);
-gap: 8px;
-}
-.friction-dot { color: rgba(13,11,20,0.55); }
-
-.fork-wrap {
-width: 100%;
-display: flex;
-flex-direction: column;
-gap: 16px;
-padding-bottom: 20px;
-}
-@media (min-width: 520px) {
-.fork-wrap { flex-direction: row; gap: 16px; }
-}
-.fork-path {
-flex: 1;
-display: flex;
-flex-direction: column;
-align-items: center;
-text-align: center;
-padding: 28px 20px;
-border: 1px solid rgba(13,11,20,0.10);
-}
-.fork-heading {
-font-family: 'Gilda Display', serif;
-font-style: italic;
-font-size: clamp(15px, 3.6vw, 17px);
-color: rgba(13,11,20,0.75);
-margin-bottom: 18px;
-line-height: 1.3;
-}
-.fork-btn {
-display: block;
-width: 100%;
-font-family: 'DM Sans', sans-serif;
-font-weight: 400;
-font-size: clamp(11px, 2.6vw, 13px);
-letter-spacing: 0.15em;
-text-transform: uppercase;
-color: var(--bg);
-background: var(--fg);
-border: none;
-padding: 18px 24px;
-cursor: pointer;
-text-decoration: none;
-text-align: center;
-transition: opacity 0.2s ease;
-}
-.fork-btn:hover { opacity: 0.86; }
-.fork-btn:active { opacity: 0.70; }
-
-/* 6. CREDENTIAL */
-.credential-block {
-width: 100%;
-text-align: center;
-padding-top: 38px;
-padding-bottom: 30px;
-}
-.cred-name {
-display: block;
-font-family: 'Gilda Display', serif;
-font-style: italic;
-font-weight: 400;
-font-size: clamp(13px, 3vw, 15px);
-color: rgba(13,11,20,0.65);
-letter-spacing: 0.03em;
-margin-bottom: 5px;
-}
-.cred-title {
-display: block;
-font-family: 'DM Sans', sans-serif;
-font-weight: 300;
-font-size: clamp(9px, 2vw, 11px);
-letter-spacing: 0.10em;
-color: rgba(13,11,20,0.50);
-text-transform: uppercase;
-}
-
-/* 7. MOMENTUM */
-.rule-2 { margin-bottom: 32px; }
-.momentum {
-width: 100%;
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 22px;
-padding-bottom: 60px;
-}
-@media (min-width: 520px) {
-.momentum { flex-direction: row; justify-content: center; gap: 0; }
-}
-.m-item {
-display: flex;
-flex-direction: column;
-align-items: center;
-text-align: center;
-}
-@media (min-width: 520px) {
-.m-item { padding: 0 20px; border-right: 1px solid var(--rule-color); }
-.m-item:last-child { border-right: none; }
-}
-.m-num {
-font-family: 'Gilda Display', serif;
-font-style: normal;
-font-weight: 400;
-font-size: clamp(18px, 4.5vw, 22px);
-color: rgba(13,11,20,0.75);
-line-height: 1.1;
-margin-bottom: 4px;
-}
-.m-label {
-font-family: 'DM Sans', sans-serif;
-font-weight: 300;
-font-size: clamp(10px, 2.2vw, 11px);
-letter-spacing: 0.08em;
-color: rgba(13,11,20,0.42);
-text-transform: uppercase;
-}
-
-/* 8. FOOTER */
-footer {
-width: 100%;
-border-top: 1px solid var(--rule-color);
-padding: 30px 0 44px;
-display: flex;
-flex-direction: column;
-align-items: center;
-}
-.footer-links { display: flex; gap: 28px; }
-.footer-links a {
-font-family: 'DM Sans', sans-serif;
-font-weight: 300;
-font-size: 10px;
-letter-spacing: 0.10em;
-text-transform: uppercase;
-color: rgba(13,11,20,0.55);
-text-decoration: none;
-transition: color 0.2s ease;
-}
-.footer-links a:hover { color: rgba(13,11,20,0.90); }
-:focus-visible { outline: 1px solid rgba(13,11,20,0.4); outline-offset: 4px; }
-
-/* MENU */
-.menu-btn {
-position: fixed;
-top: 24px;
-right: 24px;
-z-index: 100;
-width: 40px;
-height: 40px;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 5px;
-background: none;
-border: none;
-cursor: pointer;
-padding: 0;
-}
-.menu-btn span {
-display: block;
-width: 22px;
-height: 1px;
-background: rgba(13,11,20,0.85);
-transition: transform 0.25s ease, opacity 0.25s ease;
-}
-.menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-.menu-btn.open span:nth-child(2) { opacity: 0; }
-.menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-
-.menu-panel {
-position: fixed;
-top: 0;
-right: 0;
-height: 100vh;
-width: min(78vw, 320px);
-background: #F6F4F0;
-border-left: 1px solid rgba(13,11,20,0.10);
-z-index: 99;
-display: flex;
-flex-direction: column;
-justify-content: center;
-padding: 0 40px;
-transform: translateX(100%);
-transition: transform 0.32s ease;
-}
-.menu-panel.open { transform: translateX(0); }
-.menu-panel a {
-font-family: 'Gilda Display', serif;
-font-style: italic;
-font-size: clamp(20px, 5vw, 26px);
-color: #0D0B14;
-text-decoration: none;
-display: block;
-margin-bottom: 30px;
-transition: opacity 0.2s ease;
-}
-.menu-panel a:hover { opacity: 0.65; }
-.menu-overlay {
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.35);
-z-index: 98;
-opacity: 0;
-pointer-events: none;
-transition: opacity 0.32s ease;
-}
-.menu-overlay.open { opacity: 1; pointer-events: auto; }
-</style>
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-0MFXQ5ETCD');
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/yms-quiz-shared.css">
+<script src="assets/yms-quiz-shared.js"></script>
 </head>
 <body>
+<div class="wrap">
+  <div class="brand">Your Mind Story</div>
+  <div class="card">
+    <span class="result-tag">Free Quiz</span>
+    <h1 style="font-size:28px;">Where is this cycle affecting you most?</h1>
+    <p>If an avoidant relationship has left you feeling on edge, checking, second-guessing yourself or losing yourself in it, this quiz will show you which part of the cycle is showing up most strongly right now.</p>
 
-<button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false" onclick="toggleMenu()">
-<span></span><span></span><span></span>
-</button>
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-<nav class="menu-panel" id="menuPanel" aria-label="Site menu">
-<a href="https://payhip.com/YourMindStory" onclick="gtag('event','menu_click',{'link':'shop'});">Shop</a>
-<a href="why-this-works.html" onclick="gtag('event','menu_click',{'link':'why_this_works'});">Why This Works</a>
-<a href="about.html" onclick="gtag('event','menu_click',{'link':'about'});">About</a>
-<a href="success-stories.html" onclick="gtag('event','menu_click',{'link':'success_stories'});">Success Stories</a>
-</nav>
+    <div class="cta-row" style="margin-top:24px;">
+      <a class="btn-cta" href="quiz.html" id="ctaTop">Take the Free Quiz</a>
+      <span class="cta-microcopy">Free | Takes a few minutes | Personalised result</span>
+    </div>
 
-<main class="page" role="main">
-<div class="inner">
+    <div class="divider"></div>
 
-<div class="brand a1">
-<span class="wordmark">Your Mind Story<span class="wm-ellipsis">&hellip;</span></span>
+    <p><strong>This is not about figuring him out.</strong></p>
+    <p>You may already understand the pattern. This quiz is about what it is doing to you.</p>
+    <p>You will answer 8 scored questions, then two short context questions. Your result will show the area coming through most strongly in your answers.</p>
+    <p>This quiz does not diagnose you or him.</p>
+
+    <div class="divider"></div>
+
+    <p class="muted" style="margin-bottom:2px;">Created by Onye</p>
+    <p class="muted" style="margin-bottom:2px;">Cognitive Behavioural Hypnotherapist</p>
+    <p class="muted">Your Mind Story</p>
+
+    <div class="divider"></div>
+
+    <h2 style="font-size:20px;">What happens next?</h2>
+    <p>You get your personalised result straight away.</p>
+    <p>If you want me to look at the whole pattern, you can book a free 15-minute Quiz Results Call and I will tell you where I think you need to start.</p>
+
+    <div class="cta-row">
+      <a class="btn-cta" href="quiz.html" id="ctaBottom">Take the Free Quiz</a>
+    </div>
+  </div>
 </div>
-
-<img src="profile_circle_clean_no_ring.png" alt="Onye, Clinical Cognitive-Behavioural Hypnotherapist" style="width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 28px;border:2px solid var(--gold, #D4B483);">
-
-<hr class="rule rule-1 a2" aria-hidden="true">
-
-<h1 class="tagline a3">
-Break the Loop. Get Your Mind Back.
-</h1>
-
-<div class="body-block a4">
-<span class="body-line" style="line-height:1.5;">If you can't stop thinking about him...<br>...and you know exactly what you need to do, but you just can't make yourself do it...</span>
-</div>
-
-<div class="body-block a4">
-<span class="body-line">The problem isn't that you don't know what to do. Knowing makes no difference when your body keeps pulling you back into the same pattern.</span>
-</div>
-
-<div class="body-block a4">
-<span class="body-line"><strong style="font-weight:400;color:#0D0B14;">Find out what's really keeping you stuck&mdash;and where to start.</strong></span>
-</div>
-
-<div class="cta-block a5">
-<a href="quiz.html" class="fork-btn" style="max-width:420px;" onclick="gtag('event','cta_click',{'cta':'start_quiz'});">[ Take the Free Quiz ]</a>
-<div class="friction" style="padding-top:14px;">
-<span>Free</span>
-<span class="friction-dot">&middot;</span>
-<span>2 minutes</span>
-<span class="friction-dot">&middot;</span>
-<span>Instant results</span>
-</div>
-</div>
-
-<footer class="a8" role="contentinfo">
-<nav class="footer-links" aria-label="Footer navigation">
-<a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" onclick="gtag('event','footer_click',{'link':'tiktok'});">TikTok</a>
-<a href="about.html" onclick="gtag('event','footer_click',{'link':'about'});">About</a>
-<a href="https://payhip.com/YourMindStory" onclick="gtag('event','footer_click',{'link':'shop'});">Shop</a>
-<a href="privacy.html" onclick="gtag('event','footer_click',{'link':'privacy'});">Privacy</a>
-</nav>
-</footer>
-
-</div>
-</main>
 
 <script>
-function toggleMenu(){
-document.getElementById('menuBtn').classList.toggle('open');
-document.getElementById('menuPanel').classList.toggle('open');
-document.getElementById('menuOverlay').classList.toggle('open');
-var btn = document.getElementById('menuBtn');
-btn.setAttribute('aria-expanded', btn.classList.contains('open') ? 'true' : 'false');
-}
+  YMSQuiz.captureAttribution();
 </script>
-
 </body>
 </html>

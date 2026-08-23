@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Result: Break the Pull | Your Mind Story</title>
+<title>Your Result | Your Mind Story</title>
 <meta name="robots" content="noindex, follow">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,19 +18,13 @@
   <div class="result-card">
     <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
     <span class="result-tag">YOUR RESULT</span>
-    <h1>Break the Pull</h1>
+    <h1>More than one area is showing up strongly.</h1>
 
-    <p>You decide you're not going to check, message or reopen the conversation. Then the urge hits, and you do it anyway.</p>
-    <p>That is the strongest part of the cycle showing up in your answers.</p>
-
-    <p class="result-lede">Break the pull. Take back control.</p>
-
-    <p>The goal isn't to never feel the urge.</p>
-    <p>It's to stop the urge deciding what you do.</p>
-    <p>So when you decide not to check, reach out or go back into the conversation, you can follow through.</p>
+    <p id="tiedLine"></p>
+    <p>That means the score alone does not give me one clear place to tell you to start.</p>
+    <p>I would rather look at the whole pattern than guess.</p>
 
     <h2>Your next step</h2>
-    <p>This result tells me where the cycle is hitting you hardest.</p>
     <p>On your free 15-minute Quiz Results Call, I'll look at all of your answers and tell you where I think you need to start.</p>
 
     <div class="cta-row">
@@ -50,10 +44,16 @@
     greetingEl.hidden = false;
   }
 
-  YMSQuiz.track('quiz_result_view', { result_bucket: 'Break the Pull' });
+  var tied = (data && data.tiedResults) || [];
+  var tiedLineEl = document.getElementById('tiedLine');
+  // formatList joins naturally for 2, 3, or 4 tied names (never hardcodes
+  // "both areas", which would be wrong outside a 2-way tie.
+  tiedLineEl.textContent = YMSQuiz.formatList(tied) + ' came through equally strongly in your answers.';
+
+  YMSQuiz.track('quiz_result_view', { result_bucket: 'Mixed', tied_count: tied.length });
 
   document.getElementById('ctaCall').addEventListener('click', function(){
-    YMSQuiz.track('quiz_results_call_click', { result_bucket: 'Break the Pull' });
+    YMSQuiz.track('quiz_results_call_click', { result_bucket: 'Mixed' });
   });
 })();
 </script>
