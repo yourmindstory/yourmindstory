@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Result | Your Mind Story</title>
+<meta name="robots" content="noindex, follow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/yms-quiz-shared.css">
+<script src="assets/yms-quiz-shared.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Your Mind Story</div>
+  <div class="result-card">
+    <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
+    <span class="result-tag">YOUR RESULT</span>
+    <h1>No single area is showing up strongly.</h1>
+
+    <p>Your answers do not show one part of the cycle affecting you strongly right now.</p>
+    <p>I am not going to tell you there is a problem your answers have not shown.</p>
+
+    <p class="result-lede">Know your bare minimum.</p>
+
+    <p>The next step is knowing what is non-negotiable for you before you ever find yourself negotiating with your health to keep a relationship.</p>
+    <p>The Bare Minimum gives you five non-negotiables a woman needs to stay healthy in love.</p>
+
+    <div class="cta-row">
+      <a class="btn-cta" href="https://payhip.com/b/ZcdmX" id="ctaBareMinimum">Start With the Bare Minimum</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var data = YMSQuiz.getResultData();
+  var name = data && data.firstName ? data.firstName.trim() : '';
+  var greetingEl = document.getElementById('greeting');
+  if (name){
+    greetingEl.textContent = 'Hi, ' + name + '.';
+    greetingEl.hidden = false;
+  }
+
+  YMSQuiz.track('quiz_result_view', { result_bucket: 'Low' });
+
+  document.getElementById('ctaBareMinimum').addEventListener('click', function(){
+    YMSQuiz.track('bare_minimum_click', { result_bucket: 'Low' });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,619 +1,633 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>When an Avoidant Loves You - Your Mind Story</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
-  <style>
-    :root { --bg:#F6F4F0; --fg:#0D0B14; --rule:rgba(13,11,20,0.07); }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{-webkit-font-smoothing:antialiased;}
-    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
-    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
-    @media(min-width:768px){.page{padding:0 64px 80px;}}
-    .inner{width:100%;max-width:560px;}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Take the Quiz | Your Mind Story</title>
+<meta name="description" content="8 scored questions, then two short context questions. Find out which part of the cycle is showing up most strongly for you right now.">
+<meta name="robots" content="noindex, follow">
 
-    /* HEADER */
-    .q-header{padding-top:52px;padding-bottom:36px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:40px;}
-    .q-wordmark{font-family:'Gilda Display',serif;font-style:normal;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(13,11,20,0.50);display:block;}
-    .q-title{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5.5vw,30px);color:var(--fg);display:block;margin-top:20px;line-height:1.1;}
-    .q-sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(12px,2.6vw,13px);color:rgba(13,11,20,0.35);margin-top:10px;display:block;line-height:1.6;}
-
-    /* PROGRESS */
-    .progress{margin-bottom:44px;}
-    .progress-label{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:rgba(13,11,20,0.28);margin-bottom:10px;}
-    .progress-bg{width:100%;height:1px;background:rgba(13,11,20,0.10);}
-    .progress-fill{height:1px;background:rgba(13,11,20,0.45);transition:width 0.5s ease;}
-
-    /* SCREENS */
-    .screen{display:none;}
-    .screen.active{display:block;animation:fadeup 0.4s ease forwards;}
-    @keyframes fadeup{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-
-    /* SECTION INTRO */
-    .section-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5vw,26px);color:var(--fg);line-height:1.15;margin-bottom:20px;display:block;}
-    .section-body{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,16px);line-height:1.85;color:rgba(13,11,20,0.58);}
-    .section-body p+p{margin-top:10px;}
-
-    /* QUESTION */
-    .q-label{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.28);margin-bottom:8px;}
-    .q-name{display:block;font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,15px);color:rgba(13,11,20,0.40);margin-bottom:10px;}
-    .q-text{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.7;color:var(--fg);margin-bottom:26px;}
-    .q-text.quote{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(17px,4vw,21px);padding-left:16px;border-left:1px solid rgba(13,11,20,0.15);line-height:1.5;margin-bottom:12px;}
-    .q-text.quote-sub{font-size:clamp(14px,3.2vw,15px);color:rgba(13,11,20,0.65);margin-bottom:26px;}
-
-    /* OPTIONS */
-    .options{display:flex;flex-direction:column;gap:10px;}
-    .opt{display:flex;align-items:flex-start;gap:14px;cursor:pointer;padding:16px 18px;border:1px solid rgba(13,11,20,0.08);transition:border-color 0.2s,background 0.2s;}
-    .opt:hover{border-color:rgba(13,11,20,0.20);}
-    .opt.selected{border-color:rgba(13,11,20,0.45);background:rgba(13,11,20,0.04);}
-    .opt input{display:none;}
-    .dot{width:16px;height:16px;min-width:16px;border:1px solid rgba(13,11,20,0.28);border-radius:50%;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;}
-    .opt.selected .dot{border-color:rgba(13,11,20,0.65);}
-    .dot::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--fg);opacity:0;transition:opacity 0.2s;}
-    .opt.selected .dot::after{opacity:1;}
-    .opt-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);line-height:1.65;color:rgba(13,11,20,0.68);}
-    .opt.selected .opt-text{color:var(--fg);}
-    .opt.cb .dot{border-radius:2px;}
-    .opt.cb.selected .dot::after{width:8px;height:5px;border-radius:0;background:transparent;border-left:1.5px solid var(--fg);border-bottom:1.5px solid var(--fg);transform:rotate(-45deg) translateY(-1px);}
-
-    /* TEXTAREA */
-    .q-textarea{width:100%;background:rgba(13,11,20,0.03);border:1px solid rgba(13,11,20,0.10);border-bottom:1px solid rgba(13,11,20,0.18);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);line-height:1.7;padding:16px 18px;resize:none;min-height:110px;outline:none;transition:border-color 0.2s;}
-    .q-textarea:focus{border-color:rgba(13,11,20,0.32);}
-    .q-textarea::placeholder{color:rgba(13,11,20,0.20);}
-
-    /* BUTTONS */
-    .btn-row{margin-top:32px;display:flex;gap:12px;align-items:center;}
-    .btn-next{flex:1;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:18px 24px;cursor:pointer;transition:opacity 0.2s;}
-    .btn-next:hover{opacity:0.86;}
-    .btn-next:disabled{opacity:0.30;cursor:not-allowed;}
-    .btn-back{display:none;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(13,11,20,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;margin-bottom:8px;}
-    .btn-back:hover{color:rgba(13,11,20,0.50);}
-    .btn-back::before{content:'← ';}
-    .btn-skip{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.08em;color:rgba(13,11,20,0.28);background:none;border:none;cursor:pointer;padding:8px 0;text-transform:uppercase;transition:color 0.2s;}
-    .btn-skip:hover{color:rgba(13,11,20,0.50);}
-
-    /* CAPTURE */
-    .cap-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(22px,5.5vw,28px);color:var(--fg);display:block;margin-bottom:12px;line-height:1.15;}
-    .cap-sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(13,11,20,0.55);line-height:1.8;display:block;margin-bottom:32px;}
-    .field-wrap{margin-bottom:16px;}
-    .field-lbl{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.30);margin-bottom:8px;}
-    .field-in{width:100%;background:rgba(13,11,20,0.03);border:1px solid rgba(13,11,20,0.10);border-bottom:1px solid rgba(13,11,20,0.20);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.4vw,16px);padding:14px 16px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;border-radius:0;}
-    .field-in:focus{border-color:rgba(13,11,20,0.36);}
-    .field-in::placeholder{color:rgba(13,11,20,0.20);}
-    .err{font-size:12px;color:rgba(13,11,20,0.50);margin-top:6px;display:none;}
-    .err.show{display:block;}
-    .consent-wrap{margin:20px 0 28px;}
-    .consent-lbl{display:flex;align-items:flex-start;gap:12px;cursor:pointer;}
-    .consent-lbl input{display:none;}
-    .cbox{width:16px;height:16px;min-width:16px;border:1px solid rgba(13,11,20,0.28);border-radius:2px;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;}
-    .consent-lbl.ticked .cbox{border-color:rgba(13,11,20,0.65);background:rgba(13,11,20,0.06);}
-    .ccheck{font-size:9px;color:var(--fg);opacity:0;transition:opacity 0.15s;}
-    .consent-lbl.ticked .ccheck{opacity:1;}
-    .consent-txt{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,2.8vw,14px);line-height:1.7;color:rgba(13,11,20,0.50);}
-    .plink{color:rgba(13,11,20,0.35);text-decoration:underline;text-decoration-color:rgba(13,11,20,0.15);}
-    .disclaimer-small{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(13,11,20,0.50);line-height:1.65;margin-top:14px;}
-    .btn-submit{width:100%;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;transition:opacity 0.2s;}
-    .btn-submit:hover{opacity:0.86;}
-    .btn-submit:disabled{opacity:0.32;cursor:not-allowed;}
-    .thankyou{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,14px);color:rgba(13,11,20,0.32);text-align:center;margin-top:16px;display:block;}
-    :focus-visible{outline:1px solid rgba(13,11,20,0.4);outline-offset:4px;}
-    body { transition: background-color 1.2s ease; }
-
-    /* Capture screen uses same dark styling as quiz */
-
-    /* Hide full header after intro screen */
-    .q-header.compact {
-      padding-top: 28px;
-      padding-bottom: 20px;
-      margin-bottom: 20px;
-    }
-    .q-header.compact .q-title,
-    .q-header.compact .q-sub {
-      display: none;
-    }
-    .q-header.compact .q-wordmark {
-      font-size: clamp(11px, 2.5vw, 13px);
-      letter-spacing: 0.20em;
-      color: rgba(13,11,20,0.30);
-    }
-  </style>
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-0MFXQ5ETCD');
-</script>
-  <!-- Meta Pixel Code -->
-  <script>
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '1255763909834805');
-  fbq('track', 'PageView');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-  src="https://www.facebook.com/tr?id=1255763909834805&ev=PageView&noscript=1"
-  /></noscript>
-  <!-- End Meta Pixel Code -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "xl81ev553e");
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/yms-quiz-shared.css">
+<script src="assets/yms-quiz-shared.js"></script>
 </head>
 <body>
-<main class="page" role="main">
-<div class="inner">
-
-  <header class="q-header" id="quiz-header">
-    <span class="q-wordmark">Your Mind Story</span>
-    <span class="q-title">When an Avoidant Loves You</span>
-    <span class="q-sub">And what loving him has done, or is doing, to your nervous system</span>
-  </header>
-
-  <div class="progress" aria-label="Progress">
-    <span class="progress-label" id="prog-label">Section 1 of 2</span>
-    <div class="progress-bg"><div class="progress-fill" id="prog-fill" style="width:5%"></div></div>
+<div class="wrap">
+  <div class="brand">Your Mind Story</div>
+  <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Quiz progress" id="progressTrack">
+    <div class="progress-fill" id="progressFill"></div>
   </div>
 
-  <button type="button" class="btn-back" onclick="goBack()">Back</button>
+  <div class="card">
+    <form id="quizForm" novalidate>
 
-  <form id="quiz-form" novalidate>
-
-  <!-- S0: INTRO -->
-  <div class="screen active" id="s0">
-    <span class="section-head">This is not a personality quiz.</span>
-    <div class="section-body">
-      <p>This is a map of how this dynamic may be showing up in your body and your nervous system.</p>
-      <p>Answer honestly. Not how you think you should feel. How you actually feel right now, today.</p>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" onclick="gtag('event','quiz_start');go(1)">Begin</button></div>
-  </div>
-
-  <!-- S1: GENDER (required, no skip) -->
-  <div class="screen" id="s1">
-    <div class="options" role="radiogroup" aria-label="Gender">
-      <label class="opt" data-q="gender"><input type="radio" name="gender" value="Woman"><span class="dot"></span><span class="opt-text">Woman</span></label>
-      <label class="opt" data-q="gender"><input type="radio" name="gender" value="Man"><span class="dot"></span><span class="opt-text">Man</span></label>
-    </div>
-    <div class="btn-row">
-      <button type="button" class="btn-next" id="btn1" onclick="go(2)" disabled>Next</button>
-    </div>
-  </div>
-
-  <!-- S2: PART ONE INTRO -->
-  <div class="screen" id="s2">
-    <span class="section-head">Part One, what is happening in your body</span>
-    <div class="section-body">
-      <p>These seven questions explore how this dynamic may be showing up in your body and nervous system.</p>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" onclick="go(3)">Continue</button></div>
-  </div>
-
-  <!-- S3: Q1 THE ALARM IN YOUR BODY -->
-  <div class="screen" id="s3">
-    <span class="q-label">Question 1</span>
-    <span class="q-name">The alarm in your body</span>
-    <span class="q-text">When he goes quiet, takes longer to reply, pulls back, or contact drops, what happens in your body?</span>
-    <div class="options" role="radiogroup" aria-label="Q1">
-      <label class="opt" data-score="0"><input type="radio" name="q1" value="Nothing much. I feel fine and carry on with my day."><span class="dot"></span><span class="opt-text">Nothing much. I feel fine and carry on with my day.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q1" value="I notice some unease but I can redirect myself."><span class="dot"></span><span class="opt-text">I notice some unease but I can redirect myself.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q1" value="I feel a physical jolt. A tightness. A low dread I cannot shake until I hear from him."><span class="dot"></span><span class="opt-text">I feel a physical jolt. A tightness. A low dread I cannot shake until I hear from him.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q1" value="My whole system goes into alert. I cannot function normally until I know he is still there."><span class="dot"></span><span class="opt-text">My whole system goes into alert. I cannot function normally until I know he is still there.</span></label>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn3" onclick="go(4)" disabled>Next</button></div>
-  </div>
-
-  <!-- S4: Q2 THE CHECKING -->
-  <div class="screen" id="s4">
-    <span class="q-label">Question 2</span>
-    <span class="q-name">The checking</span>
-    <span class="q-text">How often do you check your phone, his social media, or anything else connected to him?</span>
-    <div class="options" role="radiogroup" aria-label="Q2">
-      <label class="opt" data-score="0"><input type="radio" name="q2" value="Rarely or never. I do not feel the pull."><span class="dot"></span><span class="opt-text">Rarely or never. I do not feel the pull.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q2" value="More than I would like, but I can redirect myself."><span class="dot"></span><span class="opt-text">More than I would like, but I can redirect myself.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q2" value="Frequently throughout the day. It has become automatic."><span class="dot"></span><span class="opt-text">Frequently throughout the day. It has become automatic.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q2" value="Constantly. I check before I have even decided to. It is like breathing."><span class="dot"></span><span class="opt-text">Constantly. I check before I have even decided to. It is like breathing.</span></label>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn4" onclick="go(5)" disabled>Next</button></div>
-  </div>
-
-  <!-- S5: Q3 THE SELF-BLAME -->
-  <div class="screen" id="s5">
-    <span class="q-label">Question 3</span>
-    <span class="q-name">The self-blame</span>
-    <span class="q-text">When things go wrong, he pulls back, goes cold, or disappears, what do you tell yourself?</span>
-    <div class="options" role="radiogroup" aria-label="Q3">
-      <label class="opt" data-score="0"><input type="radio" name="q3" value="This is his pattern. It is not about me."><span class="dot"></span><span class="opt-text">This is his pattern. It is not about me.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q3" value="I know it is not my fault, but I still find myself analysing what I said."><span class="dot"></span><span class="opt-text">I know it is not my fault, but I still find myself analysing what I said.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q3" value="I go over everything I did, looking for what I got wrong."><span class="dot"></span><span class="opt-text">I go over everything I did, looking for what I got wrong.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q3" value="Something is fundamentally broken in the way I love. I genuinely believe that."><span class="dot"></span><span class="opt-text">Something is fundamentally broken in the way I love. I genuinely believe that.</span></label>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn5" onclick="go(6)" disabled>Next</button></div>
-  </div>
-
-  <!-- S6: Q4 THE PULL -->
-  <div class="screen" id="s6">
-    <span class="q-label">Question 4</span>
-    <span class="q-name">The pull</span>
-    <span class="q-text">When a relationship feels calm, consistent and drama-free, how does that feel in your body?</span>
-    <div class="options" role="radiogroup" aria-label="Q4">
-      <label class="opt" data-score="0"><input type="radio" name="q4" value="It feels like safety. That is exactly what I want."><span class="dot"></span><span class="opt-text">It feels like safety. That is exactly what I want.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q4" value="It feels good but something in me keeps waiting for it to go wrong."><span class="dot"></span><span class="opt-text">It feels good but something in me keeps waiting for it to go wrong.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q4" value="I want it but I do not trust it when I have it."><span class="dot"></span><span class="opt-text">I want it but I do not trust it when I have it.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q4" value="Honestly it feels a bit flat. I need to feel something to know it is real."><span class="dot"></span><span class="opt-text">Honestly it feels a bit flat. I need to feel something to know it is real.</span></label>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn6" onclick="go(7)" disabled>Next</button></div>
-  </div>
-
-  <!-- S7: Q5 KNOWING-DOING GAP -->
-  <div class="screen" id="s7">
-    <span class="q-label">Question 5</span>
-    <span class="q-name">The knowing-doing gap</span>
-    <span class="q-text quote">"I know exactly what I need to do. I just cannot make myself do it."</span>
-    <span class="q-text quote-sub">How true is this for you right now?</span>
-    <div class="options" role="radiogroup" aria-label="Q5">
-      <label class="opt" data-score="0"><input type="radio" name="q5" value="Not true. When I decide something, I follow through."><span class="dot"></span><span class="opt-text">Not true. When I decide something, I follow through.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q5" value="Somewhat true. I struggle but I get there eventually."><span class="dot"></span><span class="opt-text">Somewhat true. I struggle but I get there eventually.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q5" value="Very true. The gap between knowing and doing feels enormous."><span class="dot"></span><span class="opt-text">Very true. The gap between knowing and doing feels enormous.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q5" value="Completely true. Knowing makes no difference. My body does what it wants regardless."><span class="dot"></span><span class="opt-text">Completely true. Knowing makes no difference. My body does what it wants regardless.</span></label>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn7" onclick="go(8)" disabled>Next</button></div>
-  </div>
-
-  <!-- S8: Q6 THE LOST SELF -->
-  <div class="screen" id="s8">
-    <span class="q-label">Question 6</span>
-    <span class="q-name">The lost self</span>
-    <span class="q-text">Since this dynamic began, or ended, how connected do you feel to yourself?</span>
-    <div class="options" role="radiogroup" aria-label="Q6">
-      <label class="opt" data-score="0"><input type="radio" name="q6" value="Fully connected. I know exactly who I am."><span class="dot"></span><span class="opt-text">Fully connected. I know exactly who I am.</span></label>
-      <label class="opt" data-score="1"><input type="radio" name="q6" value="Slightly wobbly but mostly intact."><span class="dot"></span><span class="opt-text">Slightly wobbly but mostly intact.</span></label>
-      <label class="opt" data-score="2"><input type="radio" name="q6" value="I recognise myself less. I have lost ground I need to get back."><span class="dot"></span><span class="opt-text">I recognise myself less. I have lost ground I need to get back.</span></label>
-      <label class="opt" data-score="3"><input type="radio" name="q6" value="I do not recognise myself at all. I am not sure who I am outside of this."><span class="dot"></span><span class="opt-text">I do not recognise myself at all. I am not sure who I am outside of this.</span></label>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn8" onclick="go(9)" disabled>Next</button></div>
-  </div>
-
-  <!-- S9: Q7 WHERE YOU ARE NOW -->
-  <div class="screen" id="s9">
-    <span class="q-label">Question 7</span>
-    <span class="q-name">Where you are right now</span>
-    <span class="q-text">Which of these best describes your situation today?</span>
-    <div class="options" role="radiogroup" aria-label="Q7">
-      <label class="opt"><input type="radio" name="q7" value="We're still together. I'm trying to make it work."><span class="dot"></span><span class="opt-text">We're still together. I'm trying to make it work.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="We're on and off, or I'm still hoping things will change."><span class="dot"></span><span class="opt-text">We're on and off, or I'm still hoping things will change.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="It's ended, but I can't stop thinking about him."><span class="dot"></span><span class="opt-text">It's ended, but I can't stop thinking about him.</span></label>
-      <label class="opt"><input type="radio" name="q7" value="I've been out for a while, but I still don't feel free, and I don't know why."><span class="dot"></span><span class="opt-text">I've been out for a while, but I still don't feel free, and I don't know why.</span></label>
-    </div>
-    <div class="btn-row"><button type="button" class="btn-next" id="btn9" onclick="go(16)" disabled>Next</button></div>
-  </div>
-
-  <!-- S16: Q13 IN YOUR OWN WORDS -->
-  <div class="screen" id="s16">
-    <div id="q13-question">
-      <span class="q-label">Question 8</span>
-      <span class="q-text">What is the impact of this dynamic costing you? Tell me in your own words.</span>
-      <textarea class="q-textarea" name="q13" id="q13" placeholder="I keep losing time to it. I check my phone when I said I wouldn't. I can't get through the day without." rows="5" oninput="document.getElementById('btn13').disabled = this.value.trim().length === 0;"></textarea>
-      <div class="btn-row">
-        <button type="button" class="btn-next" id="btn13" onclick="go('0b'); document.getElementById('prog-fill').style.width='95%';" disabled>Submit</button>
+      <!-- Screen: intro (not a question, not counted in the 10) -->
+      <div class="step active" data-step="intro">
+        <div class="intro">
+          <div class="q-label">Your Mind Story</div>
+          <h1 tabindex="-1">Let's look at what this has been doing to you.</h1>
+          <p>There are 8 scored questions, then two short context questions.</p>
+          <p>Choose the answer that feels most true right now.</p>
+          <p>There are no right or wrong answers.</p>
+        </div>
+        <div class="nav-row" style="justify-content:flex-end;">
+          <button type="button" class="btn-primary" data-action="next">Start the Quiz</button>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- S0B: EARLY LEAD CAPTURE -->
-  <div class="screen" id="s0b">
-    <span class="cap-head">Before we begin.</span>
-    <span class="cap-sub">Give me your name and email so I can send your results straight to you the moment you're done.</span>
-    <div class="field-wrap">
-      <label class="field-lbl" for="fname">Your name</label>
-      <input class="field-in" type="text" id="fname" name="fname" autocomplete="given-name" placeholder="First name" oninput="checkLeadReady()">
-    </div>
-    <div class="field-wrap">
-      <label class="field-lbl" for="femail">Email address</label>
-      <input class="field-in" type="email" id="femail" name="femail" autocomplete="email" placeholder="your@email.com" oninput="checkLeadReady()">
-      <span class="err" id="email-err">Please enter a valid email address.</span>
-    </div>
-    <div class="consent-wrap">
-      <label class="consent-lbl" id="consent-lbl">
-        <input type="checkbox" id="consent">
-        <span class="cbox"><span class="ccheck">&#10003;</span></span>
-        <span class="consent-txt">Yes, send my results and occasional support for what I am going through. I can unsubscribe any time. <a href="privacy.html" class="plink">Privacy policy</a></span>
-      </label>
-      <p class="disclaimer-small">I confirm I am 18 or over. Your Mind Story materials are delivered by a qualified Clinical Cognitive-Behavioural Hypnotherapist and are for educational and personal development purposes only. Not a substitute for medical diagnosis, psychiatric care, or crisis intervention. If you are in immediate distress or at risk of harm, please contact emergency services or your GP immediately. <a href="privacy.html" style="color:rgba(13,11,20,0.28);text-decoration:underline;">Full terms</a></p>
-    </div>
-    <button type="button" class="btn-submit" id="btn-submit" onclick="submitQuiz()" disabled>Continue</button>
-    <span class="err" id="consent-err" style="margin-top:8px;">Please tick the box above to receive your results.</span>
-  </div>
+      <!-- Steps 1-8 of 10: scored questions, injected by JS. Auto-advance, no Continue button. -->
+      <div id="questionSteps"></div>
 
-  <!-- S19: FINALIZING -->
-  <div class="screen" id="s19">
-    <span class="q-text" style="text-align:center;display:block;margin-top:60px;">Whatever it's costing you, you don't have to feel like this anymore.</span>
-  </div>
+      <!-- Step 9 of 10: relationship status (unscored). Auto-advance, no Continue button. -->
+      <div class="step" data-step="relationship">
+        <div class="transition-note">Main questions complete. Two quick things before your result.</div>
+        <div class="q-label">Step 9 of 10</div>
+        <div class="q-prompt" tabindex="-1">Which best describes where you are right now?</div>
+        <div class="options" id="relationshipOptions"></div>
+        <div class="error-msg" id="relationshipError">Please choose one option to continue.</div>
+        <div class="nav-row">
+          <button type="button" class="btn-ghost" data-action="back">Back</button>
+          <span></span>
+        </div>
+      </div>
 
-  </form>
-</div>
-</main>
+      <!-- Step 10 of 10: open response. REQUIRED: cannot advance until a
+           genuine, non-blank (post-trim) answer has been entered. Manual
+           Continue (no auto-advance), Continue stays disabled until valid. -->
+      <div class="step" data-step="openresponse">
+        <div class="q-label">Step 10 of 10</div>
+        <div class="q-label">One Last Thing</div>
+        <div class="q-prompt" tabindex="-1">What is this costing you right now?</div>
+        <div class="q-subtext">A sentence or two is enough.</div>
+        <div class="field">
+          <textarea id="openResponse" name="openResponse" maxlength="1000" data-clarity-mask="True" aria-label="What is this costing you right now?" required></textarea>
+        </div>
+        <div class="error-msg" id="openResponseError">Please share a sentence or two before continuing.</div>
+        <div class="nav-row">
+          <button type="button" class="btn-ghost" data-action="back">Back</button>
+          <button type="button" class="btn-primary" data-action="next" id="openResponseNextBtn" disabled>Continue to My Result</button>
+        </div>
+      </div>
+
+      <!-- Screen: lead capture (not counted in the 10, not a question).
+           Combined "Done" heading + fields on one screen, no extra click. -->
+      <div class="step" data-step="lead">
+        <div class="complete-screen">
+          <h1 tabindex="-1">Done. Your Result Is Ready.</h1>
+          <p>Enter your first name and email to see your personalised result.</p>
+        </div>
+
+        <div class="field">
+          <label for="firstName">First name</label>
+          <input type="text" id="firstName" name="firstName" autocomplete="given-name" maxlength="80" data-clarity-mask="True">
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" autocomplete="email" maxlength="160" data-clarity-mask="True">
+        </div>
+        <div class="error-msg" id="detailsError">Please add your first name and a valid email address.</div>
+
+        <div class="consent-row">
+          <input type="checkbox" id="marketingConsent" name="marketingConsent">
+          <label for="marketingConsent">Yes, send me occasional emails from Your Mind Story with support, tools and offers. I can unsubscribe at any time.</label>
+        </div>
+        <p class="consent-note">You can see your result whether or not you tick the box.</p>
+
+        <div class="nav-row">
+          <button type="button" class="btn-ghost" data-action="back">Back</button>
+          <button type="button" class="btn-primary" id="submitBtn" data-action="submit">Show Me My Result</button>
+        </div>
+        <div class="submitting-note" id="submittingNote">Saving your answers...</div>
+
+        <div class="retry-box" id="retryBox" role="alert">
+          <p>We couldn't save your answers just yet.</p>
+          <button type="button" class="btn-primary" id="retryBtn">Try Again</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
 </div>
 
 <script>
-// SCORING - Master System Prompt V8.3
-// Stabilise      = Q1 + Q3
-// Break the Pull = Q2 + Q5
-// Restore Self T = Q3 + Q5
-// Return to Self = Q4 + Q6
-// Tiebreaker: restore-self-trust wins ties
+(function(){
+  "use strict";
 
-var SHEET = 'https://script.google.com/macros/s/AKfycbyhP9iqlmz8nFkI1UvZVQjE4fRaiR8oh7wDd40bQNL6KqOXqfJERRS89j4XA-MkZ-Hj/exec';
-var current = 0;
-var selectedGender = '';
-var selectedSituation = '';
+  /* ==========================================================
+     CONFIG: fill in the /exec URL once the Apps Script is
+     deployed. Everything else works without it except the
+     actual write to the Sheet (submission will show the retry
+     screen, since it correctly cannot confirm a save).
+     ========================================================== */
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec";
+  var QUIZ_VERSION = "YMS-QUIZ-2026-V1";
+  var NOT_DEPLOYED = !APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('REPLACE_WITH') === 0;
 
-// Screens that represent an actual question the person is looking at.
-// Used to fire a checkpoint event every time they reach one, so we can
-// see exactly where in the quiz people stop.
-var QUESTION_CHECKPOINTS = {1:'gender',3:'q1',4:'q2',5:'q3',6:'q4',7:'q5',8:'q6',9:'q7',16:'q13'};
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var AUTO_ADVANCE_DELAY = prefersReducedMotion ? 0 : 220;
 
-// Generates a permanent, unique token for this result so it can be
-// looked back up later (email link, etc). Not used for redirect logic
-// yet — just captured and stored against her row for when that's built.
-function makeResultToken() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
-
-function updateProgress(n) {
-  if (typeof n !== 'number') { document.getElementById('prog-fill').style.width = '3%'; return; }
-  var pct = Math.round((n / 19) * 100);
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-label').textContent = n >= 10 ? 'Section 2 of 2' : 'Section 1 of 2';
-}
-
-document.addEventListener('click', function(e) {
-  var label = e.target.closest('.opt');
-  if (!label) return;
-  var input = label.querySelector('input');
-  if (!input) return;
-
-  if (input.type === 'checkbox') {
-    // Toggle checkbox manually
-    input.checked = !input.checked;
-    label.classList.toggle('selected', input.checked);
-    // Enable Next button for this checkbox group only if at least one box is checked
-    var grp = label.closest('.options');
-    if (grp) {
-      var anyChecked = grp.querySelector('input[type="checkbox"]:checked') !== null;
-      var scr = label.closest('.screen');
-      if (scr) {
-        var btn = scr.querySelector('.btn-next');
-        if (btn) btn.disabled = !anyChecked;
-      }
-    }
-  } else {
-    // Radio — deselect siblings, select this
-    var grp = label.closest('.options');
-    if (grp) grp.querySelectorAll('.opt').forEach(function(l) {
-      l.classList.remove('selected');
-      var r = l.querySelector('input[type="radio"]');
-      if (r) r.checked = false;
-    });
-    label.classList.add('selected');
-    input.checked = true;
-    // Capture gender immediately when selected
-    if (input.name === 'gender') selectedGender = input.value;
-    if (input.name === 'q7') selectedSituation = input.value;
-    // Enable next button for this screen
-    var scr = document.getElementById('s' + current);
-    if (scr) { var btn = scr.querySelector('.btn-next'); if (btn) btn.disabled = false; }
-  }
-});
-
-// Consent toggles submit button
-var consentEl = document.getElementById('consent');
-if (consentEl) {
-  consentEl.addEventListener('change', function() {
-    document.getElementById('consent-lbl').classList.toggle('ticked', this.checked);
-  });
-}
-
-// Back navigation
-var history_stack = [];
-function go(n) {
-  var prev = document.getElementById('s' + current);
-  if (prev) prev.classList.remove('active');
-  history_stack.push(current);
-  current = n;
-  var next = document.getElementById('s' + n);
-  if (next) { next.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
-  updateProgress(n);
-  // Show/hide back button on each screen
-  updateBackBtn(n);
-  // Compact header after intro screen
-  var hdr = document.getElementById('quiz-header');
-  if (hdr) {
-    if (n > 0) { hdr.classList.add('compact'); }
-    else { hdr.classList.remove('compact'); }
-  }
-  // Fire a checkpoint event so we can see exactly where drop-off happens
-  if (QUESTION_CHECKPOINTS[n]) {
-    gtag('event', 'quiz_progress', {question: QUESTION_CHECKPOINTS[n]});
-  }
-}
-
-function goBack() {
-  if (history_stack.length === 0) return;
-  var prev_screen = history_stack.pop();
-  var curr = document.getElementById('s' + current);
-  if (curr) curr.classList.remove('active');
-  current = prev_screen;
-  var prev = document.getElementById('s' + current);
-  if (prev) { prev.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
-  updateProgress(current);
-  updateBackBtn(current);
-  var hdr = document.getElementById('quiz-header');
-  if (hdr) {
-    if (current > 0) { hdr.classList.add('compact'); }
-    else { hdr.classList.remove('compact'); }
-  }
-}
-
-function updateBackBtn(n) {
-  // Show back button on all screens except s0 (intro), s0b (early capture) and s19 (finalizing)
-  var backBtns = document.querySelectorAll('.btn-back');
-  backBtns.forEach(function(b) {
-    b.style.display = (n > 0 && n < 19) ? 'block' : 'none';
-  });
-}
-
-function sc(name) {
-  var el = document.querySelector('input[name="' + name + '"]:checked');
-  if (!el) return 0;
-  var label = el.closest('[data-score]');
-  return label ? parseInt(label.getAttribute('data-score')) || 0 : 0;
-}
-
-function getBucket() {
-  var q1=sc('q1'), q2=sc('q2'), q3=sc('q3'), q4=sc('q4'), q5=sc('q5'), q6=sc('q6');
-  var buckets = [
-    {name:'stabilise',          score:q1+q3, page:'stabilise.html'},
-    {name:'break-the-pull',     score:q2+q5, page:'break-the-pull.html'},
-    {name:'restore-self-trust', score:q3+q5, page:'restore-self-trust.html'},
-    {name:'return-to-yourself', score:q4+q6, page:'return-to-yourself.html'}
+  /* ==========================================================
+     LOCKED COPY (relationship status is unscored, exactly 3
+     options, verbatim per spec. Do not paraphrase.
+     ========================================================== */
+  var RELATIONSHIP_OPTIONS = [
+    "I'm still in the relationship or situation with him.",
+    "It's ended, but I still feel caught in it.",
+    "I'm seeing the same pattern starting again with someone new."
   ];
-  if (buckets.every(function(b) { return b.score === 0; })) return {name:'no-result', page:'no-result.html'};
-  var maxScore = Math.max.apply(null, buckets.map(function(b){return b.score;}));
-  var topBuckets = buckets.filter(function(b){return b.score === maxScore;});
-  if (topBuckets.length > 1) { return buckets.filter(function(b){return b.name === 'restore-self-trust';})[0]; }
-  return topBuckets[0];
-}
 
-// Fired from the early capture screen (s0b), before any questions are answered.
-// Writes a lightweight partial lead so we still have her name/email even if
-// she abandons the quiz partway through.
-function checkLeadReady() {
-  var email = document.getElementById('femail').value.trim();
-  var name  = document.getElementById('fname').value.trim();
-  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  document.getElementById('btn-submit').disabled = !(emailOk && name.length > 0);
-}
+  var QUESTIONS = [
+    { id:"q1", bucket:"quietTheAlarm", label:"Step 1 of 10",
+      prompt:"When he goes quiet, takes longer to reply, pulls back, or contact drops, what happens in your body?",
+      options:[
+        "Nothing much. I feel fine and carry on with my day.",
+        "I notice some unease, but I can redirect myself.",
+        "I feel a physical jolt. A tightness. A low dread I struggle to shake.",
+        "My whole system goes into alert. I struggle to function normally."
+      ]},
+    { id:"q2", bucket:"quietTheAlarm", label:"Step 2 of 10",
+      prompt:"Once that alarm starts, how easy is it to settle yourself again, even if nothing changes with him?",
+      options:[
+        "I can settle myself and get back to my day.",
+        "It takes me a little while, but I usually come back down.",
+        "I can stay on edge for hours and it affects my focus and my day.",
+        "I cannot properly settle until I hear from him or feel reassured about where I stand."
+      ]},
+    { id:"q3", bucket:"breakThePull", label:"Step 3 of 10",
+      prompt:"How often do you check your phone, his social media, messages, status, location, or anything else connected to him?",
+      options:[
+        "Rarely or never. I do not feel much pull to check.",
+        "More than I would like, but I can redirect myself.",
+        "Frequently throughout the day. It has become automatic.",
+        "Constantly. Sometimes I have checked before I've even really decided to."
+      ]},
+    { id:"q4", bucket:"breakThePull", label:"Step 4 of 10",
+      prompt:"When you decide not to check, reach out or reopen the conversation, what usually happens?",
+      options:[
+        "I can make the decision and stick to it.",
+        "I feel the urge, but I can usually stay with my decision.",
+        "I try to stick to it, but I often end up checking or reaching out anyway.",
+        "When the pull hits, the decision seems to disappear. I do it almost automatically."
+      ]},
+    { id:"q5", bucket:"restoreSelfTrust", label:"Step 5 of 10",
+      prompt:"When he pulls back, goes cold or something feels wrong between you, what happens in your mind?",
+      options:[
+        "I can see his behaviour as his behaviour without immediately making it about me.",
+        "I know it may not be my fault, but I still find myself analysing what I said or did.",
+        "I go over everything, looking for what I got wrong.",
+        "I end up questioning myself so much that I no longer know whether I can trust my own judgement."
+      ]},
+    { id:"q6", bucket:"restoreSelfTrust", label:"Step 6 of 10",
+      prompt:"When you make a decision about what you need or what you will no longer accept, what usually happens next?",
+      options:[
+        "I trust my decision and can stand by it.",
+        "I second-guess myself sometimes, but I usually stay with what I decided.",
+        "I question myself repeatedly and often need reassurance that I am doing the right thing.",
+        "I struggle to trust my own decisions at all. His behaviour can completely change what I thought I wanted."
+      ]},
+    { id:"q7", bucket:"returnToYourself", label:"Step 7 of 10",
+      prompt:"Since this dynamic began, or ended, how connected do you feel to yourself?",
+      options:[
+        "Fully connected. I know who I am.",
+        "Slightly wobbly, but mostly still myself.",
+        "I recognise myself less. I have lost ground I want to get back.",
+        "I do not recognise myself anymore. I am not sure who I am outside of this."
+      ]},
+    { id:"q8", bucket:"returnToYourself", label:"Step 8 of 10",
+      prompt:"How much of your attention and your life now revolves around him or what is happening between you?",
+      options:[
+        "It is one part of my life. My attention is still mostly on my own life.",
+        "It takes up more headspace than I want, but I still feel centred in my own life.",
+        "Too much of my time, attention or emotional energy revolves around him and what he is doing.",
+        "He or this situation feels like the centre of my life. My own plans, interests, routines or needs have moved into the background."
+      ]}
+  ];
 
-function submitPartialLead() {
-  var email = document.getElementById('femail').value.trim();
-  var name  = document.getElementById('fname').value.trim();
-  var consent = document.getElementById('consent').checked;
-  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  document.getElementById('email-err').classList.toggle('show', !emailOk);
-  document.getElementById('consent-err').classList.toggle('show', !consent);
-  if (!emailOk || !consent) return;
-
-  gtag('event', 'quiz_lead_captured');
-
-  var payload = {
-    name: name || 'Anonymous',
-    email: email,
-    consent: consent ? 'yes' : 'no',
-    status: 'partial',
-    key: 'URf3YWE_CvM6wxLMabxgzwRg75WUiX1h'
+  var RESULT_PAGES = {
+    quietTheAlarm:    "quiet-the-alarm.html",
+    breakThePull:      "break-the-pull.html",
+    restoreSelfTrust:  "restore-self-trust.html",
+    returnToYourself:  "return-to-yourself.html",
+    mixed:             "mixed-result.html",
+    low:               "low-result.html"
   };
-  try {
-    fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-  } catch(e) {}
-
-  go(1);
-}
-
-function submitQuiz() {
-  // Name/email/consent were already captured and validated at s0b — this is
-  // just a safety net in case something unexpected happened.
-  var email = document.getElementById('femail').value.trim();
-  var name  = document.getElementById('fname').value.trim();
-  var consent = document.getElementById('consent').checked;
-  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  if (!emailOk) { go('0b'); return; }
-
-  gtag('event', 'quiz_lead_captured');
-
-  go(19);
-
-  var result = getBucket();
-  var resultToken = makeResultToken();
-  gtag('event', 'quiz_complete', {'bucket': result.name, 'situation': selectedSituation});
-
-  function val(n) { var el = document.querySelector('input[name="'+n+'"]:checked'); return el ? el.value : ''; }
-  function multi(n) { return Array.from(document.querySelectorAll('input[name="'+n+'"]:checked')).map(function(c){return c.value;}).join(', '); }
-
-  // Send in the flat object format the Apps Script expects
-  var payload = {
-    name: name || 'Anonymous',
-    email: email,
-    bucket: result.name,
-    token: resultToken,
-    status: 'complete',
-    q1: val('q1'),
-    q2: val('q2'),
-    q3: val('q3'),
-    q4: val('q4'),
-    q5: val('q5'),
-    q6: val('q6'),
-    q7: val('q7'),
-    q13: document.getElementById('q13').value || '',
-    q14: val('q14'),
-    gender: selectedGender,
-    situation: selectedSituation,
-    consent: consent ? 'yes' : 'no',
-    key: 'URf3YWE_CvM6wxLMabxgzwRg75WUiX1h'
+  var BUCKET_DISPLAY_NAMES = {
+    quietTheAlarm:    "Quiet the Alarm",
+    breakThePull:      "Break the Pull",
+    restoreSelfTrust:  "Restore Self Trust",
+    returnToYourself:  "Return to Yourself"
   };
 
-  try { sessionStorage.setItem('yms_result', JSON.stringify({bucket:result.name, name:name, page:result.page, consent:consent, token:resultToken})); } catch(e) {}
+  // -------------------- state --------------------
+  var STEP_ORDER = ["intro","q1","q2","q3","q4","q5","q6","q7","q8","relationship","openresponse","lead"];
+  var COUNTED_STEPS = ["q1","q2","q3","q4","q5","q6","q7","q8","relationship","openresponse"]; // exactly 10
+  var AUTO_ADVANCE_STEPS = { q1:1,q2:1,q3:1,q4:1,q5:1,q6:1,q7:1,q8:1,relationship:1 }; // NOT openresponse, NOT lead
 
-  var __sent = false;
-  try {
-    if (navigator.sendBeacon) {
-      var __blob = new Blob([JSON.stringify(payload)], {type: 'text/plain;charset=UTF-8'});
-      __sent = navigator.sendBeacon(SHEET, __blob);
+  var answers = {};              // { q1: {score, answer}, ... }
+  var currentIndex = 0;
+  var relationshipStatus = null;
+  var submissionId = YMSQuiz.generateId(); // idempotency / duplicate protection identity
+  var resultToken = YMSQuiz.generateId();  // separate result-handoff/session identity, no PII in either
+  var lastPayload = null;        // for retry
+  var advanceTimer = null;
+
+  YMSQuiz.captureAttribution(); // fallback in case someone lands directly on quiz.html
+
+  // -------------------- build question steps (q1..q8) --------------------
+  var stepsContainer = document.getElementById('questionSteps');
+  QUESTIONS.forEach(function(q){
+    var stepEl = document.createElement('div');
+    stepEl.className = 'step';
+    stepEl.setAttribute('data-step', q.id);
+
+    var optionsHtml = '';
+    q.options.forEach(function(optText, val){
+      optionsHtml += '' +
+        '<label class="option" data-qid="'+q.id+'" data-val="'+val+'">' +
+          '<input type="radio" name="'+q.id+'" value="'+val+'">' +
+          '<span class="option-text">'+YMSQuiz.escapeText(optText)+'</span>' +
+          '<span class="option-check" aria-hidden="true"></span>' +
+        '</label>';
+    });
+
+    stepEl.innerHTML =
+      '<div class="q-label">'+YMSQuiz.escapeText(q.label)+'</div>' +
+      '<div class="q-prompt" tabindex="-1">'+YMSQuiz.escapeText(q.prompt)+'</div>' +
+      '<div class="options">'+optionsHtml+'</div>' +
+      '<div class="error-msg" id="err-'+q.id+'">Please choose an answer to continue.</div>' +
+      '<div class="nav-row">' +
+        '<button type="button" class="btn-ghost" data-action="back">Back</button>' +
+        '<span></span>' +
+      '</div>';
+
+    stepsContainer.appendChild(stepEl);
+  });
+
+  // relationship status options (locked copy, unscored, exactly 3 options)
+  var relWrap = document.getElementById('relationshipOptions');
+  RELATIONSHIP_OPTIONS.forEach(function(text, idx){
+    var lab = document.createElement('label');
+    lab.className = 'option';
+    lab.setAttribute('data-relval', String(idx));
+    lab.innerHTML = '<input type="radio" name="relationshipStatus" value="'+idx+'">' +
+                     '<span class="option-text">'+YMSQuiz.escapeText(text)+'</span>' +
+                     '<span class="option-check" aria-hidden="true"></span>';
+    relWrap.appendChild(lab);
+  });
+
+  // -------------------- interaction --------------------
+  var allSteps = document.querySelectorAll('.step');
+
+  // Radio selection via 'change' (fires for both mouse and keyboard activation).
+  document.addEventListener('change', function(e){
+    var input = e.target;
+    if (input.tagName !== 'INPUT' || input.type !== 'radio') return;
+    var optionEl = input.closest('.option');
+    if (!optionEl) return;
+
+    var group = optionEl.closest('.options');
+    Array.prototype.forEach.call(group.querySelectorAll('.option'), function(o){ o.classList.remove('selected'); });
+    optionEl.classList.add('selected');
+
+    var qid = optionEl.getAttribute('data-qid');
+    var relval = optionEl.getAttribute('data-relval');
+
+    if (qid){
+      answers[qid] = { score: parseInt(optionEl.getAttribute('data-val'), 10), answer: optionEl.querySelector('.option-text').textContent };
+      hideError('err-' + qid);
+    } else if (relval !== null){
+      relationshipStatus = RELATIONSHIP_OPTIONS[parseInt(relval, 10)];
+      hideError('relationshipError');
     }
-  } catch(e) {}
-  if (!__sent) {
-    try {
-      fetch(SHEET, {
-        method: 'POST',
-        mode: 'no-cors',
-        keepalive: true,
-        body: JSON.stringify(payload)
-      });
-    } catch(e) {}
+
+    var stepName = currentStepName();
+    if (AUTO_ADVANCE_STEPS[stepName]){
+      clearTimeout(advanceTimer);
+      advanceTimer = setTimeout(function(){ goNext(); }, AUTO_ADVANCE_DELAY);
+    }
+  });
+
+  document.addEventListener('click', function(e){
+    var actionBtn = e.target.closest('[data-action]');
+    if (actionBtn){
+      e.preventDefault();
+      var action = actionBtn.getAttribute('data-action');
+      if (action === 'next') goNext();
+      else if (action === 'back') goBack();
+      else if (action === 'submit') submitQuiz();
+      return;
+    }
+
+    // Re-tapping an option that was ALREADY selected (for example after
+    // using Back to revisit an auto-advance step without changing the
+    // answer) does not fire a native 'change' event, since the radio's
+    // checked state does not actually change. Without this, she would
+    // have no way to move forward again. Detected here via click, only
+    // when the radio was already checked before this tap.
+    var optionEl = e.target.closest('.option');
+    if (!optionEl) return;
+    var input = optionEl.querySelector('input[type="radio"]');
+    if (!input || !input.checked) return;
+    var stepName = currentStepName();
+    if (AUTO_ADVANCE_STEPS[stepName]){
+      clearTimeout(advanceTimer);
+      advanceTimer = setTimeout(function(){ goNext(); }, AUTO_ADVANCE_DELAY);
+    }
+  });
+
+  document.getElementById('retryBtn').addEventListener('click', function(){
+    submitQuiz(true);
+  });
+
+  // Open response (Step 10) is required. Continue stays disabled until the
+  // textarea holds real, non-whitespace text. Re-checked live as she types.
+  var openResponseNextBtn = document.getElementById('openResponseNextBtn');
+  document.getElementById('openResponse').addEventListener('input', function(e){
+    var hasContent = e.target.value.trim().length > 0;
+    openResponseNextBtn.disabled = !hasContent;
+    if (hasContent) hideError('openResponseError');
+  });
+
+  function hideError(id){
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  }
+  function showError(id){
+    var el = document.getElementById(id);
+    if (el) el.classList.add('show');
   }
 
-  // Extract bucket name from result.page filename
-  window.location.href = result.page;
-}
+  function currentStepName(){
+    return STEP_ORDER[currentIndex];
+  }
 
-document.addEventListener('DOMContentLoaded', function(){
-  var header = document.getElementById('quiz-header');
-  function updateHeader(){
-    var activeScreen = document.querySelector('.screen.active');
-    if(activeScreen && activeScreen.id !== 's0'){
-      header.style.display = 'none';
+  function currentStepValid(){
+    var name = currentStepName();
+    if (/^q[1-8]$/.test(name)){
+      if (typeof answers[name] === 'undefined'){
+        showError('err-' + name);
+        return false;
+      }
+      return true;
+    }
+    if (name === 'relationship'){
+      if (!relationshipStatus){
+        showError('relationshipError');
+        return false;
+      }
+      return true;
+    }
+    if (name === 'openresponse'){
+      // Required. Whitespace-only does not count. Checked here as a
+      // backstop in addition to the disabled Continue button below, so
+      // there is no path through this step without a genuine answer.
+      var openVal = document.getElementById('openResponse').value.trim();
+      if (!openVal){
+        showError('openResponseError');
+        return false;
+      }
+      return true;
+    }
+    if (name === 'lead'){
+      var fn = document.getElementById('firstName').value.trim();
+      var em = document.getElementById('email').value.trim();
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em);
+      if (!fn || !emailOk){
+        showError('detailsError');
+        return false;
+      }
+      return true;
+    }
+    return true;
+  }
+
+  function showStep(idx){
+    var name = STEP_ORDER[idx];
+    Array.prototype.forEach.call(allSteps, function(s){
+      var isActive = s.getAttribute('data-step') === name;
+      s.classList.toggle('active', isActive);
+      s.classList.toggle('animate-in', isActive);
+    });
+
+    // Progress reflects steps ALREADY COMPLETED, reaching 100% only after
+    // Step 10 (open response) is answered and you move on.
+    var countedIdx = COUNTED_STEPS.indexOf(name);
+    var pct;
+    if (countedIdx !== -1){
+      pct = Math.round((countedIdx / COUNTED_STEPS.length) * 100);
+    } else if (name === 'lead'){
+      pct = 100;
     } else {
-      header.style.display = 'block';
+      pct = 0; // intro
+    }
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressTrack').setAttribute('aria-valuenow', String(pct));
+
+    currentIndex = idx;
+
+    // Focus management: move focus to the new step's heading/prompt so
+    // screen-reader users and keyboard users land on the new content.
+    var activeStep = document.querySelector('.step.active');
+    var focusTarget = activeStep && (activeStep.querySelector('.q-prompt') || activeStep.querySelector('h1'));
+    if (focusTarget){
+      // rAF avoids fighting the display:none -> block transition timing
+      requestAnimationFrame(function(){ focusTarget.focus(); });
+    }
+
+    if (name === 'q1'){
+      YMSQuiz.track('quiz_start', { quiz_version: QUIZ_VERSION });
+    }
+    if (countedIdx !== -1){
+      YMSQuiz.track('quiz_progress', { quiz_version: QUIZ_VERSION, step: countedIdx + 1, step_name: name });
     }
   }
-  window.addEventListener('scroll', updateHeader);
-  updateHeader();
-});
-</script>
 
+  function goNext(){
+    clearTimeout(advanceTimer);
+    if (!currentStepValid()) return;
+    if (currentIndex < STEP_ORDER.length - 1) showStep(currentIndex + 1);
+  }
+  function goBack(){
+    clearTimeout(advanceTimer);
+    if (currentIndex > 0) showStep(currentIndex - 1);
+  }
+
+  // -------------------- scoring (client-side, for immediate UX only;
+  // the server independently recomputes and is authoritative) --------------------
+  function computeScores(){
+    return {
+      quietTheAlarm:    answers.q1.score + answers.q2.score,
+      breakThePull:      answers.q3.score + answers.q4.score,
+      restoreSelfTrust:  answers.q5.score + answers.q6.score,
+      returnToYourself:  answers.q7.score + answers.q8.score
+    };
+  }
+
+  function determineResult(scores){
+    var keys = ['quietTheAlarm','breakThePull','restoreSelfTrust','returnToYourself'];
+    var max = Math.max(scores.quietTheAlarm, scores.breakThePull, scores.restoreSelfTrust, scores.returnToYourself);
+
+    var allLow = keys.every(function(k){ return scores[k] <= 2; });
+    if (allLow){
+      return { type: 'low', primary: null, mixedBuckets: [] };
+    }
+
+    var topKeys = keys.filter(function(k){ return scores[k] === max; });
+    if (topKeys.length === 1){
+      return { type: 'single', primary: topKeys[0], mixedBuckets: [] };
+    }
+    return { type: 'mixed', primary: null, mixedBuckets: topKeys };
+  }
+
+  // Map the server's plain-English bucket names (BUCKET_DISPLAY_NAMES values)
+  // back to internal keys, so a server-authoritative result can drive the
+  // redirect even if it disagrees with the client's own computation.
+  function bucketKeyFromDisplayName(displayName){
+    var found = null;
+    Object.keys(BUCKET_DISPLAY_NAMES).forEach(function(k){
+      if (BUCKET_DISPLAY_NAMES[k] === displayName) found = k;
+    });
+    return found;
+  }
+
+  // -------------------- submit --------------------
+  function setSubmittingUi(isSubmitting){
+    var submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = isSubmitting;
+    submitBtn.textContent = isSubmitting ? 'Working...' : 'Show Me My Result';
+    document.getElementById('submittingNote').style.display = isSubmitting ? 'block' : 'none';
+  }
+
+  function showRetry(){
+    setSubmittingUi(false);
+    document.getElementById('retryBox').classList.add('show');
+  }
+  function hideRetry(){
+    document.getElementById('retryBox').classList.remove('show');
+  }
+
+  function buildPayload(){
+    var attribution = YMSQuiz.getAttribution();
+    return {
+      submissionId: submissionId,
+      resultToken: resultToken,
+      quizVersion: QUIZ_VERSION, // client value is advisory only, server is authoritative
+      timestampIso: new Date().toISOString(),
+      firstName: document.getElementById('firstName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      marketingConsent: !!document.getElementById('marketingConsent').checked,
+      relationshipStatus: relationshipStatus,
+      openResponse: document.getElementById('openResponse').value.trim(),
+      answers: {
+        q1: answers.q1, q2: answers.q2, q3: answers.q3, q4: answers.q4,
+        q5: answers.q5, q6: answers.q6, q7: answers.q7, q8: answers.q8
+      },
+      utmSource: attribution.utm_source,
+      utmMedium: attribution.utm_medium,
+      utmCampaign: attribution.utm_campaign,
+      utmTerm: attribution.utm_term,
+      utmContent: attribution.utm_content,
+      referrer: attribution.referrer,
+      landingPageUrl: attribution.landingUrl,
+      submissionPageUrl: window.location.href,
+      userAgent: navigator.userAgent
+    };
+  }
+
+  function proceedToResult(serverData){
+    var clientScores = computeScores();
+    var clientResult = determineResult(clientScores);
+
+    // Server is authoritative. If it disagrees with the client's own
+    // computation, log it (do not silently ignore) and use the server's.
+    var resultType = clientResult.type;
+    var primaryKey = clientResult.primary;
+    var mixedKeys = clientResult.mixedBuckets;
+    var finalResultToken = resultToken; // client-generated, distinct from submissionId
+
+    if (serverData && serverData.resultType){
+      finalResultToken = serverData.resultToken || resultToken;
+      if (serverData.resultType !== clientResult.type ||
+          (serverData.primaryResult && bucketKeyFromDisplayName(serverData.primaryResult) !== clientResult.primary)){
+        console.warn('Server result differs from client result. Using server result as authoritative.',
+          { server: serverData, client: clientResult });
+      }
+      resultType = serverData.resultType;
+      primaryKey = serverData.primaryResult ? bucketKeyFromDisplayName(serverData.primaryResult) : null;
+      mixedKeys = (serverData.mixedResultBuckets || []).map(bucketKeyFromDisplayName).filter(Boolean);
+    }
+
+    var firstName = document.getElementById('firstName').value.trim();
+    var mixedNames = mixedKeys.map(function(k){ return BUCKET_DISPLAY_NAMES[k]; });
+
+    YMSQuiz.setResultData({
+      firstName: firstName,
+      resultType: resultType,
+      primaryResult: primaryKey ? BUCKET_DISPLAY_NAMES[primaryKey] : null,
+      tiedResults: mixedNames,
+      resultToken: finalResultToken
+    });
+
+    YMSQuiz.track('quiz_complete', {
+      quiz_version: QUIZ_VERSION,
+      result_type: resultType,
+      primary_result: resultType === 'single' ? BUCKET_DISPLAY_NAMES[primaryKey] : (resultType === 'mixed' ? 'Mixed' : 'Low')
+    });
+    YMSQuiz.track('quiz_lead_captured', { quiz_version: QUIZ_VERSION });
+    try { fbq('track', 'Lead'); } catch(e){}
+
+    var target = resultType === 'low' ? RESULT_PAGES.low
+      : resultType === 'single' ? RESULT_PAGES[primaryKey]
+      : RESULT_PAGES.mixed;
+
+    window.location.href = target;
+  }
+
+  function submitQuiz(isRetry){
+    if (!isRetry && !currentStepValid()) return;
+
+    hideRetry();
+    setSubmittingUi(true);
+
+    var payload = isRetry ? lastPayload : buildPayload();
+    lastPayload = payload;
+
+    if (NOT_DEPLOYED){
+      // Apps Script not deployed yet in this environment, cannot confirm
+      // a save, so per spec we do NOT pretend it saved. Surface the retry
+      // state honestly rather than silently proceeding.
+      console.warn('APPS_SCRIPT_URL not set, cannot save. Showing retry state (expected during local/offline testing).');
+      showRetry();
+      return;
+    }
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids CORS preflight against Apps Script
+      body: JSON.stringify(payload)
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if (data && (data.status === 'ok' || data.status === 'duplicate')){
+        proceedToResult(data);
+      } else {
+        console.error('Quiz submission returned an error status:', data);
+        showRetry();
+      }
+    })
+    .catch(function(err){
+      // Network/CORS failure: we genuinely cannot confirm the save, so we
+      // do NOT send her to a result page. Offer Try Again with the same
+      // submissionId so a retry can never create a duplicate row.
+      console.error('Quiz submission fetch error:', err);
+      showRetry();
+    });
+  }
+
+  showStep(0);
+})();
+</script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Result: Break the Pull | Your Mind Story</title>
+<title>Your Result: Quiet the Alarm | Your Mind Story</title>
 <meta name="robots" content="noindex, follow">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,25 +18,27 @@
   <div class="result-card">
     <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
     <span class="result-tag">YOUR RESULT</span>
-    <h1>Break the Pull</h1>
+    <h1>Quiet the Alarm</h1>
 
-    <p>You decide you're not going to check, message or reopen the conversation. Then the urge hits, and you do it anyway.</p>
-    <p>That is the strongest part of the cycle showing up in your answers.</p>
+    <p>Your answers show that your body is spending too much time on high alert.</p>
+    <p>Once that reaction starts, it can be hard to settle down, think clearly or get on with your day.</p>
+    <p>That is the part of the cycle affecting you most right now.</p>
 
-    <p class="result-lede">Break the pull. Take back control.</p>
+    <p class="result-lede">Quiet the alarm. Get back to your life.</p>
 
-    <p>The goal isn't to never feel the urge.</p>
-    <p>It's to stop the urge deciding what you do.</p>
-    <p>So when you decide not to check, reach out or go back into the conversation, you can follow through.</p>
+    <p>The aim is not to stop you having feelings.</p>
+    <p>It is for this to stop taking over your body, your thoughts and your day, so you can feel steadier and think clearly again.</p>
 
     <h2>Your next step</h2>
-    <p>This result tells me where the cycle is hitting you hardest.</p>
+    <p>This result shows me where this is affecting you most.</p>
     <p>On your free 15-minute Quiz Results Call, I'll look at all of your answers and tell you where I think you need to start.</p>
 
     <div class="cta-row">
       <a class="btn-cta" href="https://tidycal.com/yourmindstory/your-quiz-results-call" target="_blank" rel="noopener" id="ctaCall">Book Your Free Results Call</a>
       <span class="cta-microcopy">15 minutes | Online</span>
     </div>
+
+    <p class="cta-microcopy" style="margin-top:18px;"><a href="about.html">More about Onye</a> | <a href="why-this-works.html">Why this works</a></p>
   </div>
 </div>
 
@@ -48,12 +50,12 @@
   if (name){
     greetingEl.textContent = 'Hi, ' + name + '.';
     greetingEl.hidden = false;
-  }
+  } // else: omit the greeting entirely, per spec (no fallback greeting text).
 
-  YMSQuiz.track('quiz_result_view', { result_bucket: 'Break the Pull' });
+  YMSQuiz.track('quiz_result_view', { result_bucket: 'Quiet the Alarm' });
 
   document.getElementById('ctaCall').addEventListener('click', function(){
-    YMSQuiz.track('quiz_results_call_click', { result_bucket: 'Break the Pull' });
+    YMSQuiz.track('quiz_results_call_click', { result_bucket: 'Quiet the Alarm' });
   });
 })();
 </script>
