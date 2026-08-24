@@ -6,6 +6,14 @@
 <title>Success Stories - Your Mind Story</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-0MFXQ5ETCD');
+</script>
 <style>
 :root {
 --moon-white: #F6F4F0;
@@ -54,11 +62,11 @@ footer.cta h2 { font-family: 'Playfair Display', serif; font-weight: 500; font-s
 <div class="wrap">
 
 <nav>
-<a href="index.html">Your Mind Story</a>
+<a href="index.html" onclick="gtag('event','nav_click',{'link':'home'});">Your Mind Story</a>
 <div class="links">
-<a href="quiz-landing-page.html">Take the Quiz</a>
-<a href="about.html">About</a>
-<a href="https://payhip.com/YourMindStory">Shop</a>
+<a href="quiz-landing-page.html" onclick="gtag('event','nav_click',{'link':'quiz'});">Take the Quiz</a>
+<a href="about.html" onclick="gtag('event','nav_click',{'link':'about'});">About</a>
+<a href="https://payhip.com/YourMindStory" onclick="gtag('event','nav_click',{'link':'shop'});">Shop</a>
 </div>
 </nav>
 
@@ -128,8 +136,8 @@ footer.cta h2 { font-family: 'Playfair Display', serif; font-weight: 500; font-s
 <footer class="cta">
 <h2>Ready to find out where you're stuck?</h2>
 <div class="btn-row">
-<a href="quiz-landing-page.html" class="btn btn-primary">Take the Free Quiz</a>
-<a href="https://payhip.com/YourMindStory" class="btn btn-secondary">Shop the Resets</a>
+<a href="quiz-landing-page.html" class="btn btn-primary" onclick="gtag('event','cta_click',{'cta':'take_free_quiz_footer'});">Take the Free Quiz</a>
+<a href="https://payhip.com/YourMindStory" class="btn btn-secondary" onclick="gtag('event','cta_click',{'cta':'shop_the_resets'});">Shop the Resets</a>
 </div>
 </footer>
 
