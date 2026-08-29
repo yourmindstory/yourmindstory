@@ -5,22 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Success Stories - Your Mind Story</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-0MFXQ5ETCD');
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
---moon-white: #F6F4F0;
---night-sky: #0D0B14;
+--moon-white: #F6F2E9;
+--night-sky: #24231F;
 --warm-taupe: #B8A692;
 --sage: #A8B59B;
---walnut: #6B4E3D;
+--walnut: #A98A70;
 --soft-gold: #D4B483;
 }
 * { box-sizing: border-box; }
@@ -28,7 +20,7 @@ body {
 margin: 0;
 background: var(--moon-white);
 color: var(--night-sky);
-font-family: 'DM Sans', sans-serif;
+font-family: 'Inter', sans-serif;
 line-height: 1.6;
 }
 .wrap { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
@@ -37,12 +29,12 @@ nav a { color: var(--walnut); text-decoration: none; }
 nav .links { display: flex; gap: 24px; }
 header.hero { text-align: center; margin-bottom: 64px; }
 header.hero .eyebrow { font-size: 11px; letter-spacing: 2px; color: var(--walnut); margin-bottom: 14px; }
-header.hero h1 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 32px; margin: 0 0 12px; }
+header.hero h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 32px; margin: 0 0 12px; }
 header.hero p { font-size: 15px; color: var(--night-sky); opacity: 0.75; margin: 0; }
 .reviews { display: flex; flex-direction: column; gap: 28px; margin-bottom: 64px; }
-.review-card { background: #FFFFFF; border: 1px solid rgba(13,11,20,0.08); border-radius: 4px; padding: 32px 36px; }
+.review-card { background: #FFFFFF; border: 1px solid rgba(36, 35, 31,0.08); border-radius: 4px; padding: 32px 36px; }
 .stars { color: var(--soft-gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 16px; }
-.quote { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 500; font-size: 19px; line-height: 1.55; margin: 0 0 20px; color: var(--night-sky); }
+.quote { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; line-height: 1.55; margin: 0 0 20px; color: var(--night-sky); }
 .attribution { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; font-size: 13px; }
 .attribution .name { font-weight: 500; color: var(--night-sky); }
 .attribution .tag { color: var(--sage); margin-left: 8px; font-weight: 400; }
@@ -50,25 +42,32 @@ header.hero p { font-size: 15px; color: var(--night-sky); opacity: 0.75; margin:
 .reply { margin-top: 20px; padding: 16px 20px; background: var(--moon-white); border-left: 2px solid var(--soft-gold); border-radius: 0; font-size: 13.5px; color: var(--night-sky); opacity: 0.85; }
 .reply .label { display: block; font-size: 11px; letter-spacing: 1px; color: var(--walnut); margin-bottom: 6px; opacity: 1; }
 .source-note { text-align: center; font-size: 12px; color: var(--night-sky); opacity: 0.55; margin-bottom: 56px; }
-footer.cta { text-align: center; border-top: 1px solid rgba(13,11,20,0.1); padding-top: 48px; }
-footer.cta h2 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 22px; margin: 0 0 24px; }
+footer.cta { text-align: center; border-top: 1px solid rgba(36, 35, 31,0.1); padding-top: 48px; }
+footer.cta h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px; margin: 0 0 24px; }
 .btn-row { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
 .btn { display: inline-block; text-decoration: none; padding: 13px 26px; border-radius: 4px; font-size: 14px; font-weight: 500; }
 .btn-primary { background: var(--night-sky); color: var(--moon-white); }
 .btn-secondary { background: transparent; color: var(--night-sky); border: 1px solid var(--night-sky); }
-</style>
+
+    /* ---- reskin: shared brand chrome (added by site consistency pass) ---- */
+    .navbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e6e0d0;background:var(--cream, #F6F2E9);max-width:100%;}
+    .navbar .logo{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink, #24231F);text-decoration:none;letter-spacing:.02em;}
+    .navbar .navlinks{display:none;gap:22px;font-size:12.5px;color:#5c584d;}
+    .navbar .navlinks a,.navbar .navlinks span{text-decoration:none;color:inherit;}
+    .navbar .navlinks a{color:var(--ink, #24231F);font-weight:600;}
+    @media(min-width:768px){.navbar .navlinks{display:flex;}}
+    .footer{padding:28px 20px;font-size:11.5px;color:#7a766a;background:var(--sage-soft, #DCE4D6);text-align:center;}
+    .footer a{color:inherit;text-decoration:underline;}
+  </style>
 </head>
 <body>
+  <div class="navbar">
+    <a class="logo" href="index.html">YOUR MIND STORY</a>
+    <div class="navlinks"><a href="quiz.html">Quiz</a><a href="why-this-works.html">Why This Works</a><a href="about.html">About</a><a href="success-stories.html">Success Stories</a><span>Bootcamp</span></div>
+  </div>
 <div class="wrap">
 
-<nav>
-<a href="index.html" onclick="gtag('event','nav_click',{'link':'home'});">Your Mind Story</a>
-<div class="links">
-<a href="quiz-landing-page.html" onclick="gtag('event','nav_click',{'link':'quiz'});">Take the Quiz</a>
-<a href="about.html" onclick="gtag('event','nav_click',{'link':'about'});">About</a>
-<a href="https://payhip.com/YourMindStory" onclick="gtag('event','nav_click',{'link':'shop'});">Shop</a>
-</div>
-</nav>
+
 
 <header class="hero">
 <div class="eyebrow">SUCCESS STORIES</div>
@@ -136,11 +135,14 @@ footer.cta h2 { font-family: 'Playfair Display', serif; font-weight: 500; font-s
 <footer class="cta">
 <h2>Ready to find out where you're stuck?</h2>
 <div class="btn-row">
-<a href="quiz-landing-page.html" class="btn btn-primary" onclick="gtag('event','cta_click',{'cta':'take_free_quiz_footer'});">Take the Free Quiz</a>
-<a href="https://payhip.com/YourMindStory" class="btn btn-secondary" onclick="gtag('event','cta_click',{'cta':'shop_the_resets'});">Shop the Resets</a>
+<a href="quiz-landing-page.html" class="btn btn-primary">Take the Free Quiz</a>
+<a href="https://payhip.com/YourMindStory" class="btn btn-secondary">Shop the Resets</a>
 </div>
 </footer>
 
 </div>
+  <div class="footer">
+    <div><a href="about.html">About</a> &middot; <a href="success-stories.html">Success Stories</a> &middot; Bootcamp &middot; <a href="quiz.html">Quiz</a> &middot; <a href="why-this-works.html">Why This Works</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a></div>
+  </div>
 </body>
 </html>

@@ -6,12 +6,12 @@
   <title>Your Results - Your Mind Story</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#F6F4F0;--fg:#0D0B14;--rule:rgba(13,11,20,0.07);}
+    :root{--bg:#F6F2E9;--fg:#24231F;--rule:rgba(36, 35, 31,0.07);}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html{-webkit-font-smoothing:antialiased;}
-    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
+    body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;font-weight:300;min-height:100vh;}
     .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
     @media(min-width:768px){.page{padding:0 64px 80px;}}
     .inner{width:100%;max-width:580px;}
@@ -26,32 +26,31 @@
 
     /* HEADER */
     .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:48px;}
-    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(13,11,20,0.85);display:block;text-shadow:0 0 24px rgba(13,11,20,0.15);}
+    .wm{font-family:'Fraunces',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(36, 35, 31,0.85);display:block;text-shadow:0 0 24px rgba(36, 35, 31,0.15);}
     .wm-ellipsis{display:inline-block;opacity:0.45;margin-left:0.18em;animation:wmPulse 3.4s ease-in-out infinite;}
     @keyframes wmPulse{0%,100%{opacity:0.30;}50%{opacity:0.70;}}
 
     /* RESULT HEADING */
-    .result-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.80);display:block;margin-bottom:14px;}
+    .result-label{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(36, 35, 31,0.80);display:block;margin-bottom:14px;}
     .result-head{
-      font-family:'Gilda Display',serif;
-      font-style:italic;
+      font-family:'Fraunces',serif;
       font-size:clamp(24px,6vw,34px);
       line-height:1.1;
       color:var(--fg);
-      text-shadow:0 0 40px rgba(13,11,20,0.10),0 0 80px rgba(13,11,20,0.05);
+      text-shadow:0 0 40px rgba(36, 35, 31,0.10),0 0 80px rgba(36, 35, 31,0.05);
       display:block;
       margin-bottom:28px;
     }
 
     /* OPENING COPY */
     .opening{margin-bottom:48px;}
-    .body-line{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:rgba(13,11,20,0.80);}
+    .body-line{display:block;font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:rgba(36, 35, 31,0.80);}
     .body-line+.body-line{margin-top:12px;}
 
     /* SECTION LABEL (used above each card group) */
     .section-label{
-      font-family:'DM Sans',sans-serif;font-weight:400;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
-      color:rgba(13,11,20,0.80);display:block;margin-bottom:16px;
+      font-family:'Inter',sans-serif;font-weight:400;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
+      color:rgba(36, 35, 31,0.80);display:block;margin-bottom:16px;
     }
 
     /* PRODUCT CARDS */
@@ -63,13 +62,13 @@
     }
     .card:last-child{border-bottom:1px solid var(--rule);}
 
-    .card-label{font-family:'DM Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.80);display:block;margin-bottom:10px;}
-    .card-name{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(20px,5vw,26px);color:var(--fg);display:block;margin-bottom:14px;line-height:1.15;}
-    .card-desc{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(13,11,20,0.80);line-height:1.85;display:block;margin-bottom:22px;}
+    .card-label{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(36, 35, 31,0.80);display:block;margin-bottom:10px;}
+    .card-name{font-family:'Fraunces',serif;font-size:clamp(20px,5vw,26px);color:var(--fg);display:block;margin-bottom:14px;line-height:1.15;}
+    .card-desc{font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(36, 35, 31,0.80);line-height:1.85;display:block;margin-bottom:22px;}
 
     .btn-primary{
       display:inline-block;
-      font-family:'DM Sans',sans-serif;
+      font-family:'Inter',sans-serif;
       font-weight:400;
       font-size:clamp(11px,2.6vw,13px);
       letter-spacing:0.15em;
@@ -87,33 +86,43 @@
 
     .btn-secondary{
       display:inline-block;
-      font-family:'DM Sans',sans-serif;
+      font-family:'Inter',sans-serif;
       font-weight:300;
       font-size:clamp(11px,2.6vw,13px);
       letter-spacing:0.12em;
       text-transform:uppercase;
-      color:rgba(13,11,20,0.80);
+      color:rgba(36, 35, 31,0.80);
       background:none;
-      border:1px solid rgba(13,11,20,0.18);
+      border:1px solid rgba(36, 35, 31,0.18);
       padding:16px 28px;
       cursor:pointer;
       text-decoration:none;
       text-align:center;
       transition:border-color 0.2s,color 0.2s;
     }
-    .btn-secondary:hover{border-color:rgba(13,11,20,0.85);color:rgba(13,11,20,0.75);}
+    .btn-secondary:hover{border-color:rgba(36, 35, 31,0.85);color:rgba(36, 35, 31,0.75);}
 
     /* CLOSING */
     .closing{text-align:center;padding-top:12px;}
-    .closing-line{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(13,11,20,0.85);display:block;margin-bottom:6px;}
-    .closing-link{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(13px,3vw,15px);color:rgba(13,11,20,0.85);text-decoration:none;transition:color 0.2s;}
-    .closing-link:hover{color:rgba(13,11,20,0.65);}
+    .closing-line{font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(36, 35, 31,0.85);display:block;margin-bottom:6px;}
+    .closing-link{font-family:'Fraunces',serif;font-size:clamp(13px,3vw,15px);color:rgba(36, 35, 31,0.85);text-decoration:none;transition:color 0.2s;}
+    .closing-link:hover{color:rgba(36, 35, 31,0.65);}
 
     footer{margin-top:52px;padding-top:28px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
     .footer-links{display:flex;gap:28px;}
-    .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.80);text-decoration:none;}
-    .disclaimer{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(13,11,20,0.85);text-align:center;line-height:1.6;}
-    :focus-visible{outline:1px solid rgba(13,11,20,0.4);outline-offset:4px;}
+    .footer-links a{font-family:'Inter',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(36, 35, 31,0.80);text-decoration:none;}
+    .disclaimer{font-family:'Inter',sans-serif;font-weight:300;font-size:10px;color:rgba(36, 35, 31,0.85);text-align:center;line-height:1.6;}
+    :focus-visible{outline:1px solid rgba(36, 35, 31,0.4);outline-offset:4px;}
+  
+    /* ---- reskin: shared brand chrome (added by site consistency pass) ---- */
+    .navbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e6e0d0;background:var(--cream, #F6F2E9);max-width:100%;}
+    .navbar .logo{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink, #24231F);text-decoration:none;letter-spacing:.02em;}
+    .navbar .navlinks{display:none;gap:22px;font-size:12.5px;color:#5c584d;}
+    .navbar .navlinks a,.navbar .navlinks span{text-decoration:none;color:inherit;}
+    .navbar .navlinks a{color:var(--ink, #24231F);font-weight:600;}
+    @media(min-width:768px){.navbar .navlinks{display:flex;}}
+    .footer{padding:28px 20px;font-size:11.5px;color:#7a766a;background:var(--sage-soft, #DCE4D6);text-align:center;}
+    .footer a{color:inherit;text-decoration:underline;}
   </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
@@ -125,6 +134,10 @@
 </script>
 </head>
 <body>
+  <div class="navbar">
+    <a class="logo" href="index.html">YOUR MIND STORY</a>
+    <div class="navlinks"><a href="quiz.html">Quiz</a><a href="why-this-works.html">Why This Works</a><a href="about.html">About</a><a href="success-stories.html">Success Stories</a><span>Bootcamp</span></div>
+  </div>
 <main class="page" role="main">
 <div class="inner">
 
@@ -149,7 +162,7 @@
       <span class="card-label">Audio, &pound;37</span>
       <span class="card-name">Calm the Spiral</span>
       <span class="card-desc">Giving you back your peace, so you can be present and focused in your own life again. Whether you are still in it or you have left, your nervous system is responding the same way.</span>
-      <a href="stabilise.html" class="btn-primary" onclick="gtag('event','cta_click',{'cta':'calm_the_spiral_from_no_result'});">Calm the Spiral</a>
+      <a href="calm-the-spiral.html" class="btn-primary" onclick="gtag('event','cta_click',{'cta':'calm_the_spiral_from_no_result'});">Calm the Spiral</a>
     </div>
 
     <div class="card">
@@ -184,15 +197,7 @@
     <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" class="closing-link" onclick="gtag('event','closing_click',{'link':'tiktok'});">@dontsleepwithavoidantmen</a>
   </div>
 
-  <footer>
-    <nav class="footer-links">
-      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" onclick="gtag('event','footer_click',{'link':'tiktok'});">TikTok</a>
-      <a href="https://payhip.com/YourMindStory" onclick="gtag('event','footer_click',{'link':'shop'});">Shop</a>
-      <a href="about.html" onclick="gtag('event','footer_click',{'link':'about'});">About</a>
-      <a href="privacy.html" onclick="gtag('event','footer_click',{'link':'privacy'});">Privacy</a>
-    </nav>
-    
-  </footer>
+  
 
 </div>
 </main>
@@ -206,5 +211,8 @@
     }
   }catch(e){}
 </script>
+  <div class="footer">
+    <div><a href="about.html">About</a> &middot; <a href="success-stories.html">Success Stories</a> &middot; Bootcamp &middot; <a href="quiz.html">Quiz</a> &middot; <a href="why-this-works.html">Why This Works</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a></div>
+  </div>
 </body>
 </html>
