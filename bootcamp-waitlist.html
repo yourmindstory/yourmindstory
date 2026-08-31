@@ -425,19 +425,34 @@ gtag('config', 'G-0MFXQ5ETCD');
 /* ==========================================================
    BREVO CONFIG
    ----------------------------------------------------------
-   TODO — NOT YET WIRED. Paste the "Simple HTML" embed details
-   from Brevo (Forms -> "Bootcamp Founding Group Waitlist" ->
-   Share -> HTML code) for list #19, the same list/form already
-   built and tested for the Bootcamp waitlist in an earlier
-   session. Until these two URLs are filled in, this page will
-   NOT actually save anyone's details anywhere — the on-page
-   success states still work (so the flow can be reviewed/QAed)
-   but no data is captured. Do not treat this as live until both
-   are set and re-tested end-to-end.
+   MAIN CAPTURE: wired and verified live (31 Aug 2026) — this is
+   the real "Bootcamp Founding Group Waitlist" form's endpoint
+   (list #19), pulled straight from Brevo's own Share -> Simple
+   HTML code. Tested end-to-end: a real POST to this URL creates
+   a contact on list 19 (confirmed in Brevo's contact list).
+   Only EMAIL is sent — the live Brevo form only declares an
+   EMAIL field, so FIRSTNAME is collected on this page (for a
+   personal confirmation message) but currently has nowhere to
+   be saved in Brevo. To also save first name, add a "First
+   Name" attribute field to that form in Brevo's own form
+   builder (Forms -> Bootcamp Founding Group Waitlist -> Design
+   -> drag "Attribute" onto the form -> choose FIRSTNAME) — a
+   two-minute manual step; this page will send it automatically
+   once that field exists, no code change needed.
+
+   FIT CHECK: NOT YET WIRED. Brevo's simple-HTML forms silently
+   drop any POSTed field they don't declare (verified directly:
+   a test FIRSTNAME post to the main form above was not saved),
+   so the 5 fit-check answers need their own contact attributes
+   (FC_Q1..FC_Q5) created in Brevo (Contacts -> Settings ->
+   Contact Attributes) and added to a form before a URL can go
+   here. Until then this stays blank and the on-page confirmation
+   is optimistic only — no fit-check data is currently saved.
    ========================================================== */
-var BREVO_MAIN_URL = "";      // e.g. "https://[id].sibforms.com/serve/MUIF..."  (name+email -> list 19)
-var BREVO_FITCHECK_URL = "";  // form/endpoint that updates the SAME contact (by email) with fit-check attributes
-var BREVO_CONFIGURED = !!(BREVO_MAIN_URL && BREVO_FITCHECK_URL);
+var BREVO_MAIN_URL = "https://43e2565f.sibforms.com/serve/MUIFAIWblR_RUb7wn9hjly_i7wFSsGhh02ZgRocHTBjICFz_efm8VWd2YamGfQgWCoFM6aXrq-DCC8l2kttjIYgrWD9YWr3fmZwaRyi9ITsdzxPijeXCz1YJi8pPh9z_dcDnfJo47NqeGui_WaytTVcRlmAefU_ikj-252xz3TieOB48_eFjZe_II8mfXf34G19vzpWnNFhF9a4n0Q==";
+var BREVO_FITCHECK_URL = "";  // form/endpoint that updates the SAME contact (by email) with fit-check attributes — see note above
+var BREVO_MAIN_CONFIGURED = !!BREVO_MAIN_URL;
+var BREVO_FITCHECK_CONFIGURED = !!BREVO_FITCHECK_URL;
 
 var STORAGE_PREFIX = "yms_bootcamp_";
 
@@ -503,9 +518,9 @@ form.addEventListener('submit', function(e){
     track('waitlist_submit', {});
   }
 
-  if(BREVO_CONFIGURED){
+  if(BREVO_MAIN_CONFIGURED){
     var body = new URLSearchParams();
-    body.set('FIRSTNAME', firstName);
+    body.set('FIRSTNAME', firstName); // saved once a First Name field exists on the Brevo form — see BREVO CONFIG note
     body.set('EMAIL', email);
     fetch(BREVO_MAIN_URL, { method:'POST', mode:'no-cors', body: body })
       .then(function(){ signupStatus.classList.remove('show'); showConfirmed(); })
@@ -716,7 +731,7 @@ function submitFitCheck(){
     track('fit_check_submit', {});
   }
 
-  if(BREVO_CONFIGURED && contact.email){
+  if(BREVO_FITCHECK_CONFIGURED && contact.email){
     var q2Text = fcAnswers.q2.map(function(t){
       return /^something else$/i.test(t) && fcAnswers.q2Other ? (t + ': ' + fcAnswers.q2Other) : t;
     }).join(' | ');
