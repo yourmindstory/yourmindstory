@@ -440,19 +440,45 @@ gtag('config', 'G-0MFXQ5ETCD');
    two-minute manual step; this page will send it automatically
    once that field exists, no code change needed.
 
-   FIT CHECK: NOT YET WIRED. Brevo's simple-HTML forms silently
-   drop any POSTed field they don't declare (verified directly:
-   a test FIRSTNAME post to the main form above was not saved),
-   so the 5 fit-check answers need their own contact attributes
-   (FC_Q1..FC_Q5) created in Brevo (Contacts -> Settings ->
-   Contact Attributes) and added to a form before a URL can go
-   here. Until then this stays blank and the on-page confirmation
-   is optimistic only — no fit-check data is currently saved.
+   Brevo stays wired as the marketing-list capture (EMAIL only).
+   It is NOT used for fit-check data — see GOOGLE SHEET CAPTURE
+   below, which is now the authoritative store for everything
+   (name, email, and all 5 fit-check answers).
    ========================================================== */
 var BREVO_MAIN_URL = "https://43e2565f.sibforms.com/serve/MUIFAIWblR_RUb7wn9hjly_i7wFSsGhh02ZgRocHTBjICFz_efm8VWd2YamGfQgWCoFM6aXrq-DCC8l2kttjIYgrWD9YWr3fmZwaRyi9ITsdzxPijeXCz1YJi8pPh9z_dcDnfJo47NqeGui_WaytTVcRlmAefU_ikj-252xz3TieOB48_eFjZe_II8mfXf34G19vzpWnNFhF9a4n0Q==";
-var BREVO_FITCHECK_URL = "";  // form/endpoint that updates the SAME contact (by email) with fit-check attributes — see note above
 var BREVO_MAIN_CONFIGURED = !!BREVO_MAIN_URL;
-var BREVO_FITCHECK_CONFIGURED = !!BREVO_FITCHECK_URL;
+
+/* ==========================================================
+   GOOGLE SHEET CAPTURE (Apps Script web app)
+   ----------------------------------------------------------
+   Added 31 Aug 2026 to fix the gap above: Brevo's simple-HTML
+   forms silently drop any POSTed field they don't explicitly
+   declare, so first name and the 5 fit-check answers had nowhere
+   reliable to land. This Apps Script web app appends every
+   submission (signup and fit-check) as its own row in a Google
+   Sheet ("Bootcamp Waitlist Backend" project, "Waitlist" sheet),
+   joined by email. Deployed as "Execute as: me / Anyone" access,
+   verified end-to-end (31 Aug 2026): synthetic signup + fitcheck
+   POSTs both landed correctly in the sheet with all fields intact.
+   Mirrors the same fetch pattern already proven on quiz.html
+   (Content-Type: text/plain avoids a CORS preflight against
+   Apps Script; the JSON response is read to confirm success
+   rather than assumed).
+   ========================================================== */
+var SHEET_CAPTURE_URL = "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec";
+var SHEET_CAPTURE_CONFIGURED = !!SHEET_CAPTURE_URL;
+
+function postToSheet(payload){
+  if(!SHEET_CAPTURE_CONFIGURED){ return Promise.resolve(null); }
+  return fetch(SHEET_CAPTURE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(function(res){ return res.json(); }).catch(function(err){
+    console.warn('Sheet capture failed (non-blocking):', err);
+    return null;
+  });
+}
 
 var STORAGE_PREFIX = "yms_bootcamp_";
 
@@ -509,6 +535,7 @@ form.addEventListener('submit', function(e){
   signupStatus.classList.add('show');
 
   storeContact(firstName, email);
+  postToSheet({type: 'signup', firstName: firstName, email: email});
 
   function showConfirmed(){
     signupState.classList.add('hidden');
@@ -731,24 +758,30 @@ function submitFitCheck(){
     track('fit_check_submit', {});
   }
 
-  if(BREVO_FITCHECK_CONFIGURED && contact.email){
-    var q2Text = fcAnswers.q2.map(function(t){
-      return /^something else$/i.test(t) && fcAnswers.q2Other ? (t + ': ' + fcAnswers.q2Other) : t;
-    }).join(' | ');
-    var body = new URLSearchParams();
-    body.set('EMAIL', contact.email); // hidden — links this submission to the same waitlist contact, never shown, never in the URL
-    body.set('FC_Q1', fcAnswers.q1 || '');
-    body.set('FC_Q2', q2Text);
-    body.set('FC_Q3', fcAnswers.q3 || '');
-    body.set('FC_Q4', fcAnswers.q4 || '');
-    body.set('FC_Q5', fcAnswers.q5 || '');
-    fetch(BREVO_FITCHECK_URL, { method:'POST', mode:'no-cors', body: body })
-      .then(function(){ status.classList.remove('show'); showFcConfirmed(); })
-      .catch(function(){
-        status.classList.remove('show');
+  var q2Text = fcAnswers.q2.map(function(t){
+    return /^something else$/i.test(t) && fcAnswers.q2Other ? (t + ': ' + fcAnswers.q2Other) : t;
+  }).join(' | ');
+
+  if(SHEET_CAPTURE_CONFIGURED && contact.email){
+    postToSheet({
+      type: 'fitcheck',
+      email: contact.email, // hidden — links this submission to the same waitlist contact, never shown, never in the URL
+      q1: fcAnswers.q1 || '',
+      q2: q2Text,
+      q3: fcAnswers.q3 || '',
+      q4: fcAnswers.q4 || '',
+      q5: fcAnswers.q5 || ''
+    }).then(function(result){
+      status.classList.remove('show');
+      if(result && result.status === 'ok'){
+        showFcConfirmed();
+      }else{
+        // Could not confirm the save — be honest rather than optimistic,
+        // same principle as the quiz page: never claim success we can't verify.
         submitBtn.disabled = false;
         retryError.classList.add('show');
-      });
+      }
+    });
   }else{
     window.setTimeout(function(){
       status.classList.remove('show');
