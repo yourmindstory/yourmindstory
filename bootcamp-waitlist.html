@@ -163,7 +163,7 @@ gtag('config', 'G-0MFXQ5ETCD');
     <div class="cta-wrap">
       <p style="text-align:center;margin-bottom:18px;">Join the waitlist for the next Your Mind Story Bootcamp.</p>
       <a href="#waitlist-form" class="btn-primary" id="ctaHero" onclick="gtag('event','cta_click',{'cta':'waitlist_hero'});">Join the Waitlist</a>
-      <span class="microcopy">No payment today. You&rsquo;ll be the first to know when the next group opens.</span>
+      <span class="microcopy">Join the waitlist to receive Bootcamp updates, Your Mind Story support, tools and relevant offers by email. Unsubscribe anytime.</span>
     </div>
   </section>
 
@@ -299,7 +299,7 @@ gtag('config', 'G-0MFXQ5ETCD');
           <div class="error-msg" id="signupError" role="alert">Please add your first name and a valid email address.</div>
 
           <button type="submit" class="btn-primary" id="waitlistSubmitBtn" style="width:100%;">Join the Waitlist</button>
-          <span class="microcopy">No payment today. You&rsquo;ll simply be the first to receive Bootcamp opening details.</span>
+          <span class="microcopy">Join the waitlist to receive Bootcamp updates, Your Mind Story support, tools and relevant offers by email. Unsubscribe anytime.</span>
           <div class="form-status" id="signupStatus">Saving your details&hellip;</div>
           <div class="error-msg" id="signupRetryError" role="alert">Something went wrong saving your details &mdash; please try again, or email us directly.</div>
         </form>
@@ -480,6 +480,14 @@ function postToSheet(payload){
   });
 }
 
+/* Consent wording/version recorded with every waitlist signup, per the
+   fixed-consent-architecture spec (1 Sep 2026): clicking "Join the
+   Waitlist" is itself the affirmative signup to the emails described in
+   this microcopy, so no separate checkbox is added. Bump the version
+   string if this wording is ever changed. */
+var WAITLIST_CONSENT_VERSION = "bootcamp-waitlist-v1";
+var WAITLIST_CONSENT_TEXT = "Join the waitlist to receive Bootcamp updates, Your Mind Story support, tools and relevant offers by email. Unsubscribe anytime.";
+
 var STORAGE_PREFIX = "yms_bootcamp_";
 
 function storeContact(firstName, email){
@@ -535,7 +543,14 @@ form.addEventListener('submit', function(e){
   signupStatus.classList.add('show');
 
   storeContact(firstName, email);
-  postToSheet({type: 'signup', firstName: firstName, email: email});
+  postToSheet({
+    type: 'signup',
+    firstName: firstName,
+    email: email,
+    consentSource: 'Bootcamp waitlist',
+    consentVersion: WAITLIST_CONSENT_VERSION,
+    consentText: WAITLIST_CONSENT_TEXT
+  });
 
   function showConfirmed(){
     signupState.classList.add('hidden');

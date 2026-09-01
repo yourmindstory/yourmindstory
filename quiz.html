@@ -93,7 +93,7 @@
       <div class="step" data-step="lead">
         <div class="complete-screen">
           <h1 tabindex="-1">Done. Your Result Is Ready.</h1>
-          <p>Enter your first name and email to see your personalised result.</p>
+          <p>Enter your first name and email and I'll send your personalised result to your inbox.</p>
         </div>
 
         <div class="field">
@@ -108,13 +108,12 @@
 
         <div class="consent-row">
           <input type="checkbox" id="marketingConsent" name="marketingConsent">
-          <label for="marketingConsent">Yes, send me occasional emails from Your Mind Story with support, tools and offers. I can unsubscribe at any time.</label>
+          <label for="marketingConsent">Yes &mdash; help me break this cycle. Send me Your Mind Story support, tools and Bootcamp updates too. Unsubscribe anytime.</label>
         </div>
-        <p class="consent-note">You can see your result whether or not you tick the box.</p>
 
         <div class="nav-row">
           <button type="button" class="btn-ghost" data-action="back">Back</button>
-          <button type="button" class="btn-primary" id="submitBtn" data-action="submit">Show Me My Result</button>
+          <button type="button" class="btn-primary" id="submitBtn" data-action="submit">SEND ME MY RESULT</button>
         </div>
         <div class="submitting-note" id="submittingNote">Saving your answers...</div>
 
@@ -141,6 +140,27 @@
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec";
   var QUIZ_VERSION = "YMS-QUIZ-2026-V1";
   var NOT_DEPLOYED = !APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('REPLACE_WITH') === 0;
+
+  /* ==========================================================
+     MARKETING CONSENT -> BREVO
+     ----------------------------------------------------------
+     Only fires when the on-page marketing checkbox is ticked.
+     Reuses the same verified-live Brevo "Simple HTML form" list
+     endpoint already wired on bootcamp-waitlist.html (list #19,
+     "Bootcamp Founding Group Waitlist") — the quiz's own consent
+     copy explicitly mentions "Bootcamp updates too", so this is
+     the same ongoing nurture list, not a separate one. Non-
+     blocking: never delays or blocks showing the result.
+     ========================================================== */
+  var BREVO_MAIN_URL = "https://43e2565f.sibforms.com/serve/MUIFAIWblR_RUb7wn9hjly_i7wFSsGhh02ZgRocHTBjICFz_efm8VWd2YamGfQgWCoFM6aXrq-DCC8l2kttjIYgrWD9YWr3fmZwaRyi9ITsdzxPijeXCz1YJi8pPh9z_dcDnfJo47NqeGui_WaytTVcRlmAefU_ikj-252xz3TieOB48_eFjZe_II8mfXf34G19vzpWnNFhF9a4n0Q==";
+  function subscribeToMarketing(firstName, email){
+    var body = new URLSearchParams();
+    body.set('FIRSTNAME', firstName);
+    body.set('EMAIL', email);
+    fetch(BREVO_MAIN_URL, { method: 'POST', mode: 'no-cors', body: body }).catch(function(err){
+      console.warn('Marketing list subscribe failed (non-blocking):', err);
+    });
+  }
 
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var AUTO_ADVANCE_DELAY = prefersReducedMotion ? 0 : 220;
@@ -628,6 +648,9 @@
     .then(function(res){ return res.json(); })
     .then(function(data){
       if (data && (data.status === 'ok' || data.status === 'duplicate')){
+        if (payload.marketingConsent){
+          subscribeToMarketing(payload.firstName, payload.email);
+        }
         proceedToResult(data);
       } else {
         console.error('Quiz submission returned an error status:', data);
