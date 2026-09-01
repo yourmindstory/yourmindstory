@@ -597,10 +597,12 @@
     }
 
     var firstName = document.getElementById('firstName').value.trim();
+    var email = document.getElementById('email').value.trim();
     var mixedNames = mixedKeys.map(function(k){ return BUCKET_DISPLAY_NAMES[k]; });
 
     YMSQuiz.setResultData({
       firstName: firstName,
+      email: email,
       resultType: resultType,
       primaryResult: primaryKey ? BUCKET_DISPLAY_NAMES[primaryKey] : null,
       tiedResults: mixedNames,

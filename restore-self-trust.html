@@ -54,6 +54,12 @@
     <div class="cta-row">
       <a class="btn-cta" href="bootcamp-waitlist.html" id="ctaWaitlist">Join the Founding Group Waitlist</a>
     </div>
+
+    <p class="consent-intro">Want my help beyond your result? Tick the box below.</p>
+    <div class="consent-row">
+      <input type="checkbox" id="postResultConsent" name="postResultConsent">
+      <label for="postResultConsent">Yes &mdash; help me break this cycle. Send me Your Mind Story support, tools and Bootcamp updates by email. Unsubscribe anytime.</label>
+    </div>
   </div>
 </div>
 
@@ -71,6 +77,13 @@
 
   document.getElementById('ctaWaitlist').addEventListener('click', function(){
     YMSQuiz.track('quiz_bootcamp_waitlist_click', { result_bucket: 'Restore Self Trust' });
+  });
+
+  document.getElementById('postResultConsent').addEventListener('change', function(){
+    if (this.checked) {
+      YMSQuiz.subscribeToMarketing(data && data.firstName, data && data.email);
+      YMSQuiz.track('quiz_post_result_consent', { result_bucket: 'Restore Self Trust' });
+    }
   });
 })();
 </script>
