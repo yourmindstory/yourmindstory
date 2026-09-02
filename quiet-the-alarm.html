@@ -29,13 +29,7 @@
     <p>The aim is not to stop you having feelings.</p>
     <p>It is for this to stop taking over your body, your thoughts and your day, so you can feel steadier and think clearly again.</p>
 
-    <h2>Your next step</h2>
-    <p>Quiet the Alarm is one part of the 4-step process we work through inside the 12-week Your Mind Story Bootcamp.</p>
-    <p>Your result shows where the cycle is hitting you hardest right now. The Bootcamp helps you work through the whole cycle, so you can stop just understanding what's happening and start actually changing it.</p>
-
-    <div class="cta-row">
-      <a class="btn-cta" href="bootcamp-waitlist.html" id="ctaWaitlist">Join the Founding Group Waitlist</a>
-    </div>
+    <div id="ogBridge"></div>
 
     <p class="cta-microcopy" style="margin-top:18px;"><a href="about.html">More about Onye</a> | <a href="why-this-works.html">Why this works</a></p>
   </div>
@@ -53,9 +47,7 @@
 
   YMSQuiz.track('quiz_result_view', { result_bucket: 'Quiet the Alarm' });
 
-  document.getElementById('ctaWaitlist').addEventListener('click', function(){
-    YMSQuiz.track('quiz_bootcamp_waitlist_click', { result_bucket: 'Quiet the Alarm' });
-  });
+  YMSQuiz.mountOGBootcampBridge('ogBridge');
 })();
 </script>
 </body>
