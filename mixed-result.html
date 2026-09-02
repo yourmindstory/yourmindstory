@@ -24,13 +24,7 @@
     <p>That means the score alone does not give me one clear place to tell you to start.</p>
     <p>I would rather look at the whole pattern than guess.</p>
 
-    <h2>Your next step</h2>
-    <p>When more than one area is active like this, that's exactly what the 4-step process inside the 12-week Your Mind Story Bootcamp is built for — working through the whole cycle, not just one part of it.</p>
-    <p>You don't need to pin down a single starting point before you begin. The Bootcamp walks you through all 4 steps in order, so you can stop just understanding what's happening and start actually changing it.</p>
-
-    <div class="cta-row">
-      <a class="btn-cta" href="bootcamp-waitlist.html" id="ctaWaitlist">Join the Founding Group Waitlist</a>
-    </div>
+    <div id="ogBridge"></div>
 
   </div>
 </div>
@@ -53,9 +47,7 @@
 
   YMSQuiz.track('quiz_result_view', { result_bucket: 'Mixed', tied_count: tied.length });
 
-  document.getElementById('ctaWaitlist').addEventListener('click', function(){
-    YMSQuiz.track('quiz_bootcamp_waitlist_click', { result_bucket: 'Mixed' });
-  });
+  YMSQuiz.mountOGBootcampBridge('ogBridge');
 })();
 </script>
 </body>
