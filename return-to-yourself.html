@@ -47,13 +47,7 @@
     <p>It's to stop disappearing from your own life.</p>
     <p>So your time, attention, plans and choices start being about you again.</p>
 
-    <h2>Your next step</h2>
-    <p>Return to Yourself is one part of the 4-step process we work through inside the 12-week Your Mind Story Bootcamp.</p>
-    <p>Your result shows where the cycle is hitting you hardest right now. The Bootcamp helps you work through the whole cycle, so you can stop just understanding what's happening and start actually changing it.</p>
-
-    <div class="cta-row">
-      <a class="btn-cta" href="bootcamp-waitlist.html" id="ctaWaitlist">Join the Founding Group Waitlist</a>
-    </div>
+    <div id="ogBridge"></div>
 
   </div>
 </div>
@@ -70,9 +64,7 @@
 
   YMSQuiz.track('quiz_result_view', { result_bucket: 'Return to Yourself' });
 
-  document.getElementById('ctaWaitlist').addEventListener('click', function(){
-    YMSQuiz.track('quiz_bootcamp_waitlist_click', { result_bucket: 'Return to Yourself' });
-  });
+  YMSQuiz.mountOGBootcampBridge('ogBridge');
 })();
 </script>
   <div class="footer">
