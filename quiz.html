@@ -144,16 +144,16 @@
   /* ==========================================================
      MARKETING CONSENT -> BREVO
      ----------------------------------------------------------
-     Only fires when the on-page marketing checkbox is ticked.
-     Reuses the same verified-live Brevo "Simple HTML form" list
-     endpoint already wired on bootcamp-waitlist.html (list #19,
-     "Bootcamp Founding Group Waitlist") — the quiz's own consent
-     copy explicitly mentions "Bootcamp updates too", so this is
-     the same ongoing nurture list, not a separate one. Non-
-     blocking: never delays or blocks showing the result.
+     DISCONNECTED (2 Sep 2026) at the account owner's request: the
+     automatic Brevo subscribe call (which triggers a Brevo email)
+     is no longer fired. Marketing consent (payload.marketingConsent)
+     is still recorded on every row in the Quiz Responses Google
+     Sheet exactly as before — the owner reviews the sheet and adds
+     people to the waitlist manually instead of an automated opt-in.
+     Left in place, unused, in case Brevo is reconnected later.
      ========================================================== */
   var BREVO_MAIN_URL = "https://43e2565f.sibforms.com/serve/MUIFAIWblR_RUb7wn9hjly_i7wFSsGhh02ZgRocHTBjICFz_efm8VWd2YamGfQgWCoFM6aXrq-DCC8l2kttjIYgrWD9YWr3fmZwaRyi9ITsdzxPijeXCz1YJi8pPh9z_dcDnfJo47NqeGui_WaytTVcRlmAefU_ikj-252xz3TieOB48_eFjZe_II8mfXf34G19vzpWnNFhF9a4n0Q==";
-  function subscribeToMarketing(firstName, email){
+  function subscribeToMarketing(firstName, email){ // eslint-disable-line no-unused-vars
     var body = new URLSearchParams();
     body.set('FIRSTNAME', firstName);
     body.set('EMAIL', email);
@@ -650,9 +650,8 @@
     .then(function(res){ return res.json(); })
     .then(function(data){
       if (data && (data.status === 'ok' || data.status === 'duplicate')){
-        if (payload.marketingConsent){
-          subscribeToMarketing(payload.firstName, payload.email);
-        }
+        // Brevo auto-subscribe disconnected (2 Sep 2026) — see note above.
+        // payload.marketingConsent is already recorded on the sheet row.
         proceedToResult(data);
       } else {
         console.error('Quiz submission returned an error status:', data);
