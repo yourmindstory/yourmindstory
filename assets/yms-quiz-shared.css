@@ -276,3 +276,29 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
   background:var(--sage-soft); border-radius:10px; padding:14px 18px;
   margin-bottom:10px; font-family:'Fraunces',serif; font-size:17px; color:var(--ink);
 }
+
+/* ---------------- OG Bootcamp bridge + fit check (shared across result pages) ---------------- */
+.btn-cta:disabled{opacity:.6; cursor:not-allowed;}
+.form-status{font-size:13px; color:var(--ink); opacity:.6; text-align:center; margin-top:14px; display:none;}
+.form-status.show{display:block;}
+.fc-progress{height:5px; background:var(--sage-soft); border-radius:99px; overflow:hidden; margin:28px 0 26px;}
+.fc-progress-fill{height:100%; background:var(--gold); border-radius:99px; transition:width .3s ease; width:20%;}
+@media (prefers-reduced-motion: reduce){.fc-progress-fill{transition:none;}}
+.fc-step{display:none;}
+.fc-step.active{display:block;}
+.fc-label{font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--warm-earth); margin-bottom:10px; font-weight:600;}
+.fc-prompt{font-family:'Fraunces',serif; font-weight:500; font-size:19px; line-height:1.35; margin-bottom:20px; color:var(--ink);}
+.fc-options{display:flex; flex-direction:column; gap:10px; margin-bottom:6px;}
+.fc-option{position:relative; display:flex; align-items:flex-start; gap:12px; padding:15px 44px 15px 17px; border:1.5px solid var(--sage-soft); border-radius:10px; cursor:pointer; background:var(--warm-cream); transition:border-color .15s ease, background .15s ease;}
+.fc-option:hover{border-color:var(--warm-earth);}
+.fc-option.selected{border-color:var(--gold); background:var(--sage-soft);}
+.fc-option input{position:absolute; opacity:0; width:1px; height:1px;}
+.fc-option-text{font-size:15px; line-height:1.4; color:var(--ink);}
+.fc-option-mark{position:absolute; right:15px; top:50%; transform:translateY(-50%) scale(.6); width:20px; height:20px; border-radius:50%; background:var(--gold); opacity:0; transition:opacity .15s ease, transform .15s ease;}
+.fc-option.selected .fc-option-mark{opacity:1; transform:translateY(-50%) scale(1);}
+.fc-option-mark::after{content:""; position:absolute; left:6px; top:3px; width:6px; height:10px; border:solid var(--soft-white); border-width:0 2px 2px 0; transform:rotate(40deg);}
+.fc-hint{font-size:12.5px; color:var(--ink); opacity:.55; margin:-2px 0 16px;}
+.fc-other-field{margin-top:4px; margin-bottom:10px; display:none;}
+.fc-other-field.show{display:block;}
+.fc-other-input{width:100%; padding:13px 14px; border:1.5px solid var(--sage-soft); border-radius:8px; font-family:'Inter',sans-serif; font-size:15px; background:var(--warm-cream); color:var(--ink);}
+.fc-nav{display:flex; justify-content:space-between; align-items:center; margin-top:26px;}
