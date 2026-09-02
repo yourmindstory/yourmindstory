@@ -560,25 +560,14 @@ form.addEventListener('submit', function(e){
     track('waitlist_submit', {});
   }
 
-  if(BREVO_MAIN_CONFIGURED){
-    var body = new URLSearchParams();
-    body.set('FIRSTNAME', firstName); // saved once a First Name field exists on the Brevo form — see BREVO CONFIG note
-    body.set('EMAIL', email);
-    fetch(BREVO_MAIN_URL, { method:'POST', mode:'no-cors', body: body })
-      .then(function(){ signupStatus.classList.remove('show'); showConfirmed(); })
-      .catch(function(){
-        signupStatus.classList.remove('show');
-        submitBtn.disabled = false;
-        signupRetryError.classList.add('show');
-      });
-  }else{
-    // Integration not wired yet — see BREVO CONFIG note above.
-    // Still lets the page's UX be reviewed end to end.
-    window.setTimeout(function(){
-      signupStatus.classList.remove('show');
-      showConfirmed();
-    }, 350);
-  }
+  // Brevo auto-subscribe intentionally disconnected (2 Sep 2026) at the
+  // account owner's request — signups are already recorded to the Google
+  // Sheet above via postToSheet(), and the owner adds people to the
+  // waitlist manually from there instead of an automated Brevo opt-in.
+  window.setTimeout(function(){
+    signupStatus.classList.remove('show');
+    showConfirmed();
+  }, 350);
 });
 
 /* ---------------- FIT CHECK ---------------- */
