@@ -122,19 +122,6 @@
     return 'sub-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
   }
 
-  // ---------------- marketing list opt-in (result pages) ----------------
-  // DISCONNECTED (2 Sep 2026) at the account owner's request: this no
-  // longer posts to Brevo (which used to trigger an automatic "you've
-  // subscribed" email). The person's email is already recorded in the
-  // Quiz Responses Google Sheet from their original quiz submission, so
-  // no data is lost — the owner adds people to the waitlist manually.
-  // BREVO_MAIN_URL left in place, unused, in case Brevo is reconnected.
-  var BREVO_MAIN_URL = "https://43e2565f.sibforms.com/serve/MUIFAIWblR_RUb7wn9hjly_i7wFSsGhh02ZgRocHTBjICFz_efm8VWd2YamGfQgWCoFM6aXrq-DCC8l2kttjIYgrWD9YWr3fmZwaRyi9ITsdzxPijeXCz1YJi8pPh9z_dcDnfJo47NqeGui_WaytTVcRlmAefU_ikj-252xz3TieOB48_eFjZe_II8mfXf34G19vzpWnNFhF9a4n0Q==";
-  function subscribeToMarketing(firstName, email) { // eslint-disable-line no-unused-vars
-    if (!email) return;
-    // Brevo POST intentionally disabled — see note above.
-  }
-
   // Natural-language join for 2, 3, or 4 tied result names, used on the
   // mixed-result page instead of a hardcoded "both areas" (which would be
   // wrong for a 3-way or 4-way tie).
@@ -153,7 +140,6 @@
     setResultData: setResultData,
     getResultData: getResultData,
     clearResultData: clearResultData,
-    subscribeToMarketing: subscribeToMarketing,
     escapeText: escapeText,
     generateId: generateId,
     formatList: formatList
