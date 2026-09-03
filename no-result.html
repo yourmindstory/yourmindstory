@@ -1,218 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Results - Your Mind Story</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{--bg:#F6F2E9;--fg:#24231F;--rule:rgba(36, 35, 31,0.07);}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{-webkit-font-smoothing:antialiased;}
-    body{background:var(--bg);color:var(--fg);font-family:'Inter',sans-serif;font-weight:300;min-height:100vh;}
-    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
-    @media(min-width:768px){.page{padding:0 64px 80px;}}
-    .inner{width:100%;max-width:580px;}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Result | Your Mind Story</title>
+<meta name="robots" content="noindex, follow">
 
-    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-    .a1{opacity:0;animation:up 0.9s ease forwards 0.1s;}
-    .a2{opacity:0;animation:up 1s ease forwards 0.35s;}
-    .a3{opacity:0;animation:up 1s ease forwards 0.55s;}
-    .a4{opacity:0;animation:up 1s ease forwards 0.75s;}
-    .a5{opacity:0;animation:up 1s ease forwards 0.95s;}
-    .a6{opacity:0;animation:up 1s ease forwards 1.15s;}
-
-    /* HEADER */
-    .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:48px;}
-    .wm{font-family:'Fraunces',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(36, 35, 31,0.85);display:block;text-shadow:0 0 24px rgba(36, 35, 31,0.15);}
-    .wm-ellipsis{display:inline-block;opacity:0.45;margin-left:0.18em;animation:wmPulse 3.4s ease-in-out infinite;}
-    @keyframes wmPulse{0%,100%{opacity:0.30;}50%{opacity:0.70;}}
-
-    /* RESULT HEADING */
-    .result-label{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(36, 35, 31,0.80);display:block;margin-bottom:14px;}
-    .result-head{
-      font-family:'Fraunces',serif;
-      font-size:clamp(24px,6vw,34px);
-      line-height:1.1;
-      color:var(--fg);
-      text-shadow:0 0 40px rgba(36, 35, 31,0.10),0 0 80px rgba(36, 35, 31,0.05);
-      display:block;
-      margin-bottom:28px;
-    }
-
-    /* OPENING COPY */
-    .opening{margin-bottom:48px;}
-    .body-line{display:block;font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:rgba(36, 35, 31,0.80);}
-    .body-line+.body-line{margin-top:12px;}
-
-    /* SECTION LABEL (used above each card group) */
-    .section-label{
-      font-family:'Inter',sans-serif;font-weight:400;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;
-      color:rgba(36, 35, 31,0.80);display:block;margin-bottom:16px;
-    }
-
-    /* PRODUCT CARDS */
-    .cards{display:flex;flex-direction:column;gap:1px;margin-bottom:40px;}
-
-    .card{
-      padding:28px 0;
-      border-top:1px solid var(--rule);
-    }
-    .card:last-child{border-bottom:1px solid var(--rule);}
-
-    .card-label{font-family:'Inter',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(36, 35, 31,0.80);display:block;margin-bottom:10px;}
-    .card-name{font-family:'Fraunces',serif;font-size:clamp(20px,5vw,26px);color:var(--fg);display:block;margin-bottom:14px;line-height:1.15;}
-    .card-desc{font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(36, 35, 31,0.80);line-height:1.85;display:block;margin-bottom:22px;}
-
-    .btn-primary{
-      display:inline-block;
-      font-family:'Inter',sans-serif;
-      font-weight:400;
-      font-size:clamp(11px,2.6vw,13px);
-      letter-spacing:0.15em;
-      text-transform:uppercase;
-      color:var(--bg);
-      background:var(--fg);
-      border:none;
-      padding:16px 28px;
-      cursor:pointer;
-      text-decoration:none;
-      text-align:center;
-      transition:opacity 0.2s;
-    }
-    .btn-primary:hover{opacity:0.86;}
-
-    .btn-secondary{
-      display:inline-block;
-      font-family:'Inter',sans-serif;
-      font-weight:300;
-      font-size:clamp(11px,2.6vw,13px);
-      letter-spacing:0.12em;
-      text-transform:uppercase;
-      color:rgba(36, 35, 31,0.80);
-      background:none;
-      border:1px solid rgba(36, 35, 31,0.18);
-      padding:16px 28px;
-      cursor:pointer;
-      text-decoration:none;
-      text-align:center;
-      transition:border-color 0.2s,color 0.2s;
-    }
-    .btn-secondary:hover{border-color:rgba(36, 35, 31,0.85);color:rgba(36, 35, 31,0.75);}
-
-    /* CLOSING */
-    .closing{text-align:center;padding-top:12px;}
-    .closing-line{font-family:'Inter',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);color:rgba(36, 35, 31,0.85);display:block;margin-bottom:6px;}
-    .closing-link{font-family:'Fraunces',serif;font-size:clamp(13px,3vw,15px);color:rgba(36, 35, 31,0.85);text-decoration:none;transition:color 0.2s;}
-    .closing-link:hover{color:rgba(36, 35, 31,0.65);}
-
-    footer{margin-top:52px;padding-top:28px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
-    .footer-links{display:flex;gap:28px;}
-    .footer-links a{font-family:'Inter',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(36, 35, 31,0.80);text-decoration:none;}
-    .disclaimer{font-family:'Inter',sans-serif;font-weight:300;font-size:10px;color:rgba(36, 35, 31,0.85);text-align:center;line-height:1.6;}
-    :focus-visible{outline:1px solid rgba(36, 35, 31,0.4);outline-offset:4px;}
-  
-    /* ---- reskin: shared brand chrome (added by site consistency pass) ---- */
-    .navbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e6e0d0;background:var(--cream, #F6F2E9);max-width:100%;}
-    .navbar .logo{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink, #24231F);text-decoration:none;letter-spacing:.02em;}
-    .navbar .navlinks{display:none;gap:22px;font-size:12.5px;color:#5c584d;}
-    .navbar .navlinks a,.navbar .navlinks span{text-decoration:none;color:inherit;}
-    .navbar .navlinks a{color:var(--ink, #24231F);font-weight:600;}
-    @media(min-width:768px){.navbar .navlinks{display:flex;}}
-    .footer{padding:28px 20px;font-size:11.5px;color:#7a766a;background:var(--sage-soft, #DCE4D6);text-align:center;}
-    .footer a{color:inherit;text-decoration:underline;}
-  </style>
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-0MFXQ5ETCD');
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/yms-quiz-shared.css">
+<script src="assets/yms-quiz-shared.js"></script>
 </head>
 <body>
-  <div class="navbar">
-    <a class="logo" href="index.html">YOUR MIND STORY</a>
-    <div class="navlinks"><a href="quiz.html">Quiz</a><a href="why-this-works.html">Why This Works</a><a href="about.html">About</a><a href="success-stories.html">Success Stories</a><a href="bootcamp-waitlist.html">Bootcamp</a></div>
-  </div>
-<main class="page" role="main">
-<div class="inner">
+<div class="wrap">
+  <div class="eyebrow">Your Mind Story</div>
+  <div class="result-card">
+    <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
+    <span class="result-tag">YOUR RESULT</span>
+    <h1>Your results aren't showing a strong enough pattern.</h1>
 
-  <header class="hdr a1">
-    <span class="wm">Your Mind Story<span class="wm-ellipsis">&hellip;</span></span>
-  </header>
+    <p>Your answers don't show enough of a pattern for me to recommend the guided Cognitive Behavioural Hypnotherapy audios or the OG Bootcamp.</p>
+    <p>I'm not going to recommend something your results aren't showing that you need.</p>
 
-  <div class="a2">
-    <span class="result-label">Your results</span>
-    <span class="result-head" id="result-head">Your nervous system is not in high alert right now.</span>
-  </div>
+    <p class="result-lede">If you'd still like somewhere smaller to start, start with The Bare Minimum.</p>
 
-  <div class="opening a3">
-    <span class="body-line">You might be earlier in this than you realise, or further along than you think.</span>
-    <span class="body-line">Either way, you don't have to figure that out today. Here's where to start.</span>
-  </div>
+    <p>That's what I would recommend.</p>
+    <p>It's a short read about what you need to stay healthy in love.</p>
+    <p>This is not about ideals.</p>
+    <p>It's about what you need to stay well.</p>
 
-  <!-- NEW: PATH TO THE AUDIOS (previously this page had no route to a paid product) -->
-  <span class="section-label a4">Start here</span>
-  <div class="cards a4">
-    <div class="card">
-      <span class="card-label">Audio, &pound;37</span>
-      <span class="card-name">Calm the Spiral</span>
-      <span class="card-desc">Giving you back your peace, so you can be present and focused in your own life again. Whether you are still in it or you have left, your nervous system is responding the same way.</span>
-      <a href="calm-the-spiral.html" class="btn-primary" onclick="gtag('event','cta_click',{'cta':'calm_the_spiral_from_no_result'});">Calm the Spiral</a>
-    </div>
-
-    <div class="card">
-      <span class="card-label">Audio, &pound;37</span>
-      <span class="card-name">No Contact Reset</span>
-      <span class="card-desc">For the moment the pull starts. For when your body is trying to override the decision you have already made.</span>
-      <a href="no-contact-reset.html" class="btn-primary" onclick="gtag('event','cta_click',{'cta':'no_contact_reset_from_no_result'});">No Contact Reset</a>
+    <div class="cta-row">
+      <a class="btn-cta" href="https://payhip.com/b/ZcdmX" id="ctaBareMinimum">Start With the Bare Minimum</a>
     </div>
   </div>
-
-  <!-- CARD: FREE GUIDE + BOOK (lower commitment, kept as before) -->
-  <span class="section-label a5">Not ready to spend yet?</span>
-  <div class="cards a5">
-    <div class="card">
-      <span class="card-label">Free</span>
-      <span class="card-name">It's Not Him. It's The Hook.</span>
-      <span class="card-desc">You have probably tried to think your way out of this. This names why that does not work, and what is actually happening in your nervous system when you love someone who runs hot and cold. Read it now.</span>
-      <a href="guide.html" class="btn-secondary" onclick="gtag('event','cta_click',{'cta':'free_guide'});">Read the free guide</a>
-    </div>
-
-    <div class="card">
-      <span class="card-label">The book, &pound;4.99</span>
-      <span class="card-name">The Bare Minimum</span>
-      <span class="card-desc">If you have ever adjusted yourself to keep the peace, this names the five things your nervous system actually needs to stay well in love. Not preferences. The baseline.</span>
-      <a href="https://payhip.com/b/ZcdmX" class="btn-secondary" onclick="gtag('event','buy_click',{'product':'bare_minimum_book'});">Get the book</a>
-    </div>
-  </div>
-
-  <!-- CLOSING -->
-  <div class="closing a6">
-    <span class="closing-line">You know where to find me.</span>
-    <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" class="closing-link" onclick="gtag('event','closing_click',{'link':'tiktok'});">@dontsleepwithavoidantmen</a>
-  </div>
-
-  
-
 </div>
-</main>
 
 <script>
-  try{
-    var r=JSON.parse(sessionStorage.getItem('yms_result')||'{}');
-    if(r.name){
-      var el=document.getElementById('result-head');
-      if(el) el.textContent=r.name+', your nervous system is not in high alert right now.';
-    }
-  }catch(e){}
+(function(){
+  // V2 rebuild (3 Sep 2026): brought onto the same result/session
+  // architecture as every other result page. The obsolete 'yms_result'
+  // key (and the old audio/mini-shop content that used to live on this
+  // page) has been fully retired -- this page is now the dedicated
+  // Lower / No Clear Leading Pattern result for YMS-QUIZ-2026-V2, with
+  // no OG Bootcamp pathway per the locked funnel rule.
+  var data = null;
+  try {
+    data = YMSQuiz.getResultData();
+  } catch (e) {
+    data = null; // corrupt/unavailable sessionStorage: fall back to the
+                 // generic (non-personalised) page below rather than error.
+  }
+
+  var name = data && data.firstName ? String(data.firstName).trim() : '';
+  var greetingEl = document.getElementById('greeting');
+  if (name){
+    greetingEl.textContent = 'Hi, ' + name + '.';
+    greetingEl.hidden = false;
+  } // else: omit the greeting entirely, same as every other result page.
+
+  YMSQuiz.track('quiz_result_view', { result_bucket: 'No Clear Leading Pattern' });
+
+  document.getElementById('ctaBareMinimum').addEventListener('click', function(){
+    YMSQuiz.track('bare_minimum_click', { result_bucket: 'No Clear Leading Pattern' });
+  });
+})();
 </script>
-  <div class="footer">
-    <div><a href="about.html">About</a> &middot; <a href="success-stories.html">Success Stories</a> &middot; <a href="bootcamp-waitlist.html">Bootcamp</a> &middot; <a href="quiz.html">Quiz</a> &middot; <a href="why-this-works.html">Why This Works</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a></div>
-  </div>
 </body>
 </html>
