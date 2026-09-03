@@ -18,11 +18,25 @@
   <div class="result-card">
     <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
     <span class="result-tag">YOUR RESULT</span>
-    <h1>More than one area is showing up strongly.</h1>
+    <h1>This isn't happening in just one place.</h1>
 
-    <p id="tiedLine"></p>
-    <p>That means the score alone does not give me one clear place to tell you to start.</p>
-    <p>I would rather look at the whole pattern than guess.</p>
+    <p>Your strongest patterns are:</p>
+    <p class="result-lede" id="tiedNamesLine"></p>
+
+    <p>Your answers don't point to one part of the cycle as the obvious place this is affecting you most.</p>
+    <p>More than one part is showing up at the same level.</p>
+
+    <div id="patternExplanations"></div>
+
+    <p id="activationLine"></p>
+
+    <p>That's why this can feel so hard to get on top of.</p>
+    <p>You can calm the alarm and still feel the pull.</p>
+    <p>You can stop yourself checking and still question your own judgement.</p>
+    <p>You can understand exactly what's happening and still realise too much of your life is revolving around it.</p>
+    <p>Your result isn't telling you to choose which one matters most.</p>
+    <p>It's showing you that this is affecting you in more than one place.</p>
+    <p>And that's why the work needs to go further than fixing one symptom at a time.</p>
 
     <div id="ogBridge"></div>
 
@@ -31,21 +45,58 @@
 
 <script>
 (function(){
-  var data = YMSQuiz.getResultData();
-  var name = data && data.firstName ? data.firstName.trim() : '';
+  /* ============================================================
+     V2 rebuild (3 Sep 2026): one mixed-result.html covers BOTH
+     Moderate Mixed and Strong Mixed -- no separate pages. Only
+     the tied leading pattern names, the matching explanation
+     block(s), and one activation-strength sentence change
+     dynamically. Everything else on this page is locked copy,
+     verbatim, per spec. Secondary Active Patterns and raw scores
+     are stored server-side only and are never shown here.
+     ============================================================ */
+
+  // LOCKED explanation blocks -- shown ONLY for the buckets that are
+  // actually tied as leading patterns, never all four automatically.
+  var EXPLANATIONS = {
+    'Quiet the Alarm': "Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again.",
+    'Break the Pull': "You keep getting pulled back into him or the situation — checking, texting, replaying, analysing, looking for signs or trying to understand what's happening.",
+    'Restore Self Trust': "What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.",
+    'Return to Yourself': "You've started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."
+  };
+
+  var MODERATE_LINE = "More than one part of the cycle is active enough to keep pulling you back in, even though no single part is completely taking over.";
+  var STRONG_LINE = "More than one part of the cycle is showing up strongly at the same time. So even when one part settles, another can still keep you caught in it.";
+
+  var data = null;
+  try { data = YMSQuiz.getResultData(); } catch (e) { data = null; }
+
+  var name = data && data.firstName ? String(data.firstName).trim() : '';
   var greetingEl = document.getElementById('greeting');
   if (name){
     greetingEl.textContent = 'Hi, ' + name + '.';
     greetingEl.hidden = false;
   }
 
+  // tiedResults holds the genuinely tied leading pattern display names
+  // (2, 3 or 4 of them) -- set by quiz.html from the server-authoritative
+  // leadingPatterns/mixedResultBuckets, never guessed on this page.
   var tied = (data && data.tiedResults) || [];
-  var tiedLineEl = document.getElementById('tiedLine');
-  // formatList joins naturally for 2, 3, or 4 tied names (never hardcodes
-  // "both areas", which would be wrong outside a 2-way tie.
-  tiedLineEl.textContent = YMSQuiz.formatList(tied) + ' came through equally strongly in your answers.';
 
-  YMSQuiz.track('quiz_result_view', { result_bucket: 'Mixed', tied_count: tied.length });
+  document.getElementById('tiedNamesLine').textContent = tied.join(' + ');
+
+  var explanationsHtml = '';
+  tied.forEach(function(nameKey){
+    if (EXPLANATIONS[nameKey]){
+      explanationsHtml += '<p>' + YMSQuiz.escapeText(EXPLANATIONS[nameKey]) + '</p>';
+    }
+  });
+  document.getElementById('patternExplanations').innerHTML = explanationsHtml;
+
+  var overall = (data && data.overallActivationStrength) || '';
+  var activationLineEl = document.getElementById('activationLine');
+  activationLineEl.textContent = overall === 'strong' ? STRONG_LINE : MODERATE_LINE;
+
+  YMSQuiz.track('quiz_result_view', { result_bucket: 'Mixed', tied_count: tied.length, activation: overall });
 
   YMSQuiz.mountOGBootcampBridge('ogBridge');
 })();
