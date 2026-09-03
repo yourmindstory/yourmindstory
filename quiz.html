@@ -139,7 +139,7 @@
      screen, since it correctly cannot confirm a save).
      ========================================================== */
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec";
-  var QUIZ_VERSION = "YMS-QUIZ-2026-V1";
+  var QUIZ_VERSION = "YMS-QUIZ-2026-V2";
   var NOT_DEPLOYED = !APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('REPLACE_WITH') === 0;
 
   /* ==========================================================
@@ -195,80 +195,94 @@
     }
   ];
 
+  /* ==========================================================
+     LOCKED V2 COPY (YMS-QUIZ-2026-V2 migration, 3 Sep 2026).
+     Each option is {title, desc} -- both parts are the LOCKED
+     text verbatim, split for display the same way the lead-
+     capture consent cards are (option-title/option-desc). Do
+     not paraphrase either part. Score = option index (0-3).
+     ========================================================== */
   var QUESTIONS = [
     { id:"q1", bucket:"quietTheAlarm", label:"Step 1 of 10",
-      prompt:"When he goes quiet, takes longer to reply, pulls back, or contact drops, what happens in your body?",
+      prompt:"When something happens with him or the situation feels uncertain, how strongly does your body react?",
       options:[
-        "Nothing much. I feel fine and carry on with my day.",
-        "I notice some unease, but I can redirect myself.",
-        "I feel a physical jolt. A tightness. A low dread I struggle to shake.",
-        "My whole system goes into alert. I struggle to function normally."
+        { title:"My body stays mostly settled.", desc:"I might notice what's happening, but I don't feel much physical alarm." },
+        { title:"I feel some unease.", desc:"There's tension or discomfort, but it isn't intense." },
+        { title:"I feel a clear physical jolt.", desc:"Tightness, dread, agitation or that sinking feeling hits me." },
+        { title:"My whole system goes into alert.", desc:"The reaction feels intense, immediate and hard to ignore." }
       ]},
     { id:"q2", bucket:"quietTheAlarm", label:"Step 2 of 10",
-      prompt:"Once that alarm starts, how easy is it to settle yourself again, even if nothing changes with him?",
+      prompt:"Once that alarm starts, how long does it usually take your system to settle again?",
       options:[
-        "I can settle myself and get back to my day.",
-        "It takes me a little while, but I usually come back down.",
-        "I can stay on edge for hours and it affects my focus and my day.",
-        "I cannot properly settle until I hear from him or feel reassured about where I stand."
+        { title:"Pretty quickly.", desc:"I can settle myself and get back to my day." },
+        { title:"It takes a little while.", desc:"But I usually come back down before long." },
+        { title:"It can last for hours.", desc:"I stay on edge for a long time before I feel properly settled again." },
+        { title:"It can stay switched on for most of the day or longer.", desc:"Even when nothing new is happening, I find it very difficult to fully settle." }
       ]},
     { id:"q3", bucket:"breakThePull", label:"Step 3 of 10",
-      prompt:"How often do you check your phone, his social media, messages, status, location, or anything else connected to him?",
+      prompt:"Right now, how often do you feel pulled back into him or the situation — checking, texting, replaying, analysing, looking for signs or trying to understand what's happening?",
       options:[
-        "Rarely or never. I do not feel much pull to check.",
-        "More than I would like, but I can redirect myself.",
-        "Frequently throughout the day. It has become automatic.",
-        "Constantly. Sometimes I have checked before I've even really decided to."
+        { title:"Rarely or never.", desc:"It doesn't pull my attention back very often." },
+        { title:"Sometimes.", desc:"It comes up, but not repeatedly through the day." },
+        { title:"Often.", desc:"I find myself pulled back into it several times through the day." },
+        { title:"Constantly or almost constantly.", desc:"My mind keeps going back to it throughout the day." }
       ]},
     { id:"q4", bucket:"breakThePull", label:"Step 4 of 10",
-      prompt:"When you decide not to check, reach out or reopen the conversation, what usually happens?",
+      prompt:"Once you get pulled into it, how hard is it to stop and come back to your own day?",
       options:[
-        "I can make the decision and stick to it.",
-        "I feel the urge, but I can usually stay with my decision.",
-        "I try to stick to it, but I often end up checking or reaching out anyway.",
-        "When the pull hits, the decision seems to disappear. I do it almost automatically."
+        { title:"I can usually leave it alone.", desc:"I notice what I'm doing and can move on fairly easily." },
+        { title:"It takes some effort.", desc:"I can get caught in it for a while, but I can usually pull myself away." },
+        { title:"It's hard to pull away.", desc:"Once I'm in it, it can hold my attention much longer than I want, even when I'm trying to stop." },
+        { title:"It feels almost impossible to leave it alone.", desc:"I keep following it until I get some kind of answer, reassurance or relief." }
       ]},
     { id:"q5", bucket:"restoreSelfTrust", label:"Step 5 of 10",
-      prompt:"When he pulls back, goes cold or something feels wrong between you, what happens in your mind?",
+      prompt:"When something happens with him, how much do you trust your own read of what happened?",
       options:[
-        "I can see his behaviour as his behaviour without immediately making it about me.",
-        "I know it may not be my fault, but I still find myself analysing what I said or did.",
-        "I go over everything, looking for what I got wrong.",
-        "I end up questioning myself so much that I no longer know whether I can trust my own judgement."
+        { title:"I trust my own read of it.", desc:"I can take in what happened without immediately doubting myself." },
+        { title:"I second-guess myself sometimes.", desc:"I wonder if I've misunderstood or got something wrong, but I can usually come back to what I know." },
+        { title:"I question my own judgement a lot.", desc:"I can become unsure whether my interpretation is reasonable, even when I initially felt clear." },
+        { title:"I don't know whether I can trust my own judgement anymore.", desc:"Even when I know what I saw, felt or understood, I can lose confidence in my own read of it." }
       ]},
     { id:"q6", bucket:"restoreSelfTrust", label:"Step 6 of 10",
-      prompt:"When you make a decision about what you need or what you will no longer accept, what usually happens next?",
+      prompt:"Once you've decided what feels right for you, how much do you trust that decision afterwards?",
       options:[
-        "I trust my decision and can stand by it.",
-        "I second-guess myself sometimes, but I usually stay with what I decided.",
-        "I question myself repeatedly and often need reassurance that I am doing the right thing.",
-        "I struggle to trust my own decisions at all. His behaviour can completely change what I thought I wanted."
+        { title:"I trust my decision.", desc:"I don't need what happens next to tell me whether it was right for me." },
+        { title:"I second-guess myself sometimes.", desc:"But I generally still trust the decision I made." },
+        { title:"I doubt my decisions a lot.", desc:"I can go back and forth over whether I got it wrong." },
+        { title:"What he does can completely change how I see my own decision.", desc:"Something I felt sure about can suddenly stop feeling trustworthy." }
       ]},
     { id:"q7", bucket:"returnToYourself", label:"Step 7 of 10",
-      prompt:"Since this dynamic began, or ended, how connected do you feel to yourself?",
+      prompt:"How connected do you feel to yourself and who you were before this started taking so much from you?",
       options:[
-        "Fully connected. I know who I am.",
-        "Slightly wobbly, but mostly still myself.",
-        "I recognise myself less. I have lost ground I want to get back.",
-        "I do not recognise myself anymore. I am not sure who I am outside of this."
+        { title:"I still feel like myself.", desc:"I know who I am and feel connected to that." },
+        { title:"I feel a little less like myself.", desc:"I've been knocked off-centre, but I still recognise myself." },
+        { title:"I've lost parts of myself in this.", desc:"I recognise myself less and there are parts of my life or myself I want back." },
+        { title:"I barely recognise myself anymore.", desc:"I'm not sure who I am outside of this or who I've become while dealing with it." }
       ]},
     { id:"q8", bucket:"returnToYourself", label:"Step 8 of 10",
-      prompt:"How much of your attention and your life now revolves around him or what is happening between you?",
+      prompt:"How much have your own life, plans, interests, routines or needs moved into the background because of this?",
       options:[
-        "It is one part of my life. My attention is still mostly on my own life.",
-        "It takes up more headspace than I want, but I still feel centred in my own life.",
-        "Too much of my time, attention or emotional energy revolves around him and what he is doing.",
-        "He or this situation feels like the centre of my life. My own plans, interests, routines or needs have moved into the background."
+        { title:"Not really.", desc:"My own life is still at the centre." },
+        { title:"A little.", desc:"Some things have slipped, but I'm still mostly living my own life." },
+        { title:"Quite a lot.", desc:"I've put parts of my own life, plans, interests, routines or needs aside because of this." },
+        { title:"A great deal.", desc:"My own life feels like it has moved into the background while this has taken centre stage." }
       ]}
   ];
 
+  /* V2: "low" (V1) is replaced by "no_clear_leader" -> no-result.html.
+     The single-bucket/mixed destinations are unchanged. Note: the V2
+     spec text refers to the Quiet the Alarm destination as
+     "stabilise.html" -- there is no such file in this repo; the file
+     that has always been live here is quiet-the-alarm.html. Kept as
+     the existing, actually-wired page (flagged in the delivery report,
+     not silently renamed). */
   var RESULT_PAGES = {
     quietTheAlarm:    "quiet-the-alarm.html",
     breakThePull:      "break-the-pull.html",
     restoreSelfTrust:  "restore-self-trust.html",
     returnToYourself:  "return-to-yourself.html",
     mixed:             "mixed-result.html",
-    low:               "low-result.html"
+    noClearLeader:     "no-result.html"
   };
   var BUCKET_DISPLAY_NAMES = {
     quietTheAlarm:    "Quiet the Alarm",
@@ -301,11 +315,11 @@
     stepEl.setAttribute('data-step', q.id);
 
     var optionsHtml = '';
-    q.options.forEach(function(optText, val){
+    q.options.forEach(function(opt, val){
       optionsHtml += '' +
         '<label class="option" data-qid="'+q.id+'" data-val="'+val+'">' +
           '<input type="radio" name="'+q.id+'" value="'+val+'">' +
-          '<span class="option-text">'+YMSQuiz.escapeText(optText)+'</span>' +
+          '<span class="option-text"><span class="option-title"></span><span class="option-desc"></span></span>' +
           '<span class="option-check" aria-hidden="true"></span>' +
         '</label>';
     });
@@ -319,6 +333,14 @@
         '<button type="button" class="btn-ghost" data-action="back">Back</button>' +
         '<span></span>' +
       '</div>';
+
+    // Set title/desc as textContent (not innerHTML) after insertion, same
+    // safe-text approach as the lead-consent cards use.
+    var optionEls = stepEl.querySelectorAll('.option');
+    q.options.forEach(function(opt, val){
+      optionEls[val].querySelector('.option-title').textContent = opt.title;
+      optionEls[val].querySelector('.option-desc').textContent = opt.desc;
+    });
 
     stepsContainer.appendChild(stepEl);
   });
@@ -368,7 +390,12 @@
     var leadConsentIdx = optionEl.getAttribute('data-leadconsent');
 
     if (qid){
-      answers[qid] = { score: parseInt(optionEl.getAttribute('data-val'), 10), answer: optionEl.querySelector('.option-text').textContent };
+      // Stored answer text is the full locked copy for this option (title +
+      // desc, both verbatim, joined with a space) -- not just the title --
+      // so the Sheet's "Q_ Answer" columns carry the complete wording.
+      var titleTxt = optionEl.querySelector('.option-title').textContent;
+      var descTxt = optionEl.querySelector('.option-desc').textContent;
+      answers[qid] = { score: parseInt(optionEl.getAttribute('data-val'), 10), answer: (titleTxt + ' ' + descTxt).trim() };
       hideError('err-' + qid);
     } else if (relval !== null){
       relationshipStatus = RELATIONSHIP_OPTIONS[parseInt(relval, 10)];
@@ -536,8 +563,29 @@
     if (currentIndex > 0) showStep(currentIndex - 1);
   }
 
-  // -------------------- scoring (client-side, for immediate UX only;
-  // the server independently recomputes and is authoritative) --------------------
+  // -------------------- V2 scoring (client-side, for immediate UX only;
+  // the server independently recomputes from raw Q1-Q8 answers and is
+  // authoritative -- this logic is embedded VERBATIM in Code.gs's
+  // computeServerResultV2_ so client and server can never drift apart). --------------------
+  var V2_BUCKET_KEYS = ['quietTheAlarm','breakThePull','restoreSelfTrust','returnToYourself'];
+  var V2_LEVEL_RANK = { lower:0, moderate:1, strong:2 };
+
+  // Per-bucket Activation Level from a pair of item scores (a,b), each 0-3.
+  // LOCKED rule set, do not alter.
+  function activationLevelV2(a, b){
+    if (a <= 1 && b <= 1) return 'lower';
+    if (a >= 2 && b >= 2 && (a === 3 || b === 3)) return 'strong';
+    return 'moderate';
+  }
+
+  function overallActivationStrengthV2(activation){
+    var best = 'lower';
+    V2_BUCKET_KEYS.forEach(function(k){
+      if (V2_LEVEL_RANK[activation[k]] > V2_LEVEL_RANK[best]) best = activation[k];
+    });
+    return best;
+  }
+
   function computeScores(){
     return {
       quietTheAlarm:    answers.q1.score + answers.q2.score,
@@ -547,20 +595,38 @@
     };
   }
 
-  function determineResult(scores){
-    var keys = ['quietTheAlarm','breakThePull','restoreSelfTrust','returnToYourself'];
-    var max = Math.max(scores.quietTheAlarm, scores.breakThePull, scores.restoreSelfTrust, scores.returnToYourself);
+  // Full V2 result: raw bucket scores, per-bucket Activation Level, Overall
+  // Activation Strength, and Pattern Structure (no_clear_leader/single/mixed)
+  // with exact-tie-only "mixed" among non-lower candidate buckets only.
+  function determineResultV2(scores){
+    var activation = {
+      quietTheAlarm:    activationLevelV2(answers.q1.score, answers.q2.score),
+      breakThePull:      activationLevelV2(answers.q3.score, answers.q4.score),
+      restoreSelfTrust:  activationLevelV2(answers.q5.score, answers.q6.score),
+      returnToYourself:  activationLevelV2(answers.q7.score, answers.q8.score)
+    };
+    var overall = overallActivationStrengthV2(activation);
+    var candidates = V2_BUCKET_KEYS.filter(function(k){ return activation[k] !== 'lower'; });
 
-    var allLow = keys.every(function(k){ return scores[k] <= 2; });
-    if (allLow){
-      return { type: 'low', primary: null, mixedBuckets: [] };
+    var type, primary, leadingPatterns, mixedBuckets;
+    if (candidates.length === 0){
+      type = 'no_clear_leader'; primary = null; leadingPatterns = []; mixedBuckets = [];
+    } else {
+      var maxRaw = Math.max.apply(null, candidates.map(function(k){ return scores[k]; }));
+      var topCandidates = candidates.filter(function(k){ return scores[k] === maxRaw; });
+      if (topCandidates.length === 1){
+        type = 'single'; primary = topCandidates[0]; leadingPatterns = [topCandidates[0]]; mixedBuckets = [];
+      } else {
+        type = 'mixed'; primary = null; leadingPatterns = topCandidates.slice(); mixedBuckets = topCandidates.slice();
+      }
     }
+    var secondaryActivePatterns = candidates.filter(function(k){ return leadingPatterns.indexOf(k) === -1; });
 
-    var topKeys = keys.filter(function(k){ return scores[k] === max; });
-    if (topKeys.length === 1){
-      return { type: 'single', primary: topKeys[0], mixedBuckets: [] };
-    }
-    return { type: 'mixed', primary: null, mixedBuckets: topKeys };
+    return {
+      type: type, primary: primary, mixedBuckets: mixedBuckets,
+      activation: activation, overallActivationStrength: overall,
+      leadingPatterns: leadingPatterns, secondaryActivePatterns: secondaryActivePatterns
+    };
   }
 
   // Map the server's plain-English bucket names (BUCKET_DISPLAY_NAMES values)
@@ -620,13 +686,14 @@
 
   function proceedToResult(serverData){
     var clientScores = computeScores();
-    var clientResult = determineResult(clientScores);
+    var clientResult = determineResultV2(clientScores);
 
     // Server is authoritative. If it disagrees with the client's own
     // computation, log it (do not silently ignore) and use the server's.
     var resultType = clientResult.type;
     var primaryKey = clientResult.primary;
     var mixedKeys = clientResult.mixedBuckets;
+    var overallActivation = clientResult.overallActivationStrength;
     var finalResultToken = resultToken; // client-generated, distinct from submissionId
 
     if (serverData && serverData.resultType){
@@ -639,6 +706,7 @@
       resultType = serverData.resultType;
       primaryKey = serverData.primaryResult ? bucketKeyFromDisplayName(serverData.primaryResult) : null;
       mixedKeys = (serverData.mixedResultBuckets || []).map(bucketKeyFromDisplayName).filter(Boolean);
+      overallActivation = serverData.overallActivationStrength || overallActivation;
     }
 
     var firstName = document.getElementById('firstName').value.trim();
@@ -651,18 +719,19 @@
       resultType: resultType,
       primaryResult: primaryKey ? BUCKET_DISPLAY_NAMES[primaryKey] : null,
       tiedResults: mixedNames,
+      overallActivationStrength: overallActivation,
       resultToken: finalResultToken
     });
 
     YMSQuiz.track('quiz_complete', {
       quiz_version: QUIZ_VERSION,
       result_type: resultType,
-      primary_result: resultType === 'single' ? BUCKET_DISPLAY_NAMES[primaryKey] : (resultType === 'mixed' ? 'Mixed' : 'Low')
+      primary_result: resultType === 'single' ? BUCKET_DISPLAY_NAMES[primaryKey] : (resultType === 'mixed' ? 'Mixed' : 'No Clear Leading Pattern')
     });
     YMSQuiz.track('quiz_lead_captured', { quiz_version: QUIZ_VERSION });
     try { fbq('track', 'Lead'); } catch(e){}
 
-    var target = resultType === 'low' ? RESULT_PAGES.low
+    var target = resultType === 'no_clear_leader' ? RESULT_PAGES.noClearLeader
       : resultType === 'single' ? RESULT_PAGES[primaryKey]
       : RESULT_PAGES.mixed;
 
