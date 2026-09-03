@@ -146,13 +146,31 @@
   var OG_CONSENT_VERSION = "quiz-result-og-bootcamp-v1";
   var OG_CONSENT_TEXT = "Join the OG Bootcamp waitlist and I’ll send you the opening details by email. Unsubscribe anytime.";
 
-  function ogPostToSheet(payload){
+  // The backend occasionally hangs or briefly errors on the first attempt
+  // (Apps Script cold start / concurrent-request contention). A capped
+  // timeout plus a single automatic retry clears this in practice without
+  // making a genuinely broken submission wait forever.
+  function ogPostToSheet(payload, isRetry){
+    var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timeoutId = controller ? setTimeout(function(){ controller.abort(); }, 12000) : null;
+
     return fetch(OG_SHEET_CAPTURE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    }).then(function(res){ return res.json(); }).catch(function(err){
-      console.warn('OG Bootcamp sheet capture failed (non-blocking):', err);
+      body: JSON.stringify(payload),
+      signal: controller ? controller.signal : undefined
+    }).then(function(res){
+      if (timeoutId) clearTimeout(timeoutId);
+      return res.json();
+    }).catch(function(err){
+      if (timeoutId) clearTimeout(timeoutId);
+      if (!isRetry){
+        console.warn('OG Bootcamp sheet capture failed once, retrying:', err);
+        return new Promise(function(resolve){
+          setTimeout(function(){ resolve(ogPostToSheet(payload, true)); }, 1000);
+        });
+      }
+      console.warn('OG Bootcamp sheet capture failed twice (non-blocking):', err);
       return null;
     });
   }
@@ -196,11 +214,11 @@
 
     container.innerHTML =
       '<h2>You think you’re waiting for him to change. But really, you’re waiting for you.</h2>' +
-      '<p>Waiting for you to trust what you already know. To stop overriding yourself. To stop going back on your own decisions every time he comes close, pulls away, gives you hope again — or even just crosses your mind.</p>' +
+      '<p>Waiting for you to trust what you already know. To stop overriding yourself. To stop going back on your own decisions every time he comes close, pulls away, gives you hope again, or even just crosses your mind.</p>' +
       '<p>Because knowing who he is hasn’t stopped you losing your time, your energy and too much of your life to this.</p>' +
       '<p>Inside the Your Mind Story Bootcamp, you stop waiting for yourself.</p>' +
       '<p>You choose you.</p>' +
-      '<p>And yes — you fight for yourself like no one has ever fought for you before.</p>' +
+      '<p>And yes, you fight for yourself like no one has ever fought for you before.</p>' +
       '<p>Because no one is coming.</p>' +
       '<p>It’s you. It’s been you this whole time.</p>' +
       '<p>So ask yourself:</p>' +
@@ -210,7 +228,7 @@
       '<div class="cta-row">' +
         '<button type="button" class="btn-cta" id="ogSignupBtn">I’M DONE WAITING FOR ME</button>' +
         '<span class="cta-microcopy" id="ogSignupMicrocopy">Join the OG Bootcamp waitlist and I’ll send you the opening details by email. Unsubscribe anytime.</span>' +
-        '<div class="error-msg" id="ogSignupError" role="alert">Something went wrong saving your details — please try again.</div>' +
+        '<div class="error-msg" id="ogSignupError" role="alert">Something went wrong saving your details. Please try again.</div>' +
       '</div>';
 
     var signupBtn = document.getElementById('ogSignupBtn');
@@ -300,7 +318,7 @@
           '<div class="error-msg" id="ogFcQ5Error" role="alert">Please choose one option to continue.</div>' +
           '<div class="fc-nav"><button type="button" class="btn-ghost" data-fc-action="back">Back</button><button type="button" class="btn-primary" id="ogFcSubmitBtn" data-fc-action="submit">Submit My Answers</button></div>' +
           '<div class="form-status" id="ogFcStatus">Saving your answers...</div>' +
-          '<div class="error-msg" id="ogFcRetryError" role="alert">Something went wrong saving your answers — please try again.</div>' +
+          '<div class="error-msg" id="ogFcRetryError" role="alert">Something went wrong saving your answers. Please try again.</div>' +
         '</div>' +
       '</form>';
 
