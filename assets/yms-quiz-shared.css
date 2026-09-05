@@ -304,3 +304,38 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 .fc-other-field.show{display:block;}
 .fc-other-input{width:100%; padding:13px 14px; border:1.5px solid var(--sage-soft); border-radius:8px; font-family:'Inter',sans-serif; font-size:15px; background:var(--warm-cream); color:var(--ink);}
 .fc-nav{display:flex; justify-content:space-between; align-items:center; margin-top:26px;}
+
+/* ---------------- Bootcamp recommendation section (result pages) ---------------- */
+.og-label{display:block; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-earth); font-weight:600; margin:0 0 14px;}
+.og-steps{list-style:none; margin:0 0 6px; padding:0;}
+.og-steps li{background:var(--warm-cream); border-radius:10px; padding:16px 18px; margin-bottom:10px;}
+.og-step-label{display:block; font-family:'Fraunces',serif; font-size:16px; color:var(--ink); margin-bottom:4px;}
+.og-step-desc{display:block; font-size:14.5px; color:var(--ink); opacity:.78; line-height:1.4;}
+.price-card{background:var(--sage-soft); border-radius:var(--radius); padding:30px 26px; text-align:center; margin:8px 0 6px;}
+.price-start{font-size:14.5px; color:var(--ink); opacity:.8; margin:0 0 18px;}
+.price-figure{font-family:'Fraunces',serif; font-size:36px; color:var(--ink); margin:0 0 4px; line-height:1.2;}
+.price-figure .price-unit{font-family:'Inter',sans-serif; font-size:15px; opacity:.7; font-weight:500;}
+.price-or{font-size:12.5px; color:var(--ink); opacity:.6; margin:8px 0; text-transform:uppercase; letter-spacing:.06em;}
+.price-installments{font-family:'Fraunces',serif; font-size:21px; color:var(--ink); margin:0 0 18px;}
+.price-note{font-size:12.5px; color:var(--ink); opacity:.72; margin:0; line-height:1.5;}
+.og-secondary{margin-top:30px; padding-top:24px; border-top:1px solid var(--sage-soft); text-align:center;}
+.og-secondary p{font-size:14px; margin:0 0 6px;}
+.og-secondary .og-secondary-note{font-size:12px; opacity:.65; margin-bottom:16px;}
+
+/* One shared "how it works" accordion, closed by default (5 Sep 2026 shortened layout). */
+.og-accordion{margin-top:28px;}
+.og-accordion-toggle{
+  display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+  background:var(--warm-cream); border:1.5px solid var(--sage-soft); border-radius:99px;
+  cursor:pointer; padding:13px 20px; font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600;
+  letter-spacing:.05em; text-transform:uppercase; color:var(--ink);
+  transition:border-color .15s ease;
+}
+.og-accordion-toggle:hover{border-color:var(--warm-earth);}
+.og-accordion-toggle:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+.og-accordion-panel{display:grid; grid-template-rows:0fr; transition:grid-template-rows .35s ease;}
+@media (prefers-reduced-motion: reduce){.og-accordion-panel{transition:none;}}
+.og-accordion-panel.open{grid-template-rows:1fr;}
+.og-accordion-panel-inner{overflow:hidden;}
+.og-accordion-panel-inner > .og-accordion-content{padding-top:22px;}
+.og-accordion-content .og-label:not(:first-child){margin-top:22px;}

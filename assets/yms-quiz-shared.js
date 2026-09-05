@@ -143,8 +143,51 @@
   // waitlist page's. Name/email are carried over from the quiz submission
   // (YMSQuiz.getResultData()) — never re-asked.
   var OG_SHEET_CAPTURE_URL = "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec";
-  var OG_CONSENT_VERSION = "quiz-result-og-bootcamp-v1";
-  var OG_CONSENT_TEXT = "Join the OG Bootcamp waitlist and I’ll send you the opening details by email. Unsubscribe anytime.";
+  var OG_CONSENT_VERSION = "quiz-result-og-bootcamp-v4";
+  var OG_CONSENT_TEXT = "I’ll email you when Original Group places open.";
+
+  // Result-specific opening used at the top of the Bootcamp recommendation
+  // section on each of the 4 single-result pages (added 5 Sep 2026 Bootcamp
+  // conversion update). Keyed by the bucket slug each result page passes to
+  // mountOGBootcampBridge as its second argument.
+  var OG_RESULT_OPENINGS = {
+    'quiet-the-alarm': [
+      'Your results suggest Quiet the Alarm is where you need the most support right now.',
+      'You can understand what’s happening and still feel the physical jolt, dread or hours of being on edge when something changes between you.',
+      'Knowing why it’s happening doesn’t necessarily stop your mind and body reacting when it happens.'
+    ],
+    'break-the-pull': [
+      'Your results suggest Break the Pull is where you need the most support right now.',
+      'You can decide not to check, text, replay it or look for another sign from him and still find yourself pulled back into it.',
+      'You know what you said you were going to do. The problem is sticking to it when the pull actually hits.'
+    ],
+    'restore-self-trust': [
+      'Your results suggest Restore Self-Trust is where you need the most support right now.',
+      'You can know something isn’t working for you and still question your own judgement, change your mind or look outside yourself for the answer.',
+      'After enough uncertainty, even decisions that used to feel obvious can become difficult to trust.'
+    ],
+    'return-to-yourself': [
+      'Your results suggest Return to Yourself is where you need the most support right now.',
+      'So much of your attention can end up going into what he feels, what he meant and what he might do next that your own plans, goals and life keep getting pushed further down the list.',
+      'The work now is putting you back in the centre of your own life.'
+    ],
+    // Used when no single bucket applies (e.g. a mixed/tied result) rather
+    // than defaulting to any one named result, which would misstate it.
+    '_default': [
+      'Your results suggest more than one part of the cycle is active for you right now.',
+      'You can know why he withdraws, recognise the pattern, and still find yourself pulled back into it, on edge about it, or doubting your own read of it.',
+      'That’s the part that needs support next.'
+    ]
+  };
+
+  // The 4 Bootcamp steps, always in this order and always called "steps"
+  // (never stages, phases or modules).
+  var OG_STEPS = [
+    { label: 'Step 1 — Quiet the Alarm', desc: 'Work with the alarm and automatic response.' },
+    { label: 'Step 2 — Break the Pull', desc: 'Work on the checking, replaying, waiting and pull back towards the cycle.' },
+    { label: 'Step 3 — Restore Self-Trust', desc: 'Start relying on your own judgement again.' },
+    { label: 'Step 4 — Return to Yourself', desc: 'Bring your attention, choices and life back to you.' }
+  ];
 
   // The backend occasionally hangs or briefly errors on the first attempt
   // (Apps Script cold start / concurrent-request contention). A capped
@@ -204,7 +247,7 @@
     "No."
   ];
 
-  function mountOGBootcampBridge(containerId){
+  function mountOGBootcampBridge(containerId, resultBucketKey){
     var container = document.getElementById(containerId);
     if (!container) return;
 
@@ -212,24 +255,99 @@
     var firstName = data && data.firstName ? data.firstName.trim() : '';
     var email = data && data.email ? data.email.trim() : '';
 
+    var opening = OG_RESULT_OPENINGS[resultBucketKey] || OG_RESULT_OPENINGS['_default'];
+    var openingHtml = opening.map(function(p, i){
+      return '<p' + (i === 0 ? ' class="result-lede"' : '') + '>' + p + '</p>';
+    }).join('');
+
+    var stepsHtml = OG_STEPS.map(function(s){
+      return '<li><span class="og-step-label">' + s.label + '</span><span class="og-step-desc">' + s.desc + '</span></li>';
+    }).join('');
+
     container.innerHTML =
-      '<h2>You think you’re waiting for him to change. But really, you’re waiting for you.</h2>' +
-      '<p>Waiting for you to trust what you already know. To stop overriding yourself. To stop going back on your own decisions every time he comes close, pulls away, gives you hope again, or even just crosses your mind.</p>' +
-      '<p>Because knowing who he is hasn’t stopped you losing your time, your energy and too much of your life to this.</p>' +
-      '<p>Inside the Your Mind Story Bootcamp, you stop waiting for yourself.</p>' +
-      '<p>You choose you.</p>' +
-      '<p>And yes, you fight for yourself like no one has ever fought for you before.</p>' +
-      '<p>Because no one is coming.</p>' +
-      '<p>It’s you. It’s been you this whole time.</p>' +
-      '<p>So ask yourself:</p>' +
-      '<p class="result-lede">Do you want to still be doing this in 2027?</p>' +
-      '<p>If the answer is no, that’s what these 12 weeks are for.</p>' +
-      '<p>Break the cycle. Take your life back.</p>' +
+      // Visual break from the locked result copy above, then the
+      // personalised opening into the Bootcamp recommendation.
+      '<div class="divider"></div>' +
+      openingHtml +
+
+      '<div class="divider"></div>' +
+
+      // Short knowing/changing bridge -- kept deliberately brief. The full
+      // "why" and the 4 steps live in the one expandable section below, not
+      // here, so the price and CTA stay visible sooner.
+      '<span class="og-label">SO WHAT DO YOU DO WITH THIS RESULT?</span>' +
+      '<p>Understanding the cycle isn’t the same as breaking it.</p>' +
+      '<p>That’s the part we work on inside the Your Mind Story Bootcamp.</p>' +
+      '<p>You do not have to decide whether to stay with him or leave him.</p>' +
+      '<p>You can still love him.</p>' +
+      '<p>You can still want it to work.</p>' +
+      '<p>The focus is you.</p>' +
+
+      '<div class="divider"></div>' +
+
+      // Concise Bootcamp offer -- name and one-line promise only, no step
+      // list here (moved into the accordion).
+      '<span class="og-label">YOUR MIND STORY BOOTCAMP</span>' +
+      '<p class="result-lede" style="margin-top:0;">Break the cycle. Take your life back.</p>' +
+      '<p>12 weeks. 4 steps. One goal: get your mind back.</p>' +
+
+      // Price, displayed clearly and visibly, never inside the accordion.
+      '<div class="price-card">' +
+        '<span class="og-label" style="margin-bottom:6px;">Original Group &bull; 2026</span>' +
+        '<p class="price-start">Starts Sunday 4 October</p>' +
+        '<p class="price-figure">£297 <span class="price-unit">in full</span></p>' +
+        '<p class="price-or">or</p>' +
+        '<p class="price-installments">3 monthly payments of £105</p>' +
+        '<p class="price-note">Standard Bootcamp price after the Original Group: £399</p>' +
+      '</div>' +
+
+      // One clear next action, never inside the accordion.
       '<div class="cta-row">' +
-        '<button type="button" class="btn-cta" id="ogSignupBtn">I’M DONE WAITING FOR ME</button>' +
-        '<span class="cta-microcopy" id="ogSignupMicrocopy">Join the OG Bootcamp waitlist and I’ll send you the opening details by email. Unsubscribe anytime.</span>' +
+        '<button type="button" class="btn-cta" id="ogSignupBtn">SEND ME THE OPENING DETAILS</button>' +
+        '<span class="cta-microcopy" id="ogSignupMicrocopy">' + OG_CONSENT_TEXT + '</span>' +
         '<div class="error-msg" id="ogSignupError" role="alert">Something went wrong saving your details. Please try again.</div>' +
+      '</div>' +
+
+      // The one optional expandable section -- closed by default, holds the
+      // 4-step breakdown and the daily/weekly commitment detail.
+      '<div class="og-accordion">' +
+        '<button type="button" class="og-accordion-toggle" id="ogAccordionBtn" aria-expanded="false" aria-controls="ogAccordionPanel">' +
+          '<span id="ogAccordionLabel">SEE EXACTLY HOW THE BOOTCAMP WORKS ↓</span>' +
+        '</button>' +
+        '<div class="og-accordion-panel" id="ogAccordionPanel" inert>' +
+          '<div class="og-accordion-panel-inner">' +
+            '<div class="og-accordion-content">' +
+              '<span class="og-label">THE 4 STEPS</span>' +
+              '<ul class="og-steps">' + stepsHtml + '</ul>' +
+              '<span class="og-label">WHAT DO I ACTUALLY HAVE TO DO?</span>' +
+              '<p>I have deliberately kept this simple.</p>' +
+              '<p>Your main daily job is to press play.</p>' +
+              '<p>You’ll use guided Cognitive Behavioural Hypnotherapy throughout each step.</p>' +
+              '<p>Once a week, you’ll spend around 15 minutes writing one part of Your Mind Story.</p>' +
+              '<p>You’ll complete a short weekly check-in so you can see what is changing.</p>' +
+              '<p>At the end of each 3-week step, we come together for a group integration call.</p>' +
+              '<p>No pile of worksheets. No hours of videos about him. No daily journalling.</p>' +
+              '<p><strong>Press play. Write Your Mind Story. Check in. Keep going.</strong></p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
       '</div>';
+
+    var accordionBtn = document.getElementById('ogAccordionBtn');
+    var accordionPanel = document.getElementById('ogAccordionPanel');
+    var accordionLabel = document.getElementById('ogAccordionLabel');
+    accordionBtn.addEventListener('click', function(){
+      var isOpen = accordionBtn.getAttribute('aria-expanded') === 'true';
+      accordionBtn.setAttribute('aria-expanded', String(!isOpen));
+      accordionPanel.classList.toggle('open', !isOpen);
+      if (isOpen){
+        accordionPanel.setAttribute('inert', '');
+        accordionLabel.textContent = 'SEE EXACTLY HOW THE BOOTCAMP WORKS ↓';
+      } else {
+        accordionPanel.removeAttribute('inert');
+        accordionLabel.textContent = 'HIDE HOW THE BOOTCAMP WORKS ↑';
+      }
+    });
 
     var signupBtn = document.getElementById('ogSignupBtn');
     var signupError = document.getElementById('ogSignupError');
@@ -252,20 +370,23 @@
           showOGConfirmed();
         } else {
           signupBtn.disabled = false;
-          signupBtn.textContent = "I’M DONE WAITING FOR ME";
+          signupBtn.textContent = 'SEND ME THE OPENING DETAILS';
           signupError.classList.add('show');
         }
       });
     });
 
+    // Confirmation is immediate and unconditional -- the waitlist signup is
+    // already complete at this point. The 5-question fit check below is an
+    // entirely optional, visually secondary follow-up: it never gates the
+    // confirmation and is never labelled as a required next step.
     function showOGConfirmed(){
       container.innerHTML =
-        '<p class="result-lede">You’re on the list.</p>' +
-        '<p>I’ll send you the OG Bootcamp opening details by email.</p>' +
-        '<p>Want to see whether the Bootcamp actually makes sense for where you are right now?</p>' +
-        '<p>It takes about 2 minutes.</p>' +
-        '<div class="cta-row">' +
-          '<button type="button" class="btn-cta" id="ogFitCheckBtn">SEE IF THIS MAKES SENSE FOR ME</button>' +
+        '<p class="result-lede">You’re on the list. 💜 I’ll email you when Original Group places open.</p>' +
+        '<div class="og-secondary">' +
+          '<p>Want me to understand what you’re dealing with before then? These 5 quick questions help me understand where you are, what you want help with and whether the Bootcamp looks like the right kind of support for you.</p>' +
+          '<p class="og-secondary-note">Optional. You’re already on the waitlist.</p>' +
+          '<button type="button" class="btn-ghost" id="ogFitCheckBtn">ANSWER THE 5 QUESTIONS</button>' +
         '</div>';
       document.getElementById('ogFitCheckBtn').addEventListener('click', function(){
         track('fit_check_start', {});
