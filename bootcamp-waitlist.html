@@ -79,6 +79,22 @@ p strong{font-weight:600;color:var(--fg);}
 /* objection card */
 .callout{background:var(--white);border:1px solid var(--rule);border-left:3px solid var(--earth);border-radius:4px;padding:26px 24px;margin:24px 0;}
 
+/* price card (5 Sep 2026 Original Group copy) */
+.price-card{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:28px 24px;text-align:center;margin:26px 0 8px;}
+.price-label{font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:#7A5D45;display:block;margin-bottom:10px;}
+.price-date{font-family:'Inter',sans-serif;font-size:14.5px;color:rgba(36,35,31,0.75);margin-bottom:16px;}
+.price-figure{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(22px,5vw,28px);color:var(--fg);margin-bottom:12px;}
+.price-note{font-family:'Inter',sans-serif;font-size:12.5px;color:rgba(36,35,31,0.68);margin-bottom:0;}
+
+/* social proof quotes */
+.quotes{display:flex;flex-direction:column;gap:16px;margin:28px 0 8px;}
+.quotecard{background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:22px 22px;}
+.quotecard p{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:16.5px;line-height:1.5;color:var(--fg);margin-bottom:10px;}
+.quotecard cite{font-family:'Inter',sans-serif;font-style:normal;font-size:12.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#7A5D45;}
+
+/* press play -> return flow line */
+.flowline{text-align:center;font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:#7A5D45;margin:22px 0;}
+
 /* forms (waitlist + fit check) shared */
 .formcard{background:var(--white);border-radius:8px;padding:32px 24px;box-shadow:0 8px 30px rgba(36,35,31,0.07);}
 @media(min-width:520px){.formcard{padding:38px 34px;}}
@@ -151,137 +167,112 @@ gtag('config', 'G-0MFXQ5ETCD');
   <!-- HERO -->
   <section class="tight" aria-labelledby="hero-h1">
     <span class="eyebrow">Your Mind Story Bootcamp</span>
-    <h1 id="hero-h1">You already understand the cycle. But understanding it isn&rsquo;t the same as breaking it.</h1>
-    <p class="lede">A 12-week Bootcamp for women who are still in it, somewhere in the in-between, or out of the relationship but still caught in the cycle.</p>
+    <h1 id="hero-h1">Break the cycle. Take your life back.</h1>
 
-    <p>You may understand why he pulls away. You may know the pattern. You may even know exactly what you think you should do.</p>
-    <p>But if you&rsquo;re still checking, waiting, replaying, hoping, overthinking, or finding that what he does or doesn&rsquo;t do can change your whole day, knowing hasn&rsquo;t been enough.</p>
-    <p><strong>This is where the focus turns back to you.</strong></p>
+    <p class="lede">You know what&rsquo;s happening. You know what you should do. And you&rsquo;re still checking, spiralling, waiting, overthinking or getting pulled back in.</p>
+    <p class="pull">Understanding the cycle isn&rsquo;t the same as breaking it.</p>
 
-    <p class="tagline">Break the cycle. Take your life back.</p>
+    <div class="price-card">
+      <span class="price-label">Original Group &bull; 2026</span>
+      <p class="price-date">Starts Sunday 4 October</p>
+      <p class="price-figure">£297 in full or 3 &times; £105</p>
+      <p class="price-note">Standard Bootcamp price after the Original Group: £399</p>
+    </div>
 
     <div class="cta-wrap">
-      <p style="text-align:center;margin-bottom:18px;">Join the waitlist for the next Your Mind Story Bootcamp.</p>
-      <a href="#waitlist-form" class="btn-primary" id="ctaHero" onclick="gtag('event','cta_click',{'cta':'waitlist_hero'});">Join the Waitlist</a>
-      <span class="microcopy">Join the waitlist to receive Bootcamp updates, Your Mind Story support, tools and relevant offers by email. Unsubscribe anytime.</span>
+      <a href="#waitlist-form" class="btn-primary" id="ctaHero" onclick="gtag('event','cta_click',{'cta':'waitlist_hero'});">Send me the opening details</a>
+      <span class="microcopy">You&rsquo;ll join the Original Group waitlist and I&rsquo;ll email you when places open.</span>
     </div>
   </section>
 
   <hr class="rule">
 
-  <!-- 4 STEPS -->
+  <!-- SOCIAL PROOF -->
+  <section aria-labelledby="proof-h2">
+    <h2 id="proof-h2" class="center">What women say after pressing play</h2>
+    <div class="quotes">
+      <div class="quotecard">
+        <p>&ldquo;I still have the loop but it&rsquo;s not consuming me constantly.&rdquo;</p>
+        <cite>Kimberly</cite>
+      </div>
+      <div class="quotecard">
+        <p>&ldquo;Took me out of my own head and helped calm the voice screaming at me to reach out.&rdquo;</p>
+        <cite>K</cite>
+      </div>
+      <div class="quotecard">
+        <p>&ldquo;For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.&rdquo;</p>
+        <cite>CeeJayMayDay</cite>
+      </div>
+      <div class="quotecard">
+        <p>&ldquo;I&rsquo;m slowly unraveling from years of survival mode. I&rsquo;m finding my center and power again.&rdquo;</p>
+        <cite>Sky</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE PATH: 4 STEPS -->
   <section aria-labelledby="steps-h2">
     <h2 id="steps-h2" class="center">12 weeks. 4 steps. One goal: get your mind back.</h2>
 
     <div class="steps">
       <div class="stepcard">
-        <span class="stepnum">Step 1 &mdash; Quiet the Alarm</span>
-        <p>Work with the alarm that can keep running whether the connection feels uncertain, threatened or has already ended, so it doesn&rsquo;t keep taking over your emotional world.</p>
+        <span class="stepnum">Step 1</span>
+        <h3>Quiet the Alarm</h3>
+        <p>Work on the automatic alarm.</p>
       </div>
       <div class="stepcard">
-        <span class="stepnum">Step 2 &mdash; Break the Pull</span>
-        <p>Understand what keeps pulling you back into the cycle, what you&rsquo;re really reaching for and what you may need to face, grieve or accept.</p>
+        <span class="stepnum">Step 2</span>
+        <h3>Break the Pull</h3>
+        <p>Work on the checking, replaying, waiting and pull back in.</p>
       </div>
       <div class="stepcard">
-        <span class="stepnum">Step 3 &mdash; Restore Self-Trust</span>
-        <p>Start listening to what you already know, rebuilding your boundaries with yourself and collecting evidence that you can rely on you.</p>
+        <span class="stepnum">Step 3</span>
+        <h3>Restore Self-Trust</h3>
+        <p>Start relying on your own judgement again.</p>
       </div>
       <div class="stepcard">
-        <span class="stepnum">Step 4 &mdash; Return to Yourself</span>
-        <p>Reconnect with the parts of you that became buried underneath the relationship and get clearer about what love and intimacy need to look like for you now.</p>
+        <span class="stepnum">Step 4</span>
+        <h3>Return to Yourself</h3>
+        <p>Put your attention, choices and life back on you.</p>
       </div>
     </div>
 
-    <div class="cta-wrap">
-      <a href="#waitlist-form" class="btn-primary" onclick="gtag('event','cta_click',{'cta':'waitlist_steps'});">Join the Waitlist</a>
-    </div>
+    <p class="tight-line" style="text-align:center;"><strong>Not his biography.</strong></p>
+    <p style="text-align:center;margin-bottom:0;"><strong>Yours.</strong></p>
   </section>
 
-  <!-- NOT ABOUT FIGURING HIM OUT -->
-  <section class="sec-band tight">
+  <!-- WHAT SHE ACTUALLY DOES -->
+  <section class="sec-band tight" aria-labelledby="dowhat-h2">
     <div class="sec-band-inner">
-      <h2>This isn&rsquo;t another programme about figuring him out.</h2>
-      <p>You&rsquo;ve probably already spent enough time doing that.</p>
-
-      <div class="line-block">
-        <p class="tight-line">Why he changed.</p>
-        <p class="tight-line">Why he pulled away.</p>
-        <p class="tight-line">Whether he loves you.</p>
-        <p class="tight-line">Whether you should stay.</p>
-        <p class="tight-line">Whether you should leave.</p>
-      </div>
-
-      <p>The Bootcamp asks a different question:</p>
-      <p class="pull">While you&rsquo;ve been trying to understand him, what&rsquo;s been happening to you?</p>
-
-      <div class="line-block">
-        <p class="tight-line">Your thoughts.</p>
-        <p class="tight-line">Your body.</p>
-        <p class="tight-line">Your boundaries.</p>
-        <p class="tight-line">Your trust in yourself.</p>
-        <p class="tight-line">Your ability to be present in your own life.</p>
-      </div>
-      <p>That&rsquo;s where we&rsquo;re going.</p>
+      <h2 id="dowhat-h2" class="center">What do I actually have to do?</h2>
+      <p>Your main daily job is to press play.</p>
+      <p>Once a week, spend around 15 minutes writing Your Mind Story and complete a short check-in.</p>
+      <p>At the end of each 3-week step, we have a group integration call.</p>
+      <p>If you miss a day, return.</p>
+      <p class="flowline">Press Play &rarr; Write Your Mind Story &rarr; Check In &rarr; Return</p>
+      <p style="margin-bottom:0;">The guided work uses Cognitive Behavioural Hypnotherapy throughout the 12 weeks.</p>
     </div>
   </section>
 
-  <!-- PRESS PLAY -->
-  <section aria-labelledby="press-play-h2">
-    <h2 id="press-play-h2" class="center" style="margin-bottom:6px;">Your main daily job?</h2>
-    <p class="promise">Press play.</p>
-    <p style="text-align:center;">That&rsquo;s the promise.</p>
-
-    <p>Across the 12 weeks, Cognitive Behavioural Hypnotherapy recordings support the work we&rsquo;re doing through each step.</p>
-    <p>Then once a week, you&rsquo;ll spend around 15 minutes writing one piece of Your Mind Story.</p>
-    <p>Instead of endlessly analysing him, you start becoming deeply interested in you and intentionally invested in your own life.</p>
-
-    <div class="line-block">
-      <p class="tight-line">What you&rsquo;re feeling.</p>
-      <p class="tight-line">What you need.</p>
-      <p class="tight-line">What you&rsquo;ve learnt.</p>
-      <p class="tight-line">Where you&rsquo;ve left yourself.</p>
-      <p class="tight-line">What you want to protect now.</p>
-    </div>
-
-    <p>Over 12 weeks, those pieces become Your Mind Story.</p>
-    <p class="tight-line"><strong>Not his biography.</strong></p>
-    <p><strong>Yours.</strong></p>
+  <!-- WHO THIS IS FOR -->
+  <section aria-labelledby="whofor-h2">
+    <h2 id="whofor-h2">Whether you&rsquo;re still in it or already out of it</h2>
+    <p>You might still be with him.</p>
+    <p>You might be somewhere in the in-between.</p>
+    <p>Or you might have left and still find yourself checking, replaying, hoping or getting pulled back in.</p>
+    <p>You do not have to decide whether to stay or leave before you start. And you do not have to still be with him for this work to be relevant.</p>
+    <p style="margin-bottom:0;">We&rsquo;re working on what the pattern is doing to you.</p>
   </section>
 
-  <!-- DON'T WAIT UNTIL JANUARY -->
-  <section class="sec-band tight">
-    <div class="sec-band-inner">
-      <h2>Don&rsquo;t wait until January to choose yourself.</h2>
-      <p>How many times have you already said:</p>
-      <p class="pull">&ldquo;That&rsquo;s it. I&rsquo;m not doing this anymore.&rdquo;</p>
-      <p>And somehow found yourself back in the same cycle?</p>
-      <p>We&rsquo;re not waiting for another New Year promise.</p>
-      <p>We&rsquo;re putting the reps in before January.</p>
-      <p>So by the time the new year arrives, you haven&rsquo;t just promised yourself things will be different.</p>
-      <p><strong>You&rsquo;ve already started proving it.</strong></p>
-    </div>
-  </section>
-
-  <!-- NOT FOR YOU IF -->
-  <section aria-labelledby="not-for-you-h2">
-    <h2 id="not-for-you-h2">This probably isn&rsquo;t for you if&hellip;</h2>
-    <div class="callout">
-      <p>Your main goal is to learn how to make him chase you, what message will get him back, what his silence means or how to change his behaviour.</p>
-      <p style="margin-bottom:0;">There&rsquo;s plenty of information online about him. That&rsquo;s not what we&rsquo;re doing here.</p>
-    </div>
-
-    <p>You can still love him. You can still want the relationship. You don&rsquo;t have to decide today whether you&rsquo;re staying or leaving.</p>
-    <p>But if you&rsquo;re ready to stop making his next move the thing that determines yours, you&rsquo;re in the right place.</p>
-
-    <p class="pull">The goal isn&rsquo;t to become a woman who needs nobody. It&rsquo;s to become a woman who can love somebody without losing herself to do it.</p>
-
-    <p>If you&rsquo;re tired of understanding the cycle but still finding yourself caught in it, start here.</p>
-    <p><strong>You don&rsquo;t have to make another huge decision today.</strong><br>Just put your name down.</p>
-  </section>
-
-  <!-- WAITLIST FORM -->
+  <!-- FINAL CTA + WAITLIST FORM -->
   <section id="waitlist-form" class="tight" aria-labelledby="form-h2">
-    <h2 id="form-h2" class="center" style="margin-bottom:26px;">Join the Waitlist</h2>
+    <h2 id="form-h2" class="center" style="margin-bottom:6px;">Original Group &bull; 2026</h2>
+    <p style="text-align:center;">Starts Sunday 4 October</p>
+
+    <div class="price-card">
+      <p class="price-figure">£297 in full or 3 &times; £105</p>
+      <p class="price-note">Standard Bootcamp price after the Original Group: £399</p>
+    </div>
 
     <div class="formcard">
 
@@ -298,10 +289,10 @@ gtag('config', 'G-0MFXQ5ETCD');
           </div>
           <div class="error-msg" id="signupError" role="alert">Please add your first name and a valid email address.</div>
 
-          <button type="submit" class="btn-primary" id="waitlistSubmitBtn" style="width:100%;">Join the Waitlist</button>
-          <span class="microcopy">Join the waitlist to receive Bootcamp updates, Your Mind Story support, tools and relevant offers by email. Unsubscribe anytime.</span>
+          <button type="submit" class="btn-primary" id="waitlistSubmitBtn" style="width:100%;">Send me the opening details</button>
+          <span class="microcopy">You&rsquo;ll join the Original Group waitlist and I&rsquo;ll email you when places open.</span>
           <div class="form-status" id="signupStatus">Saving your details&hellip;</div>
-          <div class="error-msg" id="signupRetryError" role="alert">Something went wrong saving your details &mdash; please try again, or email us directly.</div>
+          <div class="error-msg" id="signupRetryError" role="alert">Something went wrong saving your details, please try again, or email us directly.</div>
         </form>
       </div>
 
@@ -485,8 +476,8 @@ function postToSheet(payload){
    Waitlist" is itself the affirmative signup to the emails described in
    this microcopy, so no separate checkbox is added. Bump the version
    string if this wording is ever changed. */
-var WAITLIST_CONSENT_VERSION = "bootcamp-waitlist-v1";
-var WAITLIST_CONSENT_TEXT = "Join the waitlist to receive Bootcamp updates, Your Mind Story support, tools and relevant offers by email. Unsubscribe anytime.";
+var WAITLIST_CONSENT_VERSION = "bootcamp-waitlist-v2";
+var WAITLIST_CONSENT_TEXT = "You'll join the Original Group waitlist and I'll email you when places open.";
 
 var STORAGE_PREFIX = "yms_bootcamp_";
 
