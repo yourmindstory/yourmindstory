@@ -640,6 +640,29 @@
     return found;
   }
 
+  // -------------------- YMS-REC-2026-V1 recommendation mirror --------------------
+  function computeRecommendationV1Client(scores, resultInfo){
+    var total = V2_BUCKET_KEYS.reduce(function(sum, k){ return sum + Number(scores[k]); }, 0);
+    var breadth = V2_BUCKET_KEYS.filter(function(k){ return Number(scores[k]) >= 3; }).length;
+    var allLower = V2_BUCKET_KEYS.every(function(k){ return resultInfo.activation[k] === 'lower'; });
+    var allFourAtLeastThree = V2_BUCKET_KEYS.every(function(k){ return Number(scores[k]) >= 3; });
+    var level, rule, recommendedStage = null, mixedRequired = false;
+    if (allLower){ level='bare_minimum'; rule='all_lower'; }
+    else if (breadth >= 3 && total >= 15){ level='bootcamp_level'; rule='breadth_3_total_15'; }
+    else {
+      level='audio_first'; rule='active_contained';
+      if (resultInfo.type === 'single' && resultInfo.primary){ recommendedStage = BUCKET_DISPLAY_NAMES[resultInfo.primary]; }
+      else if (resultInfo.type === 'mixed'){ mixedRequired = true; }
+    }
+    return {
+      recommendationEngineVersion:'YMS-REC-2026-V1', totalFourStageScore:total, breadthCount:breadth,
+      recommendationLevel:level, recommendationRuleTriggered:rule,
+      broadModerateBoundary:allFourAtLeastThree && total >= 12 && total <= 14,
+      recommendedStage:recommendedStage, recommendedProduct:'',
+      mixedClarificationRequired:mixedRequired, mixedClarificationSelection:''
+    };
+  }
+
   // -------------------- submit --------------------
   function setSubmittingUi(isSubmitting){
     var submitBtn = document.getElementById('submitBtn');
@@ -713,6 +736,22 @@
     var email = document.getElementById('email').value.trim();
     var mixedNames = mixedKeys.map(function(k){ return BUCKET_DISPLAY_NAMES[k]; });
 
+    var recommendation = computeRecommendationV1Client(clientScores, clientResult);
+    if (serverData && serverData.recommendationLevel){
+      recommendation = {
+        recommendationEngineVersion: serverData.recommendationEngineVersion || 'YMS-REC-2026-V1',
+        totalFourStageScore: serverData.totalFourStageScore,
+        breadthCount: serverData.breadthCount,
+        recommendationLevel: serverData.recommendationLevel,
+        recommendationRuleTriggered: serverData.recommendationRuleTriggered || '',
+        broadModerateBoundary: serverData.broadModerateBoundary === true,
+        recommendedStage: serverData.recommendedStage || null,
+        recommendedProduct: serverData.recommendedProduct || '',
+        mixedClarificationRequired: serverData.mixedClarificationRequired === true,
+        mixedClarificationSelection: serverData.mixedClarificationSelection || ''
+      };
+    }
+
     YMSQuiz.setResultData({
       firstName: firstName,
       email: email,
@@ -720,7 +759,22 @@
       primaryResult: primaryKey ? BUCKET_DISPLAY_NAMES[primaryKey] : null,
       tiedResults: mixedNames,
       overallActivationStrength: overallActivation,
-      resultToken: finalResultToken
+      resultToken: finalResultToken,
+      recommendationEngineVersion: recommendation.recommendationEngineVersion,
+      totalFourStageScore: recommendation.totalFourStageScore,
+      breadthCount: recommendation.breadthCount,
+      recommendationLevel: recommendation.recommendationLevel,
+      recommendationRuleTriggered: recommendation.recommendationRuleTriggered,
+      broadModerateBoundary: recommendation.broadModerateBoundary,
+      recommendedStage: recommendation.recommendedStage,
+      recommendedProduct: recommendation.recommendedProduct,
+      mixedClarificationRequired: recommendation.mixedClarificationRequired,
+      mixedClarificationSelection: recommendation.mixedClarificationSelection
+    });
+
+    YMSQuiz.track('quiz_recommendation_assigned', {
+      recommendation_level: recommendation.recommendationLevel,
+      recommendation_rule_triggered: recommendation.recommendationRuleTriggered
     });
 
     YMSQuiz.track('quiz_complete', {

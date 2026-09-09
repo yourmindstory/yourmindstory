@@ -601,6 +601,53 @@
     fcGoTo(0);
   }
 
+  // ---------------- YMS-REC-2026-V1 recommendation router ----------------
+  var QUIZ_BACKEND_URL_V1 = "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec";
+  var AUDIO_PRODUCTS_V1 = {
+    'Quiet the Alarm': {url:'https://payhip.com/b/53N2B', description:'Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again.'},
+    'Break the Pull': {url:'https://payhip.com/b/N8hbz', description:"You keep getting pulled back into him or the situation: checking, texting, replaying, analysing, looking for signs or trying to understand what is happening."},
+    'Restore Self Trust': {url:'https://payhip.com/b/3RlF7', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
+    'Restore Self-Trust': {url:'https://payhip.com/b/3RlF7', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
+    'Return to Yourself': {url:'https://payhip.com/b/6pE8S', description:"You have started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."}
+  };
+
+  function renderAudioRecommendationV1(container, stageName){
+    var product=AUDIO_PRODUCTS_V1[stageName];
+    if(!product){ container.innerHTML='<p class="result-lede">Your next step is '+escapeText(stageName||'the area your result identified')+'.</p>'; return; }
+    container.innerHTML='<div class="divider"></div><span class="og-label">YOUR RECOMMENDED NEXT STEP</span><p class="result-lede" style="margin-top:0;">'+escapeText(stageName)+'</p><p>'+escapeText(product.description)+'</p><p>This is the guided Cognitive Behavioural Hypnotherapy audio I would start with based on your result.</p><div class="cta-row"><a class="btn-cta" href="'+product.url+'" id="ymsAudioRecommendationCta">START WITH '+escapeText(stageName).toUpperCase()+'</a></div>';
+    var cta=document.getElementById('ymsAudioRecommendationCta');
+    if(cta) cta.addEventListener('click',function(){track('quiz_audio_recommendation_click',{selected_stage:stageName});});
+  }
+
+  function recordMixedSelectionV1(data, selectedStage){
+    if(!data || !data.resultToken) return;
+    fetch(QUIZ_BACKEND_URL_V1,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'recordMixedSelection',resultToken:data.resultToken,selectedStage:selectedStage})}).catch(function(){});
+  }
+
+  function renderMixedClarificationV1(container, data){
+    var tied=(data&&data.tiedResults)||[];
+    var valid=tied.filter(function(n){return !!AUDIO_PRODUCTS_V1[n];});
+    if(!valid.length){ mountOGBootcampBridge(container.id); return; }
+    var options=valid.map(function(name,i){return '<label class="fc-option" for="ymsMixed_'+i+'"><input type="radio" name="ymsMixedClarification" id="ymsMixed_'+i+'" value="'+i+'"><span class="fc-option-text"><strong>'+escapeText(name)+'</strong><br>'+escapeText(AUDIO_PRODUCTS_V1[name].description)+'</span><span class="fc-option-mark" aria-hidden="true"></span></label>';}).join('');
+    container.innerHTML='<div class="divider"></div><span class="og-label">ONE QUICK QUESTION</span><p class="result-lede">Your scores are genuinely split between these areas. Rather than guess which one matters more to you, which is taking more from you right now?</p><div class="fc-options" id="ymsMixedOptions" role="radiogroup">'+options+'</div><div class="cta-row"><button type="button" class="btn-cta" id="ymsMixedContinue" disabled>CONTINUE</button></div>';
+    var selected=null, btn=document.getElementById('ymsMixedContinue'), wrap=document.getElementById('ymsMixedOptions');
+    wrap.addEventListener('change',function(e){ if(!e.target||e.target.type!=='radio')return; selected=valid[parseInt(e.target.value,10)]; Array.prototype.forEach.call(wrap.querySelectorAll('.fc-option'),function(el){el.classList.remove('selected');}); var label=e.target.closest('.fc-option'); if(label)label.classList.add('selected'); btn.disabled=!selected; });
+    btn.addEventListener('click',function(){ if(!selected)return; data.recommendedStage=selected; data.mixedClarificationSelection=selected; data.mixedClarificationRequired=false; setResultData(data); track('quiz_mixed_clarification',{selected_stage:selected}); recordMixedSelectionV1(data,selected); renderAudioRecommendationV1(container,selected); });
+  }
+
+  function mountRecommendationV1(containerId,resultBucketKey){
+    var container=document.getElementById(containerId); if(!container)return;
+    var data=getResultData()||{}, level=data.recommendationLevel||'';
+    if(!level){ mountOGBootcampBridge(containerId,resultBucketKey); return; }
+    if(level==='bootcamp_level'){ mountOGBootcampBridge(containerId,resultBucketKey); return; }
+    if(level==='bare_minimum'){ container.innerHTML='<div class="divider"></div><span class="og-label">YOUR RECOMMENDED NEXT STEP</span><p class="result-lede">Start with The Bare Minimum.</p><div class="cta-row"><a class="btn-cta" href="https://payhip.com/b/ZcdmX">START WITH THE BARE MINIMUM</a></div>'; return; }
+    if(level==='audio_first'){
+      if(data.resultType==='mixed' && data.mixedClarificationRequired && !data.mixedClarificationSelection){ renderMixedClarificationV1(container,data); return; }
+      renderAudioRecommendationV1(container,data.mixedClarificationSelection||data.recommendedStage||data.primaryResult||''); return;
+    }
+    mountOGBootcampBridge(containerId,resultBucketKey);
+  }
+
   global.YMSQuiz = {
     track: track,
     captureAttribution: captureAttribution,
@@ -611,6 +658,7 @@
     escapeText: escapeText,
     generateId: generateId,
     formatList: formatList,
-    mountOGBootcampBridge: mountOGBootcampBridge
+    mountOGBootcampBridge: mountOGBootcampBridge,
+    mountRecommendationV1: mountRecommendationV1
   };
 })(window);
