@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Result: Quiet the Alarm | Your Mind Story</title>
 <meta name="robots" content="noindex, follow">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/yms-quiz-shared.css">
-<script src="assets/yms-quiz-shared.js?v=20260910-rec2"></script>
+<script src="assets/yms-quiz-shared.js?v=20260910-rec3"></script>
+<script src="assets/yms-results-copy-v2.js?v=20260910-final1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -19,34 +19,23 @@
     <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
     <span class="result-tag">YOUR RESULT</span>
     <h1>Quiet the Alarm</h1>
-
     <p>Your answers show that your body is spending too much time on high alert.</p>
     <p>Once that reaction starts, it can be hard to settle down, think clearly or get on with your day.</p>
     <p>That is the part of the cycle affecting you most right now.</p>
-
     <p class="result-lede">Quiet the alarm. Get back to your life.</p>
-
     <p>The aim is not to stop you having feelings.</p>
     <p>It is for this to stop taking over your body, your thoughts and your day, so you can feel steadier and think clearly again.</p>
-
     <div id="ogBridge"></div>
-
     <p class="cta-microcopy" style="margin-top:18px;"><a href="about.html">More about Onye</a> | <a href="why-this-works.html">Why this works</a></p>
   </div>
 </div>
-
 <script>
 (function(){
   var data = YMSQuiz.getResultData();
   var name = data && data.firstName ? data.firstName.trim() : '';
   var greetingEl = document.getElementById('greeting');
-  if (name){
-    greetingEl.textContent = 'Hi, ' + name + '.';
-    greetingEl.hidden = false;
-  } // else: omit the greeting entirely, per spec (no fallback greeting text).
-
+  if (name){ greetingEl.textContent = 'Hi, ' + name + '.'; greetingEl.hidden = false; }
   YMSQuiz.track('quiz_result_view', { result_bucket: 'Quiet the Alarm' });
-
   YMSQuiz.mountRecommendationV1('ogBridge', 'quiet-the-alarm');
 })();
 </script>
