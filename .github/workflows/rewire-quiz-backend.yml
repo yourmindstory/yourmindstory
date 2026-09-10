@@ -1,4 +1,4 @@
-name: Wire Bootcamp result reveal UX
+name: Wire universal quiz result reveal UX
 
 on:
   push:
@@ -13,18 +13,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Add reveal script to result pages
+      - name: Wire latest reveal script into every result page
         shell: bash
         run: |
           set -euo pipefail
-          for f in quiet-the-alarm.html break-the-pull.html restore-self-trust.html return-to-yourself.html mixed-result.html no-result.html; do
-            if grep -q 'assets/yms-results-copy-v2.js' "$f" && ! grep -q 'assets/yms-bootcamp-reveal.js' "$f"; then
-              sed -i '/assets\/yms-results-copy-v2.js/a <script src="assets/yms-bootcamp-reveal.js?v=20260910-1"></script>' "$f"
-            fi
-          done
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          files = [
+            'quiet-the-alarm.html',
+            'break-the-pull.html',
+            'restore-self-trust.html',
+            'return-to-yourself.html',
+            'mixed-result.html',
+            'no-result.html'
+          ]
+          tag = '<script src="assets/yms-bootcamp-reveal.js?v=20260910-2"></script>'
+
+          for name in files:
+              p = Path(name)
+              s = p.read_text()
+              if 'assets/yms-bootcamp-reveal.js' in s:
+                  s = re.sub(r'<script src="assets/yms-bootcamp-reveal\.js\?v=[^"]+"></script>', tag, s)
+              else:
+                  anchor = '<script src="assets/yms-quiz-shared.js?v=20260910-rec3"></script>'
+                  if anchor not in s:
+                      raise SystemExit(f'Cannot find shared script anchor in {name}')
+                  s = s.replace(anchor, anchor + '\n' + tag, 1)
+              p.write_text(s)
+          PY
           git diff --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add quiet-the-alarm.html break-the-pull.html restore-self-trust.html return-to-yourself.html mixed-result.html no-result.html
-          git commit -m 'Wire progressive reveal UX into quiz result pages'
-          git push
+          if git diff --cached --quiet; then
+            echo 'No wiring changes needed.'
+          else
+            git commit -m 'Wire universal progressive result UX'
+            git push
+          fi
