@@ -166,8 +166,11 @@
       '<div class="divider"></div>' +
       '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
       '<p class="result-lede" style="margin-top:0;">I recommend the Your Mind Story Bootcamp.</p>' +
-      '<p>I wouldn\'t point you towards one audio when your results are showing me that <strong>this is affecting you across several areas.</strong></p>' +
-      '<p>That\'s why we work through the whole cycle.</p>' +
+      '<p>I wouldn\'t point you towards one standalone guided Cognitive Behavioural Hypnotherapy audio when your results are showing that this is affecting you across several parts of the cycle.</p>' +
+      '<p class="result-lede"><strong>You need the complete 4-Step programme.</strong></p>' +
+      '<p>That means working on the alarm in your body, the pull that keeps taking you back into the loop, the self-trust you\'ve lost along the way, and getting your attention and your life back to you.</p>' +
+      '<p>And because this is the Original Group, you won\'t be doing that work on your own. You\'ll have the complete guided Cognitive Behavioural Hypnotherapy programme, a simple structure to follow, and live group support as you move through it.</p>' +
+      '<p><strong>The goal isn\'t more information about him. It\'s to help you break the cycle and get your mind and your life back.</strong></p>' +
       '<ul class="og-steps">' +
         '<li><span class="og-step-label">Step 1: Quiet the Alarm</span><span class="og-step-desc">Work on the physical and emotional reaction.</span></li>' +
         '<li><span class="og-step-label">Step 2: Break the Pull</span><span class="og-step-desc">Work on the checking, replaying, waiting and getting pulled back in.</span></li>' +
