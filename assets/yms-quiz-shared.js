@@ -638,7 +638,10 @@
   function mountRecommendationV1(containerId,resultBucketKey){
     var container=document.getElementById(containerId); if(!container)return;
     var data=getResultData()||{}, level=data.recommendationLevel||'';
-    if(!level){ mountOGBootcampBridge(containerId,resultBucketKey); return; }
+    if(!level){
+      container.innerHTML='<div class="divider"></div><span class="og-label">YOUR UPDATED RESULT</span><p class="result-lede">I need the current quiz version to give you the right recommendation.</p><p>Your browser has carried over an older result session, so I will not guess which support level is right for you.</p><div class="cta-row"><a class="btn-cta" href="quiz.html?v=20260910-rec2">RETAKE THE UPDATED QUIZ</a></div>';
+      return;
+    }
     if(level==='bootcamp_level'){ mountOGBootcampBridge(containerId,resultBucketKey); return; }
     if(level==='bare_minimum'){ container.innerHTML='<div class="divider"></div><span class="og-label">YOUR RECOMMENDED NEXT STEP</span><p class="result-lede">Start with The Bare Minimum.</p><div class="cta-row"><a class="btn-cta" href="https://payhip.com/b/ZcdmX">START WITH THE BARE MINIMUM</a></div>'; return; }
     if(level==='audio_first'){
