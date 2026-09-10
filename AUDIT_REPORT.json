@@ -2,11 +2,11 @@
   "summary": {
     "html_pages": 53,
     "all_files": 68,
-    "pages_with_ga4": 35,
-    "pages_with_clarity": 3,
-    "pages_with_meta_pixel": 0,
+    "pages_with_ga4": 45,
+    "pages_with_clarity": 13,
+    "pages_with_meta_pixel": 10,
     "pages_with_forms": 4,
-    "pages_with_broken_internal_links": 5,
+    "pages_with_broken_internal_links": 1,
     "identical_file_groups": 2
   },
   "pages": [
@@ -23,7 +23,7 @@
       "payhip_urls": [
         "https://payhip.com/b/ZcdmX"
       ],
-      "inbound_count": 36,
+      "inbound_count": 37,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
       "audit_reason": "Core trust/funnel page"
@@ -106,7 +106,7 @@
       ],
       "payhip_urls": [],
       "inbound_count": 23,
-      "broken_internal_count": 10,
+      "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
       "audit_reason": "Core trust/funnel page"
     },
@@ -131,12 +131,21 @@
       "size": 3558,
       "title": "Your Result: Break the Pull | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
-      "payhip_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
       "inbound_count": 1,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
@@ -219,7 +228,9 @@
       "clarity": false,
       "meta_pixel": false,
       "forms": 0,
-      "apps_script_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbyTkAFI_7IDWZFWOlR-sR_kiL3fxXwbZWJ2Dw8lIj88pMJn_g46zwkISgNUtY1jwwc9Bg/exec"
+      ],
       "payhip_urls": [],
       "inbound_count": 0,
       "broken_internal_count": 0,
@@ -235,7 +246,9 @@
       "clarity": false,
       "meta_pixel": false,
       "forms": 0,
-      "apps_script_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbyTkAFI_7IDWZFWOlR-sR_kiL3fxXwbZWJ2Dw8lIj88pMJn_g46zwkISgNUtY1jwwc9Bg/exec"
+      ],
       "payhip_urls": [],
       "inbound_count": 0,
       "broken_internal_count": 0,
@@ -269,7 +282,9 @@
       "clarity": false,
       "meta_pixel": false,
       "forms": 0,
-      "apps_script_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbyTkAFI_7IDWZFWOlR-sR_kiL3fxXwbZWJ2Dw8lIj88pMJn_g46zwkISgNUtY1jwwc9Bg/exec"
+      ],
       "payhip_urls": [],
       "inbound_count": 0,
       "broken_internal_count": 0,
@@ -285,7 +300,9 @@
       "clarity": false,
       "meta_pixel": false,
       "forms": 0,
-      "apps_script_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbyTkAFI_7IDWZFWOlR-sR_kiL3fxXwbZWJ2Dw8lIj88pMJn_g46zwkISgNUtY1jwwc9Bg/exec"
+      ],
       "payhip_urls": [],
       "inbound_count": 0,
       "broken_internal_count": 0,
@@ -465,12 +482,19 @@
       "size": 2102,
       "title": "Your Result | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
       "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
         "https://payhip.com/b/ZcdmX"
       ],
       "inbound_count": 0,
@@ -483,12 +507,21 @@
       "size": 4923,
       "title": "Your Result | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
-      "payhip_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
       "inbound_count": 0,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
@@ -531,12 +564,19 @@
       "size": 2908,
       "title": "Your Result | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
       "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
         "https://payhip.com/b/ZcdmX"
       ],
       "inbound_count": 0,
@@ -571,7 +611,7 @@
       "forms": 0,
       "apps_script_urls": [],
       "payhip_urls": [],
-      "inbound_count": 36,
+      "inbound_count": 37,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
       "audit_reason": "Core trust/funnel page"
@@ -581,12 +621,21 @@
       "size": 2169,
       "title": "Your Result: Quiet the Alarm | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
-      "payhip_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
       "inbound_count": 0,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
@@ -597,12 +646,21 @@
       "size": 4352,
       "title": "Free Quiz | Your Mind Story",
       "noindex": false,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
-      "payhip_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
       "inbound_count": 15,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
@@ -613,16 +671,23 @@
       "size": 41556,
       "title": "Take the Quiz | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 1,
       "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
         "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
       ],
-      "payhip_urls": [],
-      "inbound_count": 24,
-      "broken_internal_count": 7,
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
+      "inbound_count": 25,
+      "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
       "audit_reason": "Current quiz funnel"
     },
@@ -631,16 +696,23 @@
       "size": 33007,
       "title": "Take the Quiz | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 1,
       "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
         "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
       ],
-      "payhip_urls": [],
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
       "inbound_count": 0,
-      "broken_internal_count": 7,
+      "broken_internal_count": 0,
       "audit_status": "ARCHIVE CANDIDATE",
       "audit_reason": "Looks like old/duplicate quiz page; verify external links first"
     },
@@ -659,8 +731,8 @@
       "payhip_urls": [],
       "inbound_count": 0,
       "broken_internal_count": 0,
-      "audit_status": "REVIEW",
-      "audit_reason": "No internal inbound links; could be SEO landing page or orphan"
+      "audit_status": "ARCHIVE CANDIDATE",
+      "audit_reason": "Looks like old/duplicate quiz page; verify external links first"
     },
     {
       "path": "reset-bundle.html",
@@ -699,12 +771,21 @@
       "size": 3766,
       "title": "Your Result: Restore Self Trust | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
-      "payhip_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
       "inbound_count": 1,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
@@ -731,12 +812,21 @@
       "size": 3676,
       "title": "Your Result: Return to Yourself | Your Mind Story",
       "noindex": true,
-      "ga4": false,
-      "clarity": false,
-      "meta_pixel": false,
+      "ga4": true,
+      "clarity": true,
+      "meta_pixel": true,
       "forms": 0,
-      "apps_script_urls": [],
-      "payhip_urls": [],
+      "apps_script_urls": [
+        "https://script.google.com/macros/s/AKfycbwCwn6-hXn9CgE74AyzYQWzSfPQgNSCSo6ULaccJKMgKWD_Hag51_A3k3_WOenAmw8b/exec",
+        "https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec"
+      ],
+      "payhip_urls": [
+        "https://payhip.com/b/3RlF7",
+        "https://payhip.com/b/53N2B",
+        "https://payhip.com/b/6pE8S",
+        "https://payhip.com/b/N8hbz",
+        "https://payhip.com/b/ZcdmX"
+      ],
       "inbound_count": 1,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
@@ -770,7 +860,7 @@
       "apps_script_urls": [],
       "payhip_urls": [],
       "inbound_count": 0,
-      "broken_internal_count": 5,
+      "broken_internal_count": 0,
       "audit_status": "REVIEW",
       "audit_reason": "No internal inbound links; could be SEO landing page or orphan"
     },
@@ -881,36 +971,15 @@
       "forms": 0,
       "apps_script_urls": [],
       "payhip_urls": [],
-      "inbound_count": 24,
+      "inbound_count": 25,
       "broken_internal_count": 0,
       "audit_status": "LIVE/KEEP",
       "audit_reason": "Core trust/funnel page"
     }
   ],
   "broken_internal_links": {
-    "bootcamp-waitlist.html": [
-      "back",
-      "next",
-      "submit"
-    ],
-    "quiz.html": [
-      "back",
-      "next",
-      "submit"
-    ],
-    "quiz_2.html": [
-      "back",
-      "next",
-      "submit"
-    ],
     "stabilise-intro.html": [
       "stabilise.html"
-    ],
-    "start/index.html": [
-      "/about.html",
-      "/privacy.html",
-      "/quiz.html",
-      "/why-this-works.html"
     ]
   },
   "inbound_links": {
@@ -963,6 +1032,7 @@
       "quiz_2.html",
       "restore-self-trust.html",
       "return-to-yourself.html",
+      "start/index.html",
       "success-stories.html",
       "three-ways-it-ends.html",
       "when-your-body-is-panicking.html",
@@ -989,6 +1059,7 @@
       "quiz_2.html",
       "restore-self-trust.html",
       "return-to-yourself.html",
+      "start/index.html",
       "success-stories.html",
       "three-ways-it-ends.html",
       "when-your-body-is-panicking.html",
@@ -1026,6 +1097,7 @@
       "reset-bundle.html",
       "restore-self-trust.html",
       "return-to-yourself.html",
+      "start/index.html",
       "still-waiting-for-him.html",
       "success-stories.html",
       "three-ways-it-ends.html",
@@ -1117,6 +1189,7 @@
       "reset-bundle.html",
       "restore-self-trust.html",
       "return-to-yourself.html",
+      "start/index.html",
       "still-waiting-for-him.html",
       "success-stories.html",
       "three-ways-it-ends.html",

@@ -5,35 +5,35 @@ This is a non-destructive inventory. **Nothing was deleted.** Statuses marked RE
 ## Snapshot
 - Html Pages: **53**
 - All Files: **68**
-- Pages With Ga4: **35**
-- Pages With Clarity: **3**
-- Pages With Meta Pixel: **0**
+- Pages With Ga4: **45**
+- Pages With Clarity: **13**
+- Pages With Meta Pixel: **10**
 - Pages With Forms: **4**
-- Pages With Broken Internal Links: **5**
+- Pages With Broken Internal Links: **1**
 - Identical File Groups: **2**
 
 ## Page map
 
 | Status | Page | Inbound | GA4 | Clarity | Meta | Forms | Broken | Reason |
 |---|---|---:|:---:|:---:|:---:|---:|---:|---|
-| LIVE/KEEP | `about.html` | 36 | ✓ | — | — | 0 | 0 | Core trust/funnel page |
-| LIVE/KEEP | `bootcamp-waitlist.html` | 23 | ✓ | — | — | 2 | 10 | Core trust/funnel page |
-| LIVE/KEEP | `break-the-pull.html` | 1 | — | — | — | 0 | 0 | Current quiz funnel |
+| LIVE/KEEP | `about.html` | 37 | ✓ | — | — | 0 | 0 | Core trust/funnel page |
+| LIVE/KEEP | `bootcamp-waitlist.html` | 23 | ✓ | — | — | 2 | 0 | Core trust/funnel page |
+| LIVE/KEEP | `break-the-pull.html` | 1 | ✓ | ✓ | ✓ | 0 | 0 | Current quiz funnel |
 | LIVE/KEEP | `checkin-pull.html` | 0 | — | — | — | 0 | 0 | Current 4-audio check-in funnel |
 | LIVE/KEEP | `checkin-quiet.html` | 0 | — | — | — | 0 | 0 | Current 4-audio check-in funnel |
 | LIVE/KEEP | `checkin-return.html` | 0 | — | — | — | 0 | 0 | Current 4-audio check-in funnel |
 | LIVE/KEEP | `checkin-self-trust.html` | 0 | — | — | — | 0 | 0 | Current 4-audio check-in funnel |
 | LIVE/KEEP | `index.html` | 27 | ✓ | — | — | 0 | 0 | Homepage |
-| LIVE/KEEP | `mixed-result.html` | 0 | — | — | — | 0 | 0 | Current quiz funnel |
-| LIVE/KEEP | `no-result.html` | 0 | — | — | — | 0 | 0 | Current quiz funnel |
-| LIVE/KEEP | `privacy.html` | 36 | ✓ | — | — | 0 | 0 | Core trust/funnel page |
-| LIVE/KEEP | `quiet-the-alarm.html` | 0 | — | — | — | 0 | 0 | Current quiz funnel |
-| LIVE/KEEP | `quiz-landing-page.html` | 15 | — | — | — | 0 | 0 | Current quiz funnel |
-| LIVE/KEEP | `quiz.html` | 24 | — | — | — | 1 | 7 | Current quiz funnel |
-| LIVE/KEEP | `restore-self-trust.html` | 1 | — | — | — | 0 | 0 | Current quiz funnel |
-| LIVE/KEEP | `return-to-yourself.html` | 1 | — | — | — | 0 | 0 | Current quiz funnel |
+| LIVE/KEEP | `mixed-result.html` | 0 | ✓ | ✓ | ✓ | 0 | 0 | Current quiz funnel |
+| LIVE/KEEP | `no-result.html` | 0 | ✓ | ✓ | ✓ | 0 | 0 | Current quiz funnel |
+| LIVE/KEEP | `privacy.html` | 37 | ✓ | — | — | 0 | 0 | Core trust/funnel page |
+| LIVE/KEEP | `quiet-the-alarm.html` | 0 | ✓ | ✓ | ✓ | 0 | 0 | Current quiz funnel |
+| LIVE/KEEP | `quiz-landing-page.html` | 15 | ✓ | ✓ | ✓ | 0 | 0 | Current quiz funnel |
+| LIVE/KEEP | `quiz.html` | 25 | ✓ | ✓ | ✓ | 1 | 0 | Current quiz funnel |
+| LIVE/KEEP | `restore-self-trust.html` | 1 | ✓ | ✓ | ✓ | 0 | 0 | Current quiz funnel |
+| LIVE/KEEP | `return-to-yourself.html` | 1 | ✓ | ✓ | ✓ | 0 | 0 | Current quiz funnel |
 | LIVE/KEEP | `success-stories.html` | 23 | ✓ | — | — | 0 | 0 | Core trust/funnel page |
-| LIVE/KEEP | `why-this-works.html` | 24 | ✓ | — | — | 0 | 0 | Core trust/funnel page |
+| LIVE/KEEP | `why-this-works.html` | 25 | ✓ | — | — | 0 | 0 | Core trust/funnel page |
 | KEEP/REVIEW | `avoidant-no-contact-timeline.html` | 3 | ✓ | — | — | 0 | 0 | Linked from site |
 | KEEP/REVIEW | `blocked-him-not-over-him.html` | 4 | ✓ | — | — | 0 | 0 | Linked from site |
 | KEEP/REVIEW | `cant-stop-thinking-about-him.html` | 1 | ✓ | — | — | 0 | 0 | Linked from site |
@@ -58,16 +58,16 @@ This is a non-destructive inventory. **Nothing was deleted.** Statuses marked RE
 | REVIEW | `insights.html` | 0 | ✓ | — | — | 0 | 0 | No internal inbound links; could be SEO landing page or orphan |
 | REVIEW | `no-contact-reset.html` | 0 | ✓ | ✓ | — | 0 | 0 | No internal inbound links; could be SEO landing page or orphan |
 | REVIEW | `person-schema-for-about-page.html` | 0 | — | — | — | 0 | 0 | No internal inbound links; could be SEO landing page or orphan |
-| REVIEW | `quiz_fixed.html` | 0 | ✓ | — | — | 1 | 0 | No internal inbound links; could be SEO landing page or orphan |
 | REVIEW | `reset-bundle.html` | 0 | ✓ | ✓ | — | 0 | 0 | No internal inbound links; could be SEO landing page or orphan |
 | REVIEW | `restore-self-trust-intro.html` | 0 | ✓ | — | — | 0 | 0 | Product intro page; verify current customer links |
 | REVIEW | `return-to-yourself-intro.html` | 0 | ✓ | — | — | 0 | 0 | Product intro page; verify current customer links |
 | REVIEW | `stabilise-intro.html` | 0 | ✓ | — | — | 0 | 1 | Product intro page; verify current customer links |
-| REVIEW | `start/index.html` | 0 | ✓ | — | — | 0 | 5 | No internal inbound links; could be SEO landing page or orphan |
+| REVIEW | `start/index.html` | 0 | ✓ | — | — | 0 | 0 | No internal inbound links; could be SEO landing page or orphan |
 | ARCHIVE CANDIDATE | `are-you-spinning-too-many-plates-how-online-therapy-can-help-you-find-balance/index.html` | 0 | — | — | — | 0 | 0 | No internal inbound links + noindex; verify external/customer links |
 | ARCHIVE CANDIDATE | `how-to-fix-your-soul-embrace-growth-with-online-therapy-and-self-reflection/index.html` | 0 | — | — | — | 0 | 0 | No internal inbound links + noindex; verify external/customer links |
-| ARCHIVE CANDIDATE | `low-result.html` | 0 | — | — | — | 0 | 0 | Looks like old/duplicate quiz page; verify external links first |
-| ARCHIVE CANDIDATE | `quiz_2.html` | 0 | — | — | — | 1 | 7 | Looks like old/duplicate quiz page; verify external links first |
+| ARCHIVE CANDIDATE | `low-result.html` | 0 | ✓ | ✓ | ✓ | 0 | 0 | Looks like old/duplicate quiz page; verify external links first |
+| ARCHIVE CANDIDATE | `quiz_2.html` | 0 | ✓ | ✓ | ✓ | 1 | 0 | Looks like old/duplicate quiz page; verify external links first |
+| ARCHIVE CANDIDATE | `quiz_fixed.html` | 0 | ✓ | — | — | 1 | 0 | Looks like old/duplicate quiz page; verify external links first |
 | ARCHIVE CANDIDATE | `tag/fame-and-mental-health/index.html` | 0 | — | — | — | 0 | 0 | No internal inbound links + noindex; verify external/customer links |
 
 ## Exact duplicate files
@@ -75,16 +75,12 @@ This is a non-destructive inventory. **Nothing was deleted.** Statuses marked RE
 - `customer-insights.html` = `insights.html`
 
 ## Broken internal links
-- `bootcamp-waitlist.html` → `back`, `next`, `submit`
-- `quiz.html` → `back`, `next`, `submit`
-- `quiz_2.html` → `back`, `next`, `submit`
 - `stabilise-intro.html` → `stabilise.html`
-- `start/index.html` → `/about.html`, `/privacy.html`, `/quiz.html`, `/why-this-works.html`
 
 ## Tracking coverage
-- GA4 `G-0MFXQ5ETCD` present on **35/53** HTML pages.
-- Microsoft Clarity `xl81ev553e` present on **3/53** HTML pages.
-- Meta Pixel `1255763909834805` present on **0/53** HTML pages.
+- GA4 `G-0MFXQ5ETCD` available to **45/53** HTML pages, including local shared scripts.
+- Microsoft Clarity `xl81ev553e` available to **13/53** HTML pages, including local shared scripts.
+- Meta Pixel `1255763909834805` available to **10/53** HTML pages, including local shared scripts.
 - Presence in source confirms installation code, not that each vendor is currently receiving/processing events. Live account-side verification is a separate step.
 
 ## Safe cleanup rule
