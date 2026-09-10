@@ -5,70 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Result: Return to Yourself | Your Mind Story</title>
 <meta name="robots" content="noindex, follow">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/yms-quiz-shared.css">
-<script src="assets/yms-quiz-shared.js?v=20260910-rec2"></script>
+<script src="assets/yms-quiz-shared.js?v=20260910-rec3"></script>
+<script src="assets/yms-results-copy-v2.js?v=20260910-final1"></script>
 <style>
-
-    /* ---- reskin: shared brand chrome (added by site consistency pass) ---- */
-    .navbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e6e0d0;background:var(--cream, #F6F2E9);max-width:100%;}
-    .navbar .logo{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink, #24231F);text-decoration:none;letter-spacing:.02em;}
-    .navbar .navlinks{display:none;gap:22px;font-size:12.5px;color:#5c584d;}
-    .navbar .navlinks a,.navbar .navlinks span{text-decoration:none;color:inherit;}
-    .navbar .navlinks a{color:var(--ink, #24231F);font-weight:600;}
-    @media(min-width:768px){.navbar .navlinks{display:flex;}}
-    .footer{padding:28px 20px;font-size:11.5px;color:#7a766a;background:var(--sage-soft, #DCE4D6);text-align:center;}
-    .footer a{color:inherit;text-decoration:underline;}
-
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #e6e0d0;background:var(--cream, #F6F2E9);max-width:100%;}.navbar .logo{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--ink, #24231F);text-decoration:none;letter-spacing:.02em;}.navbar .navlinks{display:none;gap:22px;font-size:12.5px;color:#5c584d;}.navbar .navlinks a,.navbar .navlinks span{text-decoration:none;color:inherit;}.navbar .navlinks a{color:var(--ink, #24231F);font-weight:600;}@media(min-width:768px){.navbar .navlinks{display:flex;}}.footer{padding:28px 20px;font-size:11.5px;color:#7a766a;background:var(--sage-soft, #DCE4D6);text-align:center;}.footer a{color:inherit;text-decoration:underline;}
 </style>
 </head>
 <body>
-  <div class="navbar">
-    <a class="logo" href="index.html">YOUR MIND STORY</a>
-    <div class="navlinks"><a href="quiz.html">Quiz</a><a href="why-this-works.html">Why This Works</a><a href="about.html">About</a><a href="success-stories.html">Success Stories</a><a href="bootcamp-waitlist.html">Bootcamp</a></div>
-  </div>
-<div class="wrap">
-  <div class="eyebrow">Your Mind Story</div>
-  <div class="result-card">
-    <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
-    <span class="result-tag">YOUR RESULT</span>
-    <h1>Return to Yourself</h1>
-
-    <p>Your answers show that your life has started revolving around him instead of you.</p>
-    <p>Too much of your attention, time and energy can go into him and what is happening between you, while your own life gets pushed into the background.</p>
-    <p>That is the strongest part of the cycle showing up in your answers.</p>
-
-    <p class="result-lede">Make your life yours again.</p>
-
-    <p>The goal isn't to stop caring about someone else.</p>
-    <p>It's to stop disappearing from your own life.</p>
-    <p>So your time, attention, plans and choices start being about you again.</p>
-
-    <div id="ogBridge"></div>
-
-  </div>
-</div>
-
-<script>
-(function(){
-  var data = YMSQuiz.getResultData();
-  var name = data && data.firstName ? data.firstName.trim() : '';
-  var greetingEl = document.getElementById('greeting');
-  if (name){
-    greetingEl.textContent = 'Hi, ' + name + '.';
-    greetingEl.hidden = false;
-  }
-
-  YMSQuiz.track('quiz_result_view', { result_bucket: 'Return to Yourself' });
-
-  YMSQuiz.mountRecommendationV1('ogBridge', 'return-to-yourself');
-})();
-</script>
-  <div class="footer">
-    <div><a href="about.html">About</a> &middot; <a href="success-stories.html">Success Stories</a> &middot; <a href="bootcamp-waitlist.html">Bootcamp</a> &middot; <a href="quiz.html">Quiz</a> &middot; <a href="why-this-works.html">Why This Works</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a></div>
-  </div>
-</body>
-</html>
+<div class="navbar"><a class="logo" href="index.html">YOUR MIND STORY</a><div class="navlinks"><a href="quiz.html">Quiz</a><a href="why-this-works.html">Why This Works</a><a href="about.html">About</a><a href="success-stories.html">Success Stories</a><a href="bootcamp-waitlist.html">Bootcamp</a></div></div>
+<div class="wrap"><div class="eyebrow">Your Mind Story</div><div class="result-card">
+<p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p><span class="result-tag">YOUR RESULT</span><h1>Return to Yourself</h1>
+<p>Your answers show that your life has started revolving around him instead of you.</p><p>Too much of your attention, time and energy can go into him and what is happening between you, while your own life gets pushed into the background.</p><p>That is the strongest part of the cycle showing up in your answers.</p><p class="result-lede">Make your life yours again.</p><p>The goal isn't to stop caring about someone else.</p><p>It's to stop disappearing from your own life.</p><p>So your time, attention, plans and choices start being about you again.</p><div id="ogBridge"></div>
+</div></div>
+<script>(function(){var data=YMSQuiz.getResultData();var name=data&&data.firstName?data.firstName.trim():'';var greetingEl=document.getElementById('greeting');if(name){greetingEl.textContent='Hi, '+name+'.';greetingEl.hidden=false;}YMSQuiz.track('quiz_result_view',{result_bucket:'Return to Yourself'});YMSQuiz.mountRecommendationV1('ogBridge','return-to-yourself');})();</script>
+<div class="footer"><div><a href="about.html">About</a> &middot; <a href="success-stories.html">Success Stories</a> &middot; <a href="bootcamp-waitlist.html">Bootcamp</a> &middot; <a href="quiz.html">Quiz</a> &middot; <a href="why-this-works.html">Why This Works</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener">TikTok</a></div></div>
+</body></html>
