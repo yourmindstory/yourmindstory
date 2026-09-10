@@ -1,4 +1,4 @@
-name: Apply Bootcamp recommendation copy
+name: Add Bootcamp result reveal UX
 
 on:
   push:
@@ -9,36 +9,201 @@ permissions:
   contents: write
 
 jobs:
-  update-copy:
+  update-ux:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace Bootcamp recommendation section
+      - name: Build progressive Bootcamp result experience
         shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
+          import re
+
           p = Path('assets/yms-results-copy-v2.js')
           s = p.read_text()
-          old = r'''      '<p class="result-lede" style="margin-top:0;">I recommend the Your Mind Story Bootcamp.</p>' +
-                '<p>I wouldn\'t point you towards one audio when your results are showing me that <strong>this is affecting you across several areas.</strong></p>' +
-                '<p>That\'s why we work through the whole cycle.</p>' +'''
-          new = r'''      '<p class="result-lede" style="margin-top:0;">I recommend the Your Mind Story Bootcamp.</p>' +
-                '<p>I wouldn\'t point you towards one standalone guided Cognitive Behavioural Hypnotherapy audio when your results are showing that this is affecting you across several parts of the cycle.</p>' +
-                '<p class="result-lede"><strong>You need the complete 4-Step programme.</strong></p>' +
-                '<p>That means working on the alarm in your body, the pull that keeps taking you back into the loop, the self-trust you\'ve lost along the way, and getting your attention and your life back to you.</p>' +
-                '<p>And because this is the Original Group, you won\'t be doing that work on your own. You\'ll have the complete guided Cognitive Behavioural Hypnotherapy programme, a simple structure to follow, and live group support as you move through it.</p>' +
-                '<p><strong>The goal isn\'t more information about him. It\'s to help you break the cycle and get your mind and your life back.</strong></p>' +'''
-          if old not in s:
-              raise SystemExit('Expected old Bootcamp copy block not found')
-          s = s.replace(old, new, 1)
+
+          helper_marker = '  function installBootcampRevealStyles() {'
+          render_marker = '  function renderBootcamp(container, data) {'
+          start = s.find(helper_marker)
+          if start == -1:
+              start = s.index(render_marker)
+          end = s.index('\n  Y.mountRecommendationV1 = function', start)
+
+          new_block = r'''  function installBootcampRevealStyles() {
+    if (document.getElementById("ymsBootcampRevealStyles")) return;
+    var style = document.createElement("style");
+    style.id = "ymsBootcampRevealStyles";
+    style.textContent =
+      '.yms-reveal-section[hidden]{display:none!important;}' +
+      '.yms-reveal-section{scroll-margin-top:24px;}' +
+      '.yms-reveal-section.is-revealed{animation:ymsRevealIn .32s ease both;}' +
+      '@keyframes ymsRevealIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}' +
+      '.yms-reveal-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:520px;margin:28px auto 4px;padding:15px 20px;border:1px solid rgba(36,61,46,.28);border-radius:999px;background:#243D2E;color:#fff;font:600 13px/1.25 Inter,Arial,sans-serif;letter-spacing:.055em;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 20px rgba(23,23,20,.08);transition:transform .18s ease,box-shadow .18s ease,background .18s ease;}' +
+      '.yms-reveal-btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(23,23,20,.12);}' +
+      '.yms-reveal-btn:focus-visible{outline:3px solid rgba(36,61,46,.28);outline-offset:3px;}' +
+      '.yms-reveal-arrow{font-size:16px;line-height:1;}' +
+      '.yms-signal-list{display:grid;gap:8px;margin:22px 0 8px;}' +
+      '.yms-signal{padding:11px 14px;border-left:3px solid #243D2E;background:rgba(245,241,232,.72);border-radius:0 10px 10px 0;font-weight:500;}' +
+      '.yms-emphasis-card{margin:22px 0;padding:18px 20px;border:1px solid rgba(36,61,46,.16);border-radius:14px;background:rgba(245,241,232,.68);}' +
+      '.yms-emphasis-card p:first-child{margin-top:0;}.yms-emphasis-card p:last-child{margin-bottom:0;}' +
+      '.yms-outcome-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:20px 0;}' +
+      '.yms-outcome{padding:12px 14px;border:1px solid rgba(36,61,46,.16);border-radius:12px;background:#fff;font-weight:600;}' +
+      '.yms-step-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:24px 0 8px;}' +
+      '.yms-step-card{padding:18px;border:1px solid rgba(36,61,46,.17);border-radius:14px;background:rgba(245,241,232,.65);}' +
+      '.yms-step-number{display:block;margin-bottom:7px;font:600 11px/1.2 Inter,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#243D2E;}' +
+      '.yms-step-title{display:block;margin-bottom:7px;font-weight:700;}' +
+      '.yms-step-card p{margin:0;}' +
+      '.yms-rhythm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:24px 0;}' +
+      '.yms-rhythm-card{padding:17px;border:1px solid rgba(36,61,46,.17);border-radius:14px;background:rgba(245,241,232,.65);}' +
+      '.yms-rhythm-label{display:block;margin-bottom:8px;font:600 11px/1.2 Inter,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#243D2E;}' +
+      '.yms-rhythm-card p{margin:0;}' +
+      '@media(max-width:640px){.yms-outcome-grid,.yms-step-grid,.yms-rhythm-grid{grid-template-columns:1fr}.yms-reveal-btn{max-width:none;padding:14px 16px;font-size:12px}.yms-step-card,.yms-rhythm-card{padding:15px}}' +
+      '@media(prefers-reduced-motion:reduce){.yms-reveal-section.is-revealed{animation:none}.yms-reveal-btn{transition:none}}';
+    document.head.appendChild(style);
+  }
+
+  function wireBootcampReveals(card) {
+    var buttons = card.querySelectorAll('.yms-reveal-btn');
+    Array.prototype.forEach.call(buttons, function (button) {
+      button.addEventListener('click', function () {
+        var targetId = button.getAttribute('aria-controls');
+        var target = targetId ? document.getElementById(targetId) : null;
+        if (!target) return;
+
+        target.hidden = false;
+        target.classList.add('is-revealed');
+        button.setAttribute('aria-expanded', 'true');
+        button.hidden = true;
+
+        Y.track('quiz_bootcamp_reveal', { reveal: targetId });
+
+        var reducedMotion = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        global.setTimeout(function () {
+          if (target.scrollIntoView) {
+            target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+          }
+        }, 20);
+      });
+    });
+  }
+
+  function renderBootcamp(container, data) {
+    var card = container.closest ? container.closest(".result-card") : null;
+    if (!card) card = container;
+    var firstName = data && data.firstName ? String(data.firstName).trim() : "";
+
+    installBootcampRevealStyles();
+
+    card.innerHTML =
+      (firstName ? '<p class="result-greeting">Hi, ' + Y.escapeText(firstName) + '.</p>' : '') +
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>This isn\'t just one part of the cycle anymore.</h1>' +
+      '<p>Your answers show that <strong>several parts of it are affecting you at the same time.</strong></p>' +
+      '<div class="yms-signal-list" aria-label="What your answers are showing">' +
+        '<div class="yms-signal">Your body reacts.</div>' +
+        '<div class="yms-signal">Your mind goes into the loop.</div>' +
+        '<div class="yms-signal">You check, replay, wait and look for signs.</div>' +
+        '<div class="yms-signal">You get pulled back towards him even when you know better.</div>' +
+        '<div class="yms-signal">You question yourself and the decisions you\'ve already made.</div>' +
+        '<div class="yms-signal">Your own life is getting less and less of you.</div>' +
+      '</div>' +
+      '<button type="button" class="yms-reveal-btn" aria-expanded="false" aria-controls="ymsMeaning">Tell me what this means <span class="yms-reveal-arrow" aria-hidden="true">↓</span></button>' +
+
+      '<section class="yms-reveal-section" id="ymsMeaning" hidden>' +
+        '<div class="divider"></div>' +
+        '<div class="yms-emphasis-card">' +
+          '<p>Because this isn\'t only costing you your peace.</p>' +
+          '<p><strong>It\'s costing you hours. Your attention. Your plans. Your confidence. Time in your own life that you don\'t get back.</strong></p>' +
+        '</div>' +
+        '<p>And let\'s face it, at this point you\'re basically an expert on him. You\'ve watched the videos. Thought it through. Tried to understand what happened, why he does what he does and what it all means.</p>' +
+        '<p><strong>But knowing hasn\'t stopped what happens next.</strong> You can know exactly what you should do and still find yourself right back in the loop.</p>' +
+        '<p>And that\'s the problem. You don\'t need more information about him. <strong>You need to stop this cycle running your body, your mind and your life.</strong></p>' +
+        '<div class="yms-outcome-grid" aria-label="What getting your life back can look like">' +
+          '<div class="yms-outcome">Have a normal day again.</div>' +
+          '<div class="yms-outcome">Get through the day on your own terms.</div>' +
+          '<div class="yms-outcome">Stop losing hours to overthinking and endless scenarios.</div>' +
+          '<div class="yms-outcome">Make plans for yourself.</div>' +
+          '<div class="yms-outcome">Trust yourself again.</div>' +
+          '<div class="yms-outcome">Feel like yourself again.</div>' +
+        '</div>' +
+        '<p class="result-lede"><strong>Basically, you want your mind and your life back.</strong></p>' +
+        '<button type="button" class="yms-reveal-btn" aria-expanded="false" aria-controls="ymsRecommendation">Show me my recommendation <span class="yms-reveal-arrow" aria-hidden="true">↓</span></button>' +
+      '</section>' +
+
+      '<section class="yms-reveal-section" id="ymsRecommendation" hidden>' +
+        '<div class="divider"></div>' +
+        '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
+        '<p class="result-lede" style="margin-top:0;">I recommend the Your Mind Story Bootcamp.</p>' +
+        '<p>I wouldn\'t point you towards one standalone guided Cognitive Behavioural Hypnotherapy audio when your results are showing that this is affecting you across several parts of the cycle.</p>' +
+        '<p class="result-lede"><strong>You need the complete 4-Step programme.</strong></p>' +
+        '<p>That means working on the alarm in your body, the pull that keeps taking you back into the loop, the self-trust you\'ve lost along the way, and getting your attention and your life back to you.</p>' +
+        '<p>And because this is the Original Group, you won\'t be doing that work on your own. You\'ll have the complete guided Cognitive Behavioural Hypnotherapy programme, a simple structure to follow, and live group support as you move through it.</p>' +
+        '<p><strong>The goal isn\'t more information about him. It\'s to help you break the cycle and get your mind and your life back.</strong></p>' +
+        '<div class="yms-step-grid" aria-label="The four Bootcamp steps">' +
+          '<div class="yms-step-card"><span class="yms-step-number">Step 1</span><span class="yms-step-title">Quiet the Alarm</span><p>Work on the physical and emotional reaction.</p></div>' +
+          '<div class="yms-step-card"><span class="yms-step-number">Step 2</span><span class="yms-step-title">Break the Pull</span><p>Work on the checking, replaying, waiting and getting pulled back in.</p></div>' +
+          '<div class="yms-step-card"><span class="yms-step-number">Step 3</span><span class="yms-step-title">Restore Self-Trust</span><p>Start trusting what you know and following through on the decisions you make for yourself.</p></div>' +
+          '<div class="yms-step-card"><span class="yms-step-number">Step 4</span><span class="yms-step-title">Return to Yourself</span><p>Put your attention, plans and life back where they belong. With you.</p></div>' +
+        '</div>' +
+        '<button type="button" class="yms-reveal-btn" aria-expanded="false" aria-controls="ymsCommitment">What would I actually have to do? <span class="yms-reveal-arrow" aria-hidden="true">↓</span></button>' +
+      '</section>' +
+
+      '<section class="yms-reveal-section" id="ymsCommitment" hidden>' +
+        '<div class="divider"></div>' +
+        '<p><strong>This isn\'t another 12 weeks of analysing him.</strong> You\'ve done enough of that. <strong>The focus is you.</strong></p>' +
+        '<p>And because you\'re already carrying enough, I\'ve deliberately kept the process simple.</p>' +
+        '<div class="yms-rhythm-grid" aria-label="What you actually do in the Bootcamp">' +
+          '<div class="yms-rhythm-card"><span class="yms-rhythm-label">Daily</span><p><strong>Press play.</strong><br>Your main daily job.</p></div>' +
+          '<div class="yms-rhythm-card"><span class="yms-rhythm-label">Weekly</span><p>One short Your Mind Story reflection and check-in so you can see what\'s changing.</p></div>' +
+          '<div class="yms-rhythm-card"><span class="yms-rhythm-label">Every 3 weeks</span><p>Come together for a group integration call.</p></div>' +
+        '</div>' +
+        '<div class="og-secondary" style="margin-top:20px;"><p><strong>&ldquo;They\'re like an online journal to track how you feel as you go on. And it\'s good to see how you felt in the past cos it keeps you motivated.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Miso</p></div>' +
+        '<div class="og-secondary" style="margin-top:20px;"><p><strong>&ldquo;The loop of him playing in my head is wearing off. I\'m gaining my nervous system back.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Kimberly</p></div>' +
+        '<p>That is the kind of movement we\'re working towards. Less of him taking over your head. More of you getting yourself back.</p>' +
+        '<div class="divider"></div>' +
+        '<p class="result-lede"><strong>12 weeks. 4 steps. One goal: Take your life back.</strong></p>' +
+        '<div class="price-card">' +
+          '<span class="og-label" style="margin-bottom:6px;">Original Group &bull; 2026</span>' +
+          '<p class="price-start">Starts Sunday 4 October 2026</p>' +
+          '<p class="price-figure">£297 <span class="price-unit">in full</span></p>' +
+          '<p class="price-or">or</p>' +
+          '<p class="price-installments">3 monthly payments of £105</p>' +
+        '</div>' +
+        '<div class="cta-row"><a class="btn-cta" href="https://payhip.com/b/ZhPkp" id="ymsFinalBootcampCta">JOIN THE ORIGINAL GROUP</a></div>' +
+        '<p class="cta-microcopy" style="margin-top:18px;">★★★★★ 5 stars on Google<br><strong>Cognitive Behavioural Hypnotherapist</strong></p>' +
+      '</section>';
+
+    wireBootcampReveals(card);
+
+    var cta = document.getElementById("ymsFinalBootcampCta");
+    if (cta) cta.addEventListener("click", function () {
+      Y.track("quiz_bootcamp_recommendation_click", {});
+    });
+  }
+'''
+
+          s = s[:start] + new_block + s[end:]
           p.write_text(s)
+
+          # Bust the cached presentation script on every result page that loads it.
+          for html in Path('.').glob('*.html'):
+              text = html.read_text()
+              updated = re.sub(
+                  r'assets/yms-results-copy-v2\.js\?v=[^"\']+',
+                  'assets/yms-results-copy-v2.js?v=20260910-reveal1',
+                  text
+              )
+              if updated != text:
+                  html.write_text(updated)
           PY
+
+          node --check assets/yms-results-copy-v2.js
           git diff --check
-          git diff -- assets/yms-results-copy-v2.js
+          git diff -- assets/yms-results-copy-v2.js '*.html'
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/yms-results-copy-v2.js
-          git commit -m 'Sharpen Bootcamp quiz recommendation copy'
+          git add assets/yms-results-copy-v2.js '*.html'
+          git commit -m 'Add progressive reveal UX to Bootcamp result'
           git push
