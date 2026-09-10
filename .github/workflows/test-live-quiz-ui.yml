@@ -1,0 +1,116 @@
+name: Test live quiz result UI
+
+on:
+  push:
+    paths:
+      - '.github/workflows/test-live-quiz-ui.yml'
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Test Bootcamp progressive reveal and audio route
+        run: |
+          cat > /tmp/test-ui.js <<'NODE'
+          const { chromium } = require('playwright');
+          const assert = require('assert');
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+
+            async function withResult(data, url, fn) {
+              const context = await browser.newContext();
+              await context.addInitScript((payload) => {
+                sessionStorage.setItem('yms_quiz_result', JSON.stringify(payload));
+              }, data);
+              const page = await context.newPage();
+              await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+              await fn(page);
+              await context.close();
+            }
+
+            const bootcamp = {
+              firstName: 'Test',
+              resultType: 'mixed',
+              primaryResult: null,
+              tiedResults: ['Quiet the Alarm','Break the Pull','Restore Self Trust','Return to Yourself'],
+              overallActivationStrength: 'strong',
+              recommendationLevel: 'bootcamp_level',
+              recommendedStage: '',
+              recommendedProduct: 'Your Mind Story Bootcamp',
+              totalFourStageScore: 24,
+              breadthCount: 4
+            };
+
+            await withResult(bootcamp, 'https://yourmindstory.co.uk/mixed-result.html?qa=progressive-smoke', async (page) => {
+              const first = page.getByRole('button', { name: /Tell me what this means/i });
+              await first.waitFor({ state: 'visible', timeout: 15000 });
+              assert.strictEqual(await page.getByText('I recommend the Your Mind Story Bootcamp.').isVisible().catch(() => false), false, 'Recommendation should be hidden initially');
+
+              await first.click();
+              const recButton = page.getByRole('button', { name: /Show me my recommendation/i });
+              await recButton.waitFor({ state: 'visible', timeout: 5000 });
+
+              await recButton.click();
+              await page.getByText('I recommend the Your Mind Story Bootcamp.').waitFor({ state: 'visible', timeout: 5000 });
+              const stepCards = page.locator('.yms-mini-grid > div');
+              assert.strictEqual(await stepCards.count(), 4, 'Expected four visual Bootcamp step cards');
+
+              const commitment = page.getByRole('button', { name: /What would I actually have to do/i });
+              await commitment.waitFor({ state: 'visible', timeout: 5000 });
+              assert.strictEqual(await page.getByText('£297').isVisible().catch(() => false), false, 'Price should be hidden before final reveal');
+
+              await commitment.click();
+              await page.getByText('£297').waitFor({ state: 'visible', timeout: 5000 });
+              const cta = page.getByRole('link', { name: /JOIN THE ORIGINAL GROUP/i });
+              await cta.waitFor({ state: 'visible', timeout: 5000 });
+              assert.strictEqual(await cta.getAttribute('href'), 'https://payhip.com/b/ZhPkp');
+              console.log('PASS Bootcamp: all three progressive reveals work on the live site and final CTA is correct.');
+            });
+
+            const audio = {
+              firstName: 'Test',
+              resultType: 'single',
+              primaryResult: 'Quiet the Alarm',
+              tiedResults: [],
+              overallActivationStrength: 'strong',
+              recommendationLevel: 'audio_first',
+              recommendedStage: 'Quiet the Alarm',
+              recommendedProduct: 'Quiet the Alarm'
+            };
+
+            await withResult(audio, 'https://yourmindstory.co.uk/quiet-the-alarm.html?qa=audio-smoke', async (page) => {
+              await page.getByRole('link', { name: /START WITH QUIET THE ALARM/i }).waitFor({ state: 'visible', timeout: 15000 });
+              assert.strictEqual(await page.locator('.yms-reveal-btn').count(), 0, 'Audio-first result should not currently get progressive reveal');
+              console.log('PASS Audio-first: recommendation and CTA render, and progressive reveal is NOT active on this route.');
+            });
+
+            const resultPages = [
+              'quiet-the-alarm.html',
+              'break-the-pull.html',
+              'restore-self-trust.html',
+              'return-to-yourself.html',
+              'mixed-result.html',
+              'no-result.html'
+            ];
+            for (const file of resultPages) {
+              const html = await (await fetch('https://yourmindstory.co.uk/' + file + '?qa=script-check')).text();
+              assert(html.includes('assets/yms-bootcamp-reveal.js?v=20260910-1'), file + ' is missing reveal script tag');
+            }
+            console.log('PASS Wiring: reveal script tag is present on all six result pages.');
+
+            await browser.close();
+          })().catch(err => {
+            console.error(err);
+            process.exit(1);
+          });
+          NODE
+          node /tmp/test-ui.js
