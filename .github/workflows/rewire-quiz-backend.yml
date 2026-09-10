@@ -1,81 +1,44 @@
-name: Test quiz backend
+name: Apply Bootcamp recommendation copy
 
 on:
   push:
     paths:
       - '.github/workflows/rewire-quiz-backend.yml'
 
+permissions:
+  contents: write
+
 jobs:
-  test:
+  update-copy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Test live quiz wiring and backend
+      - name: Replace Bootcamp recommendation section
         shell: bash
         run: |
           set -euo pipefail
-          BASE='https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec'
-          TOKEN="yms-auto-test-$(date +%s)-$RANDOM"
-          SUBMISSION="yms-auto-sub-$(date +%s)-$RANDOM"
-
-          echo '--- Health check ---'
-          HEALTH=$(curl -sS -L "$BASE")
-          echo "$HEALTH"
-          echo "$HEALTH" | grep -q '"status":"ok"'
-
-          echo '--- Verify live website points to new backend ---'
-          QUIZ=$(curl -sS -L 'https://yourmindstory.co.uk/quiz.html')
-          RESULT=$(curl -sS -L 'https://yourmindstory.co.uk/result.html')
-          echo "$QUIZ" | grep -q "$BASE"
-          echo "$RESULT" | grep -q "$BASE"
-          echo 'Live quiz.html and result.html both reference the current backend.'
-
-          cat > payload.json <<JSON
-          {
-            "submissionId":"$SUBMISSION",
-            "resultToken":"$TOKEN",
-            "quizVersion":"YMS-QUIZ-2026-V2",
-            "timestampIso":"2026-09-10T16:41:00.000Z",
-            "firstName":"AutomatedTest",
-            "email":"yourmindstory.co.uk@gmail.com",
-            "marketingConsent":false,
-            "relationshipStatus":"It's ended, but I still feel caught in it.",
-            "openResponse":"TEST - AUTOMATED BOOTCAMP EMAIL ROUTE",
-            "answers":{
-              "q1":{"score":3,"answer":"Automated test answer"},
-              "q2":{"score":3,"answer":"Automated test answer"},
-              "q3":{"score":3,"answer":"Automated test answer"},
-              "q4":{"score":3,"answer":"Automated test answer"},
-              "q5":{"score":3,"answer":"Automated test answer"},
-              "q6":{"score":3,"answer":"Automated test answer"},
-              "q7":{"score":3,"answer":"Automated test answer"},
-              "q8":{"score":3,"answer":"Automated test answer"}
-            },
-            "utmSource":"automated-test",
-            "utmMedium":"github-actions",
-            "utmCampaign":"email-route-test",
-            "utmTerm":"",
-            "utmContent":"",
-            "referrer":"",
-            "landingPageUrl":"https://yourmindstory.co.uk/quiz.html",
-            "submissionPageUrl":"https://yourmindstory.co.uk/quiz.html",
-            "userAgent":"YMS automated test"
-          }
-          JSON
-
-          echo '--- Submit Bootcamp-level test result ---'
-          POST=$(curl -sS -L -H 'Content-Type: text/plain;charset=utf-8' --data-binary @payload.json "$BASE")
-          echo "$POST"
-          echo "$POST" | grep -q '"status":"ok"'
-          echo "$POST" | grep -q '"recommendationLevel":"bootcamp_level"'
-          echo "$POST" | grep -q '"resultEmailSent":true'
-
-          echo '--- Recover saved result by token ---'
-          RECOVER=$(curl -sS -L "$BASE?action=getResult&resultToken=$TOKEN")
-          echo "$RECOVER"
-          echo "$RECOVER" | grep -q '"status":"ok"'
-          echo "$RECOVER" | grep -q '"recommendationLevel":"bootcamp_level"'
-          echo "$RECOVER" | grep -q "$TOKEN"
-
-          echo '--- PASS ---'
-          echo 'Submission saved, Bootcamp recommendation returned, transactional result email reported sent, and token recovery returned the saved Bootcamp result.'
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('assets/yms-results-copy-v2.js')
+          s = p.read_text()
+          old = r'''      '<p class="result-lede" style="margin-top:0;">I recommend the Your Mind Story Bootcamp.</p>' +
+                '<p>I wouldn\'t point you towards one audio when your results are showing me that <strong>this is affecting you across several areas.</strong></p>' +
+                '<p>That\'s why we work through the whole cycle.</p>' +'''
+          new = r'''      '<p class="result-lede" style="margin-top:0;">I recommend the Your Mind Story Bootcamp.</p>' +
+                '<p>I wouldn\'t point you towards one standalone guided Cognitive Behavioural Hypnotherapy audio when your results are showing that this is affecting you across several parts of the cycle.</p>' +
+                '<p class="result-lede"><strong>You need the complete 4-Step programme.</strong></p>' +
+                '<p>That means working on the alarm in your body, the pull that keeps taking you back into the loop, the self-trust you\'ve lost along the way, and getting your attention and your life back to you.</p>' +
+                '<p>And because this is the Original Group, you won\'t be doing that work on your own. You\'ll have the complete guided Cognitive Behavioural Hypnotherapy programme, a simple structure to follow, and live group support as you move through it.</p>' +
+                '<p><strong>The goal isn\'t more information about him. It\'s to help you break the cycle and get your mind and your life back.</strong></p>' +'''
+          if old not in s:
+              raise SystemExit('Expected old Bootcamp copy block not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+          git diff --check
+          git diff -- assets/yms-results-copy-v2.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/yms-results-copy-v2.js
+          git commit -m 'Sharpen Bootcamp quiz recommendation copy'
+          git push
