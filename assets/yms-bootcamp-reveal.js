@@ -1,4 +1,4 @@
-/* Progressive disclosure for Bootcamp-level quiz results. */
+/* Progressive disclosure for Your Mind Story quiz results. */
 (function (global) {
   'use strict';
   var Y = global.YMSQuiz;
@@ -38,12 +38,12 @@
     return b;
   }
 
-  function reveal(buttonEl, target) {
+  function reveal(buttonEl, target, eventName) {
     target.hidden = false;
     target.classList.add('is-open');
     buttonEl.setAttribute('aria-expanded', 'true');
     buttonEl.hidden = true;
-    if (Y.track) Y.track('quiz_bootcamp_reveal', { reveal: target.id });
+    if (Y.track) Y.track(eventName || 'quiz_result_reveal', { reveal: target.id });
     var reduced = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
     global.setTimeout(function () {
       if (target.scrollIntoView) target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
@@ -58,7 +58,7 @@
     return section;
   }
 
-  function enhance(card) {
+  function enhanceBootcamp(card) {
     if (!card || card.dataset.ymsProgressive === '1') return;
     addStyles();
 
@@ -94,15 +94,14 @@
 
     var signals = document.createElement('div');
     signals.className = 'yms-result-signals';
-    var signalText = [
+    [
       'Your body reacts.',
       'Your mind goes into the loop.',
       'You check, replay, wait and look for signs.',
       'You get pulled back towards him even when you know better.',
       'You question yourself and the decisions you have already made.',
       'Your own life is getting less and less of you.'
-    ];
-    signalText.forEach(function (text) {
+    ].forEach(function (text) {
       var p = document.createElement('p');
       p.textContent = text;
       signals.appendChild(p);
@@ -117,7 +116,6 @@
 
     var recommendation = makeSection('ymsMyRecommendation');
     recommendationNodes.forEach(function (n) { recommendation.appendChild(n); });
-
     var recBtn = button('Show me my recommendation', recommendation.id);
     meaning.appendChild(recBtn);
     card.appendChild(recommendation);
@@ -155,11 +153,78 @@
       var commitmentBtn = button('What would I actually have to do?', commitment.id);
       recommendation.appendChild(commitmentBtn);
       recommendation.appendChild(commitment);
-      commitmentBtn.addEventListener('click', function () { reveal(commitmentBtn, commitment); });
+      commitmentBtn.addEventListener('click', function () { reveal(commitmentBtn, commitment, 'quiz_bootcamp_reveal'); });
     }
 
-    meaningBtn.addEventListener('click', function () { reveal(meaningBtn, meaning); });
-    recBtn.addEventListener('click', function () { reveal(recBtn, recommendation); });
+    meaningBtn.addEventListener('click', function () { reveal(meaningBtn, meaning, 'quiz_bootcamp_reveal'); });
+    recBtn.addEventListener('click', function () { reveal(recBtn, recommendation, 'quiz_bootcamp_reveal'); });
+  }
+
+  function enhanceSingleAudio(card, container) {
+    if (!card || !container || card.dataset.ymsProgressive === '1') return;
+    addStyles();
+
+    var nodes = Array.prototype.slice.call(container.children);
+    if (!nodes.length) return;
+
+    var pivot = nodes.findIndex(function (el) {
+      return /^That's why I recommend/i.test((el.textContent || '').trim());
+    });
+    if (pivot < 0) pivot = Math.max(3, nodes.length - 4);
+
+    var explanationNodes = nodes.slice(0, pivot);
+    var productNodes = nodes.slice(pivot);
+    while (container.firstChild) container.removeChild(container.firstChild);
+    card.dataset.ymsProgressive = '1';
+
+    var explanation = makeSection('ymsAudioExplanation');
+    explanationNodes.forEach(function (n) { explanation.appendChild(n); });
+
+    var product = makeSection('ymsAudioNextStep');
+    productNodes.forEach(function (n) { product.appendChild(n); });
+
+    var firstBtn = button('Show me my recommendation', explanation.id);
+    var secondBtn = button('Why this one?', product.id);
+    explanation.appendChild(secondBtn);
+
+    container.appendChild(firstBtn);
+    container.appendChild(explanation);
+    explanation.appendChild(product);
+
+    firstBtn.addEventListener('click', function () { reveal(firstBtn, explanation, 'quiz_audio_reveal'); });
+    secondBtn.addEventListener('click', function () { reveal(secondBtn, product, 'quiz_audio_reveal'); });
+  }
+
+  function enhanceMixedAudio(card, container) {
+    if (!card || !container || card.dataset.ymsProgressive === '1') return;
+    addStyles();
+    if (!container.children.length) return;
+
+    card.dataset.ymsProgressive = '1';
+    var section = makeSection('ymsMixedWhereToStart');
+    while (container.firstChild) section.appendChild(container.firstChild);
+    var btn = button('Show me where to start', section.id);
+    container.appendChild(btn);
+    container.appendChild(section);
+    btn.addEventListener('click', function () { reveal(btn, section, 'quiz_mixed_reveal'); });
+  }
+
+  function enhanceBareMinimum(card) {
+    if (!card || card.dataset.ymsProgressive === '1') return;
+    addStyles();
+    var children = Array.prototype.slice.call(card.children);
+    var dividerIndex = children.findIndex(function (el) {
+      return el.classList && el.classList.contains('divider');
+    });
+    if (dividerIndex < 0) return;
+
+    var section = makeSection('ymsBareMinimumRecommendation');
+    children.slice(dividerIndex).forEach(function (n) { section.appendChild(n); });
+    var btn = button('Show me my recommendation', section.id);
+    card.insertBefore(btn, section);
+    card.appendChild(section);
+    card.dataset.ymsProgressive = '1';
+    btn.addEventListener('click', function () { reveal(btn, section, 'quiz_bare_minimum_reveal'); });
   }
 
   Y.mountRecommendationV1 = function (containerId, resultBucketKey) {
@@ -169,10 +234,30 @@
     originalMount(containerId, resultBucketKey);
 
     var data = Y.getResultData ? (Y.getResultData() || {}) : {};
-    if (data.recommendationLevel !== 'bootcamp_level') return;
-
     var after = document.getElementById(containerId);
     var card = cardBefore || (after && after.closest ? after.closest('.result-card') : after);
-    enhance(card);
+
+    if (data.recommendationLevel === 'bootcamp_level') {
+      enhanceBootcamp(card);
+      return;
+    }
+
+    if (data.recommendationLevel === 'audio_first') {
+      if (data.resultType === 'mixed') enhanceMixedAudio(card, after);
+      else enhanceSingleAudio(card, after);
+      return;
+    }
   };
+
+  function enhanceStandaloneBareMinimum() {
+    var data = Y.getResultData ? (Y.getResultData() || {}) : {};
+    if (data.recommendationLevel !== 'bare_minimum') return;
+    enhanceBareMinimum(document.querySelector('.result-card'));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', enhanceStandaloneBareMinimum);
+  } else {
+    enhanceStandaloneBareMinimum();
+  }
 })(window);
