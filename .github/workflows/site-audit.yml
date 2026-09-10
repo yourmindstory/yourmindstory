@@ -2,7 +2,9 @@ name: YMS Site Audit
 on:
   push:
     branches: [website-audit-2026-09-10]
-    paths: ['.github/workflows/site-audit.yml']
+    paths:
+      - '.github/workflows/site-audit.yml'
+      - 'scripts/site_audit.py'
 permissions:
   contents: write
 jobs:
