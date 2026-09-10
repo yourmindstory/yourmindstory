@@ -60,7 +60,6 @@
 
   function enhance(card) {
     if (!card || card.dataset.ymsProgressive === '1') return;
-    card.dataset.ymsProgressive = '1';
     addStyles();
 
     var children = Array.prototype.slice.call(card.children);
@@ -75,11 +74,21 @@
     }
     if (firstDivider < 0) firstDivider = recommendationLabel;
 
-    var opening = children.slice(0, Math.min(firstDivider, 9));
-    var meaningNodes = children.slice(Math.min(firstDivider, 9), firstDivider);
+    var signalStart = children.findIndex(function (el) {
+      return /^Your body reacts\.?$/i.test((el.textContent || '').trim());
+    });
+    var meaningStart = children.findIndex(function (el) {
+      return /^Because this isn't only costing you your peace\.?$/i.test((el.textContent || '').trim());
+    });
+    if (signalStart < 0) signalStart = Math.min(firstDivider, 4);
+    if (meaningStart < 0 || meaningStart <= signalStart) meaningStart = Math.min(firstDivider, signalStart + 6);
+
+    var opening = children.slice(0, signalStart);
+    var meaningNodes = children.slice(meaningStart, firstDivider);
     var recommendationNodes = children.slice(firstDivider);
 
     while (card.firstChild) card.removeChild(card.firstChild);
+    card.dataset.ymsProgressive = '1';
 
     opening.forEach(function (n) { card.appendChild(n); });
 
@@ -89,6 +98,7 @@
       'Your body reacts.',
       'Your mind goes into the loop.',
       'You check, replay, wait and look for signs.',
+      'You get pulled back towards him even when you know better.',
       'You question yourself and the decisions you have already made.',
       'Your own life is getting less and less of you.'
     ];
@@ -120,7 +130,12 @@
         var box = document.createElement('div');
         var title = li.querySelector('.og-step-label');
         var desc = li.querySelector('.og-step-desc');
-        box.innerHTML = '<strong>' + (title ? title.textContent : '') + '</strong><span>' + (desc ? desc.textContent : '') + '</span>';
+        var strong = document.createElement('strong');
+        strong.textContent = title ? title.textContent : '';
+        var span = document.createElement('span');
+        span.textContent = desc ? desc.textContent : '';
+        box.appendChild(strong);
+        box.appendChild(span);
         grid.appendChild(box);
       });
       stepList.parentNode.replaceChild(grid, stepList);
@@ -148,12 +163,16 @@
   }
 
   Y.mountRecommendationV1 = function (containerId, resultBucketKey) {
+    var before = document.getElementById(containerId);
+    var cardBefore = before && before.closest ? before.closest('.result-card') : before;
+
     originalMount(containerId, resultBucketKey);
+
     var data = Y.getResultData ? (Y.getResultData() || {}) : {};
     if (data.recommendationLevel !== 'bootcamp_level') return;
-    var container = document.getElementById(containerId);
-    if (!container) return;
-    var card = container.closest ? container.closest('.result-card') : container;
+
+    var after = document.getElementById(containerId);
+    var card = cardBefore || (after && after.closest ? after.closest('.result-card') : after);
     enhance(card);
   };
 })(window);
