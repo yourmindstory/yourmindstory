@@ -1,28 +1,81 @@
-name: Rewire quiz backend
+name: Test quiz backend
 
 on:
   push:
     paths:
       - '.github/workflows/rewire-quiz-backend.yml'
 
-permissions:
-  contents: write
-
 jobs:
-  rewire:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace old Apps Script endpoint
+      - name: Test live quiz wiring and backend
         shell: bash
         run: |
-          OLD='https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec'
-          NEW='https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec'
-          sed -i "s|$OLD|$NEW|g" quiz.html assets/yms-quiz-shared.js
-          git diff --check
-          git diff --exit-code --quiet && { echo 'No changes needed'; exit 0; }
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add quiz.html assets/yms-quiz-shared.js
-          git commit -m 'Point quiz frontend at current Apps Script deployment'
-          git push
+          set -euo pipefail
+          BASE='https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec'
+          TOKEN="yms-auto-test-$(date +%s)-$RANDOM"
+          SUBMISSION="yms-auto-sub-$(date +%s)-$RANDOM"
+
+          echo '--- Health check ---'
+          HEALTH=$(curl -sS -L "$BASE")
+          echo "$HEALTH"
+          echo "$HEALTH" | grep -q '"status":"ok"'
+
+          echo '--- Verify live website points to new backend ---'
+          QUIZ=$(curl -sS -L 'https://yourmindstory.co.uk/quiz.html')
+          RESULT=$(curl -sS -L 'https://yourmindstory.co.uk/result.html')
+          echo "$QUIZ" | grep -q "$BASE"
+          echo "$RESULT" | grep -q "$BASE"
+          echo 'Live quiz.html and result.html both reference the current backend.'
+
+          cat > payload.json <<JSON
+          {
+            "submissionId":"$SUBMISSION",
+            "resultToken":"$TOKEN",
+            "quizVersion":"YMS-QUIZ-2026-V2",
+            "timestampIso":"2026-09-10T16:35:00.000Z",
+            "firstName":"AutomatedTest",
+            "email":"yms-automated-test@example.com",
+            "marketingConsent":false,
+            "relationshipStatus":"It's ended, but I still feel caught in it.",
+            "openResponse":"TEST - AUTOMATED BOOTCAMP EMAIL ROUTE",
+            "answers":{
+              "q1":{"score":3,"answer":"Automated test answer"},
+              "q2":{"score":3,"answer":"Automated test answer"},
+              "q3":{"score":3,"answer":"Automated test answer"},
+              "q4":{"score":3,"answer":"Automated test answer"},
+              "q5":{"score":3,"answer":"Automated test answer"},
+              "q6":{"score":3,"answer":"Automated test answer"},
+              "q7":{"score":3,"answer":"Automated test answer"},
+              "q8":{"score":3,"answer":"Automated test answer"}
+            },
+            "utmSource":"automated-test",
+            "utmMedium":"github-actions",
+            "utmCampaign":"email-route-test",
+            "utmTerm":"",
+            "utmContent":"",
+            "referrer":"",
+            "landingPageUrl":"https://yourmindstory.co.uk/quiz.html",
+            "submissionPageUrl":"https://yourmindstory.co.uk/quiz.html",
+            "userAgent":"YMS automated test"
+          }
+          JSON
+
+          echo '--- Submit Bootcamp-level test result ---'
+          POST=$(curl -sS -L -X POST -H 'Content-Type: text/plain;charset=utf-8' --data-binary @payload.json "$BASE")
+          echo "$POST"
+          echo "$POST" | grep -q '"status":"ok"'
+          echo "$POST" | grep -q '"recommendationLevel":"bootcamp_level"'
+          echo "$POST" | grep -q '"resultEmailSent":true'
+
+          echo '--- Recover saved result by token ---'
+          RECOVER=$(curl -sS -L "$BASE?action=getResult&resultToken=$TOKEN")
+          echo "$RECOVER"
+          echo "$RECOVER" | grep -q '"status":"ok"'
+          echo "$RECOVER" | grep -q '"recommendationLevel":"bootcamp_level"'
+          echo "$RECOVER" | grep -q "$TOKEN"
+
+          echo '--- PASS ---'
+          echo 'Submission saved, Bootcamp recommendation returned, transactional result email reported sent, and token recovery returned the saved Bootcamp result.'
