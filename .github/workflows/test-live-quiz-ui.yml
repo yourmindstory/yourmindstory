@@ -19,7 +19,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Test Bootcamp progressive reveal and audio route
         run: |
-          cat > /tmp/test-ui.js <<'NODE'
+          cat > test-ui.js <<'NODE'
           const { chromium } = require('playwright');
           const assert = require('assert');
 
@@ -113,4 +113,4 @@ jobs:
             process.exit(1);
           });
           NODE
-          node /tmp/test-ui.js
+          node test-ui.js
