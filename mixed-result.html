@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Result | Your Mind Story</title>
 <meta name="robots" content="noindex, follow">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/yms-quiz-shared.css">
-<script src="assets/yms-quiz-shared.js?v=20260910-rec2"></script>
+<script src="assets/yms-quiz-shared.js?v=20260910-rec3"></script>
+<script src="assets/yms-results-copy-v2.js?v=20260910-final1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -19,17 +19,12 @@
     <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
     <span class="result-tag">YOUR RESULT</span>
     <h1>This isn't happening in just one place.</h1>
-
     <p>Your strongest patterns are:</p>
     <p class="result-lede" id="tiedNamesLine"></p>
-
     <p>Your answers don't point to one part of the cycle as the obvious place this is affecting you most.</p>
     <p>More than one part is showing up at the same level.</p>
-
     <div id="patternExplanations"></div>
-
     <p id="activationLine"></p>
-
     <p>That's why this can feel so hard to get on top of.</p>
     <p>You can calm the alarm and still feel the pull.</p>
     <p>You can stop yourself checking and still question your own judgement.</p>
@@ -37,67 +32,32 @@
     <p>Your result isn't telling you to choose which one matters most.</p>
     <p>It's showing you that this is affecting you in more than one place.</p>
     <p>And that's why the work needs to go further than fixing one symptom at a time.</p>
-
     <div id="ogBridge"></div>
-
   </div>
 </div>
-
 <script>
 (function(){
-  /* ============================================================
-     V2 rebuild (3 Sep 2026): one mixed-result.html covers BOTH
-     Moderate Mixed and Strong Mixed -- no separate pages. Only
-     the tied leading pattern names, the matching explanation
-     block(s), and one activation-strength sentence change
-     dynamically. Everything else on this page is locked copy,
-     verbatim, per spec. Secondary Active Patterns and raw scores
-     are stored server-side only and are never shown here.
-     ============================================================ */
-
-  // LOCKED explanation blocks -- shown ONLY for the buckets that are
-  // actually tied as leading patterns, never all four automatically.
   var EXPLANATIONS = {
     'Quiet the Alarm': "Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again.",
     'Break the Pull': "You keep getting pulled back into him or the situation: checking, texting, replaying, analysing, looking for signs or trying to understand what's happening.",
     'Restore Self Trust': "What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.",
     'Return to Yourself': "You've started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."
   };
-
   var MODERATE_LINE = "More than one part of the cycle is active enough to keep pulling you back in, even though no single part is completely taking over.";
   var STRONG_LINE = "More than one part of the cycle is showing up strongly at the same time. So even when one part settles, another can still keep you caught in it.";
-
   var data = null;
   try { data = YMSQuiz.getResultData(); } catch (e) { data = null; }
-
   var name = data && data.firstName ? String(data.firstName).trim() : '';
   var greetingEl = document.getElementById('greeting');
-  if (name){
-    greetingEl.textContent = 'Hi, ' + name + '.';
-    greetingEl.hidden = false;
-  }
-
-  // tiedResults holds the genuinely tied leading pattern display names
-  // (2, 3 or 4 of them) -- set by quiz.html from the server-authoritative
-  // leadingPatterns/mixedResultBuckets, never guessed on this page.
+  if (name){ greetingEl.textContent = 'Hi, ' + name + '.'; greetingEl.hidden = false; }
   var tied = (data && data.tiedResults) || [];
-
   document.getElementById('tiedNamesLine').textContent = tied.join(' + ');
-
   var explanationsHtml = '';
-  tied.forEach(function(nameKey){
-    if (EXPLANATIONS[nameKey]){
-      explanationsHtml += '<p>' + YMSQuiz.escapeText(EXPLANATIONS[nameKey]) + '</p>';
-    }
-  });
+  tied.forEach(function(nameKey){ if (EXPLANATIONS[nameKey]) explanationsHtml += '<p>' + YMSQuiz.escapeText(EXPLANATIONS[nameKey]) + '</p>'; });
   document.getElementById('patternExplanations').innerHTML = explanationsHtml;
-
   var overall = (data && data.overallActivationStrength) || '';
-  var activationLineEl = document.getElementById('activationLine');
-  activationLineEl.textContent = overall === 'strong' ? STRONG_LINE : MODERATE_LINE;
-
+  document.getElementById('activationLine').textContent = overall === 'strong' ? STRONG_LINE : MODERATE_LINE;
   YMSQuiz.track('quiz_result_view', { result_bucket: 'Mixed', tied_count: tied.length, activation: overall });
-
   YMSQuiz.mountRecommendationV1('ogBridge');
 })();
 </script>
