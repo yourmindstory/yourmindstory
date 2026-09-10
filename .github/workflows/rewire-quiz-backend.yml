@@ -35,9 +35,9 @@ jobs:
             "submissionId":"$SUBMISSION",
             "resultToken":"$TOKEN",
             "quizVersion":"YMS-QUIZ-2026-V2",
-            "timestampIso":"2026-09-10T16:35:00.000Z",
+            "timestampIso":"2026-09-10T16:41:00.000Z",
             "firstName":"AutomatedTest",
-            "email":"yms-automated-test@example.com",
+            "email":"yourmindstory.co.uk@gmail.com",
             "marketingConsent":false,
             "relationshipStatus":"It's ended, but I still feel caught in it.",
             "openResponse":"TEST - AUTOMATED BOOTCAMP EMAIL ROUTE",
@@ -64,7 +64,7 @@ jobs:
           JSON
 
           echo '--- Submit Bootcamp-level test result ---'
-          POST=$(curl -sS -L -X POST -H 'Content-Type: text/plain;charset=utf-8' --data-binary @payload.json "$BASE")
+          POST=$(curl -sS -L -H 'Content-Type: text/plain;charset=utf-8' --data-binary @payload.json "$BASE")
           echo "$POST"
           echo "$POST" | grep -q '"status":"ok"'
           echo "$POST" | grep -q '"recommendationLevel":"bootcamp_level"'
