@@ -1,0 +1,28 @@
+name: Rewire quiz backend
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rewire-quiz-backend.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rewire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace old Apps Script endpoint
+        shell: bash
+        run: |
+          OLD='https://script.google.com/macros/s/AKfycbx07a1k3XYK_jvTYQDtwq3zu-LZYpe8FgvvHvnd5WXiI7M8nw5YaMqiQCJ-AUfRYu54/exec'
+          NEW='https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec'
+          sed -i "s|$OLD|$NEW|g" quiz.html assets/yms-quiz-shared.js
+          git diff --check
+          git diff --exit-code --quiet && { echo 'No changes needed'; exit 0; }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add quiz.html assets/yms-quiz-shared.js
+          git commit -m 'Point quiz frontend at current Apps Script deployment'
+          git push
