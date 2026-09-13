@@ -13,122 +13,63 @@
 (function(){
   var frame=document.getElementById('guideFrame');
   frame.addEventListener('load',function(){
-    var d=frame.contentDocument;
-    var w=frame.contentWindow;
-    if(!d||!w)return;
+    var d=frame.contentDocument,w=frame.contentWindow;if(!d||!w)return;
 
     var style=d.createElement('style');
     style.textContent=`
-      .journey{max-width:1180px;margin:0 auto;padding:0 22px 11px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-      .journey a{position:relative;text-decoration:none;padding:8px 10px 9px;border-top:1px solid rgba(13,11,20,.12);font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:rgba(13,11,20,.42);transition:.2s ease}
-      .journey a:before{content:"";position:absolute;left:0;top:-1px;height:2px;width:0;background:#0D0B14;transition:width .25s ease}
-      .journey a.active{color:#0D0B14}
-      .journey a.active:before{width:100%}
+      .journey{max-width:1180px;margin:0 auto;padding:0 22px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#F2EFE8}
+      .journey a{position:relative;text-decoration:none;padding:9px 8px 10px;border-top:1px solid rgba(13,11,20,.22);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5B5660;transition:.2s ease}
+      .journey a:before{content:"";position:absolute;left:0;top:-1px;height:3px;width:0;background:#0D0B14;transition:width .25s ease}
+      .journey a.active{color:#0D0B14}.journey a.active:before{width:100%}
 
-      .orbit-label{cursor:pointer;z-index:8;padding:8px 10px;border:1px solid rgba(13,11,20,.10);background:rgba(250,248,243,.78);border-radius:999px;transition:.2s ease;outline:none}
-      .orbit-label:hover,.orbit-label:focus-visible{border-color:rgba(13,11,20,.30);transform:translateY(-1px)}
-      .orbit-label[aria-pressed="true"]{background:#0D0B14;color:#F2EFE8;border-color:#0D0B14}
-      .orbit-word{transition:opacity .15s ease}
-      .hero-art-note{transition:opacity .15s ease}
+      .orbit-label{cursor:pointer;z-index:8;padding:9px 11px;border:1px solid rgba(13,11,20,.26);background:#FAF8F3;color:#0D0B14;border-radius:999px;transition:.2s ease;outline:none;font-weight:500}
+      .orbit-label:hover,.orbit-label:focus-visible{border-color:#0D0B14;transform:translateY(-1px)}
+      .orbit-label[aria-pressed="true"]{background:#0D0B14;color:#F2EFE8;border-color:#0D0B14;box-shadow:0 8px 20px rgba(13,11,20,.14)}
+      .orbit-word,.hero-art-note{transition:opacity .15s ease}.hero-art-note{color:#403B45!important;font-weight:400}
 
-      .recognise-box{margin:30px 0 26px;padding:22px;border-top:1px solid rgba(13,11,20,.12);border-bottom:1px solid rgba(13,11,20,.12);background:rgba(201,212,194,.22)}
-      .recognise-title{font-family:'Gilda Display',serif;font-size:24px;line-height:1.2;margin-bottom:8px;color:#0D0B14}
-      .recognise-sub{font-size:12px;line-height:1.5;color:rgba(13,11,20,.55);margin-bottom:15px}
-      .recognise-options{display:flex;flex-wrap:wrap;gap:8px}
-      .recognise-btn{appearance:none;border:1px solid rgba(13,11,20,.16);background:#FAF8F3;padding:10px 13px;border-radius:999px;cursor:pointer;font-size:12px;transition:.18s ease}
-      .recognise-btn[aria-pressed="true"]{background:#0D0B14;color:#F2EFE8;border-color:#0D0B14}
-      .recognise-readout{display:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(13,11,20,.10);font-family:'Gilda Display',serif;font-size:21px;line-height:1.35;color:#0D0B14}
+      .recognise-box{margin:30px 0 26px;padding:24px 22px;background:#0D0B14;color:#F2EFE8;border-radius:0}
+      .recognise-title{font-family:'Gilda Display',serif;font-size:25px;line-height:1.2;margin-bottom:8px;color:#F2EFE8}
+      .recognise-sub{font-size:13px;line-height:1.55;color:#D8D4CC;margin-bottom:16px}
+      .recognise-options{display:flex;flex-wrap:wrap;gap:9px}
+      .recognise-btn{appearance:none;border:1px solid #77717F;background:transparent;color:#F2EFE8;padding:10px 14px;border-radius:999px;cursor:pointer;font-size:12px;font-weight:500;transition:.18s ease}
+      .recognise-btn:hover,.recognise-btn:focus-visible{border-color:#F2EFE8;outline:none}
+      .recognise-btn[aria-pressed="true"]{background:#C9D4C2;color:#0D0B14;border-color:#C9D4C2}
+      .recognise-readout{display:none;margin-top:18px;padding-top:18px;border-top:1px solid #5A5560;font-family:'Gilda Display',serif;font-size:22px;line-height:1.35;color:#F2EFE8}
       .recognise-readout.show{display:block}
 
-      .beat-box{margin:30px 0 28px;padding:22px 0;border-top:1px solid rgba(13,11,20,.12);border-bottom:1px solid rgba(13,11,20,.12)}
-      .beat-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(13,11,20,.46);margin-bottom:14px}
-      .beat-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
-      .beat-btn{appearance:none;border:0;border-left:1px solid rgba(13,11,20,.10);background:transparent;padding:14px 10px;text-align:left;cursor:pointer;min-height:82px;transition:.18s ease}
-      .beat-btn:first-child{border-left:0}
-      .beat-btn .n{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(13,11,20,.42);margin-bottom:6px}
-      .beat-btn .t{display:block;font-family:'Gilda Display',serif;font-size:18px;line-height:1.05}
-      .beat-btn[aria-pressed="true"]{background:rgba(255,255,255,.42)}
-      .beat-readout{margin-top:14px;padding:16px 0 0;border-top:1px solid rgba(13,11,20,.08);font-size:14px;line-height:1.6;color:rgba(13,11,20,.66)}
+      .beat-box{margin:30px 0 28px;padding:0;border:1px solid rgba(13,11,20,.22);background:#F2EFE8}
+      .beat-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#4D4851;padding:16px 16px 12px;border-bottom:1px solid rgba(13,11,20,.14)}
+      .beat-steps{display:grid;grid-template-columns:repeat(5,1fr)}
+      .beat-btn{appearance:none;border:0;border-left:1px solid rgba(13,11,20,.14);background:#F2EFE8;color:#0D0B14;padding:15px 12px;text-align:left;cursor:pointer;min-height:86px;transition:.18s ease}
+      .beat-btn:first-child{border-left:0}.beat-btn:hover,.beat-btn:focus-visible{background:#E6ECE1;outline:none}
+      .beat-btn .n{display:block;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#615B65;margin-bottom:7px}
+      .beat-btn .t{display:block;font-family:'Gilda Display',serif;font-size:19px;line-height:1.08;color:#0D0B14}
+      .beat-btn[aria-pressed="true"]{background:#0D0B14}.beat-btn[aria-pressed="true"] .n,.beat-btn[aria-pressed="true"] .t{color:#F2EFE8}
+      .beat-readout{padding:18px 16px;border-top:1px solid rgba(13,11,20,.16);font-size:14.5px;line-height:1.65;color:#2E2932;background:#FAF8F3;min-height:78px}
 
       @media(max-width:680px){
-        .journey{padding:0 12px 9px;gap:4px}.journey a{padding:7px 5px 8px;font-size:8px;letter-spacing:.06em}
-        .orbit-label{font-size:9px;padding:7px 8px}.ol1{top:5%;left:2%}.ol2{right:-2%;top:28%}.ol3{bottom:12%;right:5%}.ol4{bottom:14%;left:-2%}
-        .recognise-box{margin:24px 0;padding:18px 14px}.recognise-title{font-size:22px}.recognise-readout{font-size:20px}
-        .beat-steps{grid-template-columns:1fr 1fr}.beat-btn{border-left:0;border-top:1px solid rgba(13,11,20,.08)}.beat-btn:first-child{border-top:0}.beat-btn:nth-child(2){border-top:0;border-left:1px solid rgba(13,11,20,.08)}.beat-btn:nth-child(4){border-left:1px solid rgba(13,11,20,.08)}.beat-btn:last-child{grid-column:1/-1}
+        .journey{padding:0 12px 9px;gap:5px}.journey a{font-size:9px;letter-spacing:.04em;padding:8px 4px 9px}
+        .orbit-label{font-size:10px;padding:8px 9px}.ol1{top:5%;left:0}.ol2{right:-4%;top:28%}.ol3{bottom:11%;right:3%}.ol4{bottom:13%;left:-4%}
+        .recognise-box{margin:24px 0;padding:20px 16px}.recognise-title{font-size:23px}.recognise-sub{font-size:13px}.recognise-readout{font-size:20px}
+        .beat-steps{grid-template-columns:1fr 1fr}.beat-btn{border-left:0;border-top:1px solid rgba(13,11,20,.14);min-height:78px}.beat-btn:first-child{border-top:0}.beat-btn:nth-child(2){border-top:0;border-left:1px solid rgba(13,11,20,.14)}.beat-btn:nth-child(4){border-left:1px solid rgba(13,11,20,.14)}.beat-btn:last-child{grid-column:1/-1}
       }
     `;
     d.head.appendChild(style);
 
-    /* 1. Turn the visual hook in the hero into something she can explore. */
-    var heroArt=d.querySelector('.hero-art');
-    if(heroArt)heroArt.removeAttribute('aria-hidden');
-    var orbitWord=d.querySelector('.orbit-word');
-    var orbitNote=d.querySelector('.hero-art-note');
+    var heroArt=d.querySelector('.hero-art');if(heroArt)heroArt.removeAttribute('aria-hidden');
+    var orbitWord=d.querySelector('.orbit-word'),orbitNote=d.querySelector('.hero-art-note');
     var orbitLabels=Array.prototype.slice.call(d.querySelectorAll('.orbit-label'));
-    var heroCopy={
-      warmth:['Warmth','Things feel good again. Hope comes back.'],
-      distance:['Distance','Something changes. Now your mind wants to know why.'],
-      relief:['Relief','His name appears. For a minute, you feel okay again.'],
-      checking:['Checking','You start looking for the thing that will make the uncertainty stop.']
-    };
-    orbitLabels.forEach(function(el,i){
-      var key=(el.textContent||'').trim().toLowerCase();
-      el.setAttribute('role','button');el.setAttribute('tabindex','0');el.setAttribute('aria-pressed',i===0?'true':'false');
-      function activate(){
-        orbitLabels.forEach(function(x){x.setAttribute('aria-pressed','false')});el.setAttribute('aria-pressed','true');
-        if(heroCopy[key]){orbitWord.textContent=heroCopy[key][0];orbitNote.textContent=heroCopy[key][1];}
-        if(typeof w.gtag==='function')w.gtag('event','hook_hero_orbit',{step:key});
-      }
-      el.addEventListener('click',activate);
-      el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();activate();}});
-    });
+    var heroCopy={warmth:['Warmth','Things feel good again. Hope comes back.'],distance:['Distance','Something changes. Now your mind wants to know why.'],relief:['Relief','His name appears. For a minute, you feel okay again.'],checking:['Checking','You start looking for the thing that will make the uncertainty stop.']};
+    orbitLabels.forEach(function(el,i){var key=(el.textContent||'').trim().toLowerCase();el.setAttribute('role','button');el.setAttribute('tabindex','0');el.setAttribute('aria-pressed',i===0?'true':'false');function activate(){orbitLabels.forEach(function(x){x.setAttribute('aria-pressed','false')});el.setAttribute('aria-pressed','true');if(heroCopy[key]){orbitWord.textContent=heroCopy[key][0];orbitNote.textContent=heroCopy[key][1]}if(typeof w.gtag==='function')w.gtag('event','hook_hero_orbit',{step:key})}el.addEventListener('click',activate);el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}})});
 
-    /* 2. Early self-recognition: participation before more explanation. */
     var labelsCopy=d.querySelector('#labels .copy');
-    if(labelsCopy){
-      var paragraphs=Array.prototype.slice.call(labelsCopy.querySelectorAll('p'));
-      var anchor=paragraphs.find(function(p){return p.textContent.trim()==='Then you do.';});
-      if(anchor){
-        var box=d.createElement('div');box.className='recognise-box';
-        box.innerHTML='<div class="recognise-title">What are you still doing?</div><div class="recognise-sub">Tap anything that is still happening. More than one is fine.</div><div class="recognise-options"><button type="button" class="recognise-btn" aria-pressed="false" data-r="Checking">Checking</button><button type="button" class="recognise-btn" aria-pressed="false" data-r="Replaying">Replaying</button><button type="button" class="recognise-btn" aria-pressed="false" data-r="Searching">Searching</button><button type="button" class="recognise-btn" aria-pressed="false" data-r="Waiting">Waiting</button></div><div class="recognise-readout" id="recogniseReadout"></div>';
-        anchor.insertAdjacentElement('afterend',box);
-        var picked=[];var rr=box.querySelector('#recogniseReadout');
-        box.querySelectorAll('.recognise-btn').forEach(function(btn){btn.addEventListener('click',function(){var val=btn.getAttribute('data-r');var on=btn.getAttribute('aria-pressed')==='true';btn.setAttribute('aria-pressed',on?'false':'true');if(on)picked=picked.filter(function(x){return x!==val});else if(picked.indexOf(val)===-1)picked.push(val);if(picked.length){rr.classList.add('show');rr.textContent=picked.join(' + ')+'. That is the part I’m interested in. Not another explanation of him. Why is this still happening to you?';}else{rr.classList.remove('show');rr.textContent='';}if(typeof w.gtag==='function')w.gtag('event','hook_recognition_tap',{item:val,selected:!on});})});
-      }
-    }
+    if(labelsCopy){var paragraphs=Array.prototype.slice.call(labelsCopy.querySelectorAll('p'));var anchor=paragraphs.find(function(p){return p.textContent.trim()==='Then you do.'});if(anchor){var box=d.createElement('div');box.className='recognise-box';box.innerHTML='<div class="recognise-title">What are you still doing?</div><div class="recognise-sub">Tap anything that is still happening. More than one is fine.</div><div class="recognise-options"><button type="button" class="recognise-btn" aria-pressed="false" data-r="Checking">Checking</button><button type="button" class="recognise-btn" aria-pressed="false" data-r="Replaying">Replaying</button><button type="button" class="recognise-btn" aria-pressed="false" data-r="Searching">Searching</button><button type="button" class="recognise-btn" aria-pressed="false" data-r="Waiting">Waiting</button></div><div class="recognise-readout" id="recogniseReadout"></div>';anchor.insertAdjacentElement('afterend',box);var picked=[],rr=box.querySelector('#recogniseReadout');box.querySelectorAll('.recognise-btn').forEach(function(btn){btn.addEventListener('click',function(){var val=btn.getAttribute('data-r'),on=btn.getAttribute('aria-pressed')==='true';btn.setAttribute('aria-pressed',on?'false':'true');if(on)picked=picked.filter(function(x){return x!==val});else if(picked.indexOf(val)===-1)picked.push(val);if(picked.length){rr.classList.add('show');rr.textContent=picked.join(' + ')+'. That is the part I’m interested in. Not another explanation of him. Why is this still happening to you?'}else{rr.classList.remove('show');rr.textContent=''}if(typeof w.gtag==='function')w.gtag('event','hook_recognition_tap',{item:val,selected:!on})})})}}
 
-    /* 3. Make the relationship sequence a tap-through without removing the original copy. */
     var hookedCopy=d.querySelector('#hooked .copy');
-    if(hookedCopy){
-      var hp=Array.prototype.slice.call(hookedCopy.querySelectorAll('p'));
-      var ha=hp.find(function(p){return p.textContent.trim()==='Then it changed again.';});
-      if(ha){
-        var beats=d.createElement('div');beats.className='beat-box';
-        beats.innerHTML='<div class="beat-label">Tap through what happened</div><div class="beat-steps"><button class="beat-btn" type="button" aria-pressed="true" data-b="0"><span class="n">01</span><span class="t">It was good</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="1"><span class="n">02</span><span class="t">Something changed</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="2"><span class="n">03</span><span class="t">He came back</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="3"><span class="n">04</span><span class="t">You felt better</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="4"><span class="n">05</span><span class="t">Then again</span></button></div><div class="beat-readout" id="beatReadout">There was enough good to make what came next matter.</div>';
-        ha.insertAdjacentElement('afterend',beats);
-        var beatText=['There was enough good to make what came next matter.','The closeness changed. Now you were trying to work out what happened.','A message, a good weekend or affection brought the hope back.','For a while, the uncertainty stopped and you felt okay again.','Then it changed again. That is how the loop keeps getting another chance.'];
-        var br=beats.querySelector('#beatReadout');
-        beats.querySelectorAll('.beat-btn').forEach(function(btn){btn.addEventListener('click',function(){beats.querySelectorAll('.beat-btn').forEach(function(b){b.setAttribute('aria-pressed','false')});btn.setAttribute('aria-pressed','true');br.textContent=beatText[Number(btn.getAttribute('data-b'))]||'';if(typeof w.gtag==='function')w.gtag('event','hook_sequence_tap',{step:btn.getAttribute('data-b')});})});
-      }
-    }
+    if(hookedCopy){var hp=Array.prototype.slice.call(hookedCopy.querySelectorAll('p'));var ha=hp.find(function(p){return p.textContent.trim()==='Then it changed again.'});if(ha){var beats=d.createElement('div');beats.className='beat-box';beats.innerHTML='<div class="beat-label">Tap through what happened</div><div class="beat-steps"><button class="beat-btn" type="button" aria-pressed="true" data-b="0"><span class="n">01</span><span class="t">It was good</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="1"><span class="n">02</span><span class="t">Something changed</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="2"><span class="n">03</span><span class="t">He came back</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="3"><span class="n">04</span><span class="t">You felt better</span></button><button class="beat-btn" type="button" aria-pressed="false" data-b="4"><span class="n">05</span><span class="t">Then again</span></button></div><div class="beat-readout" id="beatReadout">There was enough good to make what came next matter.</div>';ha.insertAdjacentElement('afterend',beats);var beatText=['There was enough good to make what came next matter.','The closeness changed. Now you were trying to work out what happened.','A message, a good weekend or affection brought the hope back.','For a while, the uncertainty stopped and you felt okay again.','Then it changed again. That is how the loop keeps getting another chance.'];var br=beats.querySelector('#beatReadout');beats.querySelectorAll('.beat-btn').forEach(function(btn){btn.addEventListener('click',function(){beats.querySelectorAll('.beat-btn').forEach(function(b){b.setAttribute('aria-pressed','false')});btn.setAttribute('aria-pressed','true');br.textContent=beatText[Number(btn.getAttribute('data-b'))]||'';if(typeof w.gtag==='function')w.gtag('event','hook_sequence_tap',{step:btn.getAttribute('data-b')})})})}}
 
-    /* 4. Give the long page three meaningful acts instead of only a percentage. */
-    var nav=d.querySelector('.nav');
-    var navInner=d.querySelector('.nav-inner');
-    if(nav&&navInner){
-      var journey=d.createElement('div');journey.className='journey';journey.setAttribute('aria-label','Guide journey');
-      journey.innerHTML='<a href="#start" data-act="1" class="active">The hook</a><a href="#after" data-act="2">What it did to you</a><a href="#next" data-act="3">Where I’d start</a>';
-      navInner.insertAdjacentElement('afterend',journey);
-      journey.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var target=d.querySelector(a.getAttribute('href'));if(target)target.scrollIntoView({behavior:'smooth',block:'start'});});});
-      var actLinks=Array.prototype.slice.call(journey.querySelectorAll('a'));
-      function updateAct(){
-        var after=d.getElementById('after'),next=d.getElementById('next');var act=1;
-        if(after&&after.getBoundingClientRect().top<w.innerHeight*.48)act=2;
-        if(next&&next.getBoundingClientRect().top<w.innerHeight*.55)act=3;
-        actLinks.forEach(function(a){a.classList.toggle('active',Number(a.getAttribute('data-act'))===act)});
-      }
-      w.addEventListener('scroll',updateAct,{passive:true});updateAct();
-    }
+    var nav=d.querySelector('.nav'),navInner=d.querySelector('.nav-inner');
+    if(nav&&navInner){var journey=d.createElement('div');journey.className='journey';journey.setAttribute('aria-label','Guide journey');journey.innerHTML='<a href="#start" data-act="1" class="active">The hook</a><a href="#after" data-act="2">What it did to you</a><a href="#next" data-act="3">Where I’d start</a>';navInner.insertAdjacentElement('afterend',journey);journey.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var target=d.querySelector(a.getAttribute('href'));if(target)target.scrollIntoView({behavior:'smooth',block:'start'})})});var actLinks=Array.prototype.slice.call(journey.querySelectorAll('a'));function updateAct(){var after=d.getElementById('after'),next=d.getElementById('next'),act=1;if(after&&after.getBoundingClientRect().top<w.innerHeight*.48)act=2;if(next&&next.getBoundingClientRect().top<w.innerHeight*.55)act=3;actLinks.forEach(function(a){a.classList.toggle('active',Number(a.getAttribute('data-act'))===act)})}w.addEventListener('scroll',updateAct,{passive:true});updateAct()}
   });
 })();
 </script>
