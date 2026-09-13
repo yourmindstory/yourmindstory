@@ -17,7 +17,7 @@
 
   var AUDIO_RESULTS = {
     "Quiet the Alarm": {
-      url: "https://stan.store/YourMindStory/p/quiet-the-alarm",
+      url: "https://payhip.com/b/53N2B",
       cta: "START WITH QUIET THE ALARM",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Quiet the Alarm.</p>' +
@@ -36,7 +36,7 @@
         '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">CeeJayMayDay</p></div>'
     },
     "Break the Pull": {
-      url: "https://stan.store/YourMindStory/p/break-the-pull",
+      url: "https://payhip.com/b/N8hbz",
       cta: "START WITH BREAK THE PULL",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Break the Pull.</p>' +
@@ -63,7 +63,7 @@
         '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;Took me out of my own head and helped calm the voice screaming at me to reach out.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">K</p></div>'
     },
     "Restore Self-Trust": {
-      url: "https://stan.store/YourMindStory/p/restore-self-trust",
+      url: "https://payhip.com/b/3RlF7",
       cta: "START WITH RESTORE SELF-TRUST",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Restore Self-Trust.</p>' +
@@ -83,7 +83,7 @@
         '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;I\'m slowly unraveling from years of survival mode. I\'m finding my center and power again.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Sky</p></div>'
     },
     "Return to Yourself": {
-      url: "https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg",
+      url: "https://payhip.com/b/6pE8S",
       cta: "START WITH RETURN TO YOURSELF",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Return to Yourself.</p>' +
