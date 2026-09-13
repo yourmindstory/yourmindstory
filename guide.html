@@ -8,10 +8,12 @@
 <style>html,body{margin:0;height:100%;background:#F2EFE8}iframe{display:block;width:100%;height:100%;border:0}</style>
 </head>
 <body>
-<iframe id="guideFrame" src="guide-core.html" title="It’s Not Him. It’s the Hook. interactive preview"></iframe>
+<iframe id="guideFrame" data-src="guide-core.html" title="It’s Not Him. It’s the Hook. interactive preview"></iframe>
 <script>
 (function(){
   var frame=document.getElementById('guideFrame');
+  var initialSrc=frame.getAttribute('data-src')||'guide-core.html';
+  setTimeout(function(){frame.src=initialSrc+window.location.search;},0);
   frame.addEventListener('load',function(){
     var d=frame.contentDocument,w=frame.contentWindow;if(!d||!w)return;
 

@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-var CONFIG={enabled:false,brevoFormUrl:'',guideUrl:'/guide.html?utm_source=hook_popup&utm_medium=lead_magnet&utm_campaign=hook&utm_content=success',minDelayMs:8000,fallbackDelayMs:20000,scrollTrigger:0.35,requestStorageKey:'yms_hook_requested_v1',dismissStorageKey:'yms_hook_dismissed_session_v1'};
+var CONFIG={enabled:true,brevoFormUrl:'',guideUrl:'/guide.html?utm_source=hook_popup&utm_medium=lead_magnet&utm_campaign=hook&utm_content=success',minDelayMs:8000,fallbackDelayMs:20000,scrollTrigger:0.35,requestStorageKey:'yms_hook_requested_v1',dismissStorageKey:'yms_hook_dismissed_session_v1'};
 var path=(location.pathname||'/').toLowerCase();
 var excluded=['/quiz','/result','/no-result','/low-result','/mixed-result','/guide','/hook-preview','/guide-interactive-preview','/bootcamp','/checkout','/quiet-the-alarm','/break-the-pull','/restore-self-trust','/return-to-yourself','/calm-the-spiral','/checkin-'];
 if(excluded.some(function(x){return path.indexOf(x)!==-1;}))return;
