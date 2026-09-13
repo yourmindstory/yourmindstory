@@ -26,8 +26,11 @@ jobs:
           git show origin/hook-interactive-v1:guide-interactive-preview.html > /tmp/guide-wrapper.html
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           root = Path('.')
+
+          # Production guide core: keep approved copy/design, normalize research link + funnel events.
           core = Path('guide-core.html').read_text()
           old_mdl = 'https://www.cand.uscourts.gov/wp-content/uploads/2023/03/Redacted-Master-Complaint-1.pdf'
           official_mdl = 'https://cand.uscourts.gov/sites/default/files/wp-content/uploads/cases-of-interest/InRe-SocialMedia-Adolescent-Addiction-Personal-Injury-Products-Liability-Litigation/MDL-3047-Personal-Injury-Plaintiffs-Second-Amended-Master-Complaint.pdf'
@@ -39,20 +42,58 @@ jobs:
           core = core.replace(old, new)
           Path('guide-core.html').write_text(core)
 
+          # Production wrapper: preserve the approved interaction layer, pass popup UTMs through to
+          # the guide core, and make internal CTA navigation leave the iframe cleanly.
           wrapper = Path('/tmp/guide-wrapper.html').read_text()
-          wrapper = wrapper.replace('src="guide.html"', 'src="guide-core.html"')
+          wrapper = wrapper.replace('src="guide.html"', 'data-src="guide-core.html"')
           wrapper = wrapper.replace('<title>Hook Guide Interactive Preview</title>', '<title>It\'s Not Him. It\'s the Hook. | Your Mind Story</title>')
+          marker = "var frame=document.getElementById('guideFrame');"
+          wrapper = wrapper.replace(marker, marker + "\n  var initialSrc=frame.getAttribute('data-src')||'guide-core.html';\n  setTimeout(function(){frame.src=initialSrc+window.location.search;},0);")
+          load_marker = "var d=frame.contentDocument;\n    var w=frame.contentWindow;\n    if(!d||!w)return;"
+          load_replacement = load_marker + "\n    d.querySelectorAll('a[href]').forEach(function(a){var h=a.getAttribute('href')||'';if(h && h.charAt(0)!=='#' && !/^https?:/i.test(h)){a.setAttribute('target','_top')}});"
+          wrapper = wrapper.replace(load_marker, load_replacement)
           Path('guide.html').write_text(wrapper)
 
-          style_tag = '<link rel="stylesheet" href="assets/yms-hook-popup.css?v=20260914-1">'
-          script_tag = '<script src="assets/yms-hook-popup.js?v=20260914-1" defer></script>'
-          targets = ['index.html','about.html','why-this-works.html','success-stories.html']
-          for name in targets:
-              p = Path(name)
-              if not p.exists():
+          # Make the popup activation depend only on the Brevo endpoint. Until that endpoint is
+          # inserted the blank URL still prevents display, so this is safe to deploy now.
+          popup_js = Path('assets/yms-hook-popup.js')
+          if popup_js.exists():
+              js = popup_js.read_text()
+              js = js.replace('enabled:false,brevoFormUrl:', 'enabled:true,brevoFormUrl:', 1)
+              popup_js.write_text(js)
+
+          # Install/update the popup on public content pages, including SEO article pages.
+          # Do not interrupt quizzes, results, paid-product pages, check-ins, lead/action flows,
+          # privacy/internal pages or the guide itself.
+          excluded_exact = {
+              'guide.html','guide-core.html','hook-preview.html','guide-interactive-preview.html',
+              'quiz.html','quiz_2.html','quiz_fixed.html','quiz-landing-page.html',
+              'result.html','mixed-result.html','low-result.html','no-result.html',
+              'bootcamp-waitlist.html','privacy.html','insights.html','customer-insights.html',
+              'calm-the-spiral.html','quiet-the-alarm.html','break-the-pull.html',
+              'restore-self-trust.html','return-to-yourself.html','attachment-rewire-reset.html',
+              'reset-series.html','the-bare-minimum.html'
+          }
+          version = '20260914-2'
+          css_re = re.compile(r'<link rel="stylesheet" href="(?:\.\./)*assets/yms-hook-popup\.css\?v=[^"]+">')
+          js_re = re.compile(r'<script src="(?:\.\./)*assets/yms-hook-popup\.js\?v=[^"]+" defer></script>')
+
+          for p in root.rglob('*.html'):
+              if '.git' in p.parts or p.name in excluded_exact or p.name.startswith('checkin-') or 'intro' in p.stem:
                   continue
-              text = p.read_text()
-              if 'yms-hook-popup.css' not in text:
+              text = p.read_text(errors='ignore')
+              low = text.lower()
+              if '<meta name="robots" content="noindex' in low or 'yms-checkin.js' in low:
+                  continue
+              depth = max(0, len(p.relative_to(root).parts)-1)
+              prefix = '../' * depth
+              style_tag = f'<link rel="stylesheet" href="{prefix}assets/yms-hook-popup.css?v={version}">'
+              script_tag = f'<script src="{prefix}assets/yms-hook-popup.js?v={version}" defer></script>'
+              if css_re.search(text):
+                  text = css_re.sub(style_tag, text)
+              if js_re.search(text):
+                  text = js_re.sub(script_tag, text)
+              if 'yms-hook-popup.css' not in text and '</head>' in text:
                   text = text.replace('</head>', f'{style_tag}\n{script_tag}\n</head>', 1)
               p.write_text(text)
           PY
@@ -62,10 +103,11 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add guide.html guide-core.html index.html about.html why-this-works.html success-stories.html
+          git add guide.html guide-core.html assets/yms-hook-popup.js
+          find . -name '*.html' -not -path './.git/*' -print0 | xargs -0 git add --
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "Deploy Hook guide and wire popup assets"
+          git commit -m "Finish Hook funnel deployment and tracking wiring"
           git push origin HEAD:main
