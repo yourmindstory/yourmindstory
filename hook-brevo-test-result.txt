@@ -1,3 +1,0 @@
-test_email=hook-funnel-test-1789342688@yourmindstory.co.uk
-http_status=200
-body_preview={"success":true} 
