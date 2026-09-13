@@ -30,7 +30,6 @@ jobs:
 
           root = Path('.')
 
-          # Production guide core: keep approved copy/design, normalize research link + funnel events.
           core = Path('guide-core.html').read_text()
           old_mdl = 'https://www.cand.uscourts.gov/wp-content/uploads/2023/03/Redacted-Master-Complaint-1.pdf'
           official_mdl = 'https://cand.uscourts.gov/sites/default/files/wp-content/uploads/cases-of-interest/InRe-SocialMedia-Adolescent-Addiction-Personal-Injury-Products-Liability-Litigation/MDL-3047-Personal-Injury-Plaintiffs-Second-Amended-Master-Complaint.pdf'
@@ -42,8 +41,6 @@ jobs:
           core = core.replace(old, new)
           Path('guide-core.html').write_text(core)
 
-          # Production wrapper: preserve the approved interaction layer, pass popup UTMs through to
-          # the guide core, and make internal CTA navigation leave the iframe cleanly.
           wrapper = Path('/tmp/guide-wrapper.html').read_text()
           wrapper = wrapper.replace('src="guide.html"', 'data-src="guide-core.html"')
           wrapper = wrapper.replace('<title>Hook Guide Interactive Preview</title>', '<title>It\'s Not Him. It\'s the Hook. | Your Mind Story</title>')
@@ -54,17 +51,12 @@ jobs:
           wrapper = wrapper.replace(load_marker, load_replacement)
           Path('guide.html').write_text(wrapper)
 
-          # Make the popup activation depend only on the Brevo endpoint. Until that endpoint is
-          # inserted the blank URL still prevents display, so this is safe to deploy now.
           popup_js = Path('assets/yms-hook-popup.js')
           if popup_js.exists():
               js = popup_js.read_text()
               js = js.replace('enabled:false,brevoFormUrl:', 'enabled:true,brevoFormUrl:', 1)
               popup_js.write_text(js)
 
-          # Install/update the popup on public content pages, including SEO article pages.
-          # Do not interrupt quizzes, results, paid-product pages, check-ins, lead/action flows,
-          # privacy/internal pages or the guide itself.
           excluded_exact = {
               'guide.html','guide-core.html','hook-preview.html','guide-interactive-preview.html',
               'quiz.html','quiz_2.html','quiz_fixed.html','quiz-landing-page.html',
@@ -74,7 +66,7 @@ jobs:
               'restore-self-trust.html','return-to-yourself.html','attachment-rewire-reset.html',
               'reset-series.html','the-bare-minimum.html'
           }
-          version = '20260914-2'
+          version = '20260914-3'
           css_re = re.compile(r'<link rel="stylesheet" href="(?:\.\./)*assets/yms-hook-popup\.css\?v=[^"]+">')
           js_re = re.compile(r'<script src="(?:\.\./)*assets/yms-hook-popup\.js\?v=[^"]+" defer></script>')
 
@@ -109,5 +101,5 @@ jobs:
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "Finish Hook funnel deployment and tracking wiring"
+          git commit -m "Bump Hook popup cache version after Brevo connection"
           git push origin HEAD:main
