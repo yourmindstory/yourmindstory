@@ -1,125 +1,472 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>It's Not Him. It's The Hook. - Your Mind Story</title>
+  <title>It's Not Him. It's the Hook. | Your Mind Story</title>
+  <meta name="description" content="Why knowing better hasn't stopped the pull, what the pattern has done to you, and where to start next.">
+  <link rel="canonical" href="https://yourmindstory.co.uk/guide.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#F6F4F0;--fg:#0D0B14;--rule:rgba(13,11,20,0.07);}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{-webkit-font-smoothing:antialiased;}
-    body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;}
-    .page{display:flex;flex-direction:column;align-items:center;padding:0 48px 80px;}
-    @media(min-width:768px){.page{padding:0 64px 80px;}}
-    .inner{width:100%;max-width:580px;}
-    @keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
-    .a1{opacity:0;animation:up 0.9s ease forwards 0.1s;}
-    .a2{opacity:0;animation:up 1s ease forwards 0.3s;}
-    .a3{opacity:0;animation:up 1s ease forwards 0.5s;}
-    .a4{opacity:0;animation:up 1s ease forwards 0.7s;}
-    .hdr{padding-top:52px;padding-bottom:32px;text-align:center;border-bottom:1px solid var(--rule);margin-bottom:48px;}
-    .wm{font-family:'Gilda Display',serif;font-size:clamp(13px,3vw,16px);letter-spacing:0.24em;text-transform:uppercase;color:rgba(13,11,20,0.90);display:block;}
-    .eyebrow{font-family:'DM Sans',sans-serif;font-weight:400;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.65);display:block;margin-bottom:12px;}
-    h1{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(28px,7vw,44px);line-height:1.08;color:var(--fg);text-shadow:0 0 20px rgba(13,11,20,0.20),0 0 50px rgba(13,11,20,0.10);margin-bottom:16px;}
-    .sub{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:rgba(13,11,20,0.78);margin-bottom:36px;display:block;}
-    hr.rule{width:100%;border:none;border-top:1px solid var(--rule);margin:32px 0;}
-    .section-head{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(18px,4.5vw,24px);color:var(--fg);display:block;margin-bottom:14px;}
-    .body-line{display:block;font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:rgba(13,11,20,0.80);}
-    .body-line+.body-line{margin-top:14px;}
-    .strong-line{display:block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(15px,3.6vw,17px);line-height:1.85;color:var(--fg);margin-top:16px;}
-    .pull-quote{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(16px,4vw,20px);line-height:1.4;color:rgba(13,11,20,0.70);padding-left:16px;border-left:1px solid rgba(13,11,20,0.15);margin:24px 0;display:block;}
-    .legal-note{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(13px,3vw,14px);line-height:1.75;color:rgba(13,11,20,0.70);padding:16px;border:1px solid rgba(13,11,20,0.08);margin:24px 0;display:block;}
-    .cta-block{margin-top:48px;padding-top:40px;border-top:1px solid var(--rule);text-align:center;}
-    .cta-text{font-family:'DM Sans',sans-serif;font-weight:300;font-size:clamp(14px,3.2vw,15px);color:rgba(13,11,20,0.55);line-height:1.85;display:block;margin-bottom:24px;}
-    .btn-primary{display:inline-block;font-family:'DM Sans',sans-serif;font-weight:400;font-size:clamp(11px,2.6vw,13px);letter-spacing:0.15em;text-transform:uppercase;color:var(--bg);background:var(--fg);border:none;padding:20px 32px;cursor:pointer;text-decoration:none;transition:opacity 0.2s;}
-    .btn-primary:hover{opacity:0.86;}
-    footer{margin-top:56px;padding-top:28px;border-top:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;gap:10px;}
-    .footer-links{display:flex;gap:28px;}
-    .footer-links a{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:rgba(13,11,20,0.85);text-decoration:none;}
-    .disclaimer{font-family:'DM Sans',sans-serif;font-weight:300;font-size:10px;color:rgba(13,11,20,0.18);text-align:center;line-height:1.6;}
-    :focus-visible{outline:1px solid rgba(13,11,20,0.4);outline-offset:4px;}
+    :root{
+      --night:#0D0B14;
+      --moon:#F2EFE8;
+      --paper:#F7F4EE;
+      --sage:#A8B7A2;
+      --sage-soft:#E8ECE5;
+      --ink-soft:rgba(13,11,20,.72);
+      --rule:rgba(13,11,20,.10);
+      --shadow:0 18px 50px rgba(13,11,20,.08);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+    body{margin:0;background:var(--paper);color:var(--night);font-family:'DM Sans',sans-serif;font-weight:300}
+    a{color:inherit}
+    .progress{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(13,11,20,.06);z-index:50}
+    .progress span{display:block;height:100%;width:0;background:var(--night);transition:width .15s linear}
+    .shell{width:min(100%,760px);margin:0 auto;padding:0 20px 96px}
+    .brand{padding:32px 0 24px;text-align:center;border-bottom:1px solid var(--rule);font-family:'Gilda Display',serif;letter-spacing:.22em;font-size:14px;text-transform:uppercase}
+    .hero{padding:62px 0 44px}
+    .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;opacity:.58;margin-bottom:16px}
+    h1,h2,h3{font-family:'Gilda Display',serif;font-weight:400;margin:0}
+    h1{font-size:clamp(42px,10vw,68px);line-height:.98;letter-spacing:-.025em}
+    .subtitle{font-family:'Gilda Display',serif;font-style:italic;font-size:clamp(21px,4.8vw,30px);line-height:1.25;margin-top:18px;max-width:620px}
+    .intro{font-size:18px;line-height:1.8;color:var(--ink-soft);margin-top:34px}
+    .intro p,.copy p{margin:0 0 18px}
+    .key{font-weight:500;color:var(--night)}
+    .section{padding:58px 0;border-top:1px solid var(--rule);scroll-margin-top:18px}
+    .section-num{display:block;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;opacity:.42;margin-bottom:14px}
+    h2{font-size:clamp(30px,7vw,44px);line-height:1.08;margin-bottom:28px}
+    .copy{font-size:17px;line-height:1.78;color:var(--ink-soft)}
+    .copy em{font-family:'Gilda Display',serif;font-size:1.08em;color:var(--night)}
+    .copy strong{font-weight:500;color:var(--night)}
+    .single-line{font-family:'Gilda Display',serif;font-size:clamp(25px,5.5vw,36px);line-height:1.2;color:var(--night);margin:34px 0}
+    .maybe{margin:30px 0;padding:24px;border-left:2px solid var(--sage);background:rgba(168,183,162,.10);font-family:'Gilda Display',serif;font-size:24px;line-height:1.3}
+    .research-box{margin-top:28px;border:1px solid var(--rule);background:rgba(242,239,232,.72)}
+    .research-box summary{cursor:pointer;padding:18px 20px;font-weight:500;font-size:14px;list-style:none}
+    .research-box summary::-webkit-details-marker{display:none}
+    .research-box summary:after{content:'+';float:right;font-size:18px;font-weight:300}
+    .research-box[open] summary:after{content:'–'}
+    .research-inner{padding:0 20px 20px;font-size:14px;line-height:1.7;color:var(--ink-soft)}
+    .research-inner a{text-decoration:underline;text-underline-offset:3px}
+    .micro-cta{margin:38px 0 0;padding:26px;border-radius:2px;background:var(--night);color:var(--moon)}
+    .micro-cta p{margin:0 0 16px;font-family:'Gilda Display',serif;font-size:23px;line-height:1.25}
+    .cta-link{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(242,239,232,.6);padding-bottom:3px}
+    .stage-intro{margin-bottom:28px}
+    .stages{display:grid;gap:14px}
+    .stage{width:100%;text-align:left;border:1px solid var(--rule);background:transparent;padding:22px;cursor:pointer;font:inherit;color:inherit;transition:background .2s,border-color .2s,transform .2s}
+    .stage:hover{transform:translateY(-1px)}
+    .stage[aria-pressed="true"]{background:var(--sage-soft);border-color:rgba(13,11,20,.20)}
+    .stage-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+    .stage-kicker{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;opacity:.5}
+    .stage h3{font-size:26px;line-height:1.15;margin-top:5px}
+    .tick{width:24px;height:24px;border:1px solid rgba(13,11,20,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:13px}
+    .stage[aria-pressed="true"] .tick{background:var(--night);color:var(--moon);border-color:var(--night)}
+    .stage p{margin:14px 0 0;font-size:15px;line-height:1.65;color:var(--ink-soft)}
+    .stage p + p{margin-top:10px}
+    .stage-summary{display:none;margin-top:24px;padding:20px;background:rgba(168,183,162,.12);font-size:15px;line-height:1.65}
+    .stage-summary.show{display:block}
+    .final-cta{padding:42px 24px;background:var(--night);color:var(--moon);text-align:center;margin-top:36px}
+    .final-cta h2{font-size:clamp(34px,8vw,48px);margin-bottom:20px}
+    .final-cta p{font-size:16px;line-height:1.7;color:rgba(242,239,232,.78);max-width:560px;margin:0 auto 16px}
+    .button{display:inline-block;margin-top:14px;background:var(--moon);color:var(--night);padding:18px 26px;text-decoration:none;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase}
+    .four{font-family:'Gilda Display',serif;font-size:19px;line-height:1.7;margin-top:26px}
+    .signature{margin-top:30px;font-size:13px;line-height:1.65;opacity:.72}
+    .sources{font-size:14px;line-height:1.7;color:var(--ink-soft)}
+    .sources ol{padding-left:20px}
+    .sources li{margin-bottom:14px}
+    .sources a{text-decoration:underline;text-underline-offset:3px}
+    footer{padding:28px 0 0;border-top:1px solid var(--rule);font-size:11px;line-height:1.6;color:rgba(13,11,20,.52);text-align:center}
+    .footer-links{display:flex;justify-content:center;gap:20px;margin-bottom:10px;flex-wrap:wrap}
+    .footer-links a{text-decoration:none}
+    :focus-visible{outline:2px solid var(--sage);outline-offset:4px}
+    @media(min-width:700px){
+      .shell{padding-left:28px;padding-right:28px}
+      .hero{padding-top:82px}
+      .section{padding:72px 0}
+      .stages{grid-template-columns:1fr 1fr}
+      .stage{padding:26px}
+    }
   </style>
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-0MFXQ5ETCD');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments)}
+    gtag('js',new Date());
+    gtag('config','G-0MFXQ5ETCD');
+  </script>
 </head>
 <body>
-<main class="page" role="main">
-<div class="inner">
+  <div class="progress" aria-hidden="true"><span id="progressFill"></span></div>
+  <main class="shell">
+    <div class="brand">Your Mind Story</div>
 
-  <header class="hdr a1">
-    <span class="wm">Your Mind Story</span>
-  </header>
+    <section class="hero" id="start">
+      <div class="eyebrow">Free guide</div>
+      <h1>It’s Not Him.<br>It’s the Hook.</h1>
+      <div class="subtitle">Why knowing better hasn’t stopped the pull.</div>
+      <div class="intro">
+        <p>If you’ve downloaded this, I’m guessing you’ve probably spent a lot of time searching for information about him.</p>
+        <p>Why did he change? Why did he pull away? Why did he come back? Is he avoidant? Did he love me? Does he miss me? Will he come back?</p>
+        <p>This, I’m hoping, will start being the end of your search for endless information about him.</p>
+        <p>Because this isn’t more information about him.</p>
+        <p class="key">This is information about what happened to you.</p>
+        <p>How you got hooked. Why knowing better hasn’t stopped the pull. Why you can still be caught in it even if the relationship ended months ago.</p>
+        <p>And, more importantly, what you actually need to work on if you want your mind back.</p>
+      </div>
+    </section>
 
-  <div class="a2">
-    <span class="eyebrow">Free guide</span>
-    <h1>It's Not Him. It's The Hook.</h1>
-    <span class="sub">Why your brain will not let go, and why thinking about it more is not going to be enough.</span>
-  </div>
+    <section class="section" id="labels">
+      <span class="section-num">01</span>
+      <h2>I don’t really care what label he has.</h2>
+      <div class="copy">
+        <p>Maybe you know he’s avoidant. Maybe you’ve watched so many videos about avoidant attachment that you understand exactly why he pulls away.</p>
+        <p>To be honest, I don’t really care about the label.</p>
+        <p>I care that the pattern of behaviour has you watching video after video trying to make sense of something that still doesn’t make sense to you.</p>
+        <p>And while you’re doing that, maybe you’re also promising yourself you won’t check again. You won’t look at whether he’s online. You won’t reread the messages. You won’t check his socials. You won’t message.</p>
+        <p>Then you do.</p>
+        <p>Or maybe you don’t do any of that anymore because this relationship ended a while ago.</p>
+        <p>But he is still in your head.</p>
+        <p>You still go back to the beginning. You still think about what changed. You still wonder what you missed or what you could have done differently. Maybe some part of you is still hoping the version of him you met at the beginning is the real one and somehow that version is going to come back.</p>
+        <p>That is the part I’m interested in.</p>
+        <p>Not another explanation of him.</p>
+        <p class="single-line">Why is this still happening to you?</p>
+      </div>
+    </section>
 
-  <hr class="rule a2">
+    <section class="section" id="hooked">
+      <span class="section-num">02</span>
+      <h2>So how did you get hooked?</h2>
+      <div class="copy">
+        <p>Probably without realising it was happening.</p>
+        <p>Things were good, then they weren’t.</p>
+        <p>He was close, then distant.</p>
+        <p>Warm, then cold.</p>
+        <p>Maybe something would go wrong and you’d think, <em>right, I can’t keep doing this.</em></p>
+        <p>Then he would message.</p>
+        <p>Or you’d have a really good weekend.</p>
+        <p>He would suddenly be affectionate again.</p>
+        <p>You’d finally have the conversation you’d been waiting for and think, <em>okay, maybe we’re alright now.</em></p>
+        <p>And for a while, you felt better.</p>
+        <p>Then it changed again.</p>
+        <p>So every time you started adjusting to the distance, there was just enough of the good stuff to bring the hope back.</p>
+        <p>And if it’s over now, it doesn’t necessarily mean that part disappeared when he did.</p>
+        <p>You can still remember how it felt at the beginning. You can still remember who he was when things were good. You can still think about the future you thought you were going to have.</p>
+        <p>Sometimes you’re not waiting for the man anymore.</p>
+        <p class="key">You’re waiting for what you thought it was going to become.</p>
+      </div>
+    </section>
 
-  <div class="a3">
-    <span class="section-head">So why can you not stop thinking about him?</span>
-    <span class="body-line">Even when you know better. Even when you have told yourself to stop. Even when you know the dynamic is draining you.</span>
-    <span class="strong-line">It is not love. It is not weakness.</span>
-    <span class="body-line" style="margin-top:14px;">It is intermittent reinforcement. One of the most powerful neurological conditioning mechanisms that exists. Closeness, then distance. Warmth, then withdrawal. Your brain does not just process that. It locks in. It begins to function like a slot machine, constantly scanning and replaying, trying to get back to how it felt at the start.</span>
-    <span class="pull-quote">That is not a character flaw. It is conditioning.</span>
+    <section class="section" id="reinforcement">
+      <span class="section-num">03</span>
+      <h2>This is where intermittent reinforcement comes in.</h2>
+      <div class="copy">
+        <p>There is a well-established effect in behavioural psychology around what happens when rewards are inconsistent.</p>
+        <p>In plain English, you don’t have to get the thing you want every time to keep going back for it.</p>
+        <p>Actually, when you don’t know when you’re going to get it, the behaviour can become very persistent. That’s what researchers mean when they talk about partial or intermittent reinforcement.</p>
+        <p>Think about what was happening in the relationship.</p>
+        <p>Sometimes you reached for him and got warmth.</p>
+        <p>Sometimes you got nothing.</p>
+        <p>Sometimes he reassured you.</p>
+        <p>Sometimes he disappeared.</p>
+        <p>Sometimes you thought it was over, then suddenly you had him back.</p>
+        <p>So your mind learned something very simple:</p>
+        <div class="maybe">Maybe this time.</div>
+        <p>Maybe this time he’ll reply.</p>
+        <p>Maybe this time it will last.</p>
+        <p>Maybe this time we’ll have the conversation.</p>
+        <p>Maybe this time I’ll get the person from the beginning back.</p>
+        <p>And this is the bit I think is really important.</p>
+        <p>The reward wasn’t always just him.</p>
+        <p>Sometimes the reward was the relief.</p>
+        <p>You’ve been anxious for hours. Your stomach is in knots. You’re checking your phone and trying not to message him.</p>
+        <p>Then his name appears.</p>
+        <p>And what happens?</p>
+        <p>For a minute, you’re okay again.</p>
+        <p>That matters.</p>
+        <p>Because now contact from him isn’t only something you want. It has also become something that can take away the horrible feeling you were having before he contacted you.</p>
+        <p>Then the cycle starts again.</p>
+      </div>
+      <details class="research-box">
+        <summary>See the research behind this</summary>
+        <div class="research-inner">Research on the partial reinforcement extinction effect examines why behaviour learned under inconsistent reinforcement can persist even when the reward stops. <a href="https://pubmed.ncbi.nlm.nih.gov/41801746/" target="_blank" rel="noopener">View the 2026 paper</a>.</div>
+      </details>
+    </section>
 
-    <span class="section-head" style="margin-top:32px;">This is not just a theory</span>
-    <span class="body-line">In March 2026 a Los Angeles jury confirmed what you have been living. A case against Meta concluded that intermittent reinforcement, the same mechanism that keeps you in this loop, overrides human agency. It was legally classified as a defective design.</span>
-    <span class="body-line" style="margin-top:14px;">You were not weak. You were not obsessing. You were responding exactly as a human brain responds to one of the most powerful conditioning patterns that exists. That is now on the record.</span>
-    <span class="legal-note">You were not addicted to him. You were conditioned by the pattern. There is a difference. And it matters for how you get out.</span>
+    <section class="section" id="phone">
+      <span class="section-num">04</span>
+      <h2>This is why I keep making the comparison with your phone.</h2>
+      <div class="copy">
+        <p>I don’t mean your relationship was literally an app.</p>
+        <p>I mean the reason you keep checking your phone is actually very easy to understand.</p>
+        <p>Something good does not happen every single time you pick it up.</p>
+        <p>Most of the time, nothing particularly interesting happens.</p>
+        <p>But every now and then there is something you wanted to see.</p>
+        <p>So later, you check again.</p>
+        <p>You don’t keep checking because every check gives you something.</p>
+        <p class="key">You keep checking because one of them might.</p>
+        <p>That is the parallel.</p>
+        <p>You didn’t know which message was going to be the warm one. Which silence was going to end. Which argument was going to be followed by affection. Which time he came back might finally be the time he stayed.</p>
+        <p>And interestingly, this type of unpredictable reward is one of the mechanisms specifically raised in the major US litigation around addictive social-media design. The court records describe “intermittent variable rewards”, including strategically timing rewards and notifications to keep people engaged and checking.</p>
+        <p>In March 2026, a Los Angeles jury also found Meta and Google negligent in the design and operation of Instagram and YouTube in a landmark case concerning harmful compulsive use.</p>
+        <p>I’m not telling you this because I want you to learn another theory.</p>
+        <p>I’m telling you because I want you to see that the unpredictability matters.</p>
+        <p>It helps explain how you can receive so little from someone and still spend so much time thinking about them.</p>
+        <p>There is even relationship research where women who were uncertain about how much potential partners liked them thought about those men more, and that increased thinking was associated with greater attraction.</p>
+        <p>So the inconsistency was not some irrelevant part of what happened.</p>
+        <p>It was part of what kept you looking for the next good moment.</p>
+      </div>
+      <details class="research-box">
+        <summary>See the sources for this section</summary>
+        <div class="research-inner">
+          <p><a href="https://www.cand.uscourts.gov/wp-content/uploads/2023/03/Redacted-Master-Complaint-1.pdf" target="_blank" rel="noopener">Social Media Adolescent Addiction / Personal Injury Products Liability Litigation</a></p>
+          <p><a href="https://www.reuters.com/legal/litigation/what-did-jury-decide-social-media-case-against-meta-google-2026-03-25/" target="_blank" rel="noopener">Reuters: March 2026 Meta/Google verdict</a></p>
+          <p><a href="https://www.psychologicalscience.org/journals/psychological-science/0956797610393745" target="_blank" rel="noopener">Whitchurch, Wilson & Gilbert: uncertainty and romantic attraction</a></p>
+        </div>
+      </details>
+      <div class="micro-cta">
+        <p>If this is starting to sound like you, you don’t have to wait until the end.</p>
+        <a class="cta-link quiz-link" data-cta="mechanism" href="quiz.html?utm_source=hook_guide&utm_medium=lead_magnet&utm_campaign=hook&utm_content=mechanism">See what the hook is doing to you →</a>
+      </div>
+    </section>
 
-    <span class="section-head" style="margin-top:32px;">Why thinking your way out is not working</span>
-    <span class="body-line">Because this is not a thinking problem. You did not get conditioned into this through logic, so you cannot get out of it through logic. This is why you can understand avoidant attachment perfectly and still feel the pull every morning.</span>
-    <span class="strong-line">Understanding the pattern is one layer. Interrupting the loop is another.</span>
-    <span class="body-line" style="margin-top:14px;">Patterns like this change through repetition, not willpower. You cannot talk your nervous system out of a biological hook. Knowing why you are in the spiral does not stop the spiral from spinning.</span>
+    <section class="section" id="after">
+      <span class="section-num">05</span>
+      <h2>And no, he doesn’t have to still be there.</h2>
+      <div class="copy">
+        <p>This is important because you could read everything I’ve just written and think:</p>
+        <p><em>But we aren’t even together anymore. He isn’t doing any of that now.</em></p>
+        <p>That doesn’t mean you’re not still dealing with what happened.</p>
+        <p>You can have him blocked and still think about him every day.</p>
+        <p>You can know you wouldn’t actually take him back and still check whether he’s with someone else.</p>
+        <p>You can be getting on with your life and then hear one song and suddenly you’re right back in something that hasn’t existed for six months.</p>
+        <p>You might not check at all anymore. You might be doing everything you think you’re supposed to be doing.</p>
+        <p>But he’s still taking up far more space in your head than you want him to.</p>
+        <p>And sometimes what you’re waiting for now isn’t even contact.</p>
+        <p>You’re waiting for an apology.</p>
+        <p>An explanation.</p>
+        <p>For him to finally understand what he did.</p>
+        <p>For the whole thing to make sense.</p>
+        <p>So he doesn’t have to still be actively doing anything for you to still be dealing with what happened.</p>
+      </div>
+    </section>
 
-    <span class="section-head" style="margin-top:32px;">What you actually want back</span>
-    <span class="body-line">You do not need more information. You want space.</span>
-    <span class="body-line" style="margin-top:10px;">A quiet mind. To stop waking up and thinking about him first. To stop the checking and the replaying. To feel like yourself again.</span>
-    <span class="pull-quote">I can't change him. I can't bring him back. I can give you back your peace.</span>
-  </div>
+    <section class="section" id="information">
+      <span class="section-num">06</span>
+      <h2>Here’s where I think women can get stuck again.</h2>
+      <div class="copy">
+        <p>You finally understand what happened.</p>
+        <p>You learn about avoidant attachment.</p>
+        <p>Then intermittent reinforcement.</p>
+        <p>Then nervous-system regulation.</p>
+        <p>Trauma bonding.</p>
+        <p>No contact.</p>
+        <p>Whatever finally makes you think:</p>
+        <p><em>Ohhhh. That’s what happened to me.</em></p>
+        <p>And that understanding can be incredibly relieving.</p>
+        <p>But then tomorrow comes.</p>
+        <p>And you still want to check.</p>
+        <p>You still wake up thinking about him.</p>
+        <p>Your body still reacts.</p>
+        <p>You still struggle to stick to the decision you made last night.</p>
+        <p>So now I want you to notice something.</p>
+        <p>You could stop searching for information about him and start searching for endless information about yourself instead.</p>
+        <p>And still stay stuck.</p>
+        <p>Because eventually, more information becomes more information.</p>
+        <p>You can understand intermittent reinforcement perfectly and still be experiencing it.</p>
+        <p>You can understand why your nervous system is reacting and still have the reaction.</p>
+        <p>You can know exactly why you shouldn’t message him and still desperately want to.</p>
+        <p>So yes, I want you to understand what happened to you.</p>
+        <p>But I don’t want you to spend the next two years just becoming an expert in that instead.</p>
+        <p class="key">Because if information alone was enough, you would already be out of this.</p>
+        <p>At some point, you have to work on what the pattern has actually done.</p>
+        <p>And that is the bit Your Mind Story is built for.</p>
+      </div>
+    </section>
 
-  <!-- CTA — smart: if she has a result, show it; if not, send to quiz -->
-  <div class="cta-block a4">
-    <span class="cta-text" id="cta-text">The assessment tells you exactly which part of your nervous system has been most affected, and points you to the specific tool built for that area.</span>
-    <a href="quiz.html" class="btn-primary" id="cta-btn" onclick="gtag('event','cta_click',{'cta':'guide_to_quiz'});">Take the free quiz</a>
-  </div>
+    <section class="section" id="stages">
+      <span class="section-num">07</span>
+      <h2>So what has it actually done to you?</h2>
+      <div class="copy stage-intro">
+        <p>This is where I want you to stop thinking about him for a minute and look at yourself.</p>
+        <p>Tap anything that sounds like you. You might recognise one. You might recognise two or three. You might need all four.</p>
+      </div>
 
-  <footer>
-    <nav class="footer-links">
-      <a href="https://www.tiktok.com/@dontsleepwithavoidantmen" target="_blank" rel="noopener" onclick="gtag('event','footer_click',{'link':'tiktok'});">TikTok</a>
-      <a href="https://payhip.com/YourMindStory" onclick="gtag('event','footer_click',{'link':'shop'});">Shop</a>
-      <a href="about.html" onclick="gtag('event','footer_click',{'link':'about'});">About</a>
-      <a href="privacy.html" onclick="gtag('event','footer_click',{'link':'privacy'});">Privacy</a>
-    </nav>
-    
-  </footer>
+      <div class="stages" id="stageGrid">
+        <button class="stage" type="button" aria-pressed="false" data-stage="quiet-the-alarm">
+          <div class="stage-top"><div><span class="stage-kicker">01</span><h3>Quiet the Alarm</h3></div><span class="tick">✓</span></div>
+          <p>For one woman, everything still feels like an emergency.</p>
+          <p>He goes quiet and she can’t concentrate on anything else. Her heart is racing. She isn’t sleeping. One message can change the whole day.</p>
+        </button>
+        <button class="stage" type="button" aria-pressed="false" data-stage="break-the-pull">
+          <div class="stage-top"><div><span class="stage-kicker">02</span><h3>Break the Pull</h3></div><span class="tick">✓</span></div>
+          <p>For another woman, that isn’t really the biggest problem anymore. She can function. She’s getting on with life.</p>
+          <p>But she is still checking. Still replaying. Still wanting to reach out. Still somehow feeling pulled back towards somebody she already knows isn’t giving her what she needs.</p>
+        </button>
+        <button class="stage" type="button" aria-pressed="false" data-stage="restore-self-trust">
+          <div class="stage-top"><div><span class="stage-kicker">03</span><h3>Restore Self Trust</h3></div><span class="tick">✓</span></div>
+          <p>Then there is the woman who actually knows what she needs to do. That isn’t the problem.</p>
+          <p>The problem is that she doesn’t trust herself to keep doing it. She makes the decision and then changes it. Sets the boundary and then moves it. Knows something felt wrong and then talks herself out of what she knows.</p>
+        </button>
+        <button class="stage" type="button" aria-pressed="false" data-stage="return-to-yourself">
+          <div class="stage-top"><div><span class="stage-kicker">04</span><h3>Return to Yourself</h3></div><span class="tick">✓</span></div>
+          <p>And then sometimes it has gone beyond the relationship.</p>
+          <p>You’ve spent so much time thinking about him, reacting to him, healing from him, learning about him, trying not to think about him, that you don’t quite know where you went. You want your plans back. Your attention back. Your future back.</p>
+        </button>
+      </div>
 
-</div>
-</main>
+      <div class="stage-summary" id="stageSummary" aria-live="polite"></div>
 
-<script>
-  // If she has already taken the assessment, show her result link instead
-  try {
-    var r = JSON.parse(sessionStorage.getItem('yms_result') || '{}');
-    if (r.bucket && r.page) {
-      var ctaText = document.getElementById('cta-text');
-      var ctaBtn  = document.getElementById('cta-btn');
-      if (ctaText) ctaText.textContent = 'You have already taken the assessment. Your result is waiting for you.';
-      if (ctaBtn)  { ctaBtn.href = r.page; ctaBtn.textContent = 'See your result'; }
-    }
-  } catch(e) {}
-</script>
+      <div class="copy" style="margin-top:28px">
+        <p>You might have read one of those and immediately thought, <em>that’s me.</em></p>
+        <p>You might recognise yourself in two or three.</p>
+        <p>You might need all four.</p>
+        <p>One can simply be louder than the others right now.</p>
+        <p>The point is not to force you into one box.</p>
+        <p>The point is to work out what this has affected and where I would start first.</p>
+      </div>
+
+      <div class="micro-cta">
+        <p>You don’t need to work out the rest by yourself.</p>
+        <a class="cta-link quiz-link" data-cta="stages" href="quiz.html?utm_source=hook_guide&utm_medium=lead_magnet&utm_campaign=hook&utm_content=stages">See what I would work on first →</a>
+      </div>
+    </section>
+
+    <section class="section" id="work">
+      <span class="section-num">08</span>
+      <h2>This is why the work exists.</h2>
+      <div class="copy">
+        <p>I haven’t just witnessed this pattern. I lived it.</p>
+        <p>And I didn’t realise I was caught in the hook until I was already in the middle of it.</p>
+        <p>That’s how it happened for me. It crept up on me.</p>
+        <p>Understanding it helped.</p>
+        <p>But I got to a point where understanding it was not what I needed anymore.</p>
+        <p class="key">I needed the thoughts to stop. I needed my mind back.</p>
+        <p>That is where the work started.</p>
+        <p>I began applying what I knew from Cognitive Behavioural Hypnotherapy specifically to what this pattern was doing to me.</p>
+        <p>Not more information about him.</p>
+        <p>Actual work on what was happening in me.</p>
+        <p>That became the four stages at the centre of Your Mind Story:</p>
+        <p><strong>Quiet the Alarm. Break the Pull. Restore Self Trust. Return to Yourself.</strong></p>
+        <p>Each stage has its own guided Cognitive Behavioural Hypnotherapy audio because they are not all trying to do the same thing.</p>
+        <p>Research into combining hypnosis with cognitive behavioural approaches has found an overall benefit across a range of treatment studies, which is one reason I use the two together in my work.</p>
+        <p>But the thing that matters most to me is what changes for the woman using it.</p>
+        <p>Because that is what I care about.</p>
+        <p>Not whether you can explain him better after this.</p>
+        <p class="key">Whether you feel different.</p>
+      </div>
+      <details class="research-box">
+        <summary>See the CBHT research</summary>
+        <div class="research-inner">An updated meta-analysis reviewed hypnosis as an adjunct to cognitive behavioural therapy across multiple treatment studies. <a href="https://pubmed.ncbi.nlm.nih.gov/33646087/" target="_blank" rel="noopener">View the meta-analysis</a>.</div>
+      </details>
+    </section>
+
+    <section class="section" id="next">
+      <span class="section-num">09</span>
+      <h2>So now I want to turn the question around.</h2>
+      <div class="copy">
+        <p>You probably came into this wanting to understand him.</p>
+        <p>I want you to leave asking:</p>
+        <div class="single-line">What has this done to me, and what do I need to work on first?</div>
+        <p>You might need one stage.</p>
+        <p>You might need several.</p>
+        <p>You might need all four.</p>
+        <p>And you don’t need to sit there trying to work out what stage you’re on, or guess what you should work on next.</p>
+        <p>That is what the quiz is for.</p>
+        <p>It will show you what is coming up strongest for you, what else is showing up alongside it, and what I would work on first.</p>
+      </div>
+
+      <div class="final-cta">
+        <h2>Take the free quiz</h2>
+        <p>Find out where I would start with you.</p>
+        <a class="button quiz-link" data-cta="final" href="quiz.html?utm_source=hook_guide&utm_medium=lead_magnet&utm_campaign=hook&utm_content=final">Take the free quiz</a>
+        <div class="four">Quiet the Alarm<br>Break the Pull<br>Restore Self Trust<br>Return to Yourself</div>
+        <div class="signature">Break the cycle. Take your life back.<br><br>Onye<br>Your Mind Story<br>Cognitive Behavioural Hypnotherapy</div>
+      </div>
+    </section>
+
+    <section class="section sources" id="sources">
+      <span class="section-num">Sources</span>
+      <h2>Research & references</h2>
+      <ol>
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/41801746/" target="_blank" rel="noopener">The partial reinforcement extinction effect: Learning about trial sequences or time to reinforcement</a> (2026).</li>
+        <li><a href="https://www.psychologicalscience.org/journals/psychological-science/0956797610393745" target="_blank" rel="noopener">Whitchurch, Wilson & Gilbert: He Loves Me, He Loves Me Not...</a></li>
+        <li><a href="https://www.cand.uscourts.gov/wp-content/uploads/2023/03/Redacted-Master-Complaint-1.pdf" target="_blank" rel="noopener">Social Media Adolescent Addiction / Personal Injury Products Liability Litigation</a>.</li>
+        <li><a href="https://www.reuters.com/legal/litigation/what-did-jury-decide-social-media-case-against-meta-google-2026-03-25/" target="_blank" rel="noopener">Reuters: What did the jury decide in the Meta/Google social-media case?</a> (March 2026).</li>
+        <li><a href="https://pubmed.ncbi.nlm.nih.gov/33646087/" target="_blank" rel="noopener">Clinical Hypnosis as an Adjunct to Cognitive Behavior Therapy: An Updated Meta-Analysis</a>.</li>
+      </ol>
+    </section>
+
+    <footer>
+      <div class="footer-links"><a href="quiz.html">Quiz</a><a href="about.html">About</a><a href="privacy.html">Privacy</a></div>
+      <div>© 2026 Your Mind Story</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      var fill=document.getElementById('progressFill');
+      function updateProgress(){
+        var doc=document.documentElement;
+        var max=doc.scrollHeight-window.innerHeight;
+        var pct=max>0?(window.scrollY/max)*100:0;
+        fill.style.width=Math.max(0,Math.min(100,pct))+'%';
+      }
+      document.addEventListener('scroll',updateProgress,{passive:true});
+      updateProgress();
+
+      var selected=[];
+      var labels={
+        'quiet-the-alarm':'Quiet the Alarm',
+        'break-the-pull':'Break the Pull',
+        'restore-self-trust':'Restore Self Trust',
+        'return-to-yourself':'Return to Yourself'
+      };
+      var summary=document.getElementById('stageSummary');
+      document.querySelectorAll('.stage').forEach(function(btn){
+        btn.addEventListener('click',function(){
+          var key=btn.getAttribute('data-stage');
+          var pressed=btn.getAttribute('aria-pressed')==='true';
+          btn.setAttribute('aria-pressed',pressed?'false':'true');
+          if(pressed){selected=selected.filter(function(x){return x!==key;});}
+          else if(selected.indexOf(key)===-1){selected.push(key);}
+          try{sessionStorage.setItem('yms_hook_selfcheck',JSON.stringify(selected));}catch(e){}
+          if(selected.length){
+            summary.classList.add('show');
+            var names=selected.map(function(x){return labels[x];});
+            if(selected.length===4){summary.textContent='You recognised yourself in all four. That can happen. The quiz will help show what is strongest right now and where I would start first.';}
+            else if(selected.length===1){summary.textContent='You recognised yourself most clearly in '+names[0]+'. The quiz will help show whether anything else is sitting alongside it and where I would start first.';}
+            else{summary.textContent='You recognised more than one part of the pattern: '+names.join(', ')+'. The quiz will help show what is strongest right now and where I would start first.';}
+          } else {
+            summary.classList.remove('show');
+            summary.textContent='';
+          }
+          if(typeof gtag==='function')gtag('event','hook_stage_selfcheck',{stage:key,selected:!pressed});
+        });
+      });
+
+      document.querySelectorAll('.quiz-link').forEach(function(link){
+        link.addEventListener('click',function(){
+          if(typeof gtag==='function')gtag('event','hook_quiz_cta_click',{placement:link.getAttribute('data-cta')||'unknown'});
+        });
+      });
+
+      var seen={};
+      var observer=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting && entry.intersectionRatio>=.45){
+            var id=entry.target.id;
+            if(id && !seen[id]){
+              seen[id]=true;
+              if(typeof gtag==='function')gtag('event','hook_section_view',{section:id});
+            }
+          }
+        });
+      },{threshold:[.45]});
+      document.querySelectorAll('section[id]').forEach(function(s){observer.observe(s);});
+    })();
+  </script>
 </body>
 </html>
