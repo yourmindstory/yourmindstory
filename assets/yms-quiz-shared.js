@@ -604,11 +604,11 @@
   // ---------------- YMS-REC-2026-V1 recommendation router ----------------
   var QUIZ_BACKEND_URL_V1 = "https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec";
   var AUDIO_PRODUCTS_V1 = {
-    'Quiet the Alarm': {url:'https://payhip.com/b/53N2B', description:'Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again.'},
-    'Break the Pull': {url:'https://payhip.com/b/N8hbz', description:"You keep getting pulled back into him or the situation: checking, texting, replaying, analysing, looking for signs or trying to understand what is happening."},
-    'Restore Self Trust': {url:'https://payhip.com/b/3RlF7', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
-    'Restore Self-Trust': {url:'https://payhip.com/b/3RlF7', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
-    'Return to Yourself': {url:'https://payhip.com/b/6pE8S', description:"You have started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."}
+    'Quiet the Alarm': {url:'https://stan.store/YourMindStory/p/quiet-the-alarm', description:'Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again.'},
+    'Break the Pull': {url:'https://stan.store/YourMindStory/p/break-the-pull', description:"You keep getting pulled back into him or the situation: checking, texting, replaying, analysing, looking for signs or trying to understand what is happening."},
+    'Restore Self Trust': {url:'https://stan.store/YourMindStory/p/restore-self-trust', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
+    'Restore Self-Trust': {url:'https://stan.store/YourMindStory/p/restore-self-trust', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
+    'Return to Yourself': {url:'https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg', description:"You have started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."}
   };
 
   function renderAudioRecommendationV1(container, stageName){
