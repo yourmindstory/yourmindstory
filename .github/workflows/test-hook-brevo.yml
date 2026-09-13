@@ -1,0 +1,48 @@
+name: Test Hook Brevo endpoint
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/test-hook-brevo.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Submit test contact to Brevo
+        shell: bash
+        env:
+          BREVO_URL: "https://43e2565f.sibforms.com/serve/MUIFACduns2Id6FZwOlGGlJ83xzdz8X2o6P_7K1BOVUt6c9MAszZR6z662xS-dtcGWNqVa4nS4_dHx8Ebm29ZbTJl9VHDCmoPCp0DXjv0VN3NxbT7rF-RTvY6v10r-YbV51BqHOfP0vk_v7jyxVelIBRKSycrxh-UrFJhcIvbPOQDPdskQVm3Mcy_yPSdMWg9mG65NTAp9YOlzuOOA=="
+        run: |
+          set -euo pipefail
+          TEST_EMAIL="hook-funnel-test-$(date +%s)@yourmindstory.co.uk"
+          echo "test_email=$TEST_EMAIL" > /tmp/result.txt
+          status=$(curl -sS -L -o /tmp/body.txt -w '%{http_code}' \
+            --data-urlencode "EMAIL=$TEST_EMAIL" \
+            --data-urlencode "HOOK_SOURCE=website_popup_test" \
+            --data-urlencode "HOOK_PAGE=/automated-test" \
+            --data-urlencode "MARKETING_CONSENT=0" \
+            --data-urlencode "email_address_check=" \
+            "$BREVO_URL")
+          echo "http_status=$status" >> /tmp/result.txt
+          echo "body_preview=$(tr '\n' ' ' < /tmp/body.txt | head -c 800)" >> /tmp/result.txt
+          cat /tmp/result.txt
+          if [ "$status" -lt 200 ] || [ "$status" -ge 400 ]; then
+            exit 1
+          fi
+          cp /tmp/result.txt hook-brevo-test-result.txt
+      - name: Save test result
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hook-brevo-test-result.txt
+          git commit -m "Record Hook Brevo endpoint test" || exit 0
+          git push origin HEAD:main
