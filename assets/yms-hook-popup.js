@@ -11,37 +11,39 @@ function normaliseMobileQuizCTA(){
 
     var nav=mobile.querySelector('.navbar');
     if(nav){
-      Array.prototype.slice.call(nav.querySelectorAll('a[href*="quiz"]')).forEach(function(a){a.remove();});
+      var navLinks=Array.prototype.slice.call(nav.querySelectorAll('a[href*="quiz"]'));
+      navLinks.slice(1).forEach(function(a){a.remove();});
       Array.prototype.slice.call(nav.children).forEach(function(el){if((el.textContent||'').trim()==='☰')el.remove();});
-      var navQuiz=document.createElement('a');
-      navQuiz.className='yms-mobile-nav-quiz';
-      navQuiz.href='quiz.html';
-      navQuiz.textContent='Take the Quiz';
-      navQuiz.style.cssText='display:inline-block;background:#24231F;color:#FCFBF7;text-decoration:none;padding:9px 12px;border-radius:2px;font:600 10px/1.2 Inter,Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;';
-      navQuiz.addEventListener('click',function(){if(typeof window.gtag==='function'){window.gtag('event','nav_click',{link:'quiz'});window.gtag('event','nav_quiz_click');}});
-      nav.appendChild(navQuiz);
+      if(!navLinks.length){
+        var navQuiz=document.createElement('a');
+        navQuiz.className='yms-mobile-nav-quiz';
+        navQuiz.href='quiz.html';
+        navQuiz.textContent='Take the Quiz';
+        navQuiz.style.cssText='display:inline-block;background:#24231F;color:#FCFBF7;text-decoration:none;padding:9px 12px;border-radius:2px;font:600 10px/1.2 Inter,Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;';
+        navQuiz.addEventListener('click',function(){if(typeof window.gtag==='function'){window.gtag('event','nav_click',{link:'quiz'});window.gtag('event','nav_quiz_click');}});
+        nav.appendChild(navQuiz);
+      }
     }
 
     var hero=mobile.querySelector('.hero');
     if(hero){
-      Array.prototype.slice.call(hero.querySelectorAll('a[href*="quiz"]')).forEach(function(a){
-        var p=a.parentElement;
-        if(p&&p!==hero&&p.querySelectorAll('a').length===1&&(/Not sure where to begin/i.test(p.textContent||'')||p.classList.contains('yms-mobile-hero-quiz')||p.classList.contains('yms-mobile-quiz-final'))){p.remove();}
-        else{a.remove();}
-      });
+      var heroCopy=hero.querySelector('.hero-copy');
+      var preferred=heroCopy&&heroCopy.querySelector('a[href*="quiz"]');
 
-      var oldDynamic=hero.querySelectorAll('.yms-mobile-hero-quiz,.yms-mobile-quiz-final');
-      Array.prototype.slice.call(oldDynamic).forEach(function(el){el.remove();});
-
-      var boot=hero.querySelector('a[href*="bootcamp-waitlist"]');
-      var ref=boot?boot.parentElement:hero.querySelector('.hero-img-wrap');
-      if(ref){
-        var block=document.createElement('div');
-        block.className='yms-mobile-quiz-final';
-        block.style.cssText='margin:16px 20px 28px;text-align:center;';
-        block.innerHTML='<div style="font:400 13px/1.4 Inter,Arial,sans-serif;color:#4a473c;margin-bottom:10px;">Not sure where to begin?</div><a href="quiz.html" style="display:block;width:100%;text-align:center;background:#C9D4C2;color:#24231F;border:1px solid #24231F;text-decoration:none;padding:15px 18px;border-radius:2px;font:600 12px/1.2 Inter,Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;">Take the Free Quiz</a>';
-        block.querySelector('a').addEventListener('click',function(){if(typeof window.gtag==='function')window.gtag('event','cta_click',{cta:'take_free_quiz_hero_mobile'});});
-        ref.insertAdjacentElement('afterend',block);
+      if(preferred){
+        Array.prototype.slice.call(hero.querySelectorAll('a[href*="quiz"]')).forEach(function(a){if(a!==preferred){var p=a.parentElement;if(p&&(p.classList.contains('yms-mobile-hero-quiz')||p.classList.contains('yms-mobile-quiz-final')))p.remove();else a.remove();}});
+        Array.prototype.slice.call(hero.querySelectorAll('.yms-mobile-hero-quiz,.yms-mobile-quiz-final')).forEach(function(el){if(!el.contains(preferred))el.remove();});
+      }else if(heroCopy){
+        var paras=Array.prototype.slice.call(heroCopy.querySelectorAll('p.body'));
+        var anchor=paras.find(function(p){return /trust yourself again/i.test(p.textContent||'');})||paras[paras.length-1];
+        if(anchor){
+          var block=document.createElement('div');
+          block.className='yms-mobile-quiz-final';
+          block.style.cssText='margin-top:18px;';
+          block.innerHTML='<div style="font:400 13px/1.4 Inter,Arial,sans-serif;color:#4a473c;margin-bottom:8px;">Not sure where to begin?</div><a href="quiz.html" style="display:block;width:100%;text-align:center;background:#C9D4C2;color:#24231F;border:1px solid #24231F;text-decoration:none;padding:15px 18px;border-radius:2px;font:600 12px/1.2 Inter,Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;">Take the Free Quiz</a>';
+          block.querySelector('a').addEventListener('click',function(){if(typeof window.gtag==='function')window.gtag('event','cta_click',{cta:'take_free_quiz_hero_mobile'});});
+          anchor.insertAdjacentElement('afterend',block);
+        }
       }
     }
   }
