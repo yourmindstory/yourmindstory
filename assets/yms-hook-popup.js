@@ -31,7 +31,12 @@ function normaliseMobileQuizCTA(){
       var preferred=heroCopy&&heroCopy.querySelector('a[href*="quiz"]');
 
       if(preferred){
-        Array.prototype.slice.call(hero.querySelectorAll('a[href*="quiz"]')).forEach(function(a){if(a!==preferred){var p=a.parentElement;if(p&&(p.classList.contains('yms-mobile-hero-quiz')||p.classList.contains('yms-mobile-quiz-final')))p.remove();else a.remove();}});
+        Array.prototype.slice.call(hero.querySelectorAll('a[href*="quiz"]')).forEach(function(a){
+          if(a===preferred)return;
+          var p=a.parentElement;
+          if(p&&(/Not sure where to begin/i.test(p.textContent||'')||p.classList.contains('yms-mobile-hero-quiz')||p.classList.contains('yms-mobile-quiz-final'))){p.remove();}
+          else{a.remove();}
+        });
         Array.prototype.slice.call(hero.querySelectorAll('.yms-mobile-hero-quiz,.yms-mobile-quiz-final')).forEach(function(el){if(!el.contains(preferred))el.remove();});
       }else if(heroCopy){
         var paras=Array.prototype.slice.call(heroCopy.querySelectorAll('p.body'));
