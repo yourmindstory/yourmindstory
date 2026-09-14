@@ -1,0 +1,71 @@
+name: Update Bootcamp opening hook
+
+"on":
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/update-bootcamp-opening-loop.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update opening copy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('bootcamp.html')
+          s = p.read_text()
+          old = '''<span class="eyebrow">Your Mind Story Bootcamp • Original Group 2026</span>
+<h1>Break the cycle.<br>Take your life back.</h1>
+<h2 style="font-size:clamp(23px,5vw,30px);font-weight:500">You understand the cycle. But you’re still stuck in what it’s doing to you.</h2>
+<p class="lede">You may understand why he pulls away. You may know exactly what you <em>should</em> do.</p>'''
+          new = '''<h1>You understand the cycle.</h1>
+<h2 style="font-size:clamp(23px,5vw,30px);font-weight:500">So why are you still stuck in it?</h2>
+<p class="lede">You know what you should do.</p>
+<p class="lede">But something happens with him, or you think about him, and suddenly what you know doesn’t feel so easy to do.</p>
+<p class="statement">That’s the part we need to talk about.</p>'''
+          if old not in s:
+              raise SystemExit('Expected opening block not found; no change made.')
+          s = s.replace(old, new, 1)
+          # Keep the brand promise, but move it lower so it lands after the open loop rather than closing it immediately.
+          marker = '<p class="statement">Understanding the cycle isn’t the same as breaking it.</p>'
+          replacement = marker + '\n<p class="statement center">Break the cycle. Take your life back.</p>'
+          if marker not in s:
+              raise SystemExit('Expected belief-shift marker not found.')
+          s = s.replace(marker, replacement, 1)
+          p.write_text(s)
+          PY
+          git diff --check
+
+      - name: Verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '<h1>You understand the cycle.</h1>' bootcamp.html
+          grep -q 'So why are you still stuck in it?' bootcamp.html
+          grep -q 'That’s the part we need to talk about.' bootcamp.html
+          grep -q 'Break the cycle. Take your life back.' bootcamp.html
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add bootcamp.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed.'
+            exit 0
+          fi
+          git commit -m 'Strengthen Bootcamp opening hook'
+          git push
