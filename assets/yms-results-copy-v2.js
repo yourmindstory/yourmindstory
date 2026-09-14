@@ -196,7 +196,7 @@
         '<p class="price-or">or</p>' +
         '<p class="price-installments">3 monthly payments of £105</p>' +
       '</div>' +
-      '<div class="cta-row"><a class="btn-cta" href="https://payhip.com/b/ZhPkp" id="ymsFinalBootcampCta">JOIN THE ORIGINAL GROUP</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" href="bootcamp.html" id="ymsFinalBootcampCta">SEE THE BOOTCAMP</a></div>' +
       '<p class="cta-microcopy" style="margin-top:18px;">★★★★★ 5 stars on Google<br><strong>Cognitive Behavioural Hypnotherapist</strong></p>';
 
     var cta = document.getElementById("ymsFinalBootcampCta");
