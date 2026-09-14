@@ -41,8 +41,7 @@ jobs:
               if ns != s:
                   sitemap.write_text(ns)
 
-          # 2) The quiz Bootcamp recommendation should go to the sales page first,
-          # not straight to Payhip.
+          # 2) Quiz Bootcamp recommendation goes to the full sales page first.
           q = Path('assets/yms-results-copy-v2.js')
           if q.exists():
               s = q.read_text()
@@ -51,21 +50,11 @@ jobs:
               if old in s:
                   s = s.replace(old, new, 1)
               else:
-                  # Safe fallback if wording has changed but the same final CTA remains.
                   s = s.replace('href="https://payhip.com/b/ZhPkp" id="ymsFinalBootcampCta"', 'href="bootcamp.html" id="ymsFinalBootcampCta"', 1)
                   s = s.replace('>JOIN THE ORIGINAL GROUP</a>', '>SEE THE BOOTCAMP</a>', 1)
               q.write_text(s)
 
-          # Keep the live quiz UI test aligned with the new quiz -> sales page flow.
-          t = Path('.github/workflows/test-live-quiz-ui.yml')
-          if t.exists():
-              s = t.read_text()
-              s = s.replace("name: /JOIN THE ORIGINAL GROUP/i", "name: /SEE THE BOOTCAMP/i")
-              s = s.replace("assert.strictEqual(await cta.getAttribute('href'), 'https://payhip.com/b/ZhPkp');", "assert.strictEqual(await cta.getAttribute('href'), 'bootcamp.html');")
-              t.write_text(s)
-
-          # 3) Preserve the old public URL and send people to the new one.
-          # JavaScript preserves any UTM query string and hash; meta refresh is the no-JS fallback.
+          # 3) Old public waitlist URL redirects to the sales page and preserves tracking parameters.
           redirect = '''<!DOCTYPE html>
           <html lang="en">
           <head>
@@ -111,7 +100,7 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .
+          git add -- '*.html' 'assets/yms-results-copy-v2.js' 'sitemap.xml'
           if git diff --cached --quiet; then
             echo 'No changes needed.'
             exit 0
