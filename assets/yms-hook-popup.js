@@ -2,15 +2,17 @@
 'use strict';
 var CONFIG={enabled:true,brevoFormUrl:'https://43e2565f.sibforms.com/serve/MUIFACduns2Id6FZwOlGGlJ83xzdz8X2o6P_7K1BOVUt6c9MAszZR6z662xS-dtcGWNqVa4nS4_dHx8Ebm29ZbTJl9VHDCmoPCp0DXjv0VN3NxbT7rF-RTvY6v10r-YbV51BqHOfP0vk_v7jyxVelIBRKSycrxh-UrFJhcIvbPOQDPdskQVm3Mcy_yPSdMWg9mG65NTAp9YOlzuOOA==',guideUrl:'/guide.html?utm_source=hook_popup&utm_medium=lead_magnet&utm_campaign=hook&utm_content=success',minDelayMs:8000,fallbackDelayMs:20000,scrollTrigger:0.35,requestStorageKey:'yms_hook_requested_v1',dismissStorageKey:'yms_hook_dismissed_session_v1'};
 var path=(location.pathname||'/').toLowerCase();
-function enhanceMobileQuizCTA(){
+
+function normaliseMobileQuizCTA(){
   if(path!=='/'&&path!=='/index.html')return;
   function apply(){
     var mobile=document.querySelector('#mobile');
     if(!mobile)return;
+
     var nav=mobile.querySelector('.navbar');
-    if(nav&&!nav.querySelector('.yms-mobile-nav-quiz')){
-      var menu=nav.lastElementChild;
-      if(menu&&menu.textContent.trim()==='☰')menu.remove();
+    if(nav){
+      Array.prototype.slice.call(nav.querySelectorAll('a[href*="quiz"]')).forEach(function(a){a.remove();});
+      Array.prototype.slice.call(nav.children).forEach(function(el){if((el.textContent||'').trim()==='☰')el.remove();});
       var navQuiz=document.createElement('a');
       navQuiz.className='yms-mobile-nav-quiz';
       navQuiz.href='quiz.html';
@@ -19,19 +21,34 @@ function enhanceMobileQuizCTA(){
       navQuiz.addEventListener('click',function(){if(typeof window.gtag==='function'){window.gtag('event','nav_click',{link:'quiz'});window.gtag('event','nav_quiz_click');}});
       nav.appendChild(navQuiz);
     }
-    var hero=mobile.querySelector('.hero .hero-copy');
-    if(hero&&!hero.querySelector('.yms-mobile-hero-quiz')){
-      var wrap=document.createElement('div');
-      wrap.className='yms-mobile-hero-quiz';
-      wrap.style.cssText='margin-top:18px;';
-      wrap.innerHTML='<div style="font:400 13px/1.4 Inter,Arial,sans-serif;color:#4a473c;margin-bottom:8px;">Not sure where to begin?</div><a href="quiz.html" style="display:block;width:100%;text-align:center;background:#C9D4C2;color:#24231F;border:1px solid #24231F;text-decoration:none;padding:15px 18px;border-radius:2px;font:600 12px/1.2 Inter,Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;">Take the Free Quiz</a>';
-      wrap.querySelector('a').addEventListener('click',function(){if(typeof window.gtag==='function')window.gtag('event','cta_click',{cta:'take_free_quiz_hero_mobile'});});
-      hero.appendChild(wrap);
+
+    var hero=mobile.querySelector('.hero');
+    if(hero){
+      Array.prototype.slice.call(hero.querySelectorAll('a[href*="quiz"]')).forEach(function(a){
+        var p=a.parentElement;
+        if(p&&p!==hero&&p.querySelectorAll('a').length===1&&(/Not sure where to begin/i.test(p.textContent||'')||p.classList.contains('yms-mobile-hero-quiz')||p.classList.contains('yms-mobile-quiz-final'))){p.remove();}
+        else{a.remove();}
+      });
+
+      var oldDynamic=hero.querySelectorAll('.yms-mobile-hero-quiz,.yms-mobile-quiz-final');
+      Array.prototype.slice.call(oldDynamic).forEach(function(el){el.remove();});
+
+      var boot=hero.querySelector('a[href*="bootcamp-waitlist"]');
+      var ref=boot?boot.parentElement:hero.querySelector('.hero-img-wrap');
+      if(ref){
+        var block=document.createElement('div');
+        block.className='yms-mobile-quiz-final';
+        block.style.cssText='margin:16px 20px 28px;text-align:center;';
+        block.innerHTML='<div style="font:400 13px/1.4 Inter,Arial,sans-serif;color:#4a473c;margin-bottom:10px;">Not sure where to begin?</div><a href="quiz.html" style="display:block;width:100%;text-align:center;background:#C9D4C2;color:#24231F;border:1px solid #24231F;text-decoration:none;padding:15px 18px;border-radius:2px;font:600 12px/1.2 Inter,Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;">Take the Free Quiz</a>';
+        block.querySelector('a').addEventListener('click',function(){if(typeof window.gtag==='function')window.gtag('event','cta_click',{cta:'take_free_quiz_hero_mobile'});});
+        ref.insertAdjacentElement('afterend',block);
+      }
     }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
 }
-enhanceMobileQuizCTA();
+normaliseMobileQuizCTA();
+
 var excluded=['/quiz','/result','/no-result','/low-result','/mixed-result','/guide','/hook-preview','/guide-interactive-preview','/bootcamp','/checkout','/quiet-the-alarm','/break-the-pull','/restore-self-trust','/return-to-yourself','/calm-the-spiral','/checkin-'];
 if(excluded.some(function(x){return path.indexOf(x)!==-1;}))return;
 if(!CONFIG.enabled||!CONFIG.brevoFormUrl)return;
