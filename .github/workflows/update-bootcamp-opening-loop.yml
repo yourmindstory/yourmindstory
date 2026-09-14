@@ -37,7 +37,6 @@ jobs:
           if old not in s:
               raise SystemExit('Expected opening block not found; no change made.')
           s = s.replace(old, new, 1)
-          # Keep the brand promise, but move it lower so it lands after the open loop rather than closing it immediately.
           marker = '<p class="statement">Understanding the cycle isn’t the same as breaking it.</p>'
           replacement = marker + '\n<p class="statement center">Break the cycle. Take your life back.</p>'
           if marker not in s:
@@ -69,3 +68,5 @@ jobs:
           fi
           git commit -m 'Strengthen Bootcamp opening hook'
           git push
+
+# retrigger 2026-09-14
