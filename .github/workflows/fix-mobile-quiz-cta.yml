@@ -47,12 +47,12 @@ jobs:
           <div style="font-size:13px; color:#4a473c; margin-bottom:8px;">Not sure where to begin?</div>
           <a class="btn btn-quiz" href="quiz.html" onclick="gtag('event','cta_click',{'cta':'take_free_quiz_hero'});">Take the Free Quiz</a>
         </div>'''
-          if 'id="mobile"' in marker and 'cta\':\'take_free_quiz_hero' not in mobile.split('<div class="hero-img-wrap">',1)[0]:
+          hero_before_image = mobile.split('<div class="hero-img-wrap">',1)[0]
+          if 'take_free_quiz_hero' not in hero_before_image:
               if anchor not in mobile:
                   raise SystemExit('Mobile hero copy anchor not found')
               mobile = mobile.replace(anchor, hero_cta, 1)
 
-          # Make the quiz button clearly read as an action on mobile rather than a small text link.
           css = '''
   @media(max-width:820px){
     #mobile .hero .btn-quiz{background:var(--sage); color:var(--ink); border:1px solid var(--ink); padding:15px 18px; font-size:12px;}
