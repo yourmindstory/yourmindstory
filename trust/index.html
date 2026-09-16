@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Restore Self-Trust Check-In | Your Mind Story</title>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var day = params.get('day') || '0';
+  var checkpoints = {'0':'baseline','7':'week1','14':'week2','21':'week3'};
+  var point = checkpoints[day] || 'baseline';
+  params.delete('day');
+  params.set('point', point);
+  window.location.replace('/checkin-self-trust.html?' + params.toString());
+}());
+</script>
+</head>
+<body>
+<p>Opening your check-in…</p>
+<noscript><p><a href="/checkin-self-trust.html?point=baseline">Click here to open your check-in</a>.</p></noscript>
+</body>
+</html>
