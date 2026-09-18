@@ -81,6 +81,17 @@
   var BARE_MINIMUM = "https://stan.store/YourMindStory/p/the-bare-minimum";
   var BOOTCAMP = "https://payhip.com/b/ZhPkp";
 
+  function recordJourney(eventType, values) {
+    if (Y.recordJourneyEvent) Y.recordJourneyEvent(eventType, values || {});
+  }
+
+  function logRoute(routeShown, recommendation) {
+    recordJourney("final_route_shown", {
+      routeShown: routeShown,
+      recommendation: recommendation
+    });
+  }
+
   var READINESS_GOAL_OPTIONS = [
     "I want help understanding myself, breaking the cycle and getting my mind back.",
     "I mainly want to understand him and what his behaviour means.",
@@ -183,8 +194,9 @@
 
   function wireDownsell(container, source) {
     var link = container.querySelector("[data-yms-downsell]");
-    if (link && Y.track) link.addEventListener("click", function () {
-      Y.track("quiz_bare_minimum_downsell_click", { source_route: source });
+    if (link) link.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_bare_minimum_downsell_click", { source_route: source });
+      recordJourney("bare_minimum_downsell_click", { ctaChosen: "The Bare Minimum — £4.99" });
     });
   }
 
@@ -202,9 +214,11 @@
       '<p><strong>This is about your health. The minimum.</strong></p>' +
       '<p>Because once you know that, it becomes much harder to keep negotiating with yourself just to keep somebody else.</p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-bare href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>';
+    logRoute("Bare Minimum", "The Bare Minimum");
     var cta = container.querySelector("[data-yms-bare]");
-    if (cta && Y.track) cta.addEventListener("click", function () {
-      Y.track("quiz_bare_minimum_recommendation_click", {});
+    if (cta) cta.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_bare_minimum_recommendation_click", {});
+      recordJourney("primary_cta_click", { cta: "The Bare Minimum — £4.99" });
     });
   }
 
@@ -234,9 +248,11 @@
       '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' — £37</a></div>' +
       downsellHtml(true);
 
+    logRoute("Single Audio", stage);
     var cta = container.querySelector("[data-yms-single]");
-    if (cta && Y.track) cta.addEventListener("click", function () {
-      Y.track("quiz_audio_recommendation_click", { selected_stage: stage });
+    if (cta) cta.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_audio_recommendation_click", { selected_stage: stage });
+      recordJourney("primary_cta_click", { cta: stage + " — £37" });
     });
     wireDownsell(container, "single_" + stage);
     return true;
@@ -266,9 +282,11 @@
       '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY TWO-STAGE PATHWAY — £74</a></div>' +
       downsellHtml(false);
 
+    logRoute("Two-Stage Pathway", pair.name);
     var cta = container.querySelector("[data-yms-pair]");
-    if (cta && Y.track) cta.addEventListener("click", function () {
-      Y.track("quiz_pair_recommendation_click", { pair: pair.name, first_stage: first, second_stage: second });
+    if (cta) cta.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_pair_recommendation_click", { pair: pair.name, first_stage: first, second_stage: second });
+      recordJourney("primary_cta_click", { cta: pair.name + " — £74" });
     });
     wireDownsell(container, "pair_" + pairKey(stages));
     return true;
@@ -338,9 +356,11 @@
         downsellHtml(false);
     }
 
+    logRoute("Complete Self-Guided", "Complete Self-Guided Journey");
     var cta = container.querySelector("[data-yms-self-guided]");
-    if (cta && Y.track) cta.addEventListener("click", function () {
-      Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
+    if (cta) cta.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
+      recordJourney("primary_cta_click", { cta: "Complete Self-Guided Journey — £117" });
     });
     wireDownsell(container, reasonText ? "self_guided_private" : "self_guided_" + stages.length);
     return true;
@@ -361,9 +381,11 @@
       '<p>Get really clear on the five things a woman needs to stay healthy in love.</p>' +
       '<p>Then, when you’re ready to work on the pattern itself, your quiz result is here to show you where I’d start.</p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-bare-bridge href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>';
+    logRoute("Bare Minimum", "The Bare Minimum");
     var cta = container.querySelector("[data-yms-bare-bridge]");
-    if (cta && Y.track) cta.addEventListener("click", function () {
-      Y.track("quiz_bare_minimum_readiness_bridge_click", { qualifying_stage_count: stages.length });
+    if (cta) cta.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_bare_minimum_readiness_bridge_click", { qualifying_stage_count: stages.length });
+      recordJourney("primary_cta_click", { cta: "The Bare Minimum — £4.99" });
     });
   }
 
@@ -396,13 +418,16 @@
         '<div class="cta-row"><a class="btn-ghost" data-yms-self-alt href="' + SELF_GUIDED.url + '">CHOOSE SELF-GUIDED — £117</a></div>' +
       '</div>';
 
+    logRoute("Original Group Bootcamp", "Original Group Bootcamp");
     var boot = container.querySelector("[data-yms-bootcamp]");
     var selfAlt = container.querySelector("[data-yms-self-alt]");
-    if (boot && Y.track) boot.addEventListener("click", function () {
-      Y.track("quiz_bootcamp_recommendation_click", { total_score: totalScoreFromData(data), qualifying_stage_count: stages.length });
+    if (boot) boot.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_bootcamp_recommendation_click", { total_score: totalScoreFromData(data), qualifying_stage_count: stages.length });
+      recordJourney("bootcamp_click", {});
     });
-    if (selfAlt && Y.track) selfAlt.addEventListener("click", function () {
-      Y.track("quiz_self_guided_alternative_click", { source_route: "bootcamp_ready" });
+    if (selfAlt) selfAlt.addEventListener("click", function () {
+      if (Y.track) Y.track("quiz_self_guided_alternative_click", { source_route: "bootcamp_ready" });
+      recordJourney("self_guided_alternative_click", {});
     });
   }
 
@@ -495,6 +520,10 @@
         commitment_aligned: readiness.commitmentAligned,
         total_score: total,
         qualifying_stage_count: stages.length
+      });
+      recordJourney("readiness_completed", {
+        goal: readiness.goal,
+        commitment: readiness.commitment
       });
       routeFromReadiness(readiness);
     });
