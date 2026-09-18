@@ -1,8 +1,23 @@
-name: Test live quiz result UI
+name: Test quiz routing UI
 
 on:
   push:
+    branches:
+      - quiz-stan-routing-v3-20260918
     paths:
+      - 'quiz.html'
+      - 'result.html'
+      - 'mixed-result.html'
+      - 'no-result.html'
+      - 'low-result.html'
+      - 'quiet-the-alarm.html'
+      - 'break-the-pull.html'
+      - 'restore-self-trust.html'
+      - 'return-to-yourself.html'
+      - 'assets/yms-quiz-shared.js'
+      - 'assets/yms-product-routing-v2.js'
+      - 'assets/yms-results-copy-v2.js'
+      - 'assets/yms-bootcamp-reveal.js'
       - '.github/workflows/test-live-quiz-ui.yml'
 
 jobs:
@@ -17,100 +32,149 @@ jobs:
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Test all live quiz result experiences
+      - name: Serve branch locally
+        run: |
+          python3 -m http.server 4173 >/tmp/yms-http.log 2>&1 &
+          echo $! >/tmp/yms-http.pid
+      - name: Test deterministic product routing
         run: |
           cat > test-ui.js <<'NODE'
           const { chromium } = require('playwright');
           const assert = require('assert');
 
+          const BASE = 'http://127.0.0.1:4173';
+
           (async () => {
             const browser = await chromium.launch({ headless: true });
 
-            async function withResult(data, url, fn) {
+            async function withResult(data, file, fn) {
               const context = await browser.newContext();
               await context.addInitScript((payload) => {
                 sessionStorage.setItem('yms_quiz_result', JSON.stringify(payload));
               }, data);
               const page = await context.newPage();
-              await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+              await page.goto(`${BASE}/${file}?qa=routing-v3`, { waitUntil: 'networkidle', timeout: 30000 });
               await fn(page);
               await context.close();
             }
 
-            const bootcamp = {
-              firstName: 'Test', resultType: 'mixed', primaryResult: null,
-              tiedResults: ['Quiet the Alarm','Break the Pull','Restore Self Trust','Return to Yourself'],
-              overallActivationStrength: 'strong', recommendationLevel: 'bootcamp_level',
-              recommendedStage: '', recommendedProduct: 'Your Mind Story Bootcamp',
-              totalFourStageScore: 24, breadthCount: 4
-            };
-
-            await withResult(bootcamp, 'https://yourmindstory.co.uk/mixed-result.html?qa=progressive-smoke2', async (page) => {
-              const first = page.getByRole('button', { name: /Tell me what this means/i });
-              await first.waitFor({ state: 'visible', timeout: 15000 });
-              assert.strictEqual(await page.getByText('I recommend the Your Mind Story Bootcamp.').isVisible().catch(() => false), false);
-              await first.click();
-              const rec = page.getByRole('button', { name: /Show me my recommendation/i });
-              await rec.waitFor({ state: 'visible' });
-              await rec.click();
-              await page.getByText('I recommend the Your Mind Story Bootcamp.').waitFor({ state: 'visible' });
-              assert.strictEqual(await page.locator('.yms-mini-grid > div').count(), 4);
-              const commitment = page.getByRole('button', { name: /What would I actually have to do/i });
-              await commitment.click();
-              await page.getByText('£297').waitFor({ state: 'visible' });
-              const cta = page.getByRole('link', { name: /JOIN THE ORIGINAL GROUP/i });
-              assert.strictEqual(await cta.getAttribute('href'), 'https://payhip.com/b/ZhPkp');
-              console.log('PASS Bootcamp progressive reveal.');
-            });
-
-            const audioCases = [
-              ['Quiet the Alarm','quiet-the-alarm.html','START WITH QUIET THE ALARM'],
-              ['Break the Pull','break-the-pull.html','START WITH BREAK THE PULL'],
-              ['Restore Self-Trust','restore-self-trust.html','START WITH RESTORE SELF-TRUST'],
-              ['Return to Yourself','return-to-yourself.html','START WITH RETURN TO YOURSELF']
+            const singleCases = [
+              ['Quiet the Alarm','quiet-the-alarm.html','https://stan.store/YourMindStory/p/quiet-the-alarm','START WITH QUIET THE ALARM'],
+              ['Break the Pull','break-the-pull.html','https://stan.store/YourMindStory/p/break-the-pull','START WITH BREAK THE PULL'],
+              ['Restore Self-Trust','restore-self-trust.html','https://stan.store/YourMindStory/p/restore-self-trust','START WITH RESTORE SELF-TRUST'],
+              ['Return to Yourself','return-to-yourself.html','https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg','START WITH RETURN TO YOURSELF']
             ];
 
-            for (const [stage,file,ctaText] of audioCases) {
-              const audio = {firstName:'Test',resultType:'single',primaryResult:stage,tiedResults:[],overallActivationStrength:'strong',recommendationLevel:'audio_first',recommendedStage:stage,recommendedProduct:stage};
-              await withResult(audio, `https://yourmindstory.co.uk/${file}?qa=audio-smoke2`, async (page) => {
-                const first = page.getByRole('button', { name: /Show me my recommendation/i });
-                await first.waitFor({ state: 'visible', timeout: 15000 });
-                assert.strictEqual(await page.getByRole('link', { name: new RegExp(ctaText,'i') }).isVisible().catch(() => false), false);
-                await first.click();
-                const why = page.getByRole('button', { name: /Why this one/i });
-                await why.waitFor({ state: 'visible' });
+            for (const [stage,file,url,ctaText] of singleCases) {
+              const data = {
+                firstName:'Test',
+                resultType:'single',
+                primaryResult:stage,
+                leadingPatterns:[stage],
+                secondaryActivePatterns:[],
+                activeStages:[stage],
+                recommendationLevel:'audio_first',
+                recommendedStage:stage
+              };
+              await withResult(data,file,async(page)=>{
+                const show = page.getByRole('button',{name:/Show me my recommendation/i});
+                await show.waitFor({state:'visible'});
+                await show.click();
+                const why = page.getByRole('button',{name:/Why this one/i});
+                await why.waitFor({state:'visible'});
                 await why.click();
-                await page.getByRole('link', { name: new RegExp(ctaText,'i') }).waitFor({ state: 'visible' });
-                console.log('PASS audio progressive reveal:', stage);
+                const cta = page.getByRole('link',{name:new RegExp(ctaText,'i')});
+                await cta.waitFor({state:'visible'});
+                assert.strictEqual(await cta.getAttribute('href'),url);
               });
+              console.log('PASS single:',stage);
             }
 
-            const mixedAudio = {firstName:'Test',resultType:'mixed',primaryResult:null,tiedResults:['Quiet the Alarm','Break the Pull'],overallActivationStrength:'moderate',recommendationLevel:'audio_first',recommendedStage:'',recommendedProduct:'',mixedClarificationRequired:true};
-            await withResult(mixedAudio, 'https://yourmindstory.co.uk/mixed-result.html?qa=mixed-smoke2', async (page) => {
-              const btn = page.getByRole('button', { name: /Show me where to start/i });
-              await btn.waitFor({ state: 'visible', timeout: 15000 });
-              await btn.click();
-              await page.getByText(/more than one part of the cycle|which one feels closest|where would you start/i).first().waitFor({ state: 'visible', timeout: 5000 });
-              console.log('PASS mixed audio progressive reveal.');
-            });
+            const pairCases = [
+              [['Quiet the Alarm','Break the Pull'],'https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull'],
+              [['Quiet the Alarm','Restore Self-Trust'],'https://stan.store/Yourmindstory/p/quiet-the-alarm--restore-selftrust'],
+              [['Quiet the Alarm','Return to Yourself'],'https://stan.store/Yourmindstory/p/quiet-the-alarm--return-to-yourself'],
+              [['Break the Pull','Restore Self-Trust'],'https://stan.store/Yourmindstory/p/break-the-pull--restore-selftrust'],
+              [['Break the Pull','Return to Yourself'],'https://stan.store/Yourmindstory/p/break-the-pull--return-to-yourself'],
+              [['Restore Self-Trust','Return to Yourself'],'https://stan.store/Yourmindstory/p/restore-selftrust--return-to-yourself']
+            ];
 
-            const bare = {firstName:'Test',resultType:'none',primaryResult:null,tiedResults:[],recommendationLevel:'bare_minimum',recommendedProduct:'The Bare Minimum'};
-            await withResult(bare, 'https://yourmindstory.co.uk/no-result.html?qa=bare-smoke2', async (page) => {
-              const btn = page.getByRole('button', { name: /Show me my recommendation/i });
-              await btn.waitFor({ state: 'visible', timeout: 15000 });
-              assert.strictEqual(await page.getByRole('link', { name: /START WITH THE BARE MINIMUM/i }).isVisible().catch(() => false), false);
-              await btn.click();
-              const cta = page.getByRole('link', { name: /START WITH THE BARE MINIMUM/i });
-              await cta.waitFor({ state: 'visible' });
-              assert.strictEqual(await cta.getAttribute('href'), 'https://payhip.com/b/ZcdmX');
-              console.log('PASS Bare Minimum progressive reveal.');
-            });
-
-            for (const file of ['quiet-the-alarm.html','break-the-pull.html','restore-self-trust.html','return-to-yourself.html','mixed-result.html','no-result.html']) {
-              const html = await (await fetch('https://yourmindstory.co.uk/' + file + '?qa=script-check2')).text();
-              assert(html.includes('assets/yms-bootcamp-reveal.js?v=20260910-2'), file + ' missing latest reveal script');
+            for (const [stages,url] of pairCases) {
+              const data = {
+                firstName:'Test',
+                resultType:'mixed',
+                primaryResult:null,
+                tiedResults:stages,
+                leadingPatterns:stages,
+                secondaryActivePatterns:[],
+                activeStages:stages,
+                recommendationLevel:'audio_first',
+                mixedClarificationRequired:true
+              };
+              await withResult(data,'mixed-result.html',async(page)=>{
+                const show = page.getByRole('button',{name:/Show me where to start/i});
+                await show.waitFor({state:'visible'});
+                await show.click();
+                const cta = page.getByRole('link',{name:/START MY TWO-STAGE PATHWAY/i});
+                await cta.waitFor({state:'visible'});
+                assert.strictEqual(await cta.getAttribute('href'),url);
+                assert.strictEqual(await page.getByText(/which one feels closest/i).isVisible().catch(()=>false),false);
+              });
+              console.log('PASS pair:',stages.join(' + '));
             }
-            console.log('PASS wiring on all six result pages.');
+
+            for (const stages of [
+              ['Quiet the Alarm','Break the Pull','Restore Self-Trust'],
+              ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself']
+            ]) {
+              const data = {
+                firstName:'Test',
+                resultType:'mixed',
+                primaryResult:null,
+                tiedResults:stages.slice(0,2),
+                leadingPatterns:stages.slice(0,2),
+                secondaryActivePatterns:stages.slice(2),
+                activeStages:stages,
+                recommendationLevel:'bootcamp_level'
+              };
+              await withResult(data,'mixed-result.html',async(page)=>{
+                const show = page.getByRole('button',{name:/Show me where to start/i});
+                await show.waitFor({state:'visible'});
+                await show.click();
+                const cta = page.getByRole('link',{name:/START MY SELF-GUIDED JOURNEY/i});
+                await cta.waitFor({state:'visible'});
+                assert.strictEqual(await cta.getAttribute('href'),'https://stan.store/Yourmindstory/p/complete-selfguided-journey');
+                assert.strictEqual(await page.getByText(/I recommend the Your Mind Story Bootcamp/i).isVisible().catch(()=>false),false);
+              });
+              console.log('PASS self-guided:',stages.length,'active stages');
+            }
+
+            const bare = {
+              firstName:'Test',
+              resultType:'no_clear_leader',
+              primaryResult:null,
+              tiedResults:[],
+              leadingPatterns:[],
+              secondaryActivePatterns:[],
+              activeStages:[],
+              recommendationLevel:'bare_minimum'
+            };
+            await withResult(bare,'no-result.html',async(page)=>{
+              const show = page.getByRole('button',{name:/Show me my recommendation/i});
+              await show.waitFor({state:'visible'});
+              await show.click();
+              const cta = page.getByRole('link',{name:/START WITH THE BARE MINIMUM/i});
+              await cta.waitFor({state:'visible'});
+              assert.strictEqual(await cta.getAttribute('href'),'https://stan.store/YourMindStory/p/the-bare-minimum');
+            });
+            console.log('PASS Bare Minimum.');
+
+            for (const file of ['quiet-the-alarm.html','break-the-pull.html','restore-self-trust.html','return-to-yourself.html','mixed-result.html']) {
+              const html = await (await fetch(`${BASE}/${file}`)).text();
+              assert(html.includes('assets/yms-product-routing-v2.js?v=20260918-1'), file + ' missing product router');
+              assert(html.includes('assets/yms-bootcamp-reveal.js?v=20260910-2'), file + ' missing progressive reveal');
+            }
+            console.log('PASS result-page wiring.');
 
             await browser.close();
           })().catch(err => { console.error(err); process.exit(1); });
