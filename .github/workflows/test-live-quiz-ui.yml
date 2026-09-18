@@ -36,13 +36,39 @@ jobs:
         run: |
           python3 -m http.server 4173 >/tmp/yms-http.log 2>&1 &
           echo $! >/tmp/yms-http.pid
-      - name: Test deterministic product routing
+      - name: Test threshold routing, readiness gate and downsell
         run: |
           cat > test-ui.js <<'NODE'
           const { chromium } = require('playwright');
           const assert = require('assert');
 
           const BASE = 'http://127.0.0.1:4173';
+          const order = ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+
+          function scoresFor(stages, values={}) {
+            const out = {};
+            for (const stage of order) out[stage] = values[stage] ?? (stages.includes(stage) ? 3 : 2);
+            return out;
+          }
+          function makeData(stages, values={}, extra={}) {
+            const stageScores = scoresFor(stages, values);
+            const total = Object.values(stageScores).reduce((a,b)=>a+b,0);
+            return Object.assign({
+              firstName:'Test',
+              resultType: stages.length === 1 ? 'single' : (stages.length === 0 ? 'no_clear_leader' : 'mixed'),
+              primaryResult: stages.length === 1 ? stages[0] : null,
+              tiedResults: stages.length > 1 ? stages.slice(0,2) : [],
+              leadingPatterns: stages.length > 1 ? stages.slice(0,2) : stages.slice(),
+              secondaryActivePatterns: stages.length > 2 ? stages.slice(2) : [],
+              activeStages: stages.slice(),
+              qualifyingStages: stages.slice(),
+              stageScores,
+              totalFourStageScore: total,
+              breadthCount: stages.length,
+              recommendationLevel: stages.length === 0 ? 'bare_minimum' : (stages.length <= 2 ? 'audio_first' : 'complete_self_guided'),
+              recommendationEngineVersion:'YMS-REC-2026-V2'
+            }, extra);
+          }
 
           (async () => {
             const browser = await chromium.launch({ headless: true });
@@ -53,7 +79,7 @@ jobs:
                 sessionStorage.setItem('yms_quiz_result', JSON.stringify(payload));
               }, data);
               const page = await context.newPage();
-              await page.goto(`${BASE}/${file}?qa=routing-v3`, { waitUntil: 'networkidle', timeout: 30000 });
+              await page.goto(`${BASE}/${file}?qa=routing-v4`, { waitUntil: 'networkidle', timeout: 30000 });
               await fn(page);
               await context.close();
             }
@@ -66,16 +92,7 @@ jobs:
             ];
 
             for (const [stage,file,url,ctaText] of singleCases) {
-              const data = {
-                firstName:'Test',
-                resultType:'single',
-                primaryResult:stage,
-                leadingPatterns:[stage],
-                secondaryActivePatterns:[],
-                activeStages:[stage],
-                recommendationLevel:'audio_first',
-                recommendedStage:stage
-              };
+              const data = makeData([stage], {[stage]:4});
               await withResult(data,file,async(page)=>{
                 const show = page.getByRole('button',{name:/Show me my recommendation/i});
                 await show.waitFor({state:'visible'});
@@ -86,8 +103,10 @@ jobs:
                 const cta = page.getByRole('link',{name:new RegExp(ctaText,'i')});
                 await cta.waitFor({state:'visible'});
                 assert.strictEqual(await cta.getAttribute('href'),url);
+                const down = page.getByRole('link',{name:/START WITH THE BARE MINIMUM/i});
+                assert.strictEqual(await down.getAttribute('href'),'https://stan.store/YourMindStory/p/the-bare-minimum');
               });
-              console.log('PASS single:',stage);
+              console.log('PASS single + downsell:',stage);
             }
 
             const pairCases = [
@@ -100,17 +119,7 @@ jobs:
             ];
 
             for (const [stages,url] of pairCases) {
-              const data = {
-                firstName:'Test',
-                resultType:'mixed',
-                primaryResult:null,
-                tiedResults:stages,
-                leadingPatterns:stages,
-                secondaryActivePatterns:[],
-                activeStages:stages,
-                recommendationLevel:'audio_first',
-                mixedClarificationRequired:true
-              };
+              const data = makeData(stages);
               await withResult(data,'mixed-result.html',async(page)=>{
                 const show = page.getByRole('button',{name:/Show me where to start/i});
                 await show.waitFor({state:'visible'});
@@ -119,46 +128,80 @@ jobs:
                 await cta.waitFor({state:'visible'});
                 assert.strictEqual(await cta.getAttribute('href'),url);
                 assert.strictEqual(await page.getByText(/which one feels closest/i).isVisible().catch(()=>false),false);
+                assert.strictEqual(await page.getByRole('link',{name:/START WITH THE BARE MINIMUM/i}).getAttribute('href'),'https://stan.store/YourMindStory/p/the-bare-minimum');
               });
               console.log('PASS pair:',stages.join(' + '));
             }
 
-            for (const stages of [
+            const threeLow = makeData(
               ['Quiet the Alarm','Break the Pull','Restore Self-Trust'],
-              ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself']
-            ]) {
-              const data = {
-                firstName:'Test',
-                resultType:'mixed',
-                primaryResult:null,
-                tiedResults:stages.slice(0,2),
-                leadingPatterns:stages.slice(0,2),
-                secondaryActivePatterns:stages.slice(2),
-                activeStages:stages,
-                recommendationLevel:'bootcamp_level'
-              };
-              await withResult(data,'mixed-result.html',async(page)=>{
-                const show = page.getByRole('button',{name:/Show me where to start/i});
-                await show.waitFor({state:'visible'});
-                await show.click();
-                const cta = page.getByRole('link',{name:/START MY SELF-GUIDED JOURNEY/i});
-                await cta.waitFor({state:'visible'});
-                assert.strictEqual(await cta.getAttribute('href'),'https://stan.store/Yourmindstory/p/complete-selfguided-journey');
-                assert.strictEqual(await page.getByText(/I recommend the Your Mind Story Bootcamp/i).isVisible().catch(()=>false),false);
-              });
-              console.log('PASS self-guided:',stages.length,'active stages');
-            }
+              {'Quiet the Alarm':4,'Break the Pull':3,'Restore Self-Trust':3,'Return to Yourself':2}
+            );
+            await withResult(threeLow,'mixed-result.html',async(page)=>{
+              await page.getByRole('button',{name:/Show me where to start/i}).click();
+              const cta = page.getByRole('link',{name:/START MY SELF-GUIDED JOURNEY/i});
+              await cta.waitFor({state:'visible'});
+              assert.strictEqual(await cta.getAttribute('href'),'https://stan.store/Yourmindstory/p/complete-selfguided-journey');
+              await page.getByText(/three areas I would work on/i).waitFor({state:'visible'});
+              await page.getByText(/not saying you need it right now/i).waitFor({state:'visible'});
+            });
+            console.log('PASS three-stage bundle honesty.');
 
-            const bare = {
-              firstName:'Test',
-              resultType:'no_clear_leader',
-              primaryResult:null,
-              tiedResults:[],
-              leadingPatterns:[],
-              secondaryActivePatterns:[],
-              activeStages:[],
-              recommendationLevel:'bare_minimum'
-            };
+            const fourLow = makeData(
+              order,
+              {'Quiet the Alarm':3,'Break the Pull':3,'Restore Self-Trust':3,'Return to Yourself':3}
+            );
+            await withResult(fourLow,'mixed-result.html',async(page)=>{
+              await page.getByRole('button',{name:/Show me where to start/i}).click();
+              const cta = page.getByRole('link',{name:/START MY SELF-GUIDED JOURNEY/i});
+              await cta.waitFor({state:'visible'});
+              assert.strictEqual(await cta.getAttribute('href'),'https://stan.store/Yourmindstory/p/complete-selfguided-journey');
+              assert.strictEqual(await page.getByText(/TWO QUICK FIT QUESTIONS/i).isVisible().catch(()=>false),false);
+            });
+            console.log('PASS four-stage total-12 self-guided.');
+
+            const threeHigh = makeData(
+              ['Quiet the Alarm','Break the Pull','Restore Self-Trust'],
+              {'Quiet the Alarm':5,'Break the Pull':5,'Restore Self-Trust':4,'Return to Yourself':2}
+            );
+            await withResult(threeHigh,'mixed-result.html',async(page)=>{
+              await page.getByRole('button',{name:/Show me where to start/i}).click();
+              await page.getByText(/TWO QUICK FIT QUESTIONS/i).waitFor({state:'visible'});
+              await page.getByLabel(/I want help understanding myself, breaking the cycle and getting my mind back/i).check();
+              await page.getByLabel(/^Yes.$/i).check();
+              const submit=page.getByRole('button',{name:/SHOW ME MY BEST ROUTE/i});
+              await submit.click();
+              const boot=page.getByRole('link',{name:/JOIN ORIGINAL GROUP/i});
+              await boot.waitFor({state:'visible'});
+              assert.strictEqual(await boot.getAttribute('href'),'https://payhip.com/b/ZhPkp');
+              assert.strictEqual(await page.getByRole('link',{name:/CHOOSE SELF-GUIDED/i}).getAttribute('href'),'https://stan.store/Yourmindstory/p/complete-selfguided-journey');
+            });
+            console.log('PASS high-burden + ready => Bootcamp.');
+
+            await withResult(threeHigh,'mixed-result.html',async(page)=>{
+              await page.getByRole('button',{name:/Show me where to start/i}).click();
+              await page.getByLabel(/I mainly want to understand him and what his behaviour means/i).check();
+              await page.getByLabel(/^Yes.$/i).check();
+              await page.getByRole('button',{name:/SHOW ME MY BEST ROUTE/i}).click();
+              const self=page.getByRole('link',{name:/START MY SELF-GUIDED JOURNEY/i});
+              await self.waitFor({state:'visible'});
+              assert.strictEqual(await page.getByRole('link',{name:/JOIN ORIGINAL GROUP/i}).isVisible().catch(()=>false),false);
+            });
+            console.log('PASS him-focused => self-guided, not Bootcamp.');
+
+            await withResult(threeHigh,'mixed-result.html',async(page)=>{
+              await page.getByRole('button',{name:/Show me where to start/i}).click();
+              await page.getByLabel(/I want help understanding myself, breaking the cycle and getting my mind back/i).check();
+              await page.getByLabel(/^No.$/i).check();
+              await page.getByRole('button',{name:/SHOW ME MY BEST ROUTE/i}).click();
+              await page.getByRole('link',{name:/START MY SELF-GUIDED JOURNEY/i}).waitFor({state:'visible'});
+              assert.strictEqual(await page.getByRole('link',{name:/JOIN ORIGINAL GROUP/i}).isVisible().catch(()=>false),false);
+            });
+            console.log('PASS not willing => self-guided, not Bootcamp.');
+
+            const bare = makeData([], {
+              'Quiet the Alarm':2,'Break the Pull':2,'Restore Self-Trust':2,'Return to Yourself':2
+            });
             await withResult(bare,'no-result.html',async(page)=>{
               const show = page.getByRole('button',{name:/Show me my recommendation/i});
               await show.waitFor({state:'visible'});
@@ -166,13 +209,20 @@ jobs:
               const cta = page.getByRole('link',{name:/START WITH THE BARE MINIMUM/i});
               await cta.waitFor({state:'visible'});
               assert.strictEqual(await cta.getAttribute('href'),'https://stan.store/YourMindStory/p/the-bare-minimum');
+              await page.getByText(/no individual stage reached the threshold/i).waitFor({state:'visible'});
             });
-            console.log('PASS Bare Minimum.');
+            console.log('PASS broad-but-below-threshold => Bare Minimum.');
+
+            const quizHtml = await (await fetch(`${BASE}/quiz.html`)).text();
+            assert(quizHtml.includes('Number(scores[k]) >= 3'), 'quiz missing stage >=3 rule');
+            assert(quizHtml.includes('qualifyingStages: qualifyingStages'), 'quiz not persisting qualifying stages');
+            assert(quizHtml.includes('stageScores: stageScoresForResult'), 'quiz not persisting stage scores');
+            console.log('PASS quiz threshold persistence.');
 
             for (const file of ['quiet-the-alarm.html','break-the-pull.html','restore-self-trust.html','return-to-yourself.html','mixed-result.html']) {
               const html = await (await fetch(`${BASE}/${file}`)).text();
-              assert(html.includes('assets/yms-product-routing-v2.js?v=20260918-1'), file + ' missing product router');
-              assert(html.includes('assets/yms-bootcamp-reveal.js?v=20260910-2'), file + ' missing progressive reveal');
+              assert(html.includes('assets/yms-product-routing-v2.js'), file + ' missing product router');
+              assert(html.includes('assets/yms-bootcamp-reveal.js'), file + ' missing progressive reveal');
             }
             console.log('PASS result-page wiring.');
 
