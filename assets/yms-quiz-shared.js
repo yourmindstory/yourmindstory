@@ -643,7 +643,7 @@
       return;
     }
     if(level==='bootcamp_level'){ mountOGBootcampBridge(containerId,resultBucketKey); return; }
-    if(level==='bare_minimum'){ container.innerHTML='<div class="divider"></div><span class="og-label">YOUR RECOMMENDED NEXT STEP</span><p class="result-lede">Start with The Bare Minimum.</p><div class="cta-row"><a class="btn-cta" href="https://payhip.com/b/ZcdmX">START WITH THE BARE MINIMUM</a></div>'; return; }
+    if(level==='bare_minimum'){ container.innerHTML='<div class="divider"></div><span class="og-label">YOUR RECOMMENDED NEXT STEP</span><p class="result-lede">Start with The Bare Minimum.</p><div class="cta-row"><a class="btn-cta" href="https://stan.store/YourMindStory/p/the-bare-minimum">START WITH THE BARE MINIMUM</a></div>'; return; }
     if(level==='audio_first'){
       if(data.resultType==='mixed' && data.mixedClarificationRequired && !data.mixedClarificationSelection){ renderMixedClarificationV1(container,data); return; }
       renderAudioRecommendationV1(container,data.mixedClarificationSelection||data.recommendedStage||data.primaryResult||''); return;
