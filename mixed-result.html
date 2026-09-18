@@ -53,7 +53,7 @@
   var name = data && data.firstName ? String(data.firstName).trim() : '';
   var greetingEl = document.getElementById('greeting');
   if (name){ greetingEl.textContent = 'Hi, ' + name + '.'; greetingEl.hidden = false; }
-  var tied = (data && data.activeStages && data.activeStages.length ? data.activeStages : (data && data.tiedResults)) || [];
+  var tied = (data && data.qualifyingStages && data.qualifyingStages.length ? data.qualifyingStages : (data && data.activeStages && data.activeStages.length ? data.activeStages : (data && data.tiedResults))) || [];
   document.getElementById('tiedNamesLine').textContent = tied.join(' + ');
   var explanationsHtml = '';
   tied.forEach(function(nameKey){ if (EXPLANATIONS[nameKey]) explanationsHtml += '<p>' + YMSQuiz.escapeText(EXPLANATIONS[nameKey]) + '</p>'; });
