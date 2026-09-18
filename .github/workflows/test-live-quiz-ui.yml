@@ -3,7 +3,7 @@ name: Test quiz routing UI
 on:
   push:
     branches:
-      - quiz-stan-routing-v3-20260918
+      - quiz-stan-routing-v4-20260918
     paths:
       - 'quiz.html'
       - 'result.html'
