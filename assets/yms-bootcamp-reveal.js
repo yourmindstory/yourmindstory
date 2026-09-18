@@ -237,6 +237,12 @@
     var after = document.getElementById(containerId);
     var card = cardBefore || (after && after.closest ? after.closest('.result-card') : after);
 
+    var activeStages = Y.activeStagesFromResult ? Y.activeStagesFromResult(data) : [];
+    if (activeStages.length >= 2) {
+      enhanceMixedAudio(card, after);
+      return;
+    }
+
     if (data.recommendationLevel === 'bootcamp_level') {
       enhanceBootcamp(card);
       return;
