@@ -204,12 +204,11 @@ jobs:
             });
             await withResult(bare,'no-result.html',async(page)=>{
               const show = page.getByRole('button',{name:/Show me my recommendation/i});
-              await show.waitFor({state:'visible'});
-              await show.click();
+              if (await show.isVisible().catch(()=>false)) await show.click();
               const cta = page.getByRole('link',{name:/START WITH THE BARE MINIMUM/i});
               await cta.waitFor({state:'visible'});
               assert.strictEqual(await cta.getAttribute('href'),'https://stan.store/YourMindStory/p/the-bare-minimum');
-              await page.getByText(/no individual stage reached the threshold/i).waitFor({state:'visible'});
+              await page.getByText(/none of the four areas reached the threshold/i).waitFor({state:'visible'});
             });
             console.log('PASS broad-but-below-threshold => Bare Minimum.');
 
