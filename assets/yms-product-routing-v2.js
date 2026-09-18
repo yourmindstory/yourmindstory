@@ -24,19 +24,19 @@
   var SINGLES = {
     "Quiet the Alarm": {
       url: "https://stan.store/YourMindStory/p/quiet-the-alarm",
-      description: "Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again."
+      description: "When something shifts with him, your body goes with it. The alarm comes on fast and takes too long to switch off."
     },
     "Break the Pull": {
       url: "https://stan.store/YourMindStory/p/break-the-pull",
-      description: "You keep getting pulled back into him or the situation: checking, texting, replaying, analysing, looking for signs or trying to understand what is happening."
+      description: "You can know you need to stop checking, replaying or reaching out and still feel yourself getting pulled straight back in."
     },
     "Restore Self-Trust": {
       url: "https://stan.store/YourMindStory/p/restore-self-trust",
-      description: "What happens with him is making it harder to trust your own read of things and the decisions you make for yourself."
+      description: "You know what happened. Then you question yourself, change your mind and start wondering if you got it wrong."
     },
     "Return to Yourself": {
       url: "https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg",
-      description: "You have started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."
+      description: "Too much of your attention is ending up with him, while your own plans, needs and life get pushed further into the background."
     }
   };
 
@@ -186,8 +186,9 @@
       '<div class="divider"></div>' +
       '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
       '<p class="result-lede" style="margin-top:0;">Start with The Bare Minimum.</p>' +
-      '<p>Your answers show some impact, but no individual stage reached the threshold I use to prescribe a stage-specific pathway.</p>' +
-      '<p>That does not mean nothing is happening. It means I would keep the starting point light rather than sell you an intervention your result has not clearly identified.</p>' +
+      '<p>Nothing in your answers is loud enough for me to tell you that you need one of the hypnotherapy stages.</p>' +
+      '<p>That does not mean nothing is going on. It means I would not sell you more than your answers are showing.</p>' +
+      '<p><strong>Start by getting very clear on what your bare minimum actually is in love.</strong></p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-bare href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>';
     var cta = container.querySelector("[data-yms-bare]");
     if (cta && Y.track) cta.addEventListener("click", function () {
@@ -201,9 +202,10 @@
     container.innerHTML =
       '<div class="divider"></div>' +
       '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede" style="margin-top:0;">' + Y.escapeText(stage) + '</p>' +
+      '<p class="result-lede" style="margin-top:0;">I would start with ' + Y.escapeText(stage) + '.</p>' +
       '<p>' + Y.escapeText(product.description) + '</p>' +
-      '<p>This is the guided Cognitive Behavioural Hypnotherapy audio I would start with based on your result.</p>' +
+      '<p><strong>This is the part I would work on first.</strong></p>' +
+      '<p>' + Y.escapeText(stage) + ' is the guided Cognitive Behavioural Hypnotherapy audio I would use to start changing that part of the cycle.</p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + '</a></div>' +
       downsellHtml(true);
     var cta = container.querySelector("[data-yms-single]");
@@ -224,9 +226,9 @@
       '<div class="divider"></div>' +
       '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
       '<p class="result-lede" style="margin-top:0;">I recommend ' + Y.escapeText(pair.name) + '.</p>' +
-      '<p>Your scores reached the recommendation threshold in <strong>both of these areas</strong>, so I would not ask you to choose one and ignore the other.</p>' +
-      '<p>You get both stages in one pathway, but you do not work on them at the same time.</p>' +
-      '<p><strong>Start with ' + Y.escapeText(first) + '.</strong> Work with that stage for 21 days and complete its check-ins. Then move to <strong>' + Y.escapeText(second) + '</strong> for the next 21 days.</p>' +
+      '<p>Two parts of this are pulling at you, so I would not tell you to work on one and pretend the other is not there.</p>' +
+      '<p><strong>Start with ' + Y.escapeText(first) + '.</strong> Give it 21 days and do the check-ins. Then move to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
+      '<p>Not everything at once. One stage, then the next.</p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY TWO-STAGE PATHWAY — £74</a></div>' +
       downsellHtml(false);
 
@@ -246,11 +248,11 @@
     }).join("");
 
     var scopeCopy = isThree
-      ? '<p>Your result identified <strong>three areas I would work on</strong>: ' + Y.escapeText(naturalList(stages)) + '.</p>' +
-        '<p>The Complete Self-Guided Journey gives you those stages inside the full four-stage system. The fourth stage is included as part of the bundle; your quiz is <strong>not</strong> saying you need it right now.</p>' +
-        '<p>Work through the three areas your result identified in this order:</p>'
-      : '<p>Your result identified <strong>all four areas</strong> as relevant enough to work on, so I would not narrow you to one or two standalone audios.</p>' +
-        '<p>Work through the complete pathway in this order:</p>';
+      ? '<p>Your result picked up <strong>three parts of the cycle</strong>: ' + Y.escapeText(naturalList(stages)) + '.</p>' +
+        '<p>That is why I would not send you to one audio and call it done.</p>' +
+        '<p>The Complete Self-Guided Journey includes all four stages, but your quiz is only telling you to prioritise these three right now. The fourth is included; I am not pretending your result said you need it.</p>'
+      : '<p><strong>All four parts of the cycle are showing up in your result.</strong></p>' +
+        '<p>So I would not narrow this down to one or two audios. I would work through the full journey, in order.</p>';
 
     container.innerHTML =
       '<div class="divider"></div>' +
@@ -259,8 +261,7 @@
       (reasonText ? '<p>' + Y.escapeText(reasonText) + '</p>' : '') +
       scopeCopy +
       '<ol class="og-steps">' + stageItems + '</ol>' +
-      '<p><strong>Start with ' + Y.escapeText(stages[0]) + '.</strong> Work through one identified stage at a time and complete its check-ins before moving to the next.</p>' +
-      '<p>This is the self-guided route: the core four-stage system is included, while your result tells you which stages to prioritise.</p>' +
+      '<p><strong>Start with ' + Y.escapeText(stages[0]) + '.</strong> Work on one stage at a time and do the check-ins before you move on.</p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
       downsellHtml(false);
 
@@ -274,17 +275,23 @@
 
   function renderBootcamp(container, stages, data) {
     stages = orderedUnique(stages);
+    var areas = stages.length === 4
+      ? 'All four parts of the cycle are showing up for you.'
+      : 'The parts showing up for you are <strong>' + Y.escapeText(naturalList(stages)) + '</strong>.';
+
     container.innerHTML =
       '<div class="divider"></div>' +
-      '<span class="og-label">YOUR RECOMMENDED SUPPORTED ROUTE</span>' +
+      '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
       '<p class="result-lede" style="margin-top:0;">I recommend the Original Group Bootcamp.</p>' +
-      '<p>Your result is broad, your overall score shows a higher level of burden, and your answers to the fit questions show that you are ready to work on what this pattern is doing to <strong>you</strong>.</p>' +
-      '<p>Your quiz identified ' + (stages.length === 4 ? '<strong>all four areas</strong>' : '<strong>' + Y.escapeText(naturalList(stages)) + '</strong>') + ' as the areas to prioritise.</p>' +
-      '<p>The Bootcamp takes you through the complete four-stage system with the live support layer, integration calls and progress reviews. Original Group • 2026 starts <strong>4 October 2026</strong>.</p>' +
+      '<p>This is not just one thing anymore. More than one part of the cycle is taking your attention, and when I asked what you want, you chose getting yourself out of it — not more answers about him.</p>' +
+      '<p><strong>This is exactly who I built the Original Group for.</strong></p>' +
+      '<p>' + areas + '</p>' +
+      '<p>Over 12 weeks we work through the full system in order, with the hypnotherapy audios, check-ins and live integration calls so you are not left trying to hold the whole thing together on your own.</p>' +
+      '<p>Original Group • 2026 starts <strong>4 October 2026</strong>.</p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN ORIGINAL GROUP — £297</a></div>' +
       '<div class="og-secondary" style="margin-top:26px;">' +
-        '<p><strong>Prefer to work through it independently?</strong></p>' +
-        '<p>The Complete Self-Guided Journey is still a valid route for your result.</p>' +
+        '<p><strong>Want to do the work privately?</strong></p>' +
+        '<p>You can choose the Complete Self-Guided Journey instead. Same four-stage system, without the group support.</p>' +
         '<div class="cta-row"><a class="btn-ghost" data-yms-self-alt href="' + SELF_GUIDED.url + '">CHOOSE SELF-GUIDED — £117</a></div>' +
       '</div>';
 
@@ -311,27 +318,26 @@
     var prior = data && data.bootcampReadiness;
     if (prior && prior.completed) {
       if (prior.goalAligned && prior.commitmentAligned) renderBootcamp(container, stages, data);
-      else renderSelfGuided(container, stages, "Your result is broad, but your fit answers say the group-supported route is not the right starting point for you right now.");
+      else renderSelfGuided(container, stages, "The group is not the right fit for where you are right now, so I would do the work privately and at your own pace.");
       return;
     }
 
     container.innerHTML =
       '<div class="divider"></div>' +
-      '<span class="og-label">TWO QUICK FIT QUESTIONS</span>' +
-      '<p class="result-lede" style="margin-top:0;">Your result shows a broad pattern and a higher overall burden.</p>' +
-      '<p>Your total score is <strong>' + Y.escapeText(String(total)) + '/24</strong>, with ' + stages.length + ' areas reaching the recommendation threshold. That makes additional support worth considering, but I do not recommend group support from a score alone.</p>' +
-      '<p><strong>Before I recommend your route, answer these two questions.</strong></p>' +
+      '<span class="og-label">TWO QUICK QUESTIONS</span>' +
+      '<p class="result-lede" style="margin-top:0;">This is affecting you in more than one place.</p>' +
+      '<p>Before I tell you whether I would point you to the group or the self-guided route, I need to know two things.</p>' +
       '<div class="fc-label">1 of 2</div>' +
       '<div class="fc-prompt">Which sounds closest to what you’re looking for?</div>' +
       '<div class="fc-options" data-yms-readiness-goal role="radiogroup">' +
         READINESS_GOAL_OPTIONS.map(function (text, i) { return optionHtml("ymsReadinessGoal", i, text); }).join("") +
       '</div>' +
       '<div class="fc-label" style="margin-top:24px;">2 of 2</div>' +
-      '<div class="fc-prompt">A supported 12-week programme asks you to press play daily, spend around 15 minutes once a week writing Your Mind Story, and complete a short check-in. Are you willing to make that commitment for 12 weeks?</div>' +
+      '<div class="fc-prompt">The Bootcamp is 12 weeks. Your main job is to press play each day, spend around 15 minutes once a week writing Your Mind Story, and complete a short check-in. Can you commit to that?</div>' +
       '<div class="fc-options" data-yms-readiness-commitment role="radiogroup">' +
         READINESS_COMMITMENT_OPTIONS.map(function (text, i) { return optionHtml("ymsReadinessCommitment", i, text); }).join("") +
       '</div>' +
-      '<div class="cta-row"><button type="button" class="btn-cta" data-yms-readiness-submit disabled>SHOW ME MY BEST ROUTE</button></div>';
+      '<div class="cta-row"><button type="button" class="btn-cta" data-yms-readiness-submit disabled>SHOW ME WHERE I’D START</button></div>';
 
     var goalIndex = null, commitmentIndex = null;
     var submit = container.querySelector("[data-yms-readiness-submit]");
@@ -378,7 +384,7 @@
         qualifying_stage_count: stages.length
       });
       if (readiness.goalAligned && readiness.commitmentAligned) renderBootcamp(container, stages, data);
-      else renderSelfGuided(container, stages, "Your result is broad, but your fit answers say the group-supported route is not the right starting point for you right now.");
+      else renderSelfGuided(container, stages, "The group is not the right fit for where you are right now, so I would do the work privately and at your own pace.");
     });
   }
 
