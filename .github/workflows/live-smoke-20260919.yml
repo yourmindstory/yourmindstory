@@ -92,6 +92,9 @@ jobs:
               stages: resultData.qualifyingStages
             }));
 
+            const reveal = page.getByRole('button', { name: /SHOW ME WHERE TO START/i });
+            if (await reveal.isVisible().catch(()=>false)) await reveal.click();
+
             await page.getByText(/BEFORE WE LOOK AT YOUR RECOMMENDATION/i).waitFor({ state:'visible', timeout: 15000 });
             await page.getByLabel(/I want help understanding myself, breaking the cycle and getting my mind back/i).check();
             await page.getByLabel(/^Yes\.$/i).check();
