@@ -1,0 +1,164 @@
+name: Live quiz smoke 2026-09-19
+
+on:
+  push:
+    branches:
+      - live-smoke-20260919
+    paths:
+      - '.github/workflows/live-smoke-20260919.yml'
+
+jobs:
+  live-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run live end-to-end smoke
+        run: |
+          cat > live-smoke.js <<'NODE'
+          const { chromium } = require('playwright');
+          const assert = require('assert');
+
+          const SITE = 'https://yourmindstory.co.uk';
+          const ENDPOINT = 'https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec';
+
+          async function waitForJourney(events, names, timeoutMs=10000) {
+            const start = Date.now();
+            while (Date.now() - start < timeoutMs) {
+              if (names.every(n => events.some(e => e.eventType === n))) return;
+              await new Promise(r => setTimeout(r, 200));
+            }
+            throw new Error('Missing journey events. Have: ' + JSON.stringify(events));
+          }
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext();
+            const page = await context.newPage();
+
+            const journeyEvents = [];
+            page.on('request', req => {
+              if (req.method() !== 'POST') return;
+              if (!req.url().includes('/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec')) return;
+              const body = req.postData();
+              if (!body) return;
+              try {
+                const parsed = JSON.parse(body);
+                if (parsed.action === 'recordJourneyEvent') {
+                  journeyEvents.push(parsed);
+                  console.log('JOURNEY_REQUEST', JSON.stringify(parsed));
+                }
+              } catch (_) {}
+            });
+
+            await page.goto(SITE + '/quiz.html?qa=live-smoke-20260919', { waitUntil: 'networkidle', timeout: 45000 });
+            await page.getByRole('button', { name: /Start the Quiz/i }).click();
+
+            const vals = { q1:3, q2:2, q3:3, q4:2, q5:3, q6:2, q7:0, q8:0 };
+            for (const q of Object.keys(vals)) {
+              await page.locator('label[data-qid="' + q + '"][data-val="' + vals[q] + '"]').click();
+              await page.waitForTimeout(350);
+            }
+
+            await page.locator('label[data-relval="1"]').click();
+            await page.waitForTimeout(350);
+
+            await page.locator('#openResponse').fill('FINAL LIVE SMOKE TEST — DO NOT COUNT');
+            await page.getByRole('button', { name: /Continue to My Result/i }).click();
+
+            await page.locator('#firstName').fill('SMOKE TEST');
+            await page.locator('#email').fill('yms-smoke-' + Date.now() + '@example.com');
+            await page.locator('label[data-leadconsent="1"]').click();
+
+            await Promise.all([
+              page.waitForURL(/mixed-result\.html/, { timeout: 45000 }),
+              page.getByRole('button', { name: /SEND ME MY RESULT/i }).click()
+            ]);
+
+            const resultData = await page.evaluate(() => JSON.parse(sessionStorage.getItem('yms_quiz_result')));
+            assert(resultData && resultData.resultToken, 'No resultToken in sessionStorage');
+            assert.deepStrictEqual(resultData.qualifyingStages, ['Quiet the Alarm','Break the Pull','Restore Self-Trust']);
+            assert.strictEqual(resultData.totalFourStageScore, 15);
+            console.log('QUIZ_SUBMISSION_OK', JSON.stringify({
+              total: resultData.totalFourStageScore,
+              breadth: resultData.qualifyingStages.length,
+              stages: resultData.qualifyingStages
+            }));
+
+            await page.getByText(/BEFORE WE LOOK AT YOUR RECOMMENDATION/i).waitFor({ state:'visible', timeout: 15000 });
+            await page.getByLabel(/I want help understanding myself, breaking the cycle and getting my mind back/i).check();
+            await page.getByLabel(/^Yes\.$/i).check();
+            await page.getByRole('button', { name: /SHOW ME WHERE I’D START/i }).click();
+
+            await page.getByText(/I recommend the Original Group Bootcamp/i).waitFor({ state:'visible', timeout:15000 });
+            await page.getByText(/What we’re working towards is simple\./i).waitFor({ state:'visible', timeout:15000 });
+            await page.getByText(/Calm the panic and anxiety when you think of him/i).waitFor({ state:'visible', timeout:15000 });
+
+            await waitForJourney(journeyEvents, ['readiness_completed','final_route_shown']);
+
+            await page.route('https://payhip.com/**', route => route.abort());
+            const boot = page.getByRole('link', { name: /JOIN ORIGINAL GROUP — £297/i });
+            await boot.click();
+            await waitForJourney(journeyEvents, ['readiness_completed','final_route_shown','bootcamp_click']);
+
+            const types = journeyEvents.map(e => e.eventType);
+            assert(types.includes('readiness_completed'));
+            assert(types.includes('final_route_shown'));
+            assert(types.includes('bootcamp_click'));
+
+            const readiness = journeyEvents.find(e => e.eventType === 'readiness_completed');
+            assert.strictEqual(readiness.resultToken, resultData.resultToken);
+            assert.strictEqual(readiness.values.goal, 'I want help understanding myself, breaking the cycle and getting my mind back.');
+            assert.strictEqual(readiness.values.commitment, 'Yes.');
+
+            const route = journeyEvents.find(e => e.eventType === 'final_route_shown');
+            assert.strictEqual(route.resultToken, resultData.resultToken);
+            assert.strictEqual(route.values.routeShown, 'Original Group Bootcamp');
+            assert.strictEqual(route.values.recommendation, 'Original Group Bootcamp');
+
+            const bootClick = journeyEvents.find(e => e.eventType === 'bootcamp_click');
+            assert.strictEqual(bootClick.resultToken, resultData.resultToken);
+
+            const verify = await fetch(ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                action: 'recordJourneyEvent',
+                resultToken: resultData.resultToken,
+                eventType: 'final_route_shown',
+                values: { routeShown: 'Original Group Bootcamp', recommendation: 'Original Group Bootcamp' }
+              })
+            });
+            const verifyText = await verify.text();
+            console.log('PRODUCTION_WRITE_RESPONSE', verifyText);
+            const verifyJson = JSON.parse(verifyText);
+            assert.strictEqual(verifyJson.status, 'ok');
+            assert.strictEqual(verifyJson.eventType, 'final_route_shown');
+            assert(Number(verifyJson.row) > 0, 'Backend did not return updated row');
+
+            const recovered = await fetch(ENDPOINT + '?action=getResult&resultToken=' + encodeURIComponent(resultData.resultToken));
+            const recoveredText = await recovered.text();
+            console.log('GET_RESULT_RESPONSE', recoveredText);
+            const recoveredJson = JSON.parse(recoveredText);
+            assert.strictEqual(recoveredJson.status, 'ok');
+
+            console.log('LIVE_SMOKE_PASS', JSON.stringify({
+              row: verifyJson.row,
+              journeyEvents: [...new Set(types)],
+              resultTokenPresent: true
+            }));
+
+            await browser.close();
+          })().catch(err => {
+            console.error('LIVE_SMOKE_FAIL', err);
+            process.exit(1);
+          });
+          NODE
+          node live-smoke.js
