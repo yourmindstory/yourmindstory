@@ -58,6 +58,44 @@
     try { if (global.clarity) global.clarity('event', eventName); } catch (e) {}
   }
 
+  // ---------------- person-level quiz journey logging ----------------
+  // Writes post-result behaviour back to the existing V2 Responses row
+  // using Result Token. This is separate from GA4/Clarity and may contain
+  // the two readiness answer strings, but never sends name/email.
+  var JOURNEY_BACKEND_URL = "https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec";
+
+  function recordJourneyEvent(eventType, values) {
+    var data = getResultData ? (getResultData() || {}) : {};
+    var resultToken = data && data.resultToken ? String(data.resultToken).trim() : "";
+    if (!resultToken || !eventType) return false;
+
+    var body = JSON.stringify({
+      action: "recordJourneyEvent",
+      resultToken: resultToken,
+      eventType: String(eventType),
+      values: values || {}
+    });
+
+    try {
+      if (global.navigator && typeof global.navigator.sendBeacon === "function") {
+        var blob = new Blob([body], { type: "text/plain;charset=UTF-8" });
+        if (global.navigator.sendBeacon(JOURNEY_BACKEND_URL, blob)) return true;
+      }
+    } catch (e) {}
+
+    try {
+      fetch(JOURNEY_BACKEND_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: body,
+        keepalive: true
+      }).catch(function () {});
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // ---------------- attribution capture/persistence ----------------
   // Captured at first funnel entry (landing page, or quiz.html if a visitor
   // lands there directly) and persisted via sessionStorage so it survives
@@ -653,6 +691,7 @@
 
   global.YMSQuiz = {
     track: track,
+    recordJourneyEvent: recordJourneyEvent,
     captureAttribution: captureAttribution,
     getAttribution: getAttribution,
     setResultData: setResultData,
