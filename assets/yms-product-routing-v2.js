@@ -21,6 +21,13 @@
     "Return to Yourself"
   ];
 
+  var STAGE_SUBTITLES = {
+    "Quiet the Alarm": "Calm the panic and anxiety when you think of him",
+    "Break the Pull": "Stop the checking, replaying and getting pulled back in",
+    "Restore Self-Trust": "Stop second-guessing what you know",
+    "Return to Yourself": "Get your mind and your life back"
+  };
+
   var SINGLES = {
     "Quiet the Alarm": {
       url: "https://stan.store/YourMindStory/p/quiet-the-alarm",
@@ -183,12 +190,17 @@
 
   function renderBare(container) {
     container.innerHTML =
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, I wouldn’t recommend one of the hypnotherapy audios right now.</h1>' +
+      '<p>Your answers aren’t registering high enough in any one area for me to think you’d benefit from starting with one of the hypnotherapy audios.</p>' +
+      '<p>I’m <strong>not</strong> saying nothing is going on for you.</p>' +
+      '<p>I’d start by getting really clear on what your bare minimum actually is in love.</p>' +
       '<div class="divider"></div>' +
-      '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede" style="margin-top:0;">Start with The Bare Minimum.</p>' +
-      '<p>Nothing in your answers is loud enough for me to tell you that you need one of the hypnotherapy stages.</p>' +
-      '<p>That does not mean nothing is going on. It means I would not sell you more than your answers are showing.</p>' +
-      '<p><strong>Start by getting very clear on what your bare minimum actually is in love.</strong></p>' +
+      '<p class="result-lede">You can start here with The Bare Minimum.</p>' +
+      '<p>The five things a woman needs to stay healthy in love.</p>' +
+      '<p>Not the dream relationship.</p>' +
+      '<p><strong>This is about your health. The minimum.</strong></p>' +
+      '<p>Because once you know that, it becomes much harder to keep negotiating with yourself just to keep somebody else.</p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-bare href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>';
     var cta = container.querySelector("[data-yms-bare]");
     if (cta && Y.track) cta.addEventListener("click", function () {
@@ -199,15 +211,29 @@
   function renderSingle(container, stage) {
     var product = SINGLES[stage];
     if (!product) return false;
+
+    var productCopy = {
+      "Quiet the Alarm":
+        '<p>Quiet the Alarm is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work on that automatic alarm response.</p>' +
+        '<p>So thinking about him doesn’t have to mean losing the next few hours of your day to panic, anxiety or overthinking.</p>',
+      "Break the Pull":
+        '<p>Break the Pull is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work on that automatic pull underneath the checking, replaying, analysing and reaching out.</p>' +
+        '<p>Because at some point, knowing better needs to become <strong>doing differently</strong>.</p>',
+      "Restore Self-Trust":
+        '<p>Restore Self-Trust is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work on the beliefs and automatic responses underneath all that second-guessing.</p>' +
+        '<p>The work here is <strong>you trusting you again</strong>.</p>',
+      "Return to Yourself":
+        '<p>Return to Yourself is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to help bring your attention, energy and sense of self back to you.</p>' +
+        '<p>So your plans, your time and your life start becoming about <strong>you</strong> again.</p>'
+    }[stage] || "";
+
     container.innerHTML =
       '<div class="divider"></div>' +
-      '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede" style="margin-top:0;">I would start with ' + Y.escapeText(stage) + '.</p>' +
-      '<p>' + Y.escapeText(product.description) + '</p>' +
-      '<p><strong>This is the part I would work on first.</strong></p>' +
-      '<p>' + Y.escapeText(stage) + ' is the guided Cognitive Behavioural Hypnotherapy audio I would use to start changing that part of the cycle.</p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + '</a></div>' +
+      '<p class="result-lede" style="margin-top:0;">I recommend ' + Y.escapeText(stage) + '.</p>' +
+      productCopy +
+      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' — £37</a></div>' +
       downsellHtml(true);
+
     var cta = container.querySelector("[data-yms-single]");
     if (cta && Y.track) cta.addEventListener("click", function () {
       Y.track("quiz_audio_recommendation_click", { selected_stage: stage });
@@ -223,12 +249,20 @@
 
     var first = stages[0], second = stages[1];
     container.innerHTML =
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, there are two places that seem to be bothering you.</h1>' +
+      '<p class="result-lede"><strong>' + Y.escapeText(first) + '</strong><br><span class="cta-microcopy">' + Y.escapeText(STAGE_SUBTITLES[first]) + '</span></p>' +
+      '<p class="result-lede"><strong>' + Y.escapeText(second) + '</strong><br><span class="cta-microcopy">' + Y.escapeText(STAGE_SUBTITLES[second]) + '</span></p>' +
+      '<p>Both of these are showing up strongly enough that I wouldn’t tell you to work on one and ignore the other.</p>' +
+      '<p>And they can feed each other.</p>' +
+      '<p><strong>That is why I’d work on both.</strong></p>' +
       '<div class="divider"></div>' +
-      '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede" style="margin-top:0;">I recommend ' + Y.escapeText(pair.name) + '.</p>' +
-      '<p>Two parts of this are pulling at you, so I would not tell you to work on one and pretend the other is not there.</p>' +
-      '<p><strong>Start with ' + Y.escapeText(first) + '.</strong> Give it 21 days and do the check-ins. Then move to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
-      '<p>Not everything at once. One stage, then the next.</p>' +
+      '<span class="og-label">I’D START HERE</span>' +
+      '<p class="result-lede" style="margin-top:0;">' + Y.escapeText(pair.name) + '</p>' +
+      '<p>Start with <strong>' + Y.escapeText(first) + '</strong>.</p>' +
+      '<p>Work with it for 21 days and complete your check-ins.</p>' +
+      '<p>Then move on to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
+      '<p><strong>One stage at a time.</strong></p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY TWO-STAGE PATHWAY — £74</a></div>' +
       downsellHtml(false);
 
@@ -240,58 +274,125 @@
     return true;
   }
 
+  function allStageListHtml() {
+    return STAGE_ORDER.map(function (stage) {
+      return '<p class="result-lede"><strong>' + Y.escapeText(stage) + '</strong><br><span class="cta-microcopy">' + Y.escapeText(STAGE_SUBTITLES[stage]) + '</span></p>';
+    }).join("");
+  }
+
+  function detectedStageListHtml(stages) {
+    return stages.map(function (stage) {
+      return '<p class="result-lede"><strong>' + Y.escapeText(stage) + '</strong><br><span class="cta-microcopy">' + Y.escapeText(STAGE_SUBTITLES[stage]) + '</span></p>';
+    }).join("");
+  }
+
   function renderSelfGuided(container, stages, reasonText) {
     stages = orderedUnique(stages);
     var isThree = stages.length === 3;
-    var stageItems = stages.map(function (stage) {
-      return '<li><strong>' + Y.escapeText(stage) + '</strong></li>';
-    }).join("");
 
-    var scopeCopy = isThree
-      ? '<p>Your result picked up <strong>three parts of the cycle</strong>: ' + Y.escapeText(naturalList(stages)) + '.</p>' +
-        '<p>That is why I would not send you to one audio and call it done.</p>' +
-        '<p>The Complete Self-Guided Journey includes all four stages, but your quiz is only telling you to prioritise these three right now. The fourth is included; I am not pretending your result said you need it.</p>'
-      : '<p><strong>All four parts of the cycle are showing up in your result.</strong></p>' +
-        '<p>So I would not narrow this down to one or two audios. I would work through the full journey, in order.</p>';
-
-    container.innerHTML =
-      '<div class="divider"></div>' +
-      '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede" style="margin-top:0;">I recommend the Complete Self-Guided Journey.</p>' +
-      (reasonText ? '<p>' + Y.escapeText(reasonText) + '</p>' : '') +
-      scopeCopy +
-      '<ol class="og-steps">' + stageItems + '</ol>' +
-      '<p><strong>Start with ' + Y.escapeText(stages[0]) + '.</strong> Work on one stage at a time and do the check-ins before you move on.</p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
-      downsellHtml(false);
+    if (reasonText) {
+      container.innerHTML =
+        '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
+        '<h1>I’d do this privately.</h1>' +
+        '<p>Your quiz result hasn’t changed.</p>' +
+        '<p>The same areas are still showing up for you.</p>' +
+        '<p>But based on what you’ve just told me, I don’t think the group is the right way for you to do the work right now.</p>' +
+        '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
+        '<p>You can work through the full process in your own time, one stage at a time.</p>' +
+        '<p>Start with <strong>Quiet the Alarm</strong>, then keep moving through the programme in order.</p>' +
+        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
+        downsellHtml(false);
+    } else if (isThree) {
+      container.innerHTML =
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Based on your answers, this is affecting you in three places.</h1>' +
+        '<p>Your results are showing:</p>' +
+        detectedStageListHtml(stages) +
+        '<p>At that point, I wouldn’t separate this out and send you off to buy three different audios.</p>' +
+        '<div class="divider"></div>' +
+        '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
+        '<p>You need a clear way of working through this rather than trying to fix whichever part is screaming the loudest that day.</p>' +
+        '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
+        allStageListHtml() +
+        '<p>Start at the beginning and work through each stage before moving on to the next.</p>' +
+        '<p>Your results tell me <strong>where this is hitting you hardest</strong>.</p>' +
+        '<p>The Complete Self-Guided Journey gives you the whole process to work through properly from beginning to end.</p>' +
+        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
+        downsellHtml(false);
+    } else {
+      container.innerHTML =
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Based on your answers, this is affecting you across the whole cycle.</h1>' +
+        '<p>Your body reacts.</p>' +
+        '<p>You get pulled back into him.</p>' +
+        '<p>You question yourself.</p>' +
+        '<p>And too much of your own life is getting pushed into the background.</p>' +
+        '<p>Which is why knowing more about him hasn’t necessarily stopped what this is doing to <strong>you</strong>.</p>' +
+        '<div class="divider"></div>' +
+        '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
+        '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
+        allStageListHtml() +
+        '<p>Not everything at once.</p>' +
+        '<p>You start at the beginning and keep moving through.</p>' +
+        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
+        downsellHtml(false);
+    }
 
     var cta = container.querySelector("[data-yms-self-guided]");
     if (cta && Y.track) cta.addEventListener("click", function () {
       Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
     });
-    wireDownsell(container, "self_guided_" + stages.length);
+    wireDownsell(container, reasonText ? "self_guided_private" : "self_guided_" + stages.length);
     return true;
+  }
+
+  function renderUnderstandingBridge(container, stages) {
+    stages = orderedUnique(stages);
+    container.innerHTML =
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Your result is still showing me that this is affecting you in more than one place.</h1>' +
+      '<p>But from what you’ve just told me, you’re still trying to understand <strong>him</strong> and what all of this means.</p>' +
+      '<p>I get why.</p>' +
+      '<p>When something doesn’t make sense, your brain naturally keeps looking for the answer.</p>' +
+      '<p>But more information about him isn’t necessarily going to change what this has already started doing to <strong>you</strong>.</p>' +
+      '<div class="divider"></div>' +
+      '<p class="result-lede">If you’re not ready for the deeper work yet, start here.</p>' +
+      '<p class="result-lede"><strong>The Bare Minimum</strong></p>' +
+      '<p>Get really clear on the five things a woman needs to stay healthy in love.</p>' +
+      '<p>Then, when you’re ready to work on the pattern itself, your quiz result is here to show you where I’d start.</p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-bare-bridge href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>';
+    var cta = container.querySelector("[data-yms-bare-bridge]");
+    if (cta && Y.track) cta.addEventListener("click", function () {
+      Y.track("quiz_bare_minimum_readiness_bridge_click", { qualifying_stage_count: stages.length });
+    });
   }
 
   function renderBootcamp(container, stages, data) {
     stages = orderedUnique(stages);
-    var areas = stages.length === 4
-      ? 'All four parts of the cycle are showing up for you.'
-      : 'The parts showing up for you are <strong>' + Y.escapeText(naturalList(stages)) + '</strong>.';
-
     container.innerHTML =
-      '<div class="divider"></div>' +
-      '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede" style="margin-top:0;">I recommend the Original Group Bootcamp.</p>' +
-      '<p>This is not just one thing anymore. More than one part of the cycle is taking your attention, and when I asked what you want, you chose getting yourself out of it — not more answers about him.</p>' +
-      '<p><strong>This is exactly who I built the Original Group for.</strong></p>' +
-      '<p>' + areas + '</p>' +
-      '<p>Over 12 weeks we work through the full system in order, with the hypnotherapy audios, check-ins and live integration calls so you are not left trying to hold the whole thing together on your own.</p>' +
-      '<p>Original Group • 2026 starts <strong>4 October 2026</strong>.</p>' +
+      '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
+      '<h1>I recommend the Original Group Bootcamp.</h1>' +
+      '<p>Based on your answers, this isn’t just affecting you in one place.</p>' +
+      '<p>Your result is showing:</p>' +
+      detectedStageListHtml(stages) +
+      '<p>And when I asked what you want, you chose working on <strong>yourself, breaking the cycle and getting your mind back</strong>.</p>' +
+      '<p>Not another twelve weeks of researching him.</p>' +
+      '<p class="result-lede"><strong>This is who I built the Original Group for.</strong></p>' +
+      '<p>Over 12 weeks, we work through the complete process in order:</p>' +
+      '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
+      '<p>You’ll have the guided <strong>Cognitive Behavioural Hypnotherapy</strong> work, your weekly Your Mind Story reflection and check-in, and the live integration calls as we move through it.</p>' +
+      '<p class="result-lede">What we’re working towards is simple.</p>' +
+      '<p><strong>Break the cycle. Take your life back.</strong></p>' +
+      '<p>Less of your day disappearing into him.</p>' +
+      '<p>Less checking and replaying.</p>' +
+      '<p>More trust in yourself.</p>' +
+      '<p>More of your attention going back into <strong>your own life</strong>.</p>' +
+      '<p><strong>Original Group • 2026</strong><br>Starts <strong>Sunday 4 October 2026</strong></p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN ORIGINAL GROUP — £297</a></div>' +
       '<div class="og-secondary" style="margin-top:26px;">' +
         '<p><strong>Want to do the work privately?</strong></p>' +
-        '<p>You can choose the Complete Self-Guided Journey instead. Same four-stage system, without the group support.</p>' +
+        '<p>You can choose the <strong>Complete Self-Guided Journey</strong> instead.</p>' +
+        '<p>You work through the same four stages on your own, without the group support and live integration calls.</p>' +
         '<div class="cta-row"><a class="btn-ghost" data-yms-self-alt href="' + SELF_GUIDED.url + '">CHOOSE SELF-GUIDED — £117</a></div>' +
       '</div>';
 
@@ -316,24 +417,36 @@
   function renderReadinessGate(container, stages, data) {
     var total = totalScoreFromData(data);
     var prior = data && data.bootcampReadiness;
+
+    function routeFromReadiness(readiness) {
+      if (readiness.goalAligned && readiness.commitmentAligned) {
+        renderBootcamp(container, stages, data);
+        return;
+      }
+      if (readiness.goalIndex === 1 || readiness.goalIndex === 2) {
+        renderUnderstandingBridge(container, stages);
+        return;
+      }
+      renderSelfGuided(container, stages, "private");
+    }
+
     if (prior && prior.completed) {
-      if (prior.goalAligned && prior.commitmentAligned) renderBootcamp(container, stages, data);
-      else renderSelfGuided(container, stages, "The group is not the right fit for where you are right now, so I would do the work privately and at your own pace.");
+      routeFromReadiness(prior);
       return;
     }
 
     container.innerHTML =
       '<div class="divider"></div>' +
-      '<span class="og-label">TWO QUICK QUESTIONS</span>' +
+      '<span class="og-label">BEFORE WE LOOK AT YOUR RECOMMENDATION</span>' +
       '<p class="result-lede" style="margin-top:0;">This is affecting you in more than one place.</p>' +
-      '<p>Before I tell you whether I would point you to the group or the self-guided route, I need to know two things.</p>' +
+      '<p>So before I tell you whether I think you should do this with the group or work through it privately, I need to know two things.</p>' +
       '<div class="fc-label">1 of 2</div>' +
-      '<div class="fc-prompt">Which sounds closest to what you’re looking for?</div>' +
+      '<div class="fc-prompt">Which sounds most like what you want now?</div>' +
       '<div class="fc-options" data-yms-readiness-goal role="radiogroup">' +
         READINESS_GOAL_OPTIONS.map(function (text, i) { return optionHtml("ymsReadinessGoal", i, text); }).join("") +
       '</div>' +
       '<div class="fc-label" style="margin-top:24px;">2 of 2</div>' +
-      '<div class="fc-prompt">The Bootcamp is 12 weeks. Your main job is to press play each day, spend around 15 minutes once a week writing Your Mind Story, and complete a short check-in. Can you commit to that?</div>' +
+      '<div class="fc-prompt"><strong>One more thing.</strong><br><br>The Bootcamp is 12 weeks.<br><br>Your main job is to press play each day, spend around 15 minutes once a week writing Your Mind Story, and complete a short check-in.<br><br><strong>Can you commit to that for 12 weeks?</strong></div>' +
       '<div class="fc-options" data-yms-readiness-commitment role="radiogroup">' +
         READINESS_COMMITMENT_OPTIONS.map(function (text, i) { return optionHtml("ymsReadinessCommitment", i, text); }).join("") +
       '</div>' +
@@ -383,8 +496,7 @@
         total_score: total,
         qualifying_stage_count: stages.length
       });
-      if (readiness.goalAligned && readiness.commitmentAligned) renderBootcamp(container, stages, data);
-      else renderSelfGuided(container, stages, "The group is not the right fit for where you are right now, so I would do the work privately and at your own pace.");
+      routeFromReadiness(readiness);
     });
   }
 
