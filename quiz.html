@@ -634,10 +634,31 @@
   // redirect even if it disagrees with the client's own computation.
   function bucketKeyFromDisplayName(displayName){
     var found = null;
+    var normalised = displayName === 'Restore Self-Trust' ? 'Restore Self Trust' : displayName;
     Object.keys(BUCKET_DISPLAY_NAMES).forEach(function(k){
-      if (BUCKET_DISPLAY_NAMES[k] === displayName) found = k;
+      if (BUCKET_DISPLAY_NAMES[k] === normalised) found = k;
     });
     return found;
+  }
+
+  function displayNameFromAny(value){
+    var key = bucketKeyFromDisplayName(value);
+    if (key) return BUCKET_DISPLAY_NAMES[key] === 'Restore Self Trust' ? 'Restore Self-Trust' : BUCKET_DISPLAY_NAMES[key];
+    if (value === 'restoreSelfTrust') return 'Restore Self-Trust';
+    if (value === 'quietTheAlarm') return 'Quiet the Alarm';
+    if (value === 'breakThePull') return 'Break the Pull';
+    if (value === 'returnToYourself') return 'Return to Yourself';
+    return value || '';
+  }
+
+  function orderedActiveStageNames(leading, secondary){
+    var order = ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+    var seen = {};
+    (leading || []).concat(secondary || []).forEach(function(item){
+      var name = displayNameFromAny(item);
+      if (order.indexOf(name) !== -1) seen[name] = true;
+    });
+    return order.filter(function(name){ return seen[name]; });
   }
 
   // -------------------- YMS-REC-2026-V1 recommendation mirror --------------------
@@ -734,7 +755,13 @@
 
     var firstName = document.getElementById('firstName').value.trim();
     var email = document.getElementById('email').value.trim();
-    var mixedNames = mixedKeys.map(function(k){ return BUCKET_DISPLAY_NAMES[k]; });
+    var mixedNames = mixedKeys.map(function(k){ return displayNameFromAny(k); });
+
+    var leadingNames = clientResult.leadingPatterns.map(function(k){ return displayNameFromAny(k); });
+    var secondaryNames = clientResult.secondaryActivePatterns.map(function(k){ return displayNameFromAny(k); });
+    if (serverData && Array.isArray(serverData.leadingPatterns)) leadingNames = serverData.leadingPatterns.map(displayNameFromAny);
+    if (serverData && Array.isArray(serverData.secondaryActivePatterns)) secondaryNames = serverData.secondaryActivePatterns.map(displayNameFromAny);
+    var activeStages = orderedActiveStageNames(leadingNames, secondaryNames);
 
     var recommendation = computeRecommendationV1Client(clientScores, clientResult);
     if (serverData && serverData.recommendationLevel){
@@ -758,6 +785,9 @@
       resultType: resultType,
       primaryResult: primaryKey ? BUCKET_DISPLAY_NAMES[primaryKey] : null,
       tiedResults: mixedNames,
+      leadingPatterns: leadingNames,
+      secondaryActivePatterns: secondaryNames,
+      activeStages: activeStages,
       overallActivationStrength: overallActivation,
       resultToken: finalResultToken,
       recommendationEngineVersion: recommendation.recommendationEngineVersion,
@@ -785,9 +815,15 @@
     YMSQuiz.track('quiz_lead_captured', { quiz_version: QUIZ_VERSION });
     try { fbq('track', 'Lead'); } catch(e){}
 
-    var target = resultType === 'no_clear_leader' ? RESULT_PAGES.noClearLeader
-      : resultType === 'single' ? RESULT_PAGES[primaryKey]
-      : RESULT_PAGES.mixed;
+    var target;
+    if (activeStages.length === 0) {
+      target = RESULT_PAGES.noClearLeader;
+    } else if (activeStages.length === 1) {
+      var onlyKey = bucketKeyFromDisplayName(activeStages[0]);
+      target = RESULT_PAGES[onlyKey] || RESULT_PAGES.noClearLeader;
+    } else {
+      target = RESULT_PAGES.mixed;
+    }
 
     window.location.href = target;
   }
