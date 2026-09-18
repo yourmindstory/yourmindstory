@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/yms-quiz-shared.css">
-<script src="assets/yms-quiz-shared.js?v=20260910-rec3"></script>
+<script src="assets/yms-quiz-shared.js?v=20260918-journey1"></script>
 </head>
 <body>
 <div class="wrap">
@@ -17,28 +17,42 @@
   <div class="result-card">
     <p class="result-greeting" id="greeting" hidden data-clarity-mask="True"></p>
     <span class="result-tag">YOUR RESULT</span>
-    <h1>I wouldn't start you with the full Bootcamp.</h1>
-    <p>Your answers aren't showing that several parts of the cycle are strongly affecting you at the same time.</p>
-    <p>And I'm not going to tell you there's a bigger problem than your answers are showing.</p>
-    <p class="result-lede">You don't need to start with more than you need.</p>
+    <h1>Based on your answers, I wouldn’t recommend one of the hypnotherapy audios right now.</h1>
+    <p>Your answers aren’t registering high enough in any one area for me to think you’d benefit from starting with one of the hypnotherapy audios.</p>
+    <p>I’m <strong>not</strong> saying nothing is going on for you.</p>
+    <p>I’d start by getting really clear on what your bare minimum actually is in love.</p>
+
     <div class="divider"></div>
-    <span class="og-label">YOUR RECOMMENDED NEXT STEP</span>
-    <p class="result-lede" style="margin-top:0;">I recommend The Bare Minimum.</p>
-    <p>It gives you the five non-negotiables a woman needs to stay healthy in love.</p>
-    <p>Not what would be nice.</p>
-    <p><strong>The minimum you need to stay well.</strong></p>
-    <p>Know your bare minimum before you find yourself negotiating with your health to keep a relationship.</p>
-    <div class="cta-row"><a class="btn-cta" href="https://stan.store/YourMindStory/p/the-bare-minimum" id="ctaBareMinimum">START WITH THE BARE MINIMUM</a></div>
+    <p class="result-lede">You can start here with The Bare Minimum.</p>
+    <p>The five things a woman needs to stay healthy in love.</p>
+    <p>Not the dream relationship.</p>
+    <p><strong>This is about your health. The minimum.</strong></p>
+    <p>Because once you know that, it becomes much harder to keep negotiating with yourself just to keep somebody else.</p>
+
+    <div class="cta-row">
+      <a class="btn-cta" href="https://stan.store/YourMindStory/p/the-bare-minimum" id="ctaBareMinimum">START WITH THE BARE MINIMUM — £4.99</a>
+    </div>
   </div>
 </div>
 <script>
 (function(){
-  var data = YMSQuiz.getResultData();
-  var name = data && data.firstName ? data.firstName.trim() : '';
+  var data = null;
+  try { data = YMSQuiz.getResultData(); } catch (e) { data = null; }
+  var name = data && data.firstName ? String(data.firstName).trim() : '';
   var greetingEl = document.getElementById('greeting');
   if (name){ greetingEl.textContent = 'Hi, ' + name + '.'; greetingEl.hidden = false; }
+
   YMSQuiz.track('quiz_result_view', { result_bucket: 'Low' });
-  document.getElementById('ctaBareMinimum').addEventListener('click', function(){ YMSQuiz.track('bare_minimum_click', { result_bucket: 'Low' }); });
+  if (YMSQuiz.recordJourneyEvent) {
+    YMSQuiz.recordJourneyEvent('final_route_shown', { routeShown: 'Bare Minimum', recommendation: 'The Bare Minimum' });
+  }
+
+  document.getElementById('ctaBareMinimum').addEventListener('click', function(){
+    YMSQuiz.track('bare_minimum_click', { result_bucket: 'Low' });
+    if (YMSQuiz.recordJourneyEvent) {
+      YMSQuiz.recordJourneyEvent('primary_cta_click', { cta: 'The Bare Minimum — £4.99' });
+    }
+  });
 })();
 </script>
 </body>
