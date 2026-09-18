@@ -41,31 +41,64 @@
     retryRow.hidden = false;
   }
 
+  function canonicalStage(name){
+    if (name === 'Restore Self Trust') return 'Restore Self-Trust';
+    return name || '';
+  }
+
+  function activeStagesFor(data){
+    var order = ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+    var seen = {};
+    (data.leadingPatterns || []).concat(data.secondaryActivePatterns || []).forEach(function(item){
+      var stage = canonicalStage(item);
+      if (order.indexOf(stage) !== -1) seen[stage] = true;
+    });
+    if (!Object.keys(seen).length && data.primaryResult) {
+      var primary = canonicalStage(data.primaryResult);
+      if (order.indexOf(primary) !== -1) seen[primary] = true;
+    }
+    return order.filter(function(stage){ return seen[stage]; });
+  }
+
+  var STAGE_ORDER = ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+  var SCORE_KEYS = {
+    'Quiet the Alarm': 'quietTheAlarm',
+    'Break the Pull': 'breakThePull',
+    'Restore Self-Trust': 'restoreSelfTrust',
+    'Return to Yourself': 'returnToYourself'
+  };
+
+  function qualifyingStagesFor(data){
+    if (data && data.scores && typeof data.scores === 'object') {
+      return STAGE_ORDER.filter(function(stage){
+        var n = Number(data.scores[SCORE_KEYS[stage]]);
+        return isFinite(n) && n >= 3;
+      });
+    }
+    return activeStagesFor(data);
+  }
+
+  function stageScoresFor(data){
+    var out = {};
+    if (!data || !data.scores) return out;
+    STAGE_ORDER.forEach(function(stage){
+      var n = Number(data.scores[SCORE_KEYS[stage]]);
+      if (isFinite(n)) out[stage] = n;
+    });
+    return out;
+  }
+
   function destinationFor(data){
-    if (data.recommendationLevel === 'bare_minimum') return 'no-result.html?v=20260910-emailfix1';
-
+    var stages = qualifyingStagesFor(data);
     var stageMap = {
-      'Quiet the Alarm': 'quiet-the-alarm.html?v=20260910-emailfix1',
-      'Break the Pull': 'break-the-pull.html?v=20260910-emailfix1',
-      'Restore Self Trust': 'restore-self-trust.html?v=20260910-emailfix1',
-      'Restore Self-Trust': 'restore-self-trust.html?v=20260910-emailfix1',
-      'Return to Yourself': 'return-to-yourself.html?v=20260910-emailfix1'
+      'Quiet the Alarm': 'quiet-the-alarm.html?v=20260918-routing2',
+      'Break the Pull': 'break-the-pull.html?v=20260918-routing2',
+      'Restore Self-Trust': 'restore-self-trust.html?v=20260918-routing2',
+      'Return to Yourself': 'return-to-yourself.html?v=20260918-routing2'
     };
-
-    if (data.recommendationLevel === 'bootcamp_level') {
-      if (data.resultType === 'single' && stageMap[data.primaryResult]) return stageMap[data.primaryResult];
-      return 'mixed-result.html?v=20260910-emailfix1';
-    }
-
-    if (data.recommendationLevel === 'audio_first') {
-      if (data.resultType === 'mixed') return 'mixed-result.html?v=20260910-emailfix1';
-      if (stageMap[data.recommendedStage]) return stageMap[data.recommendedStage];
-      if (stageMap[data.primaryResult]) return stageMap[data.primaryResult];
-    }
-
-    if (data.resultType === 'mixed') return 'mixed-result.html?v=20260910-emailfix1';
-    if (stageMap[data.primaryResult]) return stageMap[data.primaryResult];
-    return 'no-result.html?v=20260910-emailfix1';
+    if (stages.length === 0) return 'no-result.html?v=20260918-routing2';
+    if (stages.length === 1) return stageMap[stages[0]] || 'no-result.html?v=20260918-routing2';
+    return 'mixed-result.html?v=20260918-routing2';
   }
 
   if (!token) {
@@ -80,6 +113,19 @@
         throw new Error(data && data.message ? data.message : 'Result not found');
       }
 
+      var qualifyingStages = qualifyingStagesFor(data);
+      var recoveredStageScores = stageScoresFor(data);
+      var totalScore = data.totalFourStageScore;
+      if (totalScore == null && Object.keys(recoveredStageScores).length === 4) {
+        totalScore = STAGE_ORDER.reduce(function(sum, stage){ return sum + Number(recoveredStageScores[stage] || 0); }, 0);
+      }
+      var recoveredLevel = qualifyingStages.length === 0 ? 'bare_minimum'
+        : (qualifyingStages.length <= 2 ? 'audio_first' : 'complete_self_guided');
+      var recoveredRule = qualifyingStages.length === 0 ? 'no_stage_3'
+        : qualifyingStages.length === 1 ? 'one_stage_3'
+        : qualifyingStages.length === 2 ? 'two_stages_3'
+        : (Number(totalScore) >= 15 ? 'breadth_3_total_15' : 'breadth_3');
+
       YMSQuiz.setResultData({
         firstName: data.firstName || '',
         email: '',
@@ -89,17 +135,20 @@
         overallActivationStrength: data.overallActivationStrength || '',
         leadingPatterns: data.leadingPatterns || [],
         secondaryActivePatterns: data.secondaryActivePatterns || [],
+        activeStages: activeStagesFor(data),
+        qualifyingStages: qualifyingStages,
+        stageScores: recoveredStageScores,
         resultToken: data.resultToken || token,
-        recommendationEngineVersion: data.recommendationEngineVersion || 'YMS-REC-2026-V1',
-        totalFourStageScore: data.totalFourStageScore,
-        breadthCount: data.breadthCount,
-        recommendationLevel: data.recommendationLevel,
-        recommendationRuleTriggered: data.recommendationRuleTriggered || '',
-        broadModerateBoundary: data.broadModerateBoundary === true,
-        recommendedStage: data.recommendedStage || null,
-        recommendedProduct: data.recommendedProduct || '',
-        mixedClarificationRequired: data.mixedClarificationRequired === true,
-        mixedClarificationSelection: data.mixedClarificationSelection || ''
+        recommendationEngineVersion: 'YMS-REC-2026-V2',
+        totalFourStageScore: totalScore,
+        breadthCount: qualifyingStages.length,
+        recommendationLevel: recoveredLevel,
+        recommendationRuleTriggered: recoveredRule,
+        broadModerateBoundary: qualifyingStages.length >= 3 && Number(totalScore) >= 12 && Number(totalScore) <= 14,
+        recommendedStage: qualifyingStages.length === 1 ? qualifyingStages[0] : null,
+        recommendedProduct: '',
+        mixedClarificationRequired: false,
+        mixedClarificationSelection: ''
       });
 
       window.location.replace(destinationFor(data));

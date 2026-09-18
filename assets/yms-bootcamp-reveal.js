@@ -237,14 +237,20 @@
     var after = document.getElementById(containerId);
     var card = cardBefore || (after && after.closest ? after.closest('.result-card') : after);
 
-    if (data.recommendationLevel === 'bootcamp_level') {
-      enhanceBootcamp(card);
+    var qualifyingStages = Y.qualifyingStagesFromResult ? Y.qualifyingStagesFromResult(data) : [];
+    if (qualifyingStages.length >= 2) {
+      enhanceMixedAudio(card, after);
       return;
     }
 
     if (data.recommendationLevel === 'audio_first') {
-      if (data.resultType === 'mixed') enhanceMixedAudio(card, after);
+      if (qualifyingStages.length === 2 || data.resultType === 'mixed') enhanceMixedAudio(card, after);
       else enhanceSingleAudio(card, after);
+      return;
+    }
+
+    if (data.recommendationLevel === 'complete_self_guided') {
+      enhanceMixedAudio(card, after);
       return;
     }
   };

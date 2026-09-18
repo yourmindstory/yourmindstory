@@ -634,32 +634,60 @@
   // redirect even if it disagrees with the client's own computation.
   function bucketKeyFromDisplayName(displayName){
     var found = null;
+    var normalised = displayName === 'Restore Self-Trust' ? 'Restore Self Trust' : displayName;
     Object.keys(BUCKET_DISPLAY_NAMES).forEach(function(k){
-      if (BUCKET_DISPLAY_NAMES[k] === displayName) found = k;
+      if (BUCKET_DISPLAY_NAMES[k] === normalised) found = k;
     });
     return found;
+  }
+
+  function displayNameFromAny(value){
+    var key = bucketKeyFromDisplayName(value);
+    if (key) return BUCKET_DISPLAY_NAMES[key] === 'Restore Self Trust' ? 'Restore Self-Trust' : BUCKET_DISPLAY_NAMES[key];
+    if (value === 'restoreSelfTrust') return 'Restore Self-Trust';
+    if (value === 'quietTheAlarm') return 'Quiet the Alarm';
+    if (value === 'breakThePull') return 'Break the Pull';
+    if (value === 'returnToYourself') return 'Return to Yourself';
+    return value || '';
+  }
+
+  function orderedActiveStageNames(leading, secondary){
+    var order = ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+    var seen = {};
+    (leading || []).concat(secondary || []).forEach(function(item){
+      var name = displayNameFromAny(item);
+      if (order.indexOf(name) !== -1) seen[name] = true;
+    });
+    return order.filter(function(name){ return seen[name]; });
   }
 
   // -------------------- YMS-REC-2026-V1 recommendation mirror --------------------
   function computeRecommendationV1Client(scores, resultInfo){
     var total = V2_BUCKET_KEYS.reduce(function(sum, k){ return sum + Number(scores[k]); }, 0);
-    var breadth = V2_BUCKET_KEYS.filter(function(k){ return Number(scores[k]) >= 3; }).length;
-    var allLower = V2_BUCKET_KEYS.every(function(k){ return resultInfo.activation[k] === 'lower'; });
-    var allFourAtLeastThree = V2_BUCKET_KEYS.every(function(k){ return Number(scores[k]) >= 3; });
+    var qualifyingKeys = V2_BUCKET_KEYS.filter(function(k){ return Number(scores[k]) >= 3; });
+    var breadth = qualifyingKeys.length;
     var level, rule, recommendedStage = null, mixedRequired = false;
-    if (allLower){ level='bare_minimum'; rule='all_lower'; }
-    else if (breadth >= 3 && total >= 15){ level='bootcamp_level'; rule='breadth_3_total_15'; }
-    else {
-      level='audio_first'; rule='active_contained';
-      if (resultInfo.type === 'single' && resultInfo.primary){ recommendedStage = BUCKET_DISPLAY_NAMES[resultInfo.primary]; }
-      else if (resultInfo.type === 'mixed'){ mixedRequired = true; }
+
+    if (breadth === 0){
+      level='bare_minimum'; rule='no_stage_3';
+    } else if (breadth === 1){
+      level='audio_first'; rule='one_stage_3';
+      recommendedStage = BUCKET_DISPLAY_NAMES[qualifyingKeys[0]];
+    } else if (breadth === 2){
+      level='audio_first'; rule='two_stages_3';
+      mixedRequired = false;
+    } else {
+      level='complete_self_guided';
+      rule = total >= 15 ? 'breadth_3_total_15' : 'breadth_3';
     }
+
     return {
-      recommendationEngineVersion:'YMS-REC-2026-V1', totalFourStageScore:total, breadthCount:breadth,
+      recommendationEngineVersion:'YMS-REC-2026-V2', totalFourStageScore:total, breadthCount:breadth,
       recommendationLevel:level, recommendationRuleTriggered:rule,
-      broadModerateBoundary:allFourAtLeastThree && total >= 12 && total <= 14,
+      broadModerateBoundary:breadth >= 3 && total >= 12 && total <= 14,
       recommendedStage:recommendedStage, recommendedProduct:'',
-      mixedClarificationRequired:mixedRequired, mixedClarificationSelection:''
+      mixedClarificationRequired:mixedRequired, mixedClarificationSelection:'',
+      qualifyingKeys:qualifyingKeys
     };
   }
 
@@ -734,21 +762,34 @@
 
     var firstName = document.getElementById('firstName').value.trim();
     var email = document.getElementById('email').value.trim();
-    var mixedNames = mixedKeys.map(function(k){ return BUCKET_DISPLAY_NAMES[k]; });
+    var mixedNames = mixedKeys.map(function(k){ return displayNameFromAny(k); });
+
+    var leadingNames = clientResult.leadingPatterns.map(function(k){ return displayNameFromAny(k); });
+    var secondaryNames = clientResult.secondaryActivePatterns.map(function(k){ return displayNameFromAny(k); });
+    if (serverData && Array.isArray(serverData.leadingPatterns)) leadingNames = serverData.leadingPatterns.map(displayNameFromAny);
+    if (serverData && Array.isArray(serverData.secondaryActivePatterns)) secondaryNames = serverData.secondaryActivePatterns.map(displayNameFromAny);
+    var activeStages = orderedActiveStageNames(leadingNames, secondaryNames);
 
     var recommendation = computeRecommendationV1Client(clientScores, clientResult);
+    var qualifyingKeys = recommendation.qualifyingKeys || V2_BUCKET_KEYS.filter(function(k){ return Number(clientScores[k]) >= 3; });
+    var qualifyingStages = qualifyingKeys.map(function(k){ return displayNameFromAny(k); });
+    var stageScoresForResult = {};
+    V2_BUCKET_KEYS.forEach(function(k){
+      stageScoresForResult[displayNameFromAny(k)] = Number(clientScores[k]);
+    });
     if (serverData && serverData.recommendationLevel){
       recommendation = {
-        recommendationEngineVersion: serverData.recommendationEngineVersion || 'YMS-REC-2026-V1',
-        totalFourStageScore: serverData.totalFourStageScore,
-        breadthCount: serverData.breadthCount,
-        recommendationLevel: serverData.recommendationLevel,
-        recommendationRuleTriggered: serverData.recommendationRuleTriggered || '',
-        broadModerateBoundary: serverData.broadModerateBoundary === true,
-        recommendedStage: serverData.recommendedStage || null,
+        recommendationEngineVersion: 'YMS-REC-2026-V2',
+        totalFourStageScore: Number(serverData.totalFourStageScore != null ? serverData.totalFourStageScore : recommendation.totalFourStageScore),
+        breadthCount: qualifyingStages.length,
+        recommendationLevel: qualifyingStages.length === 0 ? 'bare_minimum' : (qualifyingStages.length <= 2 ? 'audio_first' : 'complete_self_guided'),
+        recommendationRuleTriggered: qualifyingStages.length >= 3 && Number(serverData.totalFourStageScore != null ? serverData.totalFourStageScore : recommendation.totalFourStageScore) >= 15 ? 'breadth_3_total_15' : recommendation.recommendationRuleTriggered,
+        broadModerateBoundary: qualifyingStages.length >= 3 && Number(serverData.totalFourStageScore != null ? serverData.totalFourStageScore : recommendation.totalFourStageScore) >= 12 && Number(serverData.totalFourStageScore != null ? serverData.totalFourStageScore : recommendation.totalFourStageScore) <= 14,
+        recommendedStage: qualifyingStages.length === 1 ? qualifyingStages[0] : null,
         recommendedProduct: serverData.recommendedProduct || '',
-        mixedClarificationRequired: serverData.mixedClarificationRequired === true,
-        mixedClarificationSelection: serverData.mixedClarificationSelection || ''
+        mixedClarificationRequired: false,
+        mixedClarificationSelection: '',
+        qualifyingKeys: qualifyingKeys
       };
     }
 
@@ -758,6 +799,11 @@
       resultType: resultType,
       primaryResult: primaryKey ? BUCKET_DISPLAY_NAMES[primaryKey] : null,
       tiedResults: mixedNames,
+      leadingPatterns: leadingNames,
+      secondaryActivePatterns: secondaryNames,
+      activeStages: activeStages,
+      qualifyingStages: qualifyingStages,
+      stageScores: stageScoresForResult,
       overallActivationStrength: overallActivation,
       resultToken: finalResultToken,
       recommendationEngineVersion: recommendation.recommendationEngineVersion,
@@ -785,9 +831,15 @@
     YMSQuiz.track('quiz_lead_captured', { quiz_version: QUIZ_VERSION });
     try { fbq('track', 'Lead'); } catch(e){}
 
-    var target = resultType === 'no_clear_leader' ? RESULT_PAGES.noClearLeader
-      : resultType === 'single' ? RESULT_PAGES[primaryKey]
-      : RESULT_PAGES.mixed;
+    var target;
+    if (qualifyingStages.length === 0) {
+      target = RESULT_PAGES.noClearLeader;
+    } else if (qualifyingStages.length === 1) {
+      var onlyKey = bucketKeyFromDisplayName(qualifyingStages[0]);
+      target = RESULT_PAGES[onlyKey] || RESULT_PAGES.noClearLeader;
+    } else {
+      target = RESULT_PAGES.mixed;
+    }
 
     window.location.href = target;
   }
