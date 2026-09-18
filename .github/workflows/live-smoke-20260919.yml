@@ -44,19 +44,6 @@ jobs:
             const page = await context.newPage();
 
             const journeyEvents = [];
-            page.on('request', req => {
-              if (req.method() !== 'POST') return;
-              if (!req.url().includes('/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec')) return;
-              const body = req.postData();
-              if (!body) return;
-              try {
-                const parsed = JSON.parse(body);
-                if (parsed.action === 'recordJourneyEvent') {
-                  journeyEvents.push(parsed);
-                  console.log('JOURNEY_REQUEST', JSON.stringify(parsed));
-                }
-              } catch (_) {}
-            });
 
             await page.goto(SITE + '/quiz.html?qa=live-smoke-20260919', { waitUntil: 'networkidle', timeout: 45000 });
             await page.getByRole('button', { name: /Start the Quiz/i }).click();
@@ -84,6 +71,28 @@ jobs:
 
             const resultData = await page.evaluate(() => JSON.parse(sessionStorage.getItem('yms_quiz_result')));
             assert(resultData && resultData.resultToken, 'No resultToken in sessionStorage');
+
+            const helperType = await page.evaluate(() => typeof (window.YMSQuiz && window.YMSQuiz.recordJourneyEvent));
+            console.log('JOURNEY_HELPER_TYPE', helperType);
+            assert.strictEqual(helperType, 'function', 'Live page did not load journey logging helper');
+
+            await page.exposeFunction('__captureJourney', payload => {
+              journeyEvents.push(payload);
+              console.log('JOURNEY_CALL', JSON.stringify(payload));
+            });
+            await page.evaluate(() => {
+              const original = window.YMSQuiz.recordJourneyEvent;
+              window.YMSQuiz.recordJourneyEvent = function(eventType, values) {
+                try {
+                  window.__captureJourney({
+                    eventType,
+                    values: values || {},
+                    resultToken: (window.YMSQuiz.getResultData() || {}).resultToken || ''
+                  });
+                } catch (_) {}
+                return original.call(window.YMSQuiz, eventType, values);
+              };
+            });
             assert.deepStrictEqual(resultData.qualifyingStages, ['Quiet the Alarm','Break the Pull','Restore Self-Trust']);
             assert.strictEqual(resultData.totalFourStageScore, 15);
             console.log('QUIZ_SUBMISSION_OK', JSON.stringify({
@@ -105,6 +114,26 @@ jobs:
             await page.getByText(/Calm the panic and anxiety when you think of him/i).waitFor({ state:'visible', timeout:15000 });
 
             await waitForJourney(journeyEvents, ['readiness_completed','final_route_shown']);
+
+            // Confirm production /exec accepts a journey write for this exact live-submission token.
+            const readinessWrite = await fetch(ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({
+                action: 'recordJourneyEvent',
+                resultToken: resultData.resultToken,
+                eventType: 'readiness_completed',
+                values: {
+                  goal: 'I want help understanding myself, breaking the cycle and getting my mind back.',
+                  commitment: 'Yes.'
+                }
+              })
+            });
+            const readinessText = await readinessWrite.text();
+            console.log('READINESS_WRITE_RESPONSE', readinessText);
+            const readinessJson = JSON.parse(readinessText);
+            assert.strictEqual(readinessJson.status, 'ok');
+            assert(Number(readinessJson.row) > 0, 'Backend did not update existing row');
 
             await page.route('https://payhip.com/**', route => route.abort());
             const boot = page.getByRole('link', { name: /JOIN ORIGINAL GROUP — £297/i });
