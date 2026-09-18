@@ -237,20 +237,20 @@
     var after = document.getElementById(containerId);
     var card = cardBefore || (after && after.closest ? after.closest('.result-card') : after);
 
-    var activeStages = Y.activeStagesFromResult ? Y.activeStagesFromResult(data) : [];
-    if (activeStages.length >= 2) {
+    var qualifyingStages = Y.qualifyingStagesFromResult ? Y.qualifyingStagesFromResult(data) : [];
+    if (qualifyingStages.length >= 2) {
       enhanceMixedAudio(card, after);
       return;
     }
 
-    if (data.recommendationLevel === 'bootcamp_level') {
-      enhanceBootcamp(card);
+    if (data.recommendationLevel === 'audio_first') {
+      if (qualifyingStages.length === 2 || data.resultType === 'mixed') enhanceMixedAudio(card, after);
+      else enhanceSingleAudio(card, after);
       return;
     }
 
-    if (data.recommendationLevel === 'audio_first') {
-      if (data.resultType === 'mixed') enhanceMixedAudio(card, after);
-      else enhanceSingleAudio(card, after);
+    if (data.recommendationLevel === 'complete_self_guided') {
+      enhanceMixedAudio(card, after);
       return;
     }
   };
