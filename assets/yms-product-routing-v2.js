@@ -1,4 +1,4 @@
-/* Your Mind Story quiz product routing — research-informed scope + support ladder.
+/* Your Mind Story quiz product routing - research-informed scope + support ladder.
    Product qualification is based on stage totals, not marketing behaviour.
    Each stage is 0-6. A stage qualifies when its total is >= 3.
    0 qualifying -> Bare Minimum
@@ -188,7 +188,7 @@
     return '<div class="og-secondary yms-downsell" style="margin-top:26px;">' +
       '<p><strong>Still trying to make sense of what’s happening?</strong></p>' +
       '<p>If you’re not ready for ' + work + ' yet, but you know you don’t want to stay stuck here, start with <strong>The Bare Minimum</strong>.</p>' +
-      '<div class="cta-row"><a class="btn-ghost" data-yms-downsell href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>' +
+      '<div class="cta-row"><a class="btn-ghost" data-yms-downsell href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM - £4.99</a></div>' +
       '</div>';
   }
 
@@ -196,7 +196,7 @@
     var link = container.querySelector("[data-yms-downsell]");
     if (link) link.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_bare_minimum_downsell_click", { source_route: source });
-      recordJourney("bare_minimum_downsell_click", { ctaChosen: "The Bare Minimum — £4.99" });
+      recordJourney("bare_minimum_downsell_click", { ctaChosen: "The Bare Minimum - £4.99" });
     });
   }
 
@@ -213,12 +213,12 @@
       '<p>Not the dream relationship.</p>' +
       '<p><strong>This is about your health. The minimum.</strong></p>' +
       '<p>Because once you know that, it becomes much harder to keep negotiating with yourself just to keep somebody else.</p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-bare href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>';
+      '<div class="cta-row"><a class="btn-cta" data-yms-bare href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM - £4.99</a></div>';
     logRoute("Bare Minimum", "The Bare Minimum");
     var cta = container.querySelector("[data-yms-bare]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_bare_minimum_recommendation_click", {});
-      recordJourney("primary_cta_click", { cta: "The Bare Minimum — £4.99" });
+      recordJourney("primary_cta_click", { cta: "The Bare Minimum - £4.99" });
     });
   }
 
@@ -245,14 +245,14 @@
       '<div class="divider"></div>' +
       '<p class="result-lede" style="margin-top:0;">I recommend ' + Y.escapeText(stage) + '.</p>' +
       productCopy +
-      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' — £37</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' - £37</a></div>' +
       downsellHtml(true);
 
     logRoute("Single Audio", stage);
     var cta = container.querySelector("[data-yms-single]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_audio_recommendation_click", { selected_stage: stage });
-      recordJourney("primary_cta_click", { cta: stage + " — £37" });
+      recordJourney("primary_cta_click", { cta: stage + " - £37" });
     });
     wireDownsell(container, "single_" + stage);
     return true;
@@ -279,14 +279,14 @@
       '<p>Work with it for 21 days and complete your check-ins.</p>' +
       '<p>Then move on to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
       '<p><strong>One stage at a time.</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY TWO-STAGE PATHWAY — £74</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY TWO-STAGE PATHWAY - £74</a></div>' +
       downsellHtml(false);
 
     logRoute("Two-Stage Pathway", pair.name);
     var cta = container.querySelector("[data-yms-pair]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_pair_recommendation_click", { pair: pair.name, first_stage: first, second_stage: second });
-      recordJourney("primary_cta_click", { cta: pair.name + " — £74" });
+      recordJourney("primary_cta_click", { cta: pair.name + " - £74" });
     });
     wireDownsell(container, "pair_" + pairKey(stages));
     return true;
@@ -326,7 +326,10 @@
     if (stages.length >= 4) {
       return '<span class="result-tag">YOUR RESULT</span>' +
         '<h1>Based on your answers, this is affecting you across the whole cycle.</h1>' +
-        detectedStageListHtml(stages) +
+        '<p>Your body reacts.</p>' +
+        '<p>You get pulled back into him.</p>' +
+        '<p>You question yourself.</p>' +
+        '<p>And too much of your own life is getting pushed into the background.</p>' +
         '<p>Which is why knowing more about him hasn’t necessarily stopped what this is doing to <strong>you</strong>.</p>';
     }
 
@@ -347,7 +350,7 @@
         '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
         '<p>You can work through the full process in your own time, one stage at a time.</p>' +
         '<p>Start with <strong>Quiet the Alarm</strong>, then keep moving through the programme in order.</p>' +
-        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
+        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
         downsellHtml(false);
     } else if (isThree) {
       container.innerHTML =
@@ -364,7 +367,7 @@
         '<p>Start at the beginning and work through each stage before moving on to the next.</p>' +
         '<p>Your results tell me <strong>where this is hitting you hardest</strong>.</p>' +
         '<p>The Complete Self-Guided Journey gives you the whole process to work through properly from beginning to end.</p>' +
-        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
+        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
         downsellHtml(false);
     } else {
       container.innerHTML =
@@ -381,7 +384,7 @@
         allStageListHtml() +
         '<p>Not everything at once.</p>' +
         '<p>You start at the beginning and keep moving through.</p>' +
-        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY — £117</a></div>' +
+        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
         downsellHtml(false);
     }
 
@@ -389,7 +392,7 @@
     var cta = container.querySelector("[data-yms-self-guided]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
-      recordJourney("primary_cta_click", { cta: "Complete Self-Guided Journey — £117" });
+      recordJourney("primary_cta_click", { cta: "Complete Self-Guided Journey - £117" });
     });
     wireDownsell(container, reasonText ? "self_guided_private" : "self_guided_" + stages.length);
     return true;
@@ -409,12 +412,12 @@
       '<p class="result-lede"><strong>The Bare Minimum</strong></p>' +
       '<p>Get really clear on the five things a woman needs to stay healthy in love.</p>' +
       '<p>Then, when you’re ready to work on the pattern itself, your quiz result is here to show you where I’d start.</p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-bare-bridge href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM — £4.99</a></div>';
+      '<div class="cta-row"><a class="btn-cta" data-yms-bare-bridge href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM - £4.99</a></div>';
     logRoute("Bare Minimum", "The Bare Minimum");
     var cta = container.querySelector("[data-yms-bare-bridge]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_bare_minimum_readiness_bridge_click", { qualifying_stage_count: stages.length });
-      recordJourney("primary_cta_click", { cta: "The Bare Minimum — £4.99" });
+      recordJourney("primary_cta_click", { cta: "The Bare Minimum - £4.99" });
     });
   }
 
@@ -439,12 +442,12 @@
       '<p>More trust in yourself.</p>' +
       '<p>More of your attention going back into <strong>your own life</strong>.</p>' +
       '<p><strong>Original Group • 2026</strong><br>Starts <strong>Sunday 4 October 2026</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN ORIGINAL GROUP — £297</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN ORIGINAL GROUP - £297</a></div>' +
       '<div class="og-secondary" style="margin-top:26px;">' +
         '<p><strong>Want to do the work privately?</strong></p>' +
         '<p>You can choose the <strong>Complete Self-Guided Journey</strong> instead.</p>' +
         '<p>You work through the same four stages on your own, without the group support and live integration calls.</p>' +
-        '<div class="cta-row"><a class="btn-ghost" data-yms-self-alt href="' + SELF_GUIDED.url + '">CHOOSE SELF-GUIDED — £117</a></div>' +
+        '<div class="cta-row"><a class="btn-ghost" data-yms-self-alt href="' + SELF_GUIDED.url + '">CHOOSE SELF-GUIDED - £117</a></div>' +
       '</div>';
 
     logRoute("Original Group Bootcamp", "Original Group Bootcamp");
