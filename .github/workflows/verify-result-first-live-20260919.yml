@@ -1,0 +1,116 @@
+name: Verify result-first live 2026-09-19
+
+on:
+  push:
+    branches:
+      - verify-result-first-live-20260919
+    paths:
+      - '.github/workflows/verify-result-first-live-20260919.yml'
+
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify public result pages
+        run: |
+          cat > verify-live.js <<'NODE'
+          const { chromium } = require('playwright');
+          const assert = require('assert');
+          const BASE='https://yourmindstory.co.uk';
+          const order=['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+
+          function payload(stages, scores){
+            const stageScores={};
+            order.forEach(s=>stageScores[s]=scores[s] ?? (stages.includes(s)?3:0));
+            const total=Object.values(stageScores).reduce((a,b)=>a+b,0);
+            return {
+              firstName:'LiveTest',
+              resultType: stages.length===0?'no_clear_leader':(stages.length===1?'single':'mixed'),
+              primaryResult: stages.length===1?stages[0]:null,
+              leadingPatterns: stages.slice(0,2),
+              secondaryActivePatterns: stages.slice(2),
+              activeStages: stages.slice(),
+              qualifyingStages: stages.slice(),
+              stageScores,
+              totalFourStageScore: total,
+              breadthCount: stages.length,
+              recommendationLevel: stages.length===0?'bare_minimum':(stages.length<=2?'audio_first':'complete_self_guided'),
+              recommendationEngineVersion:'YMS-REC-2026-V2',
+              resultToken:'live-visual-verification-only'
+            };
+          }
+
+          async function withResult(browser,data,file,fn){
+            const ctx=await browser.newContext();
+            await ctx.addInitScript(p=>sessionStorage.setItem('yms_quiz_result',JSON.stringify(p)),data);
+            const page=await ctx.newPage();
+            await page.goto(BASE+'/'+file+'?verify=resultfirst-'+Date.now(),{waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForTimeout(1200);
+            await fn(page);
+            await ctx.close();
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+
+            for(const [stage,file] of [
+              ['Quiet the Alarm','quiet-the-alarm.html'],
+              ['Break the Pull','break-the-pull.html'],
+              ['Restore Self-Trust','restore-self-trust.html'],
+              ['Return to Yourself','return-to-yourself.html']
+            ]){
+              await withResult(browser,payload([stage],{[stage]:4}),file,async page=>{
+                await page.getByText('YOUR RESULT',{exact:true}).waitFor({state:'visible'});
+                await page.getByRole('heading',{name:stage,exact:true}).waitFor({state:'visible'});
+                const show=page.getByRole('button',{name:/Show me my recommendation/i});
+                await show.waitFor({state:'visible'});
+                assert.strictEqual(await page.getByText('I recommend '+stage+'.',{exact:true}).isVisible().catch(()=>false),false);
+              });
+              console.log('PASS live single',stage);
+            }
+
+            await withResult(browser,payload(['Quiet the Alarm','Break the Pull'],{'Quiet the Alarm':4,'Break the Pull':4}),'mixed-result.html',async page=>{
+              await page.getByText('YOUR RESULT',{exact:true}).waitFor({state:'visible'});
+              await page.getByRole('heading',{name:/two places that seem to be bothering you/i}).waitFor({state:'visible'});
+              await page.getByRole('button',{name:/Show me my recommendation/i}).waitFor({state:'visible'});
+              assert.strictEqual(await page.getByRole('link',{name:/START MY TWO-STAGE PATHWAY/i}).isVisible().catch(()=>false),false);
+            });
+            console.log('PASS live pair');
+
+            await withResult(browser,payload(['Quiet the Alarm','Break the Pull','Restore Self-Trust'],{'Quiet the Alarm':5,'Break the Pull':5,'Restore Self-Trust':5,'Return to Yourself':0}),'mixed-result.html',async page=>{
+              await page.getByText('YOUR RESULT',{exact:true}).waitFor({state:'visible'});
+              await page.getByRole('heading',{name:/affecting you in three places/i}).waitFor({state:'visible'});
+              await page.getByRole('button',{name:/Show me my recommendation/i}).waitFor({state:'visible'});
+              assert.strictEqual(await page.getByText(/BEFORE WE LOOK AT YOUR RECOMMENDATION/i).isVisible().catch(()=>false),false);
+            });
+            console.log('PASS live three-stage readiness');
+
+            await withResult(browser,payload(order,{'Quiet the Alarm':4,'Break the Pull':4,'Restore Self-Trust':4,'Return to Yourself':4}),'mixed-result.html',async page=>{
+              await page.getByText('YOUR RESULT',{exact:true}).waitFor({state:'visible'});
+              await page.getByRole('heading',{name:/affecting you across the whole cycle/i}).waitFor({state:'visible'});
+              await page.getByRole('button',{name:/Show me my recommendation/i}).waitFor({state:'visible'});
+              assert.strictEqual(await page.getByText(/BEFORE WE LOOK AT YOUR RECOMMENDATION/i).isVisible().catch(()=>false),false);
+            });
+            console.log('PASS live four-stage');
+
+            await withResult(browser,payload([],{'Quiet the Alarm':2,'Break the Pull':2,'Restore Self-Trust':2,'Return to Yourself':2}),'no-result.html',async page=>{
+              await page.getByText('YOUR RESULT',{exact:true}).waitFor({state:'visible'});
+              await page.getByRole('heading',{name:/wouldn’t recommend one of the hypnotherapy audios right now/i}).waitFor({state:'visible'});
+              const show=page.getByRole('button',{name:/Show me my recommendation/i});
+              await show.waitFor({state:'visible'});
+              assert.strictEqual(await page.getByRole('link',{name:/START WITH THE BARE MINIMUM/i}).isVisible().catch(()=>false),false);
+            });
+            console.log('PASS live bare');
+
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1);});
+          NODE
+          node verify-live.js
