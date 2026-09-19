@@ -201,7 +201,7 @@
     nodes.slice(dividerIndex).forEach(function (n) { section.appendChild(n); });
 
     var btn = button('Show me my recommendation', section.id);
-    container.insertBefore(btn, section);
+    container.appendChild(btn);
     container.appendChild(section);
     btn.addEventListener('click', function () { reveal(btn, section, 'quiz_mixed_reveal'); });
   }
@@ -218,7 +218,7 @@
     var section = makeSection('ymsBareMinimumRecommendation');
     children.slice(dividerIndex).forEach(function (n) { section.appendChild(n); });
     var btn = button('Show me my recommendation', section.id);
-    card.insertBefore(btn, section);
+    card.appendChild(btn);
     card.appendChild(section);
     card.dataset.ymsProgressive = '1';
     btn.addEventListener('click', function () { reveal(btn, section, 'quiz_bare_minimum_reveal'); });
