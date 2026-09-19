@@ -304,6 +304,35 @@
     }).join("");
   }
 
+  function resultSummaryHtml(stages) {
+    stages = orderedUnique(stages);
+
+    if (stages.length === 2) {
+      return '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Based on your answers, there are two places that seem to be bothering you.</h1>' +
+        detectedStageListHtml(stages) +
+        '<p>Both of these are showing up strongly enough that I wouldn’t tell you to work on one and ignore the other.</p>' +
+        '<p>And they can feed each other.</p>' +
+        '<p><strong>That is why I’d work on both.</strong></p>';
+    }
+
+    if (stages.length === 3) {
+      return '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Based on your answers, this is affecting you in three places.</h1>' +
+        '<p>Your results are showing:</p>' +
+        detectedStageListHtml(stages);
+    }
+
+    if (stages.length >= 4) {
+      return '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Based on your answers, this is affecting you across the whole cycle.</h1>' +
+        detectedStageListHtml(stages) +
+        '<p>Which is why knowing more about him hasn’t necessarily stopped what this is doing to <strong>you</strong>.</p>';
+    }
+
+    return '';
+  }
+
   function renderSelfGuided(container, stages, reasonText) {
     stages = orderedUnique(stages);
     var isThree = stages.length === 3;
@@ -461,6 +490,7 @@
     }
 
     container.innerHTML =
+      resultSummaryHtml(stages) +
       '<div class="divider"></div>' +
       '<span class="og-label">BEFORE WE LOOK AT YOUR RECOMMENDATION</span>' +
       '<p class="result-lede" style="margin-top:0;">This is affecting you in more than one place.</p>' +
