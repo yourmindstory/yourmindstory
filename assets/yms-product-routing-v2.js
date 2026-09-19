@@ -185,10 +185,10 @@
 
   function downsellHtml(isSingle) {
     var work = isSingle ? "the hypnotherapy audio" : "the hypnotherapy work";
-    return '<div class="og-secondary yms-downsell" style="margin-top:26px;">' +
-      '<p><strong>Still trying to make sense of what’s happening?</strong></p>' +
-      '<p>If you’re not ready for ' + work + ' yet, but you know you don’t want to stay stuck here, start with <strong>The Bare Minimum</strong>.</p>' +
-      '<div class="cta-row"><a class="btn-ghost" data-yms-downsell href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM - £4.99</a></div>' +
+    return '<div class="yms-downsell" style="margin-top:42px;padding-top:22px;border-top:1px solid rgba(36,61,46,.12);font-size:.94em;opacity:.9;">' +
+      '<p style="margin-bottom:8px;"><strong>Not ready to start ' + work + ' yet?</strong></p>' +
+      '<p style="margin-top:0;">You can begin with <strong>The Bare Minimum</strong> and get clear on the five things a woman needs to stay healthy in love.</p>' +
+      '<p style="margin-bottom:0;"><a data-yms-downsell href="' + BARE_MINIMUM + '">Start with The Bare Minimum - £4.99</a></p>' +
       '</div>';
   }
 
@@ -443,11 +443,10 @@
       '<p>More of your attention going back into <strong>your own life</strong>.</p>' +
       '<p><strong>Original Group • 2026</strong><br>Starts <strong>Sunday 4 October 2026</strong></p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN ORIGINAL GROUP - £297</a></div>' +
-      '<div class="og-secondary" style="margin-top:26px;">' +
-        '<p><strong>Want to do the work privately?</strong></p>' +
-        '<p>You can choose the <strong>Complete Self-Guided Journey</strong> instead.</p>' +
-        '<p>You work through the same four stages on your own, without the group support and live integration calls.</p>' +
-        '<div class="cta-row"><a class="btn-ghost" data-yms-self-alt href="' + SELF_GUIDED.url + '">CHOOSE SELF-GUIDED - £117</a></div>' +
+      '<div style="margin-top:42px;padding-top:22px;border-top:1px solid rgba(36,61,46,.12);font-size:.94em;opacity:.9;">' +
+        '<p style="margin-bottom:8px;"><strong>Prefer to work privately?</strong></p>' +
+        '<p style="margin-top:0;">The <strong>Complete Self-Guided Journey</strong> gives you the same four-stage structure without the group support or live integration calls.</p>' +
+        '<p style="margin-bottom:0;"><a data-yms-self-alt href="' + SELF_GUIDED.url + '">See the self-guided option - £117</a></p>' +
       '</div>';
 
     logRoute("Original Group Bootcamp", "Original Group Bootcamp");
