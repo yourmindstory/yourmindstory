@@ -265,13 +265,7 @@
 
     var first = stages[0], second = stages[1];
     container.innerHTML =
-      '<span class="result-tag">YOUR RESULT</span>' +
-      '<h1>Based on your answers, there are two places that seem to be bothering you.</h1>' +
-      '<p class="result-lede"><strong>' + Y.escapeText(first) + '</strong><br><span class="cta-microcopy">' + Y.escapeText(STAGE_SUBTITLES[first]) + '</span></p>' +
-      '<p class="result-lede"><strong>' + Y.escapeText(second) + '</strong><br><span class="cta-microcopy">' + Y.escapeText(STAGE_SUBTITLES[second]) + '</span></p>' +
-      '<p>Both of these are showing up strongly enough that I wouldn’t tell you to work on one and ignore the other.</p>' +
-      '<p>And they can feed each other.</p>' +
-      '<p><strong>That is why I’d work on both.</strong></p>' +
+      resultSummaryHtml(stages) +
       '<div class="divider"></div>' +
       '<span class="og-label">I’D START HERE</span>' +
       '<p class="result-lede" style="margin-top:0;">' + Y.escapeText(pair.name) + '</p>' +
@@ -304,33 +298,43 @@
     }).join("");
   }
 
+  function recognitionLine(stage) {
+    return {
+      "Quiet the Alarm": "Your body is reacting.",
+      "Break the Pull": "You’re getting pulled back into him.",
+      "Restore Self-Trust": "You’re starting to question yourself.",
+      "Return to Yourself": "Too much of your own life is getting pushed into the background."
+    }[stage] || "";
+  }
+
+  function recognitionLinesHtml(stages) {
+    return orderedUnique(stages).map(function (stage) {
+      return '<p>' + Y.escapeText(recognitionLine(stage)) + '</p>';
+    }).join("");
+  }
+
   function resultSummaryHtml(stages) {
     stages = orderedUnique(stages);
 
     if (stages.length === 2) {
       return '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Based on your answers, there are two places that seem to be bothering you.</h1>' +
-        detectedStageListHtml(stages) +
-        '<p>Both of these are showing up strongly enough that I wouldn’t tell you to work on one and ignore the other.</p>' +
-        '<p>And they can feed each other.</p>' +
-        '<p><strong>That is why I’d work on both.</strong></p>';
+        '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
+        recognitionLinesHtml(stages) +
+        '<p><strong>These two can feed each other, which is why working on only one part may not be enough.</strong></p>';
     }
 
     if (stages.length === 3) {
       return '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Based on your answers, this is affecting you in three places.</h1>' +
-        '<p>Your results are showing:</p>' +
-        detectedStageListHtml(stages);
+        '<h1>Based on your answers, this is affecting you in more than one part of the cycle.</h1>' +
+        recognitionLinesHtml(stages) +
+        '<p><strong>These parts can feed each other, which is why it can feel so difficult to get properly free of it.</strong></p>';
     }
 
     if (stages.length >= 4) {
       return '<span class="result-tag">YOUR RESULT</span>' +
         '<h1>Based on your answers, this is affecting you across the whole cycle.</h1>' +
-        '<p>Your body reacts.</p>' +
-        '<p>You get pulled back into him.</p>' +
-        '<p>You question yourself.</p>' +
-        '<p>And too much of your own life is getting pushed into the background.</p>' +
-        '<p>Which is why knowing more about him hasn’t necessarily stopped what this is doing to <strong>you</strong>.</p>';
+        recognitionLinesHtml(stages) +
+        '<p><strong>These parts can keep feeding each other, which is why knowing more about him hasn’t necessarily stopped what this is doing to you.</strong></p>';
     }
 
     return '';
@@ -354,11 +358,7 @@
         downsellHtml(false);
     } else if (isThree) {
       container.innerHTML =
-        '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Based on your answers, this is affecting you in three places.</h1>' +
-        '<p>Your results are showing:</p>' +
-        detectedStageListHtml(stages) +
-        '<p>At that point, I wouldn’t separate this out and send you off to buy three different audios.</p>' +
+        resultSummaryHtml(stages) +
         '<div class="divider"></div>' +
         '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
         '<p>You need a clear way of working through this rather than trying to fix whichever part is screaming the loudest that day.</p>' +
@@ -371,13 +371,7 @@
         downsellHtml(false);
     } else {
       container.innerHTML =
-        '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Based on your answers, this is affecting you across the whole cycle.</h1>' +
-        '<p>Your body reacts.</p>' +
-        '<p>You get pulled back into him.</p>' +
-        '<p>You question yourself.</p>' +
-        '<p>And too much of your own life is getting pushed into the background.</p>' +
-        '<p>Which is why knowing more about him hasn’t necessarily stopped what this is doing to <strong>you</strong>.</p>' +
+        resultSummaryHtml(stages) +
         '<div class="divider"></div>' +
         '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
         '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
