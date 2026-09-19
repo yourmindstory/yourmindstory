@@ -167,32 +167,20 @@
     var nodes = Array.prototype.slice.call(container.children);
     if (!nodes.length) return;
 
-    var pivot = nodes.findIndex(function (el) {
-      return /^That's why I recommend/i.test((el.textContent || '').trim());
-    });
-    if (pivot < 0) pivot = Math.max(3, nodes.length - 4);
-
-    var explanationNodes = nodes.slice(0, pivot);
-    var productNodes = nodes.slice(pivot);
-    while (container.firstChild) container.removeChild(container.firstChild);
+    // The single-stage result copy lives above #ogBridge on the page.
+    // Keep that entire result visible and gate only the recommendation block.
     card.dataset.ymsProgressive = '1';
 
-    var explanation = makeSection('ymsAudioExplanation');
-    explanationNodes.forEach(function (n) { explanation.appendChild(n); });
+    var section = makeSection('ymsAudioRecommendation');
+    nodes.forEach(function (n) { section.appendChild(n); });
 
-    var product = makeSection('ymsAudioNextStep');
-    productNodes.forEach(function (n) { product.appendChild(n); });
+    var btn = button('Show me my recommendation', section.id);
+    container.appendChild(btn);
+    container.appendChild(section);
 
-    var firstBtn = button('Show me my recommendation', explanation.id);
-    var secondBtn = button('Why this one?', product.id);
-    explanation.appendChild(secondBtn);
-
-    container.appendChild(firstBtn);
-    container.appendChild(explanation);
-    explanation.appendChild(product);
-
-    firstBtn.addEventListener('click', function () { reveal(firstBtn, explanation, 'quiz_audio_reveal'); });
-    secondBtn.addEventListener('click', function () { reveal(secondBtn, product, 'quiz_audio_reveal'); });
+    btn.addEventListener('click', function () {
+      reveal(btn, section, 'quiz_audio_reveal');
+    });
   }
 
   function enhanceMixedAudio(card, container) {
