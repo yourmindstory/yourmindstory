@@ -116,7 +116,7 @@
 
     var recommendation = makeSection('ymsMyRecommendation');
     recommendationNodes.forEach(function (n) { recommendation.appendChild(n); });
-    var recBtn = button('Show me my recommendation', recommendation.id);
+    var recBtn = button('So what should I do?', recommendation.id);
     meaning.appendChild(recBtn);
     card.appendChild(recommendation);
 
@@ -174,7 +174,7 @@
     var section = makeSection('ymsAudioRecommendation');
     nodes.forEach(function (n) { section.appendChild(n); });
 
-    var btn = button('Show me my recommendation', section.id);
+    var btn = button('So what should I do?', section.id);
     container.appendChild(btn);
     container.appendChild(section);
 
@@ -200,7 +200,7 @@
     var section = makeSection('ymsMixedWhereToStart');
     nodes.slice(dividerIndex).forEach(function (n) { section.appendChild(n); });
 
-    var btn = button('Show me my recommendation', section.id);
+    var btn = button('So what should I do?', section.id);
     container.appendChild(btn);
     container.appendChild(section);
     btn.addEventListener('click', function () { reveal(btn, section, 'quiz_mixed_reveal'); });
@@ -217,7 +217,7 @@
 
     var section = makeSection('ymsBareMinimumRecommendation');
     children.slice(dividerIndex).forEach(function (n) { section.appendChild(n); });
-    var btn = button('Show me my recommendation', section.id);
+    var btn = button('So what should I do?', section.id);
     card.appendChild(btn);
     card.appendChild(section);
     card.dataset.ymsProgressive = '1';
