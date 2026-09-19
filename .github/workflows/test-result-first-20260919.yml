@@ -96,8 +96,8 @@ jobs:
             await withResult(browser,data(pair,{'Quiet the Alarm':4,'Break the Pull':4}),'mixed-result.html',async page=>{
               await page.getByText('YOUR RESULT',{exact:true}).waitFor({state:'visible'});
               await page.getByRole('heading',{name:/two places that seem to be bothering you/i}).waitFor({state:'visible'});
-              await page.getByText('Quiet the Alarm',{exact:true}).waitFor({state:'visible'});
-              await page.getByText('Break the Pull',{exact:true}).waitFor({state:'visible'});
+              await page.getByText('Quiet the Alarm',{exact:true}).first().waitFor({state:'visible'});
+              await page.getByText('Break the Pull',{exact:true}).first().waitFor({state:'visible'});
               const show=page.getByRole('button',{name:/Show me my recommendation/i});
               await show.waitFor({state:'visible'});
               assert.strictEqual(await page.getByRole('link',{name:/START MY TWO-STAGE PATHWAY/i}).isVisible().catch(()=>false),false);
