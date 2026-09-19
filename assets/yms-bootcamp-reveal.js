@@ -200,11 +200,20 @@
     addStyles();
     if (!container.children.length) return;
 
+    var nodes = Array.prototype.slice.call(container.children);
+    var dividerIndex = nodes.findIndex(function (el) {
+      return el.classList && el.classList.contains('divider');
+    });
+
+    // Keep the actual quiz result visible. Only gate the recommendation/readiness content.
+    if (dividerIndex < 0) return;
+
     card.dataset.ymsProgressive = '1';
     var section = makeSection('ymsMixedWhereToStart');
-    while (container.firstChild) section.appendChild(container.firstChild);
-    var btn = button('Show me where to start', section.id);
-    container.appendChild(btn);
+    nodes.slice(dividerIndex).forEach(function (n) { section.appendChild(n); });
+
+    var btn = button('Show me my recommendation', section.id);
+    container.insertBefore(btn, section);
     container.appendChild(section);
     btn.addEventListener('click', function () { reveal(btn, section, 'quiz_mixed_reveal'); });
   }
