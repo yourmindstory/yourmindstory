@@ -1,0 +1,132 @@
+name: Verify exact approved result flow
+
+on:
+  push:
+    branches:
+      - exact-approved-result-flow-20260919
+    paths:
+      - '.github/workflows/verify-approved-result-flow.yml'
+      - 'mixed-result.html'
+      - 'quiet-the-alarm.html'
+      - 'break-the-pull.html'
+      - 'restore-self-trust.html'
+      - 'return-to-yourself.html'
+      - 'no-result.html'
+      - 'low-result.html'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 4173 >/tmp/http.log 2>&1 &
+          cat > verify.js <<'NODE'
+          const { chromium } = require('playwright');
+          const assert = require('assert');
+          const BASE='http://127.0.0.1:4173';
+          const order=['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+
+          function payload(stages,scores){
+            const stageScores={};
+            order.forEach(s=>stageScores[s]=scores[s] ?? (stages.includes(s)?3:0));
+            return {
+              firstName:'Kaci',
+              resultType:stages.length===0?'no_clear_leader':(stages.length===1?'single':'mixed'),
+              primaryResult:stages.length===1?stages[0]:null,
+              leadingPatterns:stages.slice(0,2),
+              secondaryActivePatterns:stages.slice(2),
+              activeStages:stages,
+              qualifyingStages:stages,
+              stageScores,
+              totalFourStageScore:Object.values(stageScores).reduce((a,b)=>a+b,0),
+              breadthCount:stages.length,
+              recommendationLevel:stages.length===0?'bare_minimum':(stages.length<=2?'audio_first':'complete_self_guided'),
+              resultToken:'test-token'
+            };
+          }
+          async function open(browser,data,file){
+            const ctx=await browser.newContext();
+            await ctx.addInitScript(p=>sessionStorage.setItem('yms_quiz_result',JSON.stringify(p)),data);
+            const page=await ctx.newPage();
+            await page.goto(BASE+'/'+file,{waitUntil:'networkidle'});
+            return {page,ctx};
+          }
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+
+            for(const [stage,file,line] of [
+              ['Quiet the Alarm','quiet-the-alarm.html','So this isn’t about understanding him better. We’re working on the reaction.'],
+              ['Break the Pull','break-the-pull.html','It’s that what you know isn’t stopping the pull.'],
+              ['Restore Self-Trust','restore-self-trust.html','You need to be able to hear yourself again and trust what you know.'],
+              ['Return to Yourself','return-to-yourself.html','It’s about stopping yourself from disappearing from your own life while you do.']
+            ]){
+              const {page,ctx}=await open(browser,payload([stage],{[stage]:4}),file);
+              await page.getByText('YOUR RESULT',{exact:true}).waitFor();
+              await page.getByText(line,{exact:true}).waitFor();
+              await page.getByText('I recommend '+stage+'.',{exact:true}).waitFor();
+              assert.strictEqual(await page.getByRole('button',{name:/Show me my recommendation/i}).count(),0);
+              await ctx.close();
+            }
+
+            {
+              const {page,ctx}=await open(browser,payload(['Quiet the Alarm','Break the Pull'],{'Quiet the Alarm':4,'Break the Pull':4}),'mixed-result.html');
+              await page.getByRole('heading',{name:/two places that seem to be bothering you/i}).waitFor();
+              await page.getByText('That is why I’d work on both.',{exact:true}).waitFor();
+              await page.getByText(/Quiet the Alarm → Break the Pull/).waitFor();
+              await page.getByRole('link',{name:/START MY TWO-STAGE PATHWAY/}).waitFor();
+              assert.strictEqual(await page.getByRole('button',{name:/Show me my recommendation/i}).count(),0);
+              await ctx.close();
+            }
+
+            {
+              const {page,ctx}=await open(browser,payload(['Quiet the Alarm','Break the Pull','Restore Self-Trust'],{'Quiet the Alarm':4,'Break the Pull':4,'Restore Self-Trust':4,'Return to Yourself':0}),'mixed-result.html');
+              await page.getByRole('heading',{name:/affecting you in three places/i}).waitFor();
+              await page.getByText(/At that point, I wouldn’t separate this out/i).waitFor();
+              await page.getByText('I recommend the Complete Self-Guided Journey.',{exact:true}).waitFor();
+              assert.strictEqual(await page.getByRole('button',{name:/Show me my recommendation/i}).count(),0);
+              await ctx.close();
+            }
+
+            {
+              const {page,ctx}=await open(browser,payload(['Quiet the Alarm','Break the Pull','Restore Self-Trust'],{'Quiet the Alarm':5,'Break the Pull':5,'Restore Self-Trust':5,'Return to Yourself':0}),'mixed-result.html');
+              await page.getByRole('heading',{name:/affecting you in three places/i}).waitFor();
+              await page.getByText(/BEFORE WE LOOK AT YOUR RECOMMENDATION/i).waitFor();
+              await page.getByText(/Which sounds most like what you want now/i).waitFor();
+              assert.strictEqual(await page.getByRole('button',{name:/Show me my recommendation/i}).count(),0);
+              await ctx.close();
+            }
+
+            {
+              const {page,ctx}=await open(browser,payload(order,{'Quiet the Alarm':4,'Break the Pull':4,'Restore Self-Trust':4,'Return to Yourself':4}),'mixed-result.html');
+              await page.getByRole('heading',{name:/affecting you across the whole cycle/i}).waitFor();
+              await page.getByText('Your body reacts.',{exact:true}).waitFor();
+              await page.getByText('You get pulled back into him.',{exact:true}).waitFor();
+              await page.getByText('You question yourself.',{exact:true}).waitFor();
+              await page.getByText('And too much of your own life is getting pushed into the background.',{exact:true}).waitFor();
+              await page.getByText(/BEFORE WE LOOK AT YOUR RECOMMENDATION/i).waitFor();
+              assert.strictEqual(await page.getByRole('button',{name:/Show me my recommendation/i}).count(),0);
+              await ctx.close();
+            }
+
+            {
+              const {page,ctx}=await open(browser,payload([],{'Quiet the Alarm':2,'Break the Pull':2,'Restore Self-Trust':2,'Return to Yourself':2}),'no-result.html');
+              await page.getByRole('heading',{name:/wouldn’t recommend one of the hypnotherapy audios right now/i}).waitFor();
+              await page.getByText('You can start here with The Bare Minimum.',{exact:true}).waitFor();
+              await page.getByRole('link',{name:/START WITH THE BARE MINIMUM/}).waitFor();
+              assert.strictEqual(await page.getByRole('button',{name:/Show me my recommendation/i}).count(),0);
+              await ctx.close();
+            }
+
+            console.log('APPROVED_FLOW_PASS');
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+          node verify.js
