@@ -1,0 +1,109 @@
+name: Send five customer result email tests
+
+on:
+  push:
+    branches:
+      - email-all-results-test-20260919
+    paths:
+      - '.github/workflows/send-five-result-email-tests.yml'
+
+jobs:
+  send-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Submit five result types through live quiz backend
+        env:
+          TEST_EMAIL: Kacijv@gmail.com
+        run: |
+          cat > send-tests.js <<'NODE'
+          const crypto = require('crypto');
+          const endpoint = 'https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec';
+          const email = process.env.TEST_EMAIL;
+
+          const tests = [
+            ['01 Bare Minimum',              [0,0,0,0]],
+            ['02 One Area - Break the Pull', [0,4,0,0]],
+            ['03 Two Areas',                 [4,4,0,0]],
+            ['04 Three Areas',               [4,4,4,0]],
+            ['05 Four Areas',                [3,3,3,3]]
+          ];
+
+          function splitStage(score){
+            if (score === 0) return [0,0];
+            if (score === 3) return [2,1];
+            if (score === 4) return [2,2];
+            throw new Error('Unsupported stage score '+score);
+          }
+
+          function makePayload(label, stageScores){
+            const qs = [];
+            stageScores.forEach(s => qs.push(...splitStage(s)));
+            const answers = {};
+            qs.forEach((score,i)=>{
+              answers['q'+(i+1)] = {
+                score,
+                answer: 'TEST ONLY. Score '+score+'. Do not count this response.'
+              };
+            });
+
+            return {
+              submissionId: crypto.randomUUID(),
+              resultToken: crypto.randomUUID(),
+              quizVersion: 'YMS-QUIZ-2026-V2',
+              timestampIso: new Date().toISOString(),
+              firstName: 'TEST '+label,
+              email,
+              marketingConsent: false,
+              relationshipStatus: "It's ended, but I still feel caught in it.",
+              openResponse: 'TEST ONLY - DO NOT COUNT - CUSTOMER EMAIL AND RESULT ROUTE VERIFICATION',
+              answers,
+              utmSource: 'internal_test',
+              utmMedium: 'qa',
+              utmCampaign: 'five_result_email_test_20260919',
+              utmTerm: '',
+              utmContent: label,
+              referrer: '',
+              landingPageUrl: 'https://yourmindstory.co.uk/quiz.html?internal_test=1',
+              submissionPageUrl: 'https://yourmindstory.co.uk/quiz.html?internal_test=1',
+              userAgent: 'YMS automated customer email test 2026-09-19'
+            };
+          }
+
+          (async()=>{
+            for (const [label,scores] of tests){
+              const payload=makePayload(label,scores);
+              const res=await fetch(endpoint,{
+                method:'POST',
+                headers:{'Content-Type':'text/plain;charset=utf-8'},
+                body:JSON.stringify(payload)
+              });
+              const raw=await res.text();
+              let data;
+              try { data=JSON.parse(raw); }
+              catch { throw new Error(label+' returned non-JSON: '+raw.slice(0,300)); }
+
+              if (!data || (data.status!=='ok' && data.status!=='duplicate')){
+                throw new Error(label+' failed: '+JSON.stringify(data));
+              }
+
+              console.log('TEST_SENT', JSON.stringify({
+                label,
+                status:data.status,
+                row:data.row || null,
+                resultToken:data.resultToken || payload.resultToken,
+                resultType:data.resultType || null,
+                primaryResult:data.primaryResult || null,
+                total:data.totalFourStageScore ?? null
+              }));
+
+              await new Promise(r=>setTimeout(r,1500));
+            }
+            console.log('FIVE_RESULT_EMAIL_TESTS_COMPLETE');
+          })().catch(err=>{ console.error(err); process.exit(1); });
+          NODE
+          node send-tests.js
