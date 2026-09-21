@@ -298,46 +298,142 @@
     }).join("");
   }
 
-  function recognitionLine(stage) {
-    return {
-      "Quiet the Alarm": "Your body is reacting.",
-      "Break the Pull": "You’re getting pulled back into him.",
-      "Restore Self-Trust": "You’re starting to question yourself.",
-      "Return to Yourself": "Too much of your own life is getting pushed into the background."
-    }[stage] || "";
+  var PAIR_RESULT_COPY = {
+    "Quiet the Alarm|Break the Pull":
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
+      '<p>Something happens with him and your body reacts.</p>' +
+      '<p>Your chest tightens, your stomach drops, your mind starts going — and once that alarm is switched on, it can be difficult to properly come back down.</p>' +
+      '<p>But it doesn’t stop there.</p>' +
+      '<p>Even when you know checking, replaying or reaching out isn’t going to help, you can still feel yourself getting pulled back in.</p>' +
+      '<p><strong>And these two parts can feed each other.</strong></p>' +
+      '<p>The more activated you feel, the stronger the pull can become. And the more you check, replay and look for an answer, the harder it can be for your system to settle.</p>' +
+      '<p>You can understand exactly why he behaves the way he does and still find yourself stuck in that cycle.</p>' +
+      '<p><strong>So this isn’t about understanding him better. We need to work on both the alarm and the pull.</strong></p>',
+
+    "Quiet the Alarm|Restore Self-Trust":
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
+      '<p>Something happens with him and your body reacts.</p>' +
+      '<p>The alarm comes on quickly, and it can take a long time to properly come back down.</p>' +
+      '<p>But at the same time, you’re also questioning yourself.</p>' +
+      '<p>You know something doesn’t feel right, then find yourself explaining it away, wondering if you were too much or whether you got it wrong.</p>' +
+      '<p><strong>And these two parts can feed each other.</strong></p>' +
+      '<p>When your system is already activated, it becomes harder to trust your own judgement. And the more you second-guess yourself, the harder it becomes to feel settled.</p>' +
+      '<p><strong>So I wouldn’t work on the reaction without also helping you trust yourself again.</strong></p>',
+
+    "Quiet the Alarm|Return to Yourself":
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
+      '<p>Something happens with him and your body reacts.</p>' +
+      '<p>Your system goes into alarm and it can take a long time to properly settle.</p>' +
+      '<p>And while that is happening, too much of your attention is ending up with him.</p>' +
+      '<p>Thinking. Waiting. Wondering. Replaying.</p>' +
+      '<p><strong>And these two parts can feed each other.</strong></p>' +
+      '<p>The more activated you feel, the more of your attention can disappear into what he is doing. And the more of your life gets organised around him, the harder it becomes for your system to properly come down.</p>' +
+      '<p><strong>So we need to calm the alarm and start bringing your attention back to you.</strong></p>',
+
+    "Break the Pull|Restore Self-Trust":
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
+      '<p>You can know checking, replaying or reaching out isn’t going to help and still feel yourself getting pulled back in.</p>' +
+      '<p>And then, even when you know what happened, you start questioning yourself.</p>' +
+      '<p>Wondering whether you got it wrong. Whether you were too much. Whether you should change your mind.</p>' +
+      '<p><strong>And these two parts can feed each other.</strong></p>' +
+      '<p>The more you doubt yourself, the easier it becomes to get pulled back into checking and looking for another answer.</p>' +
+      '<p>And every time you go back looking, you can end up questioning yourself all over again.</p>' +
+      '<p><strong>So this isn’t about knowing more. We need to work on the pull and rebuild your trust in yourself.</strong></p>',
+
+    "Break the Pull|Return to Yourself":
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
+      '<p>You can know you need to leave it alone and still find yourself checking, replaying, waiting or wanting to reach out.</p>' +
+      '<p>And while that pull keeps taking you back towards him, more and more of your attention gets taken away from your own life.</p>' +
+      '<p><strong>These two parts can feed each other.</strong></p>' +
+      '<p>The more you check and replay, the more space he occupies.</p>' +
+      '<p>And the more space he occupies, the easier it becomes to get pulled back in again.</p>' +
+      '<p><strong>So we need to interrupt the pull and start giving your own life more of you again.</strong></p>',
+
+    "Restore Self-Trust|Return to Yourself":
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
+      '<p>You know something doesn’t feel right and then find yourself questioning what you know.</p>' +
+      '<p>Explaining things away. Changing your mind. Wondering whether you were wrong.</p>' +
+      '<p>And while so much energy goes into second-guessing yourself and trying to work him out, your own life gets less and less of you.</p>' +
+      '<p><strong>These two parts can feed each other.</strong></p>' +
+      '<p>The less you trust yourself, the easier it becomes to organise your attention around him.</p>' +
+      '<p>And the further you move away from yourself, the harder it becomes to hear your own judgement clearly.</p>' +
+      '<p><strong>So we need to rebuild your trust in yourself and bring your attention back to your own life.</strong></p>'
+  };
+
+  function threeStageResultHtml(stages) {
+    stages = orderedUnique(stages);
+    var hasQuiet = stages.indexOf("Quiet the Alarm") !== -1;
+    var hasPull = stages.indexOf("Break the Pull") !== -1;
+    var hasTrust = stages.indexOf("Restore Self-Trust") !== -1;
+    var hasReturn = stages.indexOf("Return to Yourself") !== -1;
+    var html =
+      '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, this isn’t sitting in one isolated part of the cycle.</h1>';
+
+    if (hasQuiet) {
+      html += '<p>Something happens with him and your body reacts.</p>' +
+        '<p>The alarm comes on quickly and can take a long time to properly settle.</p>';
+    }
+    if (hasPull) {
+      html += '<p>' + (hasQuiet ? 'Then even when' : 'Even when') + ' you know checking, replaying or reaching out isn’t going to help, you can still feel yourself getting pulled back in.</p>';
+    }
+    if (hasTrust) {
+      html += '<p>You start questioning yourself and what you already know.</p>' +
+        '<p>You can know something doesn’t feel right and still find yourself explaining it away, wondering whether you were too much or whether you got it wrong.</p>';
+    }
+    if (hasReturn) {
+      html += '<p>And while all of that is happening, too much of your attention is ending up with him instead of your own life.</p>';
+    }
+
+    html += '<p><strong>These parts can start feeding each other.</strong></p>';
+
+    var key = pairKey(stages);
+    var mechanism = {
+      "Quiet the Alarm|Break the Pull|Restore Self-Trust":
+        "The more activated you feel, the stronger the pull can become. The more you follow the pull, the more you can start questioning yourself. And the more you doubt yourself, the harder it becomes for your system to properly settle.",
+      "Quiet the Alarm|Break the Pull|Return to Yourself":
+        "The more activated you feel, the stronger the pull can become. The more you follow the pull, the more attention he takes up. And the more of your life gets organised around what he is doing, the harder it becomes to properly get free of the cycle.",
+      "Quiet the Alarm|Restore Self-Trust|Return to Yourself":
+        "The more activated you feel, the harder it can be to trust your own judgement. The more you question yourself, the more attention can disappear into him. And the further you move away from yourself, the harder it becomes to properly settle.",
+      "Break the Pull|Restore Self-Trust|Return to Yourself":
+        "The more you get pulled back in, the more you can start questioning yourself. The more you doubt yourself, the more attention can disappear into him. And the more space he takes up, the harder it becomes to hear yourself clearly."
+    }[key] || "The more these parts feed each other, the harder it becomes to properly get free of the cycle.";
+
+    html += '<p>' + mechanism + '</p>' +
+      '<p>You can understand exactly why he behaves the way he does and still feel stuck in the same cycle.</p>' +
+      '<p><strong>That’s why I wouldn’t treat this as one isolated problem. I’d work on the cycle.</strong></p>';
+
+    return html;
   }
 
-  function recognitionLinesHtml(stages) {
-    return orderedUnique(stages).map(function (stage) {
-      return '<p>' + Y.escapeText(recognitionLine(stage)) + '</p>';
-    }).join("");
+  function fourStageResultHtml() {
+    return '<span class="result-tag">YOUR RESULT</span>' +
+      '<h1>Based on your answers, this isn’t sitting in one isolated part of the cycle.</h1>' +
+      '<p>Something happens with him and your body reacts.</p>' +
+      '<p>You get pulled back into checking, replaying, waiting or looking for another answer.</p>' +
+      '<p>You start questioning yourself and what you already know.</p>' +
+      '<p>And while all of that is happening, too much of your own life gets pushed into the background.</p>' +
+      '<p><strong>These parts can keep feeding each other.</strong></p>' +
+      '<p>The alarm can make the pull stronger.</p>' +
+      '<p>The pull can keep you looking for answers.</p>' +
+      '<p>The more you look for answers, the more you can question yourself.</p>' +
+      '<p>And the more of your attention disappears into him, the less of you is left for your own life.</p>' +
+      '<p>You can understand exactly why he behaves the way he does and still feel anxious, still check, still doubt yourself and still lose too much of your attention to him.</p>' +
+      '<p><strong>That’s why I wouldn’t treat this as four separate problems. I’d work on the whole cycle.</strong></p>';
   }
 
   function resultSummaryHtml(stages) {
     stages = orderedUnique(stages);
-
-    if (stages.length === 2) {
-      return '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
-        recognitionLinesHtml(stages) +
-        '<p><strong>These two can feed each other, which is why working on only one part may not be enough.</strong></p>';
-    }
-
-    if (stages.length === 3) {
-      return '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Based on your answers, this is affecting you in more than one part of the cycle.</h1>' +
-        recognitionLinesHtml(stages) +
-        '<p><strong>These parts can feed each other, which is why it can feel so difficult to get properly free of it.</strong></p>';
-    }
-
-    if (stages.length >= 4) {
-      return '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Based on your answers, this is affecting you across the whole cycle.</h1>' +
-        recognitionLinesHtml(stages) +
-        '<p><strong>These parts can keep feeding each other, which is why knowing more about him hasn’t necessarily stopped what this is doing to you.</strong></p>';
-    }
-
-    return '';
+    if (stages.length === 2) return PAIR_RESULT_COPY[pairKey(stages)] || "";
+    if (stages.length === 3) return threeStageResultHtml(stages);
+    if (stages.length >= 4) return fourStageResultHtml();
+    return "";
   }
 
   function renderSelfGuided(container, stages, reasonText) {
@@ -347,13 +443,17 @@
     if (reasonText) {
       container.innerHTML =
         '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
-        '<h1>I’d do this privately.</h1>' +
-        '<p>Your quiz result hasn’t changed.</p>' +
-        '<p>The same areas are still showing up for you.</p>' +
-        '<p>But based on what you’ve just told me, I don’t think the group is the right way for you to do the work right now.</p>' +
         '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
-        '<p>You can work through the full process in your own time, one stage at a time.</p>' +
-        '<p>Start with <strong>Quiet the Alarm</strong>, then keep moving through the programme in order.</p>' +
+        (isThree
+          ? '<p>You need a clear way of working through this rather than trying to fix whichever part is screaming the loudest that day.</p>'
+          : '') +
+        '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
+        '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
+        (isThree
+          ? '<p>Start at the beginning and work through each stage before moving on to the next.</p>' +
+            '<p>Your results tell me <strong>where this is hitting you hardest</strong>.</p>' +
+            '<p>The Complete Self-Guided Journey gives you the whole process to work through properly from beginning to end.</p>'
+          : '<p>Not everything at once.</p><p>You start at the beginning and keep moving through.</p>') +
         '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
         downsellHtml(false);
     } else if (isThree) {
@@ -363,7 +463,7 @@
         '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
         '<p>You need a clear way of working through this rather than trying to fix whichever part is screaming the loudest that day.</p>' +
         '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
-        allStageListHtml() +
+        '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
         '<p>Start at the beginning and work through each stage before moving on to the next.</p>' +
         '<p>Your results tell me <strong>where this is hitting you hardest</strong>.</p>' +
         '<p>The Complete Self-Guided Journey gives you the whole process to work through properly from beginning to end.</p>' +
@@ -375,7 +475,7 @@
         '<div class="divider"></div>' +
         '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
         '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
-        allStageListHtml() +
+        '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
         '<p>Not everything at once.</p>' +
         '<p>You start at the beginning and keep moving through.</p>' +
         '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
@@ -421,8 +521,6 @@
       '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
       '<h1>I recommend the Original Group Bootcamp.</h1>' +
       '<p>Based on your answers, this isn’t just affecting you in one place.</p>' +
-      '<p>Your result is showing:</p>' +
-      detectedStageListHtml(stages) +
       '<p>And when I asked what you want, you chose working on <strong>yourself, breaking the cycle and getting your mind back</strong>.</p>' +
       '<p>Not another twelve weeks of researching him.</p>' +
       '<p class="result-lede"><strong>This is who I built the Original Group for.</strong></p>' +
@@ -489,8 +587,7 @@
       resultSummaryHtml(stages) +
       '<div class="divider"></div>' +
       '<span class="og-label">BEFORE WE LOOK AT YOUR RECOMMENDATION</span>' +
-      '<p class="result-lede" style="margin-top:0;">This is affecting you in more than one place.</p>' +
-      '<p>So before I tell you whether I think you should do this with the group or work through it privately, I need to know two things.</p>' +
+      '<p class="result-lede" style="margin-top:0;"><strong>Before I recommend the best way for you to work through it, I need to know two things.</strong></p>' +
       '<div class="fc-label">1 of 2</div>' +
       '<div class="fc-prompt">Which sounds most like what you want now?</div>' +
       '<div class="fc-options" data-yms-readiness-goal role="radiogroup">' +
