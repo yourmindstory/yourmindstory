@@ -85,7 +85,16 @@
     if (Y.recordJourneyEvent) Y.recordJourneyEvent(eventType, values || {});
   }
 
+  function persistFinalRoute(routeShown, recommendation) {
+    var data = null;
+    try { data = Y.getResultData ? (Y.getResultData() || {}) : {}; } catch (e) { data = {}; }
+    data.finalRouteShown = routeShown;
+    data.finalRecommendation = recommendation;
+    if (Y.setResultData) Y.setResultData(data);
+  }
+
   function logRoute(routeShown, recommendation) {
+    persistFinalRoute(routeShown, recommendation);
     recordJourney("final_route_shown", {
       routeShown: routeShown,
       recommendation: recommendation
