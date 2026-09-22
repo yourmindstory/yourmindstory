@@ -71,14 +71,22 @@
   }
 
   function findTrigger(card) {
-    var nodes = card.querySelectorAll("h1,h2,h3,p,a,button,div");
-    for (var i = 0; i < nodes.length; i++) {
-      var txt = (nodes[i].textContent || "").trim().toLowerCase();
-      if (txt && txt.length < 180 && txt.indexOf("bare minimum") !== -1) return nodes[i];
+    var bareMinimumCandidates = card.querySelectorAll("h1,h2,h3,p,a,button");
+    for (var i = 0; i < bareMinimumCandidates.length; i++) {
+      var txt = (bareMinimumCandidates[i].textContent || "").trim().toLowerCase();
+      if (txt && txt.length < 180 && txt.indexOf("start with the bare minimum") !== -1) return bareMinimumCandidates[i];
     }
+
     var bridge = document.getElementById("ogBridge");
-    if (bridge && bridge.children.length) return bridge;
-    return card;
+    if (bridge) {
+      var ctas = bridge.querySelectorAll("a,button");
+      if (ctas.length) return ctas[ctas.length - 1];
+      if (bridge.lastElementChild) return bridge.lastElementChild;
+    }
+
+    var pageCtas = card.querySelectorAll(".cta-row, .btn-cta, a");
+    if (pageCtas.length) return pageCtas[pageCtas.length - 1];
+    return card.lastElementChild || card;
   }
 
   function armPopup(card) {
@@ -104,7 +112,7 @@
             show();
           }
         });
-      }, { threshold: [0.2], rootMargin: "0px 0px -8% 0px" });
+      }, { threshold: [0.2], rootMargin: "0px 0px -35% 0px" });
       observer.observe(target);
     }
 
