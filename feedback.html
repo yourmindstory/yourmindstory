@@ -57,7 +57,7 @@
       <p>Your answers help me improve the quiz and understand what women actually need.</p>
       <p>It takes about 2 minutes.</p>
       <div class="reward-copy">
-        <p><strong>And when you finish, I’ll give you my 2-Minute Emergency Reset</strong> - a short guided audio to use in the day when your mind starts spiralling, you want to check, message, replay everything, or you can feel yourself getting pulled back in.</p>
+        <p><strong>And when you finish, I’ll give you my 4-Minute Emergency Reset</strong> - a short guided audio to use in the day when your mind starts spiralling, you want to check, message, replay everything, or you can feel yourself getting pulled back in.</p>
         <p><strong>It’s designed to interrupt the loop before you get dragged back into it.</strong></p>
       </div>
       <div class="start-row"><button type="button" class="fb-btn" id="startBtn">Yes, I’ll answer</button></div>
@@ -169,10 +169,10 @@
 
     <section id="rewardScreen" class="reward-screen" hidden>
       <div class="fb-kicker">Thank you</div>
-      <h2>Your 2-Minute Emergency Reset is ready.</h2>
+      <h2>Your 4-Minute Emergency Reset is ready.</h2>
       <p>Use it in the day when your mind starts spiralling, you want to check, message, replay everything, or you can feel yourself getting pulled back in.</p>
       <p><strong>It’s designed to interrupt the loop before you get dragged back into it.</strong></p>
-      <a class="fb-btn" id="rewardBtn" href="#" rel="noopener">Get my 2-Minute Emergency Reset</a>
+      <a class="fb-btn" id="rewardBtn" href="#" rel="noopener">Get my 4-Minute Emergency Reset</a>
       <p class="fb-note" id="rewardPending" hidden>The private audio link is being connected. Your answers have been saved.</p>
     </section>
 
@@ -187,7 +187,7 @@
 (function(){
   "use strict";
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec";
-  var STAN_REWARD_URL = "";
+  var STAN_REWARD_URL = "https://stan.store/Yourmindstory/p/your-2minute-emergency-reset";
   var data = (window.YMSQuiz && YMSQuiz.getResultData) ? (YMSQuiz.getResultData() || {}) : {};
   var token = data.resultToken ? String(data.resultToken).trim() : "";
   var submissionId = data.submissionId ? String(data.submissionId).trim() : "";
