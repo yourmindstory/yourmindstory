@@ -70,27 +70,25 @@
     return overlay;
   }
 
-  function findTrigger(card) {
-    var bareMinimumCandidates = card.querySelectorAll("h1,h2,h3,p,a,button");
-    for (var i = 0; i < bareMinimumCandidates.length; i++) {
-      var txt = (bareMinimumCandidates[i].textContent || "").trim().toLowerCase();
-      if (txt && txt.length < 180 && txt.indexOf("start with the bare minimum") !== -1) return bareMinimumCandidates[i];
+  function findFinalRecommendationCta(card) {
+    var selectors = [
+      "[data-yms-bare]",
+      "[data-yms-single]",
+      "[data-yms-pair]",
+      "[data-yms-self-guided]",
+      "[data-yms-bare-bridge]",
+      "[data-yms-bootcamp]"
+    ];
+    for (var i = 0; i < selectors.length; i++) {
+      var el = card.querySelector(selectors[i]);
+      if (el) return el;
     }
-
-    var bridge = document.getElementById("ogBridge");
-    if (bridge) {
-      var ctas = bridge.querySelectorAll("a,button");
-      if (ctas.length) return ctas[ctas.length - 1];
-      if (bridge.lastElementChild) return bridge.lastElementChild;
-    }
-
-    var pageCtas = card.querySelectorAll(".cta-row, .btn-cta, a");
-    if (pageCtas.length) return pageCtas[pageCtas.length - 1];
-    return card.lastElementChild || card;
+    return card.querySelector("#ymsAudioRecommendationCta, #ogSignupBtn");
   }
 
   function armPopup(card) {
     var shown = false;
+    var armed = false;
     var overlay = mountPopup();
     if (!overlay) return;
 
@@ -100,34 +98,66 @@
       overlay.style.visibility = "visible";
       overlay.style.opacity = "1";
       document.body.style.overflow = "hidden";
-      if (Y.track) Y.track("quiz_feedback_invite_shown", { source: "scroll_popup" });
+      if (Y.track) Y.track("quiz_feedback_invite_shown", { source: "final_recommendation_reached" });
     }
 
-    function observeTarget() {
-      var target = findTrigger(card);
+    function armForFinalCta(target) {
+      if (armed || !target) return;
+      armed = true;
+      var dwellTimer = null;
       var observer = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.2) {
-            observer.disconnect();
-            show();
+          if (entry.target !== target) return;
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            if (!dwellTimer) {
+              dwellTimer = setTimeout(function () {
+                observer.disconnect();
+                show();
+              }, 1200);
+            }
+          } else if (dwellTimer) {
+            clearTimeout(dwellTimer);
+            dwellTimer = null;
           }
         });
-      }, { threshold: [0.2], rootMargin: "0px 0px -35% 0px" });
+      }, { threshold: [0.6], rootMargin: "0px 0px -12% 0px" });
       observer.observe(target);
     }
 
-    if (document.getElementById("ogBridge")) {
-      setTimeout(observeTarget, 450);
-    } else {
-      observeTarget();
+    function tryArm() {
+      var target = findFinalRecommendationCta(card);
+      if (!target) return false;
+      armForFinalCta(target);
+      return true;
     }
+
+    if (tryArm()) return;
+
+    var mutationObserver = new MutationObserver(function () {
+      if (tryArm()) mutationObserver.disconnect();
+    });
+    mutationObserver.observe(card, { childList: true, subtree: true });
   }
 
   function mount() {
     var card = document.querySelector(".result-card");
     if (!card) return;
-    mountCard(card);
+    // Feedback must never appear before a final recommendation exists.
+    // The inline invitation is mounted only after the same final CTA is present.
     armPopup(card);
+    function mountCardWhenFinal() {
+      if (findFinalRecommendationCta(card)) {
+        mountCard(card);
+        return true;
+      }
+      return false;
+    }
+    if (!mountCardWhenFinal()) {
+      var cardObserver = new MutationObserver(function () {
+        if (mountCardWhenFinal()) cardObserver.disconnect();
+      });
+      cardObserver.observe(card, { childList: true, subtree: true });
+    }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
