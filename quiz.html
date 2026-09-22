@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Take the Quiz | Your Mind Story</title>
-<meta name="description" content="8 scored questions, then four short context questions. Find out which part of the cycle is showing up most strongly for you right now.">
+<meta name="description" content="8 scored questions, then two short context questions. Find out which part of the cycle is showing up most strongly for you right now.">
 <meta name="robots" content="noindex, follow">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,7 +45,7 @@
         <div class="intro">
           <div class="q-label">Your Mind Story</div>
           <h1 tabindex="-1">Let's look at what this has been doing to you.</h1>
-          <p>There are 8 scored questions, then four short context questions.</p>
+          <p>There are 8 scored questions, then two short context questions.</p>
           <p>Choose the answer that feels most true right now.</p>
           <p>There are no right or wrong answers.</p>
         </div>
@@ -57,10 +57,10 @@
       <!-- Steps 1-8 of 10: scored questions, injected by JS. Auto-advance, no Continue button. -->
       <div id="questionSteps"></div>
 
-      <!-- Step 9 of 12: relationship status (unscored). -->
+      <!-- Step 9 of 10: relationship status (unscored). -->
       <div class="step" data-step="relationship">
-        <div class="transition-note">Main questions complete. Four quick things before your result.</div>
-        <div class="q-label">Step 9 of 12</div>
+        <div class="transition-note">Main questions complete. Two quick things before your result.</div>
+        <div class="q-label">Step 9 of 10</div>
         <div class="q-prompt" tabindex="-1">Which best describes where you are right now?</div>
         <div class="options" id="relationshipOptions"></div>
         <div class="error-msg" id="relationshipError">Please choose one option to continue.</div>
@@ -70,9 +70,9 @@
         </div>
       </div>
 
-      <!-- Step 10 of 12: buyer readiness (unscored research question). -->
+      <!-- Post-capture personalization: buyer readiness (unscored). -->
       <div class="step" data-step="readiness">
-        <div class="q-label">Step 10 of 12</div>
+        <div class="q-label">HELP ME SHOW YOU THE RIGHT NEXT STEP</div>
         <div class="q-prompt" tabindex="-1">Which of these feels most true for you right now?</div>
         <div class="options" id="readinessOptions"></div>
         <div class="error-msg" id="readinessError">Please choose one option to continue.</div>
@@ -82,21 +82,26 @@
         </div>
       </div>
 
-      <!-- Step 11 of 12: purchase/action barrier (unscored research question). -->
+      <!-- Post-capture personalization: purchase/action barrier (unscored). -->
       <div class="step" data-step="barrier">
-        <div class="q-label">Step 11 of 12</div>
-        <div class="q-prompt" tabindex="-1">What would be most likely to stop you doing something about this right now?</div>
+        <div class="q-label">ONE LAST THING</div>
+        <div class="q-prompt" tabindex="-1">What is most likely to get in the way of you taking the next step for yourself right now?</div>
         <div class="options" id="barrierOptions"></div>
         <div class="error-msg" id="barrierError">Please choose one option to continue.</div>
         <div class="nav-row">
           <button type="button" class="btn-ghost" data-action="back">Back</button>
           <span></span>
         </div>
+        <div class="submitting-note" id="insightSavingNote">Saving this with your result...</div>
+        <div class="retry-box" id="insightRetryBox" role="alert">
+          <p>We couldn't save that answer just yet.</p>
+          <button type="button" class="btn-primary" id="insightRetryBtn">Try Again</button>
+        </div>
       </div>
 
-      <!-- Step 12 of 12: open response. REQUIRED. -->
+      <!-- Step 10 of 10: open response. REQUIRED. -->
       <div class="step" data-step="openresponse">
-        <div class="q-label">Step 12 of 12</div>
+        <div class="q-label">Step 10 of 10</div>
         <div class="q-label">One Last Thing</div>
         <div class="q-prompt" tabindex="-1">What is this costing you right now?</div>
         <div class="q-subtext">A sentence or two is enough.</div>
@@ -110,7 +115,7 @@
         </div>
       </div>
 
-      <!-- Screen: lead capture (not counted in the 12, not a question).
+      <!-- Screen: lead capture (not counted in the 10, not a question).
            Combined "Done" heading + fields on one screen, no extra click. -->
       <div class="step" data-step="lead">
         <div class="complete-screen">
@@ -332,9 +337,9 @@
   };
 
   // -------------------- state --------------------
-  var STEP_ORDER = ["intro","q1","q2","q3","q4","q5","q6","q7","q8","relationship","readiness","barrier","openresponse","lead"];
-  var COUNTED_STEPS = ["q1","q2","q3","q4","q5","q6","q7","q8","relationship","readiness","barrier","openresponse"]; // exactly 12
-  var AUTO_ADVANCE_STEPS = { q1:1,q2:1,q3:1,q4:1,q5:1,q6:1,q7:1,q8:1,relationship:1,readiness:1,barrier:1 }; // NOT openresponse, NOT lead
+  var STEP_ORDER = ["intro","q1","q2","q3","q4","q5","q6","q7","q8","relationship","openresponse","lead","readiness","barrier"];
+  var COUNTED_STEPS = ["q1","q2","q3","q4","q5","q6","q7","q8","relationship","openresponse"]; // exactly 10
+  var AUTO_ADVANCE_STEPS = { q1:1,q2:1,q3:1,q4:1,q5:1,q6:1,q7:1,q8:1,relationship:1,readiness:1 }; // barrier saves then proceeds
 
   var answers = {};              // { q1: {score, answer}, ... }
   var currentIndex = 0;
@@ -345,6 +350,8 @@
   var submissionId = YMSQuiz.generateId(); // idempotency / duplicate protection identity
   var resultToken = YMSQuiz.generateId();  // separate result-handoff/session identity, no PII in either
   var lastPayload = null;        // for retry
+  var pendingServerData = null;  // original submission response held while post-capture insight is collected
+  var insightSaving = false;
   var advanceTimer = null;
 
   YMSQuiz.captureAttribution(); // fallback in case someone lands directly on quiz.html
@@ -474,6 +481,10 @@
     } else if (barrierVal !== null){
       purchaseBarrier = BARRIER_OPTIONS[parseInt(barrierVal, 10)];
       hideError('barrierError');
+      if (currentStepName() === 'barrier'){
+        clearTimeout(advanceTimer);
+        advanceTimer = setTimeout(function(){ saveConsumerInsightAndProceed(); }, AUTO_ADVANCE_DELAY);
+      }
     } else if (leadConsentIdx !== null){
       leadConsent = LEAD_CONSENT_OPTIONS[parseInt(leadConsentIdx, 10)].consent;
       hideError('leadConsentError');
@@ -516,6 +527,10 @@
 
   document.getElementById('retryBtn').addEventListener('click', function(){
     submitQuiz(true);
+  });
+
+  document.getElementById('insightRetryBtn').addEventListener('click', function(){
+    saveConsumerInsightAndProceed();
   });
 
   // Open response (Step 12) is required. Continue stays disabled until the
@@ -614,7 +629,7 @@
     var pct;
     if (countedIdx !== -1){
       pct = Math.round((countedIdx / COUNTED_STEPS.length) * 100);
-    } else if (name === 'lead'){
+    } else if (name === 'lead' || name === 'readiness' || name === 'barrier'){
       pct = 100;
     } else {
       pct = 0; // intro
@@ -806,8 +821,6 @@
       email: document.getElementById('email').value.trim(),
       marketingConsent: leadConsent === true, // required two-choice selection on the lead-capture screen (3 Sep 2026 amendment)
       relationshipStatus: relationshipStatus,
-      buyerReadiness: buyerReadiness,
-      purchaseBarrier: purchaseBarrier,
       openResponse: document.getElementById('openResponse').value.trim(),
       answers: {
         q1: answers.q1, q2: answers.q2, q3: answers.q3, q4: answers.q4,
@@ -936,6 +949,58 @@
     window.location.href = target;
   }
 
+  function setInsightSavingUi(isSaving){
+    insightSaving = isSaving;
+    document.getElementById('insightSavingNote').style.display = isSaving ? 'block' : 'none';
+    var retry = document.getElementById('insightRetryBox');
+    if (isSaving) retry.classList.remove('show');
+  }
+
+  function saveConsumerInsightAndProceed(){
+    if (insightSaving || !pendingServerData) return;
+    if (!buyerReadiness){
+      showError('readinessError');
+      return;
+    }
+    if (!purchaseBarrier){
+      showError('barrierError');
+      return;
+    }
+
+    setInsightSavingUi(true);
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'recordConsumerInsight',
+        submissionId: submissionId,
+        resultToken: (pendingServerData && pendingServerData.resultToken) || resultToken,
+        buyerReadiness: buyerReadiness,
+        purchaseBarrier: purchaseBarrier
+      })
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      setInsightSavingUi(false);
+      if (data && data.status === 'ok'){
+        YMSQuiz.track('quiz_consumer_insight_saved', {
+          buyer_readiness: buyerReadiness,
+          purchase_barrier: purchaseBarrier
+        });
+        proceedToResult(pendingServerData);
+      } else {
+        console.error('Consumer insight save returned an error status:', data);
+        document.getElementById('insightRetryBox').classList.add('show');
+      }
+    })
+    .catch(function(err){
+      setInsightSavingUi(false);
+      console.error('Consumer insight save fetch error:', err);
+      document.getElementById('insightRetryBox').classList.add('show');
+    });
+  }
+
   function submitQuiz(isRetry){
     if (!isRetry && !currentStepValid()) return;
 
@@ -962,9 +1027,12 @@
     .then(function(res){ return res.json(); })
     .then(function(data){
       if (data && (data.status === 'ok' || data.status === 'duplicate')){
-        // Brevo auto-subscribe disconnected (2 Sep 2026) — see note above.
-        // payload.marketingConsent is already recorded on the sheet row.
-        proceedToResult(data);
+        // The lead is now safely captured. Hold the authoritative server result
+        // while we collect two short unscored consumer-insight answers.
+        pendingServerData = data;
+        setSubmittingUi(false);
+        var readinessIndex = STEP_ORDER.indexOf('readiness');
+        showStep(readinessIndex);
       } else {
         console.error('Quiz submission returned an error status:', data);
         showRetry();
