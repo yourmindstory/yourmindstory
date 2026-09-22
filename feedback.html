@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Feedback | Your Mind Story</title>
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/yms-quiz-shared.css">
+<script src="assets/yms-quiz-shared.js?v=20260922-feedback1"></script>
+<style>
+  :root{--ink:#24231F;--cream:#F6F2E9;--sage:#243D2E;--line:#DED7C8;--muted:#6F6B61}
+  body{background:var(--cream);color:var(--ink)}
+  .feedback-wrap{max-width:720px;margin:0 auto;padding:28px 18px 56px}
+  .feedback-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 22px}
+  .feedback-brand{font:600 12px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:18px}
+  .feedback-card h1{font:500 clamp(30px,7vw,46px)/1.04 Fraunces,serif;margin:0 0 18px}
+  .feedback-card p{font:400 16px/1.55 Inter,sans-serif;margin:0 0 13px}
+  .reward-copy{padding:16px 17px;border-left:4px solid var(--sage);background:#F3F0E7;border-radius:0 12px 12px 0;margin:20px 0 6px}
+  .reward-copy strong{font-weight:600}
+  .start-row,.action-row{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+  .fb-btn{border:0;border-radius:999px;background:var(--sage);color:#fff;padding:14px 20px;font:600 13px/1.2 Inter,sans-serif;letter-spacing:.035em;text-transform:uppercase;cursor:pointer}
+  .fb-btn[disabled]{opacity:.45;cursor:not-allowed}
+  .fb-btn.secondary{background:transparent;color:var(--sage);border:1px solid rgba(36,61,46,.25)}
+  .fb-step{display:none}.fb-step.active{display:block}
+  .fb-kicker{font:600 11px/1.2 Inter,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--sage);margin-bottom:12px}
+  .fb-question{font:500 27px/1.15 Fraunces,serif;margin:0 0 18px}
+  .fb-options{display:grid;gap:10px}
+  .fb-option{display:flex;align-items:flex-start;gap:11px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;font:500 14px/1.42 Inter,sans-serif}
+  .fb-option:has(input:checked){border-color:var(--sage);box-shadow:0 0 0 1px var(--sage)}
+  .fb-option input{margin-top:2px}
+  textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font:400 16px/1.45 Inter,sans-serif;background:#fff;color:var(--ink);box-sizing:border-box}
+  .fb-branch{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+  .fb-branch label{display:block;font:600 14px/1.35 Inter,sans-serif;margin-bottom:8px}
+  .fb-note{font:400 13px/1.45 Inter,sans-serif;color:var(--muted);margin-top:8px}
+  .fb-error{display:none;color:#8A2C2C;font:600 13px/1.35 Inter,sans-serif;margin-top:10px}
+  .fb-error.show{display:block}
+  .progress{height:6px;background:#E9E3D7;border-radius:99px;overflow:hidden;margin-bottom:18px}
+  .progress span{display:block;height:100%;background:var(--sage);width:0;transition:width .2s ease}
+  .reward-screen{text-align:left}
+  .reward-screen h2{font:500 34px/1.08 Fraunces,serif;margin:0 0 15px}
+  .reward-screen .fb-btn{display:inline-block;text-decoration:none;margin-top:10px}
+  .save-note{display:none;font:500 13px/1.4 Inter,sans-serif;color:var(--muted);margin-top:12px}
+  @media(max-width:560px){.feedback-card{padding:22px 17px}.fb-question{font-size:24px}.action-row{justify-content:space-between}.fb-btn{padding:13px 16px}}
+</style>
+</head>
+<body>
+<main class="feedback-wrap">
+  <div class="feedback-card">
+    <div class="feedback-brand">Your Mind Story</div>
+    <div class="progress" aria-hidden="true"><span id="progressFill"></span></div>
+
+    <section id="introScreen">
+      <h1>Before you go - can I ask you 7 quick questions?</h1>
+      <p>Your answers help me improve the quiz and understand what women actually need.</p>
+      <p>It takes about 2 minutes.</p>
+      <div class="reward-copy">
+        <p><strong>And when you finish, I’ll give you my 2-Minute Emergency Reset</strong> - a short guided audio to use in the day when your mind starts spiralling, you want to check, message, replay everything, or you can feel yourself getting pulled back in.</p>
+        <p><strong>It’s designed to interrupt the loop before you get dragged back into it.</strong></p>
+      </div>
+      <div class="start-row"><button type="button" class="fb-btn" id="startBtn">Yes, I’ll answer</button></div>
+    </section>
+
+    <form id="feedbackForm" hidden novalidate>
+      <section class="fb-step" data-step="1">
+        <div class="fb-kicker">Question 1 of 7</div>
+        <div class="fb-question">How accurate did your result feel?</div>
+        <div class="fb-options">
+          <label class="fb-option"><input type="radio" name="accuracy" value="Not really accurate">Not really accurate</label>
+          <label class="fb-option"><input type="radio" name="accuracy" value="A little accurate">A little accurate</label>
+          <label class="fb-option"><input type="radio" name="accuracy" value="Some of it felt accurate">Some of it felt accurate</label>
+          <label class="fb-option"><input type="radio" name="accuracy" value="Mostly accurate">Mostly accurate</label>
+          <label class="fb-option"><input type="radio" name="accuracy" value="Very accurate">Very accurate</label>
+        </div>
+        <div class="fb-error">Please choose one answer.</div>
+      </section>
+
+      <section class="fb-step" data-step="2">
+        <div class="fb-kicker">Question 2 of 7</div>
+        <div class="fb-question">What part of your result felt most like you?</div>
+        <textarea name="mostLikeYou" maxlength="1000" data-clarity-mask="True" placeholder="A sentence or two is enough."></textarea>
+        <div class="fb-error">Please tell me what felt most like you.</div>
+      </section>
+
+      <section class="fb-step" data-step="3">
+        <div class="fb-kicker">Question 3 of 7</div>
+        <div class="fb-question">Was there anything important about your situation that you felt I missed?</div>
+        <div class="fb-options">
+          <label class="fb-option"><input type="radio" name="missedAnything" value="No, it felt complete">No, it felt complete</label>
+          <label class="fb-option"><input type="radio" name="missedAnything" value="Yes">Yes</label>
+        </div>
+        <div class="fb-branch" id="missedBranch" hidden>
+          <label for="missedDetail">What did I miss?</label>
+          <textarea id="missedDetail" name="missedDetail" maxlength="1000" data-clarity-mask="True"></textarea>
+        </div>
+        <div class="fb-error">Please choose one answer.</div>
+      </section>
+
+      <section class="fb-step" data-step="4">
+        <div class="fb-kicker">Question 4 of 7</div>
+        <div class="fb-question">Did seeing your result change the way you see what’s happening?</div>
+        <div class="fb-options">
+          <label class="fb-option"><input type="radio" name="beliefShift" value="No, I see it the same way">No, I see it the same way</label>
+          <label class="fb-option"><input type="radio" name="beliefShift" value="A little">A little</label>
+          <label class="fb-option"><input type="radio" name="beliefShift" value="Yes, quite a lot">Yes, quite a lot</label>
+          <label class="fb-option"><input type="radio" name="beliefShift" value="Yes, completely">Yes, completely</label>
+        </div>
+        <div class="fb-branch" id="shiftBranch" hidden>
+          <label for="shiftDetail">What do you see differently now?</label>
+          <textarea id="shiftDetail" name="beliefShiftDetail" maxlength="1000" data-clarity-mask="True"></textarea>
+        </div>
+        <div class="fb-error">Please choose one answer.</div>
+      </section>
+
+      <section class="fb-step" data-step="5">
+        <div class="fb-kicker">Question 5 of 7</div>
+        <div class="fb-question">Before today, how did you feel about hypnotherapy?</div>
+        <div class="fb-options">
+          <label class="fb-option"><input type="radio" name="hypnotherapyPrior" value="I was already open to it">I was already open to it</label>
+          <label class="fb-option"><input type="radio" name="hypnotherapyPrior" value="I was curious but unsure">I was curious but unsure</label>
+          <label class="fb-option"><input type="radio" name="hypnotherapyPrior" value="I was sceptical">I was sceptical</label>
+          <label class="fb-option"><input type="radio" name="hypnotherapyPrior" value="I didn’t really know what it involved">I didn’t really know what it involved</label>
+          <label class="fb-option"><input type="radio" name="hypnotherapyPrior" value="I hadn’t thought about it before">I hadn’t thought about it before</label>
+        </div>
+        <div class="fb-error">Please choose one answer.</div>
+      </section>
+
+      <section class="fb-step" data-step="6">
+        <div class="fb-kicker">Question 6 of 7</div>
+        <div class="fb-question">What is the main thing that would stop you from taking the next step I recommended?</div>
+        <div class="fb-options">
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="I’m not sure it would work for me">I’m not sure it would work for me</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="I’m not sure about hypnotherapy">I’m not sure about hypnotherapy</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="I’m worried about the cost">I’m worried about the cost</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="I’m worried I won’t stick with it">I’m worried I won’t stick with it</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="I’m still hoping things will change with him">I’m still hoping things will change with him</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="I’m not ready to let go yet">I’m not ready to let go yet</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="I’d rather try to deal with it myself">I’d rather try to deal with it myself</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="Nothing — I feel ready">Nothing — I feel ready</label>
+          <label class="fb-option"><input type="radio" name="mainBarrier" value="Something else">Something else</label>
+        </div>
+        <div class="fb-branch" id="hypnoBranch" hidden>
+          <label for="hypnoConcern">What is it about hypnotherapy that makes you unsure?</label>
+          <textarea id="hypnoConcern" name="hypnotherapyConcern" maxlength="1000" data-clarity-mask="True"></textarea>
+        </div>
+        <div class="fb-branch" id="barrierOtherBranch" hidden>
+          <label for="barrierOther">What is it?</label>
+          <textarea id="barrierOther" name="barrierOther" maxlength="1000" data-clarity-mask="True"></textarea>
+        </div>
+        <div class="fb-error">Please choose one answer.</div>
+      </section>
+
+      <section class="fb-step" data-step="7">
+        <div class="fb-kicker">Question 7 of 7</div>
+        <div class="fb-question">If this stopped having such a hold on you, what would be different in your life?</div>
+        <textarea name="desiredOutcome" maxlength="1000" data-clarity-mask="True" placeholder="A sentence or two is enough."></textarea>
+        <div class="fb-error">Please tell me what you’d want to be different.</div>
+      </section>
+
+      <div class="action-row">
+        <button type="button" class="fb-btn secondary" id="backBtn">Back</button>
+        <button type="button" class="fb-btn" id="nextBtn">Next</button>
+      </div>
+      <div class="save-note" id="saveNote">Saving your answers...</div>
+      <div class="fb-error" id="saveError">I couldn’t save your answers just yet. Please try again.</div>
+    </form>
+
+    <section id="rewardScreen" class="reward-screen" hidden>
+      <div class="fb-kicker">Thank you</div>
+      <h2>Your 2-Minute Emergency Reset is ready.</h2>
+      <p>Use it in the day when your mind starts spiralling, you want to check, message, replay everything, or you can feel yourself getting pulled back in.</p>
+      <p><strong>It’s designed to interrupt the loop before you get dragged back into it.</strong></p>
+      <a class="fb-btn" id="rewardBtn" href="#" rel="noopener">Get my 2-Minute Emergency Reset</a>
+      <p class="fb-note" id="rewardPending" hidden>The private audio link is being connected. Your answers have been saved.</p>
+    </section>
+
+    <section id="missingResult" hidden>
+      <h1>I can’t find your quiz result on this device.</h1>
+      <p>Please open this feedback page from the same browser where you viewed your result.</p>
+    </section>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec";
+  var STAN_REWARD_URL = "";
+  var data = (window.YMSQuiz && YMSQuiz.getResultData) ? (YMSQuiz.getResultData() || {}) : {};
+  var token = data.resultToken ? String(data.resultToken).trim() : "";
+  var submissionId = data.submissionId ? String(data.submissionId).trim() : "";
+  var intro = document.getElementById("introScreen");
+  var form = document.getElementById("feedbackForm");
+  var missing = document.getElementById("missingResult");
+  var reward = document.getElementById("rewardScreen");
+  var rewardBtn = document.getElementById("rewardBtn");
+  var rewardPending = document.getElementById("rewardPending");
+  var steps = Array.prototype.slice.call(document.querySelectorAll(".fb-step"));
+  var current = 0;
+
+  if (!token && !submissionId) {
+    intro.hidden = true;
+    missing.hidden = false;
+    return;
+  }
+
+  if (YMSQuiz.track) YMSQuiz.track("quiz_feedback_offer_view", { result_bucket: data.resultBucket || data.primaryResult || "" });
+  if (YMSQuiz.recordJourneyEvent) YMSQuiz.recordJourneyEvent("feedback_offered", {});
+
+  function showStep(index){
+    current = Math.max(0, Math.min(steps.length - 1, index));
+    steps.forEach(function(step, i){ step.classList.toggle("active", i === current); });
+    document.getElementById("progressFill").style.width = (((current + 1) / steps.length) * 100) + "%";
+    document.getElementById("backBtn").style.visibility = current === 0 ? "hidden" : "visible";
+    document.getElementById("nextBtn").textContent = current === steps.length - 1 ? "Finish" : "Next";
+    var q = steps[current].querySelector(".fb-question");
+    if (q) q.setAttribute("tabindex","-1"), q.focus();
+  }
+
+  function val(name){
+    var el = form.querySelector('[name="' + name + '"]:checked');
+    return el ? el.value : "";
+  }
+
+  function textVal(name){
+    var el = form.querySelector('[name="' + name + '"]');
+    return el ? String(el.value || "").trim() : "";
+  }
+
+  function validate(){
+    var step = steps[current];
+    var err = step.querySelector(".fb-error");
+    var ok = true;
+    if (current === 0) ok = !!val("accuracy");
+    if (current === 1) ok = !!textVal("mostLikeYou");
+    if (current === 2) {
+      var m = val("missedAnything"); ok = !!m && (m !== "Yes" || !!textVal("missedDetail"));
+    }
+    if (current === 3) {
+      var b = val("beliefShift"); ok = !!b && (b === "No, I see it the same way" || !!textVal("beliefShiftDetail"));
+    }
+    if (current === 4) ok = !!val("hypnotherapyPrior");
+    if (current === 5) {
+      var x = val("mainBarrier");
+      ok = !!x;
+      if (x === "I’m not sure about hypnotherapy") ok = !!textVal("hypnotherapyConcern");
+      if (x === "Something else") ok = !!textVal("barrierOther");
+    }
+    if (current === 6) ok = !!textVal("desiredOutcome");
+    if (err) err.classList.toggle("show", !ok);
+    return ok;
+  }
+
+  function payload(){
+    return {
+      action:"recordPostQuizFeedback",
+      resultToken:token,
+      submissionId:submissionId,
+      feedbackAccuracy:val("accuracy"),
+      feedbackMostLikeYou:textVal("mostLikeYou"),
+      feedbackMissedAnything:val("missedAnything"),
+      feedbackMissedDetail:textVal("missedDetail"),
+      feedbackBeliefShift:val("beliefShift"),
+      feedbackBeliefShiftDetail:textVal("beliefShiftDetail"),
+      feedbackHypnotherapyPrior:val("hypnotherapyPrior"),
+      feedbackMainBarrier:val("mainBarrier"),
+      feedbackHypnotherapyConcern:textVal("hypnotherapyConcern"),
+      feedbackBarrierOther:textVal("barrierOther"),
+      feedbackDesiredOutcome:textVal("desiredOutcome")
+    };
+  }
+
+  async function submitFeedback(){
+    document.getElementById("nextBtn").disabled = true;
+    document.getElementById("backBtn").disabled = true;
+    document.getElementById("saveNote").style.display = "block";
+    document.getElementById("saveError").classList.remove("show");
+    try{
+      var response = await fetch(APPS_SCRIPT_URL,{
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify(payload())
+      });
+      var json = await response.json();
+      if (!response.ok || !json || json.success !== true) throw new Error((json && json.error) || "Save failed");
+      data.feedbackCompleted = true;
+      data.feedbackCompletedAt = json.feedbackCompletedAt || new Date().toISOString();
+      if (YMSQuiz.setResultData) YMSQuiz.setResultData(data);
+      if (YMSQuiz.track) YMSQuiz.track("quiz_feedback_complete",{});
+      if (YMSQuiz.recordJourneyEvent) YMSQuiz.recordJourneyEvent("feedback_completed",{});
+      form.hidden = true;
+      reward.hidden = false;
+      document.getElementById("progressFill").style.width = "100%";
+      if (STAN_REWARD_URL) {
+        rewardBtn.href = STAN_REWARD_URL;
+        rewardBtn.addEventListener("click",function(){
+          if (YMSQuiz.track) YMSQuiz.track("emergency_reset_claim_click",{});
+          if (YMSQuiz.recordJourneyEvent) YMSQuiz.recordJourneyEvent("emergency_reset_claim_click",{});
+        });
+      } else {
+        rewardBtn.hidden = true;
+        rewardPending.hidden = false;
+      }
+    } catch(e) {
+      document.getElementById("saveError").classList.add("show");
+      document.getElementById("nextBtn").disabled = false;
+      document.getElementById("backBtn").disabled = false;
+    } finally {
+      document.getElementById("saveNote").style.display = "none";
+    }
+  }
+
+  document.getElementById("startBtn").addEventListener("click",function(){
+    intro.hidden = true; form.hidden = false; showStep(0);
+    if (YMSQuiz.track) YMSQuiz.track("quiz_feedback_start",{});
+    if (YMSQuiz.recordJourneyEvent) YMSQuiz.recordJourneyEvent("feedback_started",{});
+  });
+  document.getElementById("backBtn").addEventListener("click",function(){ if(current>0) showStep(current-1); });
+  document.getElementById("nextBtn").addEventListener("click",function(){
+    if(!validate()) return;
+    if(current < steps.length-1) showStep(current+1); else submitFeedback();
+  });
+
+  form.addEventListener("change",function(e){
+    if(e.target.name === "missedAnything"){
+      document.getElementById("missedBranch").hidden = e.target.value !== "Yes";
+      if(e.target.value !== "Yes") document.getElementById("missedDetail").value = "";
+    }
+    if(e.target.name === "beliefShift"){
+      document.getElementById("shiftBranch").hidden = e.target.value === "No, I see it the same way";
+      if(e.target.value === "No, I see it the same way") document.getElementById("shiftDetail").value = "";
+    }
+    if(e.target.name === "mainBarrier"){
+      document.getElementById("hypnoBranch").hidden = e.target.value !== "I’m not sure about hypnotherapy";
+      document.getElementById("barrierOtherBranch").hidden = e.target.value !== "Something else";
+      if(e.target.value !== "I’m not sure about hypnotherapy") document.getElementById("hypnoConcern").value = "";
+      if(e.target.value !== "Something else") document.getElementById("barrierOther").value = "";
+    }
+  });
+})();
+</script>
+</body>
+</html>
