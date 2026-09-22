@@ -575,6 +575,14 @@
     var total = totalScoreFromData(data);
     var prior = data && data.bootcampReadiness;
 
+    // This is an intermediate gate, not a final recommendation. Record it
+    // separately so a blank Final Recommendation means the visitor did not
+    // finish the gate, rather than a tracking failure.
+    recordJourney("readiness_gate_viewed", {
+      total_score: total,
+      qualifying_stage_count: stages.length
+    });
+
     function routeFromReadiness(readiness) {
       if (readiness.goalAligned && readiness.commitmentAligned) {
         renderBootcamp(container, stages, data);
