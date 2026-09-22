@@ -81,7 +81,7 @@
         <div class="fb-kicker">Question 2 of 7</div>
         <div class="fb-question">What part of your result felt most like you?</div>
         <textarea name="mostLikeYou" maxlength="1000" data-clarity-mask="True" placeholder="A sentence or two is enough."></textarea>
-        <div class="fb-error">Please tell me what felt most like you.</div>
+        <div class="fb-error">Please write at least a few words so I can understand what felt most like you.</div>
       </section>
 
       <section class="fb-step" data-step="3">
@@ -156,7 +156,7 @@
         <div class="fb-kicker">Question 7 of 7</div>
         <div class="fb-question">If this stopped having such a hold on you, what would be different in your life?</div>
         <textarea name="desiredOutcome" maxlength="1000" data-clarity-mask="True" placeholder="A sentence or two is enough."></textarea>
-        <div class="fb-error">Please tell me what you’d want to be different.</div>
+        <div class="fb-error">Please write at least a few words so I can understand what you’d want to be different.</div>
       </section>
 
       <div class="action-row">
@@ -229,26 +229,32 @@
     return el ? String(el.value || "").trim() : "";
   }
 
+  function hasMeaningfulText(name){
+    var text = textVal(name);
+    var words = text.split(/\s+/).filter(function(word){ return word.length > 0; });
+    return text.length >= 8 && words.length >= 3;
+  }
+
   function validate(){
     var step = steps[current];
     var err = step.querySelector(".fb-error");
     var ok = true;
     if (current === 0) ok = !!val("accuracy");
-    if (current === 1) ok = !!textVal("mostLikeYou");
+    if (current === 1) ok = hasMeaningfulText("mostLikeYou");
     if (current === 2) {
-      var m = val("missedAnything"); ok = !!m && (m !== "Yes" || !!textVal("missedDetail"));
+      var m = val("missedAnything"); ok = !!m && (m !== "Yes" || hasMeaningfulText("missedDetail"));
     }
     if (current === 3) {
-      var b = val("beliefShift"); ok = !!b && (b === "No, I see it the same way" || !!textVal("beliefShiftDetail"));
+      var b = val("beliefShift"); ok = !!b && (b === "No, I see it the same way" || hasMeaningfulText("beliefShiftDetail"));
     }
     if (current === 4) ok = !!val("hypnotherapyPrior");
     if (current === 5) {
       var x = val("mainBarrier");
       ok = !!x;
-      if (x === "I’m not sure about hypnotherapy") ok = !!textVal("hypnotherapyConcern");
-      if (x === "Something else") ok = !!textVal("barrierOther");
+      if (x === "I’m not sure about hypnotherapy") ok = hasMeaningfulText("hypnotherapyConcern");
+      if (x === "Something else") ok = hasMeaningfulText("barrierOther");
     }
-    if (current === 6) ok = !!textVal("desiredOutcome");
+    if (current === 6) ok = hasMeaningfulText("desiredOutcome");
     if (err) err.classList.toggle("show", !ok);
     return ok;
   }
