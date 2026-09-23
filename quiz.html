@@ -651,6 +651,20 @@
     if (name === 'q1'){
       YMSQuiz.track('quiz_start', { quiz_version: QUIZ_VERSION });
     }
+
+    // Full-funnel tracking: every meaningful quiz screen, including the
+    // previously invisible lead, readiness and barrier screens.
+    var funnelStepMap = {
+      q1:1, q2:2, q3:3, q4:4, q5:5, q6:6, q7:7, q8:8,
+      relationship:9, openresponse:10, lead:11, readiness:12, barrier:13
+    };
+    if (funnelStepMap[name]){
+      YMSQuiz.track('quiz_step_view', {
+        quiz_version: QUIZ_VERSION,
+        step: funnelStepMap[name],
+        step_name: name
+      });
+    }
     if (countedIdx !== -1){
       YMSQuiz.track('quiz_progress', { quiz_version: QUIZ_VERSION, step: countedIdx + 1, step_name: name });
     }
@@ -804,6 +818,7 @@
 
   function showRetry(){
     setSubmittingUi(false);
+    YMSQuiz.track('quiz_save_failed', { quiz_version: QUIZ_VERSION, save_stage: 'lead_capture' });
     document.getElementById('retryBox').classList.add('show');
   }
   function hideRetry(){
@@ -1030,6 +1045,7 @@
         // The lead is now safely captured. Hold the authoritative server result
         // while we collect two short unscored consumer-insight answers.
         pendingServerData = data;
+        YMSQuiz.track('quiz_lead_saved', { quiz_version: QUIZ_VERSION });
         setSubmittingUi(false);
         var readinessIndex = STEP_ORDER.indexOf('readiness');
         showStep(readinessIndex);
