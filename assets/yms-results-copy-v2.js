@@ -21,19 +21,15 @@
       cta: "START WITH QUIET THE ALARM",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Quiet the Alarm.</p>' +
-        '<p>Your answers are showing me that your body is reacting strongly to what happens with him.</p>' +
-        '<p>He goes quiet. Something changes. You see something you weren\'t expecting. And suddenly your body is on alert.</p>' +
-        '<p>Your heart races. Your chest tightens. You feel sick, restless, panicky or completely unable to settle.</p>' +
-        '<p>And even when your mind understands what is happening, your body can stay stuck there.</p>' +
-        '<p>You can know why he pulls away. You can understand the pattern. You can tell yourself not to panic.</p>' +
-        '<p>But knowing why it is happening does not necessarily stop your body reacting when it happens.</p>' +
-        '<p>And that reaction costs you.</p>' +
-        '<p>Your sleep. Your concentration. Your appetite. Your peace. Hours of your day that you don\'t get back.</p>' +
-        '<p>You don\'t need another explanation of him.</p>' +
-        '<p><strong>You need to be able to switch that shit off and take your life back.</strong></p>' +
-        '<p>That\'s why I recommend Quiet the Alarm.</p>' +
-        '<p>It\'s a guided Cognitive Behavioural Hypnotherapy audio designed to help you work with that automatic alarm response, so something happening with him doesn\'t have to hijack your whole body and the rest of your day.</p>' +
-        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">CeeJayMayDay</p></div>'
+        '<p>Quiet the Alarm is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts and emotional responses underneath that alarm.</strong></p>' +
+        '<p>Because the goal isn\'t to understand him better or force yourself to stop thinking about him.</p>' +
+        '<p>It\'s being able to think about him, remember something, or notice something has changed <strong>without it taking the next few hours of your day with it.</strong></p>' +
+        '<p><strong>Less spiralling. Less searching for an answer. Less of your peace depending on him.</strong></p>' +
+        '<p>More being able to settle yourself and get on with your day.</p>' +
+        '<p>You don\'t have to leave him, be over him, or even know what\'s going to happen between you to start working on what this dynamic is doing to you.</p>' +
+        '<p><strong>You don\'t need another explanation of the pattern. You need to start working on the part that keeps reacting even when you know better.</strong></p>' +
+        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">C.J.</p></div>' +
+        '<p>You\'ll work with Quiet the Alarm for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Break the Pull": {
       url: "https://stan.store/YourMindStory/p/break-the-pull",
