@@ -469,49 +469,40 @@
 
   function renderSelfGuided(container, stages, reasonText) {
     stages = orderedUnique(stages);
-    var isThree = stages.length === 3;
 
-    if (reasonText) {
-      container.innerHTML =
-        '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
-        '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
-        (isThree
-          ? '<p>You need a clear way of working through this rather than trying to fix whichever part is screaming the loudest that day.</p>'
-          : '') +
-        '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
-        '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
-        (isThree
-          ? '<p>Start at the beginning and work through each stage before moving on to the next.</p>' +
-            '<p>Your results tell me <strong>where this is hitting you hardest</strong>.</p>' +
-            '<p>The Complete Self-Guided Journey gives you the whole process to work through properly from beginning to end.</p>'
-          : '<p>Not everything at once.</p><p>You start at the beginning and keep moving through.</p>') +
-        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
-        downsellHtml(false);
-    } else if (isThree) {
-      container.innerHTML =
-        resultSummaryHtml(stages) +
-        '<div class="divider"></div>' +
-        '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
-        '<p>You need a clear way of working through this rather than trying to fix whichever part is screaming the loudest that day.</p>' +
-        '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
-        '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
-        '<p>Start at the beginning and work through each stage before moving on to the next.</p>' +
-        '<p>Your results tell me <strong>where this is hitting you hardest</strong>.</p>' +
-        '<p>The Complete Self-Guided Journey gives you the whole process to work through properly from beginning to end.</p>' +
-        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
-        downsellHtml(false);
-    } else {
-      container.innerHTML =
-        resultSummaryHtml(stages) +
-        '<div class="divider"></div>' +
-        '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
-        '<p>You work through the whole process <strong>in order, one stage at a time</strong>:</p>' +
-        '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
-        '<p>Not everything at once.</p>' +
-        '<p>You start at the beginning and keep moving through.</p>' +
-        '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
-        downsellHtml(false);
-    }
+    container.innerHTML =
+      '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
+      '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
+      '<p>Something happens and your body reacts. Then you’re checking, replaying or looking for an answer. You start questioning what you already know. And while your mind is caught up in all of that, <strong>your own life gets less of you.</strong></p>' +
+      '<p><strong>Does this sound like you?</strong></p>' +
+      '<p>You might feel some parts more strongly than others. But they don’t always stay separate.</p>' +
+      '<p><strong>One can keep pulling you back into another.</strong></p>' +
+      '<p>And that’s why knowing what’s happening hasn’t necessarily been enough to change it.</p>' +
+      '<p>You don’t need another explanation of avoidant attachment.</p>' +
+      '<p><strong>You need to start working on what this pattern is doing to you.</strong></p>' +
+      '<div class="divider"></div>' +
+      '<p class="result-lede">That’s what the Complete Self-Guided Journey is for.</p>' +
+      '<p>You work through four stages, <strong>one at a time</strong>:</p>' +
+      '<p><strong>Quiet the Alarm</strong><br>Work on the thoughts and emotional responses underneath the anxiety and alarm.</p>' +
+      '<p><strong>Break the Pull</strong><br>Work on what keeps pulling you into checking, replaying, reaching out or looking for another answer.</p>' +
+      '<p><strong>Restore Self-Trust</strong><br>Work on the second-guessing that makes it difficult to trust what you already know.</p>' +
+      '<p><strong>Return to Yourself</strong><br>Work on bringing your attention, energy and life back to you.</p>' +
+      '<p class="result-lede">You have structure and accountability as you go.</p>' +
+      '<p>You’ll work with each stage for <strong>21 days</strong>, with short check-ins along the way.</p>' +
+      '<p><strong>You have a clear pathway to follow, with regular points to check in, notice what’s changing and keep moving through the work.</strong></p>' +
+      '<p>And if you’re wondering whether this kind of work can actually change how you respond:</p>' +
+      '<blockquote><strong>“For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</strong><br>C.J.</blockquote>' +
+      '<blockquote><strong>“Took me out of my own head and helped calm the voice screaming at me to reach out.”</strong><br>K.</blockquote>' +
+      '<blockquote><strong>“I’m slowly unraveling from years of survival mode. I’m finding my center and power again.”</strong><br>Sky</blockquote>' +
+      '<p class="result-lede"><strong>The outcome?</strong></p>' +
+      '<p><strong>Less checking and replaying.<br>Less second-guessing yourself.<br>More peace.<br>More trust in yourself.<br>More of you back in your own life.</strong></p>' +
+      '<p><strong>Does this sound like what you need?</strong></p>' +
+      '<p>You don’t have to leave him, be over him, or even know what’s going to happen between you to start working on what this dynamic is doing to you.</p>' +
+      '<p><strong>Understanding the cycle is not the same as breaking it.</strong></p>' +
+      '<p>Nothing changes if nothing changes.</p>' +
+      '<p><strong>Are you ready to start feeling like yourself again?</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
+      downsellHtml(false);
 
     logRoute("Complete Self-Guided", "Complete Self-Guided Journey");
     var cta = container.querySelector("[data-yms-self-guided]");
