@@ -292,7 +292,32 @@
         '<p><strong>First, work on the reaction. Then work on what it keeps pulling you into.</strong></p>' +
         '<p>You’ll work with each stage for <strong>21 days</strong>. I’ll send you short check-ins along the way so you can see what’s changing, including whether you’re settling more quickly and whether the pull is becoming easier to leave alone.</p>' +
         '<p class="result-lede"><strong>The outcome?</strong></p>' +
-        '<p><strong>Something connected to him can happen without it taking the next few hours of your day with it.</strong></p>'
+        '<p><strong>Something connected to him can happen without it taking the next few hours of your day with it.</strong></p>',
+
+      "Quiet the Alarm|Restore Self-Trust":
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Quiet the Alarm → Restore Self-Trust</h1>' +
+        '<p>Something happens with him.</p>' +
+        '<p>Maybe he goes quiet. A message feels different. Something changes. Or maybe something that happened before comes back into your mind.</p>' +
+        '<p>Your stomach drops. Your chest tightens. Your mind starts going.</p>' +
+        '<p>And then something else happens.</p>' +
+        '<p>You start questioning <strong>yourself</strong>.</p>' +
+        '<p><em>Am I overreacting?</em><br><em>Have I got this wrong?</em><br><em>Maybe I’m expecting too much.</em><br><em>Maybe I should give it another chance.</em></p>' +
+        '<p>You can know something doesn’t feel right and still find yourself explaining it away once the emotion takes over.</p>' +
+        '<p><strong>That’s what your answers are showing me.</strong></p>' +
+        '<p>It’s not just that the situation affects you emotionally. <strong>Once you’re activated, it can become harder to trust what you already know.</strong></p>' +
+        '<div class="divider"></div>' +
+        '<span class="og-label">I’D START HERE</span>' +
+        '<p class="result-lede" style="margin-top:0;">Quiet the Alarm → Restore Self-Trust</p>' +
+        '<p>First, <strong>Quiet the Alarm</strong> helps you work on the thoughts and emotional responses underneath that first reaction. The panic, anxiety and feeling that something needs to be resolved <em>right now</em>.</p>' +
+        '<p>Then <strong>Restore Self-Trust</strong> helps you work on what can happen afterwards. The second-guessing. Explaining things away. Changing your mind. Looking outside yourself for reassurance about something you already felt or knew.</p>' +
+        '<p><strong>First, work on the reaction. Then work on trusting yourself when the reaction is no longer making the decision for you.</strong></p>' +
+        '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether you’re settling more easily and whether you’re finding it easier to trust your own judgement.</p>' +
+        '<p class="result-lede"><strong>The outcome?</strong></p>' +
+        '<p><strong>Something connected to him can affect you without making you abandon what you know.</strong></p>' +
+        '<p>Less panic. Less second-guessing. Less explaining things away.</p>' +
+        '<p><strong>More calm. More clarity. More trust in yourself.</strong></p>' +
+        '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>'
     }[pairKey(stages)];
 
     container.innerHTML =
