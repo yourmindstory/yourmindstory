@@ -36,27 +36,17 @@
       cta: "START WITH BREAK THE PULL",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Break the Pull.</p>' +
-        '<p>Your answers are showing me that you already know what you need to stop doing, but knowing hasn\'t been enough to make you stop.</p>' +
-        '<p>You check.</p>' +
-        '<p>You replay conversations.</p>' +
-        '<p>You wonder what he meant.</p>' +
-        '<p>You tell yourself you\'re not going to message, look, analyse or go over it again.</p>' +
-        '<p>Then something happens and you\'re right back in it.</p>' +
-        '<p>That\'s what makes this so frustrating.</p>' +
-        '<p>Your logical mind knows one thing, but in the moment you get sucked right back in and the pull feels stronger than what you know.</p>' +
-        '<p>And every time that happens, he gets your attention again.</p>' +
-        '<p>Your time. Your headspace. Your energy.</p>' +
-        '<p>Even when you don\'t want to give it to him.</p>' +
-        '<p>Again. And again. And again.</p>' +
-        '<p>And you know I\'m not exaggerating.</p>' +
-        '<p>Another video trying to decode him.</p>' +
-        '<p>Replaying what happened.</p>' +
-        '<p>Checking for something you already know probably isn\'t going to give you the answer you\'re looking for.</p>' +
-        '<p>You don\'t need more information about why he does what he does.</p>' +
-        '<p><strong>You need to stop getting pulled back into his vortex.</strong></p>' +
-        '<p>That\'s why I recommend Break the Pull.</p>' +
-        '<p>It\'s a guided Cognitive Behavioural Hypnotherapy audio designed to work on the automatic pull underneath the checking, reaching out, replaying and going back, so what you know has a better chance of becoming what you actually do.</p>' +
-        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;Took me out of my own head and helped calm the voice screaming at me to reach out.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">K</p></div>'
+        '<p>Break the Pull is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts, urges and learned responses underneath that pull.</strong></p>' +
+        '<p>Because the problem isn\'t that you don\'t know you should leave it alone.</p>' +
+        '<p><strong>It\'s what happens in the moment when the pull feels stronger than what you know.</strong></p>' +
+        '<p>The goal is being able to feel that urge <strong>without automatically having to follow it.</strong></p>' +
+        '<p>Less checking. Less replaying. Less searching for the thing that will finally make it all make sense.</p>' +
+        '<p><strong>Less of your attention being pulled back towards him when you don\'t want it to be.</strong></p>' +
+        '<p>More being able to leave it alone and get on with your life.</p>' +
+        '<p>You don\'t have to leave him, be over him, or even know what\'s going to happen between you to start working on what this dynamic is doing to you.</p>' +
+        '<p><strong>You don\'t need more information about why he does what he does. You need to start working on the part that keeps pulling you back even when you know better.</strong></p>' +
+        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;Took me out of my own head and helped calm the voice screaming at me to reach out.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">K.</p></div>' +
+        '<p>You\'ll work with Break the Pull for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Restore Self-Trust": {
       url: "https://stan.store/YourMindStory/p/restore-self-trust",
