@@ -212,17 +212,18 @@
   function renderBare(container) {
     container.innerHTML =
       '<span class="result-tag">YOUR RESULT</span>' +
-      '<h1>Based on your answers, I wouldn’t recommend one of the hypnotherapy audios right now.</h1>' +
-      '<p>Your answers aren’t registering high enough in any one area for me to think you’d benefit from starting with one of the hypnotherapy audios.</p>' +
-      '<p>I’m <strong>not</strong> saying nothing is going on for you.</p>' +
-      '<p>I’d start by getting really clear on what your bare minimum actually is in love.</p>' +
+      '<h1>I wouldn’t start you with one of the hypnotherapy sessions.</h1>' +
+      '<p>Your answers don’t show one of the four areas strongly enough for me to recommend a targeted hypnotherapy session right now.</p>' +
+      '<p>That doesn’t mean nothing is going on. It means I wouldn’t sell you a bigger solution than your answers suggest you need.</p>' +
+      '<p><strong>I’d start one step earlier: with clarity about what healthy love needs to include for you.</strong></p>' +
       '<div class="divider"></div>' +
-      '<p class="result-lede">You can start here with The Bare Minimum.</p>' +
-      '<p>The five things a woman needs to stay healthy in love.</p>' +
-      '<p>Not the dream relationship.</p>' +
-      '<p><strong>This is about your health. The minimum.</strong></p>' +
-      '<p>Because once you know that, it becomes much harder to keep negotiating with yourself just to keep somebody else.</p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-bare href="' + BARE_MINIMUM + '">START WITH THE BARE MINIMUM - £4.99</a></div>';
+      '<span class="og-label">I’D START HERE</span>' +
+      '<p class="result-lede" style="margin-top:0;">The Bare Minimum</p>' +
+      '<p><strong>The five non-negotiables a woman needs to stay healthy in love.</strong></p>' +
+      '<p>Not the dream relationship. Not a checklist for a perfect man.</p>' +
+      '<p>This is about getting clear on the minimum your emotional health needs, so you have something solid to come back to when feelings, hope or uncertainty make you question yourself.</p>' +
+      '<p><strong>Know your minimum before you negotiate it away.</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-bare href="' + BARE_MINIMUM + '">GET THE BARE MINIMUM - £4.99</a></div>';
     logRoute("Bare Minimum", "The Bare Minimum");
     var cta = container.querySelector("[data-yms-bare]");
     if (cta) cta.addEventListener("click", function () {
