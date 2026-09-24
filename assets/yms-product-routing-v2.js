@@ -487,7 +487,7 @@
       '<p><strong>Break the Pull</strong><br>Work on what keeps pulling you into checking, replaying, reaching out or looking for another answer.</p>' +
       '<p><strong>Restore Self-Trust</strong><br>Work on the second-guessing that makes it difficult to trust what you already know.</p>' +
       '<p><strong>Return to Yourself</strong><br>Work on bringing your attention, energy and life back to you.</p>' +
-      '<p class="result-lede">You have structure and accountability as you go.</p>' +
+      '<p class="result-lede">You have a clear structure, with check-ins to help you see your progress as you go.</p>' +
       '<p>You’ll work with each stage for <strong>21 days</strong>, with short check-ins along the way.</p>' +
       '<p><strong>You have a clear pathway to follow, with regular points to check in, notice what’s changing and keep moving through the work.</strong></p>' +
       '<p>And if you’re wondering whether this kind of work can actually change how you respond:</p>' +
