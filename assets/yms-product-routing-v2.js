@@ -273,15 +273,37 @@
     if (!pair) return false;
 
     var first = stages[0], second = stages[1];
+    var pairCopy = {
+      "Quiet the Alarm|Break the Pull":
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Quiet the Alarm → Break the Pull</h1>' +
+        '<p>Maybe he hasn’t replied. Maybe something has changed. Maybe you’ve seen something, remembered something, or he simply crosses your mind.</p>' +
+        '<p>Your stomach drops. Your chest tightens. Your mind starts going.</p>' +
+        '<p>Then comes the pull to <strong>do something to make the feeling stop</strong>.</p>' +
+        '<p>Check your phone. Reread the messages. Replay what happened. Look for an answer. Maybe reach out.</p>' +
+        '<p>And before you know it, <strong>you’re back in the same cycle again.</strong></p>' +
+        '<p>That’s what your answers are showing me.</p>' +
+        '<p><strong>It’s not just the reaction. It’s what the reaction pulls you into next.</strong></p>' +
+        '<div class="divider"></div>' +
+        '<span class="og-label">I’D START HERE</span>' +
+        '<p class="result-lede" style="margin-top:0;">Quiet the Alarm → Break the Pull</p>' +
+        '<p>First, <strong>Quiet the Alarm</strong> helps you work on the thoughts and emotional responses underneath that first reaction.</p>' +
+        '<p>Then, <strong>Break the Pull</strong> helps you work on the urge to check, replay, reach out or go looking for another answer.</p>' +
+        '<p><strong>First, work on the reaction. Then work on what it keeps pulling you into.</strong></p>' +
+        '<p>You’ll work with each stage for <strong>21 days</strong>. I’ll send you short check-ins along the way so you can see what’s changing, including whether you’re settling more quickly and whether the pull is becoming easier to leave alone.</p>' +
+        '<p class="result-lede"><strong>The outcome?</strong></p>' +
+        '<p><strong>Something connected to him can happen without it taking the next few hours of your day with it.</strong></p>'
+    }[pairKey(stages)];
+
     container.innerHTML =
-      resultSummaryHtml(stages) +
+      (pairCopy || resultSummaryHtml(stages) +
       '<div class="divider"></div>' +
       '<span class="og-label">I’D START HERE</span>' +
       '<p class="result-lede" style="margin-top:0;">' + Y.escapeText(pair.name) + '</p>' +
       '<p>Start with <strong>' + Y.escapeText(first) + '</strong>.</p>' +
       '<p>Work with it for 21 days and complete your check-ins.</p>' +
       '<p>Then move on to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
-      '<p><strong>One stage at a time.</strong></p>' +
+      '<p><strong>One stage at a time.</strong></p>') +
       '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY TWO-STAGE PATHWAY - £74</a></div>' +
       downsellHtml(false);
 
