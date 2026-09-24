@@ -68,24 +68,15 @@
       cta: "START WITH RETURN TO YOURSELF",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Return to Yourself.</p>' +
-        '<p>Your answers are showing me that this relationship has started taking up too much of your life.</p>' +
-        '<p>Not only when you\'re actually with him.</p>' +
-        '<p>When you\'re waiting.</p>' +
-        '<p>When you\'re checking.</p>' +
-        '<p>When you\'re replaying what happened.</p>' +
-        '<p>When you\'re thinking about what might happen next.</p>' +
-        '<p>When you\'re imagining the conversation, the apology, the reunion or the version of the relationship you keep hoping you might eventually have.</p>' +
-        '<p>In reality or in your imagination, so much of your attention keeps ending up back there.</p>' +
-        '<p>And meanwhile, your own life can start to feel strangely hollow.</p>' +
-        '<p>You\'re doing the things you\'re supposed to do, but you\'re not fully in them.</p>' +
-        '<p>Your plans get pushed back.</p>' +
-        '<p>The things that used to matter to you get less of you.</p>' +
-        '<p>And without really deciding to, you can end up putting parts of your life on hold while you wait to see what happens with him.</p>' +
-        '<p>You don\'t need another way to understand the relationship.</p>' +
-        '<p><strong>You need to become the centre of your own life again.</strong></p>' +
-        '<p>That\'s why I recommend Return to Yourself.</p>' +
-        '<p>It\'s a guided Cognitive Behavioural Hypnotherapy audio designed to help bring your attention, energy and sense of self back to you, so your life stops revolving around what is happening with him.</p>' +
-        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;I\'m slowly unraveling from years of survival mode. I\'m finding my center and power again.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">S.</p></div>'
+        '<p>Return to Yourself is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts and learned responses that keep pulling your attention, energy and sense of self back towards him.</strong></p>' +
+        '<p>Because the goal isn\'t to force yourself to stop caring or never think about him again.</p>' +
+        '<p><strong>It\'s being able to think about him without losing yourself.</strong></p>' +
+        '<p>Less waiting. Less organising your day around what he might do. Less putting your plans, needs and happiness on hold.</p>' +
+        '<p><strong>More of your attention, energy and life belonging to you again.</strong></p>' +
+        '<p>You don\'t have to leave him, be over him, or even know what\'s going to happen between you to start returning to yourself.</p>' +
+        '<p><strong>This isn\'t about forcing yourself to stop caring. It\'s about stopping yourself from disappearing from your own life while you do.</strong></p>' +
+        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;I\'m slowly unraveling from years of survival mode. I\'m finding my center and power again.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Sky</p></div>' +
+        '<p>You\'ll work with Return to Yourself for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     }
   };
 
