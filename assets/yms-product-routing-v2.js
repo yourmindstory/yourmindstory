@@ -317,6 +317,94 @@
         '<p><strong>Something connected to him can affect you without making you abandon what you know.</strong></p>' +
         '<p>Less panic. Less second-guessing. Less explaining things away.</p>' +
         '<p><strong>More calm. More clarity. More trust in yourself.</strong></p>' +
+        '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>',
+
+      "Quiet the Alarm|Return to Yourself":
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Quiet the Alarm → Return to Yourself</h1>' +
+        '<p>Something happens with him and your body reacts.</p>' +
+        '<p>Your chest tightens. Your stomach drops. Your mind starts going. And once the alarm is on, it can be difficult to properly come back down.</p>' +
+        '<p>While you’re trying to make sense of what happened, more and more of your attention can disappear into him.</p>' +
+        '<p>Thinking. Waiting. Wondering. Replaying.</p>' +
+        '<p>Meanwhile, <strong>your own day gets less of you.</strong></p>' +
+        '<p>That’s what your answers are showing me.</p>' +
+        '<p><strong>It’s not only the alarm. It’s how much of your life the alarm can take with it.</strong></p>' +
+        '<div class="divider"></div>' +
+        '<span class="og-label">I’D START HERE</span>' +
+        '<p class="result-lede" style="margin-top:0;">Quiet the Alarm → Return to Yourself</p>' +
+        '<p>First, <strong>Quiet the Alarm</strong> helps you work on the thoughts and emotional responses underneath that first reaction, so a change connected to him does not have to take over your whole system.</p>' +
+        '<p>Then <strong>Return to Yourself</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
+        '<p><strong>First, help the alarm settle. Then start giving your own life more of you again.</strong></p>' +
+        '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether you’re settling more easily and whether your attention is returning to your own life more quickly.</p>' +
+        '<p class="result-lede"><strong>The outcome?</strong></p>' +
+        '<p><strong>Something connected to him can affect you without the rest of your day having to become about him.</strong></p>' +
+        '<p>Less time lost to thinking, waiting and replaying.</p>' +
+        '<p><strong>More calm. More space in your mind. More of your life back.</strong></p>' +
+        '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>',
+
+      "Break the Pull|Restore Self-Trust":
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Break the Pull → Restore Self-Trust</h1>' +
+        '<p>You can know checking again probably won’t give you the answer you need and still find yourself doing it.</p>' +
+        '<p>Rereading the messages. Replaying what happened. Looking for another clue. Maybe wanting to reach out.</p>' +
+        '<p>And then the more you go back looking, the more you can start questioning yourself.</p>' +
+        '<p><em>Maybe I got it wrong.</em><br><em>Maybe I was too much.</em><br><em>Maybe I should change my mind.</em></p>' +
+        '<p>That’s what your answers are showing me.</p>' +
+        '<p><strong>The pull keeps you looking outside yourself for another answer, while the self-doubt makes it harder to trust the answer you already have.</strong></p>' +
+        '<div class="divider"></div>' +
+        '<span class="og-label">I’D START HERE</span>' +
+        '<p class="result-lede" style="margin-top:0;">Break the Pull → Restore Self-Trust</p>' +
+        '<p>First, <strong>Break the Pull</strong> helps you work on the thoughts, urges and learned responses underneath the checking, replaying, analysing and reaching out.</p>' +
+        '<p>Then <strong>Restore Self-Trust</strong> helps you work on the beliefs and automatic responses underneath the second-guessing.</p>' +
+        '<p><strong>First, work on going back for another answer. Then work on trusting yourself enough not to need one.</strong></p>' +
+        '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether the pull is becoming easier to leave alone and whether you’re trusting your own judgement more consistently.</p>' +
+        '<p class="result-lede"><strong>The outcome?</strong></p>' +
+        '<p><strong>You can feel the urge to check or analyse without automatically following it, and trust yourself without needing one more piece of evidence from him.</strong></p>' +
+        '<p>Less checking. Less replaying. Less second-guessing.</p>' +
+        '<p><strong>More clarity. More steadiness. More trust in yourself.</strong></p>' +
+        '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>',
+
+      "Break the Pull|Return to Yourself":
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Break the Pull → Return to Yourself</h1>' +
+        '<p>You can know you need to leave it alone and still find yourself checking, replaying, waiting or wanting to reach out.</p>' +
+        '<p>One more look. One more replay. One more attempt to understand what he meant or what he might do next.</p>' +
+        '<p>And every time your attention goes back there, <strong>your own life gets a little less of you.</strong></p>' +
+        '<p>Your plans. Your concentration. Your routines. The things you were supposed to be doing before your mind went back to him.</p>' +
+        '<p>That’s what your answers are showing me.</p>' +
+        '<p><strong>It’s not only the pull towards him. It’s what the pull keeps taking you away from.</strong></p>' +
+        '<div class="divider"></div>' +
+        '<span class="og-label">I’D START HERE</span>' +
+        '<p class="result-lede" style="margin-top:0;">Break the Pull → Return to Yourself</p>' +
+        '<p>First, <strong>Break the Pull</strong> helps you work on the thoughts, urges and learned responses underneath the checking, replaying, analysing and reaching out.</p>' +
+        '<p>Then <strong>Return to Yourself</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
+        '<p><strong>First, interrupt what keeps pulling you back. Then start building the habit of coming back to you.</strong></p>' +
+        '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether the pull is becoming easier to leave alone and whether more of your attention is staying with your own life.</p>' +
+        '<p class="result-lede"><strong>The outcome?</strong></p>' +
+        '<p><strong>You can think about him without automatically disappearing from your own life.</strong></p>' +
+        '<p>Less checking. Less waiting. Less of your day organised around what he might do next.</p>' +
+        '<p><strong>More attention. More energy. More of yourself back.</strong></p>' +
+        '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>',
+
+      "Restore Self-Trust|Return to Yourself":
+        '<span class="result-tag">YOUR RESULT</span>' +
+        '<h1>Restore Self-Trust → Return to Yourself</h1>' +
+        '<p>You know something doesn’t feel right, and then you start questioning what you know.</p>' +
+        '<p>Explaining things away. Changing your mind. Wondering whether you were wrong, too sensitive or expecting too much.</p>' +
+        '<p>And while so much of your energy goes into second-guessing yourself and trying to work him out, <strong>your own life gets less and less of you.</strong></p>' +
+        '<p>That’s what your answers are showing me.</p>' +
+        '<p><strong>When you stop trusting yourself, it becomes easier for your attention, decisions and emotional energy to keep organising themselves around him.</strong></p>' +
+        '<div class="divider"></div>' +
+        '<span class="og-label">I’D START HERE</span>' +
+        '<p class="result-lede" style="margin-top:0;">Restore Self-Trust → Return to Yourself</p>' +
+        '<p>First, <strong>Restore Self-Trust</strong> helps you work on the beliefs and automatic responses underneath the second-guessing, so you can start trusting what you feel, notice and know.</p>' +
+        '<p>Then <strong>Return to Yourself</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
+        '<p><strong>First, rebuild trust in yourself. Then start living from that trust.</strong></p>' +
+        '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether you’re second-guessing yourself less and whether your own life is getting more of your attention again.</p>' +
+        '<p class="result-lede"><strong>The outcome?</strong></p>' +
+        '<p><strong>You can make decisions from what you know instead of losing yourself trying to work out what he thinks, feels or might do next.</strong></p>' +
+        '<p>Less explaining things away. Less looking outside yourself for certainty.</p>' +
+        '<p><strong>More self-trust. More direction. More of your life back.</strong></p>' +
         '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>'
     }[pairKey(stages)];
 
