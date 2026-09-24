@@ -53,20 +53,15 @@
       cta: "START WITH RESTORE SELF-TRUST",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Restore Self-Trust.</p>' +
-        '<p>Your answers are showing me that somewhere along the way, you stopped trusting yourself.</p>' +
-        '<p>You know something doesn\'t feel right.</p>' +
-        '<p>Then you question it.</p>' +
-        '<p>You make a decision.</p>' +
-        '<p>Then you talk yourself out of it.</p>' +
-        '<p>You know what you saw, what you felt or what you need, but somehow you still end up wondering whether you\'re overreacting, whether you\'ve got it wrong or whether you should give it another chance.</p>' +
-        '<p>That is exhausting because now you\'re not only dealing with what is happening with him.</p>' +
-        '<p>You\'re also fighting with yourself about what you know.</p>' +
-        '<p>And you do not need another talking therapy session where you spend 45 minutes of the 50 minutes talking about him, and five minutes talking about the rest of your life.</p>' +
-        '<p>You don\'t need another person to tell you what he meant.</p>' +
-        '<p><strong>You need to be able to hear yourself again and trust what you know.</strong></p>' +
-        '<p>That\'s why I recommend Restore Self-Trust.</p>' +
-        '<p>It\'s a guided Cognitive Behavioural Hypnotherapy audio designed to help you work on the beliefs and automatic responses that keep pulling you away from your own judgement, so you can start relying on yourself again.</p>' +
-        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;I\'m slowly unraveling from years of survival mode. I\'m finding my center and power again.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Sky</p></div>'
+        '<p>Restore Self-Trust is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts, beliefs and emotional responses underneath the second-guessing.</strong></p>' +
+        '<p>Because the goal isn\'t to have somebody else tell you whether you\'re right or wrong.</p>' +
+        '<p><strong>It\'s being able to hear yourself, make a decision and still trust yourself when something changes.</strong></p>' +
+        '<p>Less explaining things away. Less wondering whether you\'re asking too much. Less needing what he does next to tell you whether you were right.</p>' +
+        '<p><strong>More trusting your own judgement and following through on what you know is right for you.</strong></p>' +
+        '<p>You don\'t have to leave him, be over him, or even know what\'s going to happen between you to start rebuilding trust in yourself.</p>' +
+        '<p><strong>You don\'t need another person to tell you what to think. You need to start trusting what you already know.</strong></p>' +
+        '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;I\'m slowly unraveling from years of survival mode. I\'m finding my center and power again.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Sky</p></div>' +
+        '<p>You\'ll work with Restore Self-Trust for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Return to Yourself": {
       url: "https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg",
