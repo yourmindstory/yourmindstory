@@ -516,60 +516,45 @@
     var hasPull = stages.indexOf("Break the Pull") !== -1;
     var hasTrust = stages.indexOf("Restore Self-Trust") !== -1;
     var hasReturn = stages.indexOf("Return to Yourself") !== -1;
+
     var html =
       '<span class="result-tag">YOUR RESULT</span>' +
-      '<h1>Based on your answers, this isn’t sitting in one isolated part of the cycle.</h1>';
+      '<h1>You already understand a lot about what’s happening. But understanding it hasn’t stopped what happens when you’re actually in it.</h1>';
 
     if (hasQuiet) {
-      html += '<p>Something happens with him and your body reacts.</p>' +
-        '<p>The alarm comes on quickly and can take a long time to properly settle.</p>';
+      html += '<p>Something happens with him and your body can react before you’ve had time to think it through.</p>';
     }
     if (hasPull) {
-      html += '<p>' + (hasQuiet ? 'Then even when' : 'Even when') + ' you know checking, replaying or reaching out isn’t going to help, you can still feel yourself getting pulled back in.</p>';
+      html += '<p>Even when you know checking, replaying, waiting or looking for another answer won’t really help, you can still feel pulled to do it.</p>';
     }
     if (hasTrust) {
-      html += '<p>You start questioning yourself and what you already know.</p>' +
-        '<p>You can know something doesn’t feel right and still find yourself explaining it away, wondering whether you were too much or whether you got it wrong.</p>';
+      html += '<p>You can know something doesn’t feel right and still start questioning yourself, explaining it away or wondering whether you got it wrong.</p>';
     }
     if (hasReturn) {
-      html += '<p>And while all of that is happening, too much of your attention is ending up with him instead of your own life.</p>';
+      html += '<p>And while your mind is caught up in all of that, your own plans, concentration and life can keep getting pushed into the background.</p>';
     }
 
-    html += '<p><strong>These parts can start feeding each other.</strong></p>';
-
-    var key = pairKey(stages);
-    var mechanism = {
-      "Quiet the Alarm|Break the Pull|Restore Self-Trust":
-        "The more activated you feel, the stronger the pull can become. The more you follow the pull, the more you can start questioning yourself. And the more you doubt yourself, the harder it becomes for your system to properly settle.",
-      "Quiet the Alarm|Break the Pull|Return to Yourself":
-        "The more activated you feel, the stronger the pull can become. The more you follow the pull, the more attention he takes up. And the more of your life gets organised around what he is doing, the harder it becomes to properly get free of the cycle.",
-      "Quiet the Alarm|Restore Self-Trust|Return to Yourself":
-        "The more activated you feel, the harder it can be to trust your own judgement. The more you question yourself, the more attention can disappear into him. And the further you move away from yourself, the harder it becomes to properly settle.",
-      "Break the Pull|Restore Self-Trust|Return to Yourself":
-        "The more you get pulled back in, the more you can start questioning yourself. The more you doubt yourself, the more attention can disappear into him. And the more space he takes up, the harder it becomes to hear yourself clearly."
-    }[key] || "The more these parts feed each other, the harder it becomes to properly get free of the cycle.";
-
-    html += '<p>' + mechanism + '</p>' +
-      '<p>You can understand exactly why he behaves the way he does and still feel stuck in the same cycle.</p>' +
-      '<p><strong>That’s why I wouldn’t treat this as one isolated problem. I’d work on the cycle.</strong></p>';
+    html +=
+      '<p><strong>That’s the important part of your result.</strong></p>' +
+      '<p>You do not need more information about why this dynamic happens. You need to start working on the thoughts, emotional responses and learned patterns that keep happening <strong>despite what you already know.</strong></p>' +
+      '<p><strong>That’s why I wouldn’t treat this as one isolated problem. I’d work on the parts of the cycle your answers show are still costing you.</strong></p>';
 
     return html;
   }
 
   function fourStageResultHtml() {
     return '<span class="result-tag">YOUR RESULT</span>' +
-      '<h1>Based on your answers, this isn’t sitting in one isolated part of the cycle.</h1>' +
+      '<h1>You already understand a lot about what’s happening. But understanding it hasn’t stopped what happens when you’re actually in it.</h1>' +
       '<p>Something happens with him and your body reacts.</p>' +
-      '<p>You get pulled back into checking, replaying, waiting or looking for another answer.</p>' +
-      '<p>You start questioning yourself and what you already know.</p>' +
-      '<p>And while all of that is happening, too much of your own life gets pushed into the background.</p>' +
-      '<p><strong>These parts can keep feeding each other.</strong></p>' +
-      '<p>The alarm can make the pull stronger.</p>' +
-      '<p>The pull can keep you looking for answers.</p>' +
-      '<p>The more you look for answers, the more you can question yourself.</p>' +
-      '<p>And the more of your attention disappears into him, the less of you is left for your own life.</p>' +
-      '<p>You can understand exactly why he behaves the way he does and still feel anxious, still check, still doubt yourself and still lose too much of your attention to him.</p>' +
-      '<p><strong>That’s why I wouldn’t treat this as four separate problems. I’d work on the whole cycle.</strong></p>';
+      '<p>You can know checking, replaying, waiting or looking for another answer won’t help, and still feel pulled to do it.</p>' +
+      '<p>You can know something doesn’t feel right and still start questioning yourself and what you already know.</p>' +
+      '<p>And while your mind is caught up in all of that, too much of your own life can keep getting pushed into the background.</p>' +
+      '<p><strong>That’s the important part of your result.</strong></p>' +
+      '<p>You are not missing another explanation of him. You already know a lot.</p>' +
+      '<p><strong>What hasn’t changed yet is the response.</strong></p>' +
+      '<p>The alarm. The pull to check or replay. The second-guessing. The amount of your attention and emotional energy this can still take from your own life.</p>' +
+      '<p>That’s why I wouldn’t treat this as four separate problems, and I wouldn’t give you more information to analyse.</p>' +
+      '<p><strong>I’d work on the whole cycle, so what you know can start showing up in how you actually think, feel and respond.</strong></p>';
   }
 
   function resultSummaryHtml(stages) {
