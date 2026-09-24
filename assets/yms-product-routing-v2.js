@@ -540,30 +540,60 @@
   function renderBootcamp(container, stages, data) {
     stages = orderedUnique(stages);
     container.innerHTML =
-      '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<h1>I recommend the Original Group Bootcamp.</h1>' +
-      '<p>Based on your answers, this isn’t just affecting you in one place.</p>' +
-      '<p>And when I asked what you want, you chose working on <strong>yourself, breaking the cycle and getting your mind back</strong>.</p>' +
-      '<p>Not another twelve weeks of researching him.</p>' +
-      '<p class="result-lede"><strong>This is who I built the Original Group for.</strong></p>' +
-      '<p>Over 12 weeks, we work through the complete process in order:</p>' +
+      '<span class="result-tag">Based on what you’ve told me...</span>' +
+      '<h1>I think you should start with the Bootcamp.</h1>' +
+      '<p>This isn’t just affecting you in one place.</p>' +
+      '<p>Something happens and your body reacts. Then you’re checking, replaying or looking for an answer. You start questioning what you already know. And while your mind is caught up in all of that, <strong>your own life gets less of you.</strong></p>' +
+      '<p><strong>Does this sound like you?</strong></p>' +
+      '<p>And when I asked what you actually want now, you chose:</p>' +
+      '<p><strong>To work on yourself, break the cycle and get your mind back.</strong></p>' +
+      '<p>That’s exactly what we’re going to work towards.</p>' +
+      '<div class="divider"></div>' +
+      '<p class="result-lede"><strong>Because knowing isn’t the problem.</strong></p>' +
+      '<p>You probably already know what you <em>should</em> do.</p>' +
+      '<p>Don’t check. Don’t reach out. Stop analysing. Stop going back. Focus on yourself.</p>' +
+      '<p>But knowing what you should do and being able to do it <strong>when you’re actually in the feeling</strong> are two different things.</p>' +
+      '<p><strong>That’s the part we’re going to work on.</strong></p>' +
+      '<p class="result-lede">For 12 weeks, we’ll work through four stages.</p>' +
       '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
-      '<p>You’ll have the guided <strong>Cognitive Behavioural Hypnotherapy</strong> work, your weekly Your Mind Story reflection and check-in, and the live integration calls as we move through it.</p>' +
-      '<p class="result-lede">What we’re working towards is simple.</p>' +
-      '<p><strong>Break the cycle. Take your life back.</strong></p>' +
-      '<p>Less of your day disappearing into him.</p>' +
-      '<p>Less checking and replaying.</p>' +
-      '<p>More trust in yourself.</p>' +
-      '<p>More of your attention going back into <strong>your own life</strong>.</p>' +
-      '<p><strong>Original Group • 2026</strong><br>Starts <strong>Sunday 4 October 2026</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN ORIGINAL GROUP - £297</a></div>' +
+      '<p>And the work is deliberately simple.</p>' +
+      '<p><strong>Press play. Write. Check in. Come back.</strong></p>' +
+      '<p>You’ll use the guided <strong>Cognitive Behavioral Hypnotherapy</strong> audios throughout each stage.</p>' +
+      '<p>Every week, I’ll give you <strong>one writing prompt</strong> connected to the stage you’re working on. Over the 12 weeks, you’ll start putting together the story of <strong>where you’ve been, where you are now and where you want to go next.</strong></p>' +
+      '<p>Not more analysing him.</p>' +
+      '<p><strong>Understanding yourself. Seeing your own patterns more clearly and building a different story about what happens next.</strong></p>' +
+      '<p>Your short check-ins give you somewhere to <strong>notice and track what’s actually changing</strong>, rather than relying on whether you happen to feel better or worse that day.</p>' +
+      '<p>So if you’re someone who worries:</p>' +
+      '<p><strong>“What if I don’t stick with it?”</strong></p>' +
+      '<p>You’re not being asked to figure out a whole programme by yourself.</p>' +
+      '<p><strong>You have something to do, somewhere to check in and somewhere to come back to each week.</strong></p>' +
+      '<p class="result-lede">And every three weeks, we come together live.</p>' +
+      '<p>This is where we talk about what we’ve been learning about ourselves, what has come up and what we’re taking into the next stage.</p>' +
+      '<p>You’ll be doing that alongside other women who are <strong>switched on, self-aware and ready to stop making their lives about understanding somebody else and start moving into the next chapter of their own.</strong></p>' +
+      '<p>It’s also the opportunity to realise:</p>' +
+      '<p><strong>I’m not the only woman who knows better and still finds this hard. And I don’t have to work through it on my own.</strong></p>' +
+      '<blockquote><strong>“For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</strong><br>C.J.</blockquote>' +
+      '<blockquote><strong>“Took me out of my own head and helped calm the voice screaming at me to reach out.”</strong><br>K.</blockquote>' +
+      '<blockquote><strong>“I’m slowly unraveling from years of survival mode. I’m finding my center and power again.”</strong><br>Sky</blockquote>' +
+      '<p class="result-lede"><strong>What are we working towards?</strong></p>' +
+      '<p><strong>Less checking and replaying.<br>Less second-guessing yourself.<br>More peace.<br>More trust in yourself.<br>More of you back in your own life.</strong></p>' +
+      '<p><strong>Does this sound like what you need?</strong></p>' +
+      '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start.</p>' +
+      '<p><strong>You can still love somebody and stop losing yourself in what they do, or what they did.</strong></p>' +
+      '<p class="result-lede"><strong>Bootcamp</strong></p>' +
+      '<p><strong>12 weeks · Starts Sunday 4 October 2026</strong></p>' +
+      '<p><strong>£297 or 3 monthly payments of £105</strong></p>' +
+      '<p>Understanding the cycle is not the same as breaking it.</p>' +
+      '<p><strong>Nothing changes if nothing changes.</strong></p>' +
+      '<p class="result-lede"><strong>Are you ready to start feeling like yourself again, with guided support to help you get there?</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN THE BOOTCAMP - £297</a></div>' +
       '<div style="margin-top:42px;padding-top:22px;border-top:1px solid rgba(36,61,46,.12);font-size:.94em;opacity:.9;">' +
         '<p style="margin-bottom:8px;"><strong>Prefer to work privately?</strong></p>' +
         '<p style="margin-top:0;">The <strong>Complete Self-Guided Journey</strong> gives you the same four-stage structure without the group support or live integration calls.</p>' +
         '<p style="margin-bottom:0;"><a data-yms-self-alt href="' + SELF_GUIDED.url + '">See the self-guided option - £117</a></p>' +
       '</div>';
 
-    logRoute("Original Group Bootcamp", "Original Group Bootcamp");
+    logRoute("Bootcamp", "Bootcamp");
     var boot = container.querySelector("[data-yms-bootcamp]");
     var selfAlt = container.querySelector("[data-yms-self-alt]");
     if (boot) boot.addEventListener("click", function () {
