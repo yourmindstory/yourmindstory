@@ -304,7 +304,7 @@
       '<p>Work with it for 21 days and complete your check-ins.</p>' +
       '<p>Then move on to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
       '<p><strong>One stage at a time.</strong></p>') +
-      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY TWO-STAGE PATHWAY - £74</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">GET MY 2 SESSIONS NOW - £74</a></div>' +
       downsellHtml(false);
 
     logRoute("Two-Stage Pathway", pair.name);
