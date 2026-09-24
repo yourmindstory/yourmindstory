@@ -537,6 +537,41 @@
     });
   }
 
+  function bootcampGoalBridge(data) {
+    var readiness = data && data.bootcampReadiness ? data.bootcampReadiness : {};
+    var goalIndex = Number(readiness.goalIndex);
+
+    if (goalIndex === 1) {
+      return '<p>And when I asked what you actually want now, you told me you mainly want to understand him and what his behaviour means.</p>' +
+        '<p><strong>You don’t have to stop wanting those answers before you start working on yourself.</strong></p>' +
+        '<p>But understanding him cannot guarantee that the checking, replaying, panic or second-guessing will stop.</p>' +
+        '<p><strong>What we can work on is what this situation is doing to you.</strong></p>' +
+        '<p>And when I asked whether you could commit to doing that work, you said yes.</p>' +
+        '<p><strong>That’s why I think you should start with the Bootcamp.</strong></p>';
+    }
+
+    if (goalIndex === 2) {
+      return '<p>And when I asked what you actually want now, you told me part of you wants him back or wants his behaviour to change.</p>' +
+        '<p><strong>You don’t have to pretend you don’t want that before you start.</strong></p>' +
+        '<p>But I can’t promise to change him, bring him back or control what he does next.</p>' +
+        '<p><strong>What we can work on is what this situation is doing to you.</strong></p>' +
+        '<p>The checking. The replaying. The panic. The second-guessing. The amount of your life that has started revolving around what he does next.</p>' +
+        '<p>And when I asked whether you could commit to doing that work, you said yes.</p>' +
+        '<p><strong>That’s why I think you should start with the Bootcamp.</strong></p>';
+    }
+
+    if (goalIndex === 3) {
+      return '<p>And when I asked what you actually want now, you told me you’re not sure yet.</p>' +
+        '<p><strong>You do not have to have everything figured out before you start working on what this dynamic is doing to you.</strong></p>' +
+        '<p>When I asked whether you could commit to doing that work, you said yes.</p>' +
+        '<p><strong>That’s why I think you should start with the Bootcamp.</strong></p>';
+    }
+
+    return '<p>And when I asked what you actually want now, you chose:</p>' +
+      '<p><strong>To work on yourself, break the cycle and get your mind back.</strong></p>' +
+      '<p>That’s exactly what we’re going to work towards.</p>';
+  }
+
   function renderBootcamp(container, stages, data) {
     stages = orderedUnique(stages);
     container.innerHTML =
@@ -545,9 +580,7 @@
       '<p>This isn’t just affecting you in one place.</p>' +
       '<p>Something happens and your body reacts. Then you’re checking, replaying or looking for an answer. You start questioning what you already know. And while your mind is caught up in all of that, <strong>your own life gets less of you.</strong></p>' +
       '<p><strong>Does this sound like you?</strong></p>' +
-      '<p>And when I asked what you actually want now, you chose:</p>' +
-      '<p><strong>To work on yourself, break the cycle and get your mind back.</strong></p>' +
-      '<p>That’s exactly what we’re going to work towards.</p>' +
+      bootcampGoalBridge(data) +
       '<div class="divider"></div>' +
       '<p class="result-lede"><strong>Because knowing isn’t the problem.</strong></p>' +
       '<p>You probably already know what you <em>should</em> do.</p>' +
@@ -627,12 +660,12 @@
     });
 
     function routeFromReadiness(readiness) {
-      if (readiness.goalAligned && readiness.commitmentAligned) {
+      // Goal tells us where her attention is. Commitment tells us whether she is
+      // willing to participate. Still wanting answers about him, or wanting the
+      // relationship to change, does not automatically mean she is not ready
+      // to work on herself.
+      if (readiness.commitmentAligned) {
         renderBootcamp(container, stages, data);
-        return;
-      }
-      if (readiness.goalIndex === 1 || readiness.goalIndex === 2) {
-        renderUnderstandingBridge(container, stages);
         return;
       }
       renderSelfGuided(container, stages, "private");
