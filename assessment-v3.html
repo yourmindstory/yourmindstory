@@ -29,7 +29,7 @@ document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{let v=+b.dataset.v;i
 document.getElementById('back').onclick=()=>{if(i){i--;render()}};const nb=document.getElementById('next');if(nb)nb.onclick=()=>{if(q.text)a[i]=document.getElementById('txt').value.trim();if(!q.text&&(a[i]===null||(q.multi&&a[i].length===0)))return;if(i<14){track('assessment_question_complete',{question_number:i+1});i++;render()}else showResult()}}
 function showResult(){
 document.getElementById('form').style.display='none';document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width='100%';
-let s=[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]],total=s.reduce((x,y)=>x+y,0),qual=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),ready=a[13],belief=a[8];
+let s=[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]],total=s.reduce((x,y)=>x+y,0),qual=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),ready=a[13],belief=a[8],interrupt=a[9],context=a[10];
 const outcome=[
   'get your peace back',
   'trust yourself and your decisions again',
@@ -37,11 +37,25 @@ const outcome=[
   'feel like yourself again and be able to move forward, whether he\'s in your life or not',
   'change what this situation is doing to you'
 ][a[11]]||'feel more like yourself again';
+const outcomeClose=[
+  'more of your day can feel peaceful and like your own again',
+  'you can trust what you know and stand by the decisions you make for yourself',
+  'your attention can come back to your own day instead of being repeatedly pulled into checking, waiting and replaying',
+  'you can feel like yourself again and move forward, whether he is in your life or not',
+  'this situation can take up less of you and more of your life can belong to you again'
+][a[11]]||'more of your mind and your life can feel like your own again';
+const contextLine=[
+  'Whether you are together or actively involved,',
+  'When contact is inconsistent, unclear or on and off,',
+  'Even when something has ended, contact or reconnection can pull everything back to the surface.',
+  'Even with little or no contact, a thought, memory or unanswered question can bring the whole thing back.',
+  'Whatever the current relationship status,'
+][context]||'Whatever the current relationship status,';
 const stageCopy=[
- {name:'Quiet the Alarm',short:'Your body is getting pulled into it too.',story:'Something happens with him, or sometimes nothing happens at all. A thought, a memory, a change in his tone, wondering what he is doing. Your stomach drops. Your chest tightens. Your mind starts going. You can know better and still feel the reaction.'},
- {name:'Break the Pull',short:'Knowing you should leave it alone is not always enough to make the pull disappear.',story:'You can know checking again probably will not give you the answer you need and still find yourself doing it. One more look. One more replay. One more attempt to work out what he meant or what he might do next.'},
- {name:'Restore Self-Trust',short:'Somewhere in the cycle, you have started questioning yourself.',story:'You know something does not feel right. Then you explain it away. You wonder if you are overreacting, expecting too much or getting it wrong. You make a decision, then something happens and suddenly you are questioning the decision you already made for yourself.'},
- {name:'Return to Yourself',short:'Your own life is getting less of you.',story:'Thinking about him. Wondering. Replaying. Waiting to see what happens next. Whether you are still with him or it ended months ago, he can still be taking up space in your mind and your life. And while all of that is happening, your own life gets less of you.'}
+ {name:'Quiet the Alarm',story:'A message feels different. He goes quiet. Something changes. Or nothing happens at all and a thought, memory or question about him is enough. Your body reacts and it can take real time to settle again.',work:'This is about the part that can happen before you have even decided what you think: the stomach drop, racing thoughts, anxiety or feeling thrown off. The aim is not to never think about him. It is to be able to notice what is happening and come back to yourself more easily.'},
+ {name:'Break the Pull',story:'You can know checking, replaying or looking for another answer is not helping and still feel pulled to do it. The difficult bit is not knowing you should leave it alone. It is what happens when the urge arrives.',work:'This is about creating more space between the urge and what you do next, so you are not spending your day fighting with yourself or following every pull for reassurance. The aim is for your attention to become available to your own life again.'},
+ {name:'Restore Self-Trust',story:'You can know what you need, make a decision you genuinely mean, then miss him, hear from him or start hoping something might change and find yourself questioning it all over again.',work:'This is about being able to hear your own judgement and stay connected to what you know, even when your feelings change. The aim is not for somebody else to tell you whether you are right or wrong. It is to trust yourself again.'},
+ {name:'Return to Yourself',story:'Thinking about him, wondering, replaying or waiting can take up space long after the actual moment has passed. Work, sleep, routines, plans, friends, children or simply enjoying your own day can end up getting less of you.',work:'This is about putting your attention, energy and choices back into your own life. Not forcing yourself to stop caring, but getting to a place where caring about him does not require disappearing from yourself.'}
 ];
 const links={
  'Quiet the Alarm':'https://stan.store/YourMindStory/p/quiet-the-alarm',
@@ -57,44 +71,50 @@ const pairLinks={
  '1|3':'https://stan.store/Yourmindstory/p/break-the-pull--return-to-yourself',
  '2|3':'https://stan.store/Yourmindstory/p/restore-selftrust--return-to-yourself'
 };
-let recognition='',recommendation='',cta='',route='';
+const mechanism='<div class="bridge"><h2>Why knowing hasn\'t been enough</h2><p>Understanding the pattern and being able to respond differently when the feeling hits are not necessarily the same thing.</p><p>Cognitive Behavioral Hypnotherapy combines cognitive and behavioral techniques with hypnosis. In simple terms, we are not only analysing the response. We use focused attention, suggestion, imagery and mental rehearsal to practise another response.</p><p><strong>You do not have to be over him or decide what happens with the relationship before you can work on what this is doing to you.</strong></p></div>';
+const progress='<p><strong>You will also have four quick progress check-ins: Day 0, Day 7, Day 14 and Day 21.</strong> They are simple. Tap the link, answer the questions and you are done. They give you a way to look back and see what is actually changing as you go.</p>';
+let recognition='',recommendation='',cta='',route='',bridge='';
 if(qual.length===0){
- recognition='<h1>I wouldn\'t start you with one of the hypnotherapy audios.</h1><p class="lead">That doesn\'t mean nothing is going on. It means your answers don\'t point strongly enough to one part of the cycle for me to sell you a bigger solution than you need.</p>';
- recommendation='<small>WHERE I\'D START</small><h2>The Bare Minimum</h2><p>Start one step earlier. Get clear on the five things a woman needs to stay healthy in love, so you have something solid to come back to when feelings, hope or uncertainty make you question yourself.</p>';
+ recognition='<h1>Your answers don\'t point to one part of this strongly enough for me to recommend a hypnotherapy audio.</h1><p class="lead">That does not mean what you are feeling is not real. It means the most useful next step is to get clearer on what healthy love needs to look like for you before adding a bigger intervention.</p>';
+ recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>The Bare Minimum</h2><p>The Bare Minimum gives you five non-negotiables a woman needs to stay healthy in love. It gives you something solid to come back to when feelings, hope or uncertainty make it harder to know what is acceptable for you.</p>';
  cta='<p><a class="next" href="https://stan.store/YourMindStory/p/the-bare-minimum">START WITH THE BARE MINIMUM</a></p>';
-}else if(qual.length===1){
- let x=stageCopy[qual[0]];
- recognition='<h1>'+x.short+'</h1><p class="lead">'+x.story+'</p><p><strong>That\'s what your answers are showing me.</strong></p>';
- recommendation='<small>WHERE I\'D START</small><h2>'+x.name+'</h2><p>I wouldn\'t give you more than your answers suggest you need. I\'d start here and work on the part of the cycle that is hitting you hardest right now.</p>';
- cta='<p><a class="next" href="'+links[x.name]+'">START WITH '+x.name.toUpperCase()+'</a></p>';
-}else if(qual.length===2){
- let x=stageCopy[qual[0]],y=stageCopy[qual[1]],key=qual.join('|');
- recognition='<h1>This is happening in two connected parts of the cycle.</h1><p class="lead">'+x.story+'</p><p>'+y.story+'</p><p><strong>That\'s the important bit. These aren\'t two random problems. One can keep feeding the other.</strong></p>';
- recommendation='<small>WHERE I\'D START</small><h2>'+x.name+' → '+y.name+'</h2><p>First, work on <strong>'+x.name+'</strong>. Then work on <strong>'+y.name+'</strong>. One stage at a time, in the order your answers suggest.</p>';
- cta='<p><a class="next" href="'+pairLinks[key]+'">START YOUR TWO-STAGE PATHWAY</a></p>';
 }else{
- recognition='<h1>This isn\'t just one part of the cycle anymore.</h1><p class="lead">Your answers show several parts of it happening at the same time.</p>'+
- '<p>Your body can react. Your mind goes into the loop. You get pulled back towards him even when you know better. You question yourself and decisions you already made. And while all of that is happening, <strong>your own life gets less and less of you.</strong></p>'+
- '<p><strong>You don\'t have four separate problems. These are different parts of the same cycle.</strong></p>';
- recommendation='<small>WHERE I\'D START</small><h2>Return to Yourself</h2><p>I would work through the full four-stage process: <strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself.</strong></p><p>One stage at a time. The point is not to give you more to do. It is to work on the different places this same cycle is showing up, until more of your mind and your life belong to you again.</p>';
- if(ready===3){
-   route='<p>You also told me you\'re ready for a structured process and willing to participate consistently. You can work through the full process independently, or join the <strong>Return to Yourself Bootcamp</strong> for the same four stages with more structure and support.</p>';
-   cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey">SELF-GUIDED JOURNEY</a></p><p><a class="next" href="https://payhip.com/b/ZhPkp">RETURN TO YOURSELF BOOTCAMP</a></p>';
+ const intro='<p class="lead">'+contextLine+' the effect does not always stay in that moment. A thought, memory, message, silence or change can follow you into the rest of your day.</p>';
+ if(qual.length===1){
+   let x=stageCopy[qual[0]];
+   recognition='<h1>'+x.name+' is where your answers point most strongly.</h1>'+intro+'<p>'+x.story+'</p>';
+   recommendation='<small>YOUR RECOMMENDED STARTING POINT</small><h2>'+x.name+'</h2><p>'+x.work+'</p><p>You said the change that matters most to you is to <strong>'+outcome+'</strong>. This is the part I would focus your attention on first, so '+outcomeClose+'.</p>'+progress;
+   cta='<p><a class="next" href="'+links[x.name]+'">START WITH '+x.name.toUpperCase()+'</a></p>';
+ }else if(qual.length===2){
+   let x=stageCopy[qual[0]],y=stageCopy[qual[1]],key=qual.join('|');
+   recognition='<h1>Two things are keeping this difficult for you.</h1>'+intro+'<p>'+x.story+'</p><p>'+y.story+'</p><p><strong>These two experiences can keep feeding each other, which is why dealing with only one may leave you getting pulled back in through the other.</strong></p>';
+   recommendation='<small>YOUR RECOMMENDED STARTING POINT</small><h2>'+x.name+' → '+y.name+'</h2><p><strong>'+x.name+':</strong> '+x.work+'</p><p><strong>'+y.name+':</strong> '+y.work+'</p><p>You said the change that matters most to you is to <strong>'+outcome+'</strong>. The point of working through these in sequence is to help you move towards that, rather than simply become better at understanding what is happening.</p>'+progress;
+   cta='<p><a class="next" href="'+pairLinks[key]+'">START WITH THESE TWO SESSIONS</a></p>';
  }else{
-   cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey">START THE SELF-GUIDED JOURNEY</a></p>';
+   recognition='<h1>You understand what is happening. But knowing has not stopped it from affecting you.</h1>'+intro+
+   '<p>Your body can react before you have had time to think. Then your mind gets involved. You think about what happened, replay it, check, wonder, wait or look for an answer. You can tell yourself you are not going to get pulled into it again and still find yourself right back there.</p>'+
+   '<p>And somewhere in all of that, you can start questioning yourself too. What you saw. What you felt. What you decided. Whether you are asking for too much.</p>'+
+   '<p>Meanwhile, the rest of your life is still there. Your sleep, work, routines, plans, relationships, children, friends, or simply the things you wanted to do with your own day.</p>'+
+   '<p><strong>Your answers point to the part that needs your attention now: not more information about him, but what this experience is still doing to you.</strong></p>';
+   recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Work through all four stages</h2>'+
+   '<p><strong>Quiet the Alarm.</strong> '+stageCopy[0].work+'</p>'+
+   '<p><strong>Break the Pull.</strong> '+stageCopy[1].work+'</p>'+
+   '<p><strong>Restore Self-Trust.</strong> '+stageCopy[2].work+'</p>'+
+   '<p><strong>Return to Yourself.</strong> '+stageCopy[3].work+'</p>'+
+   '<p>You said the change that matters most to you is to <strong>'+outcome+'</strong>. That is the destination here: '+outcomeClose+'.</p>'+progress;
+   if(ready===3){
+     route='<p>You also said you are ready for a structured process and willing to participate consistently. You can work through all four stages independently, or choose the <strong>Return to Yourself Bootcamp</strong> if you want more structure and support around the same work.</p>';
+     cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey">WORK THROUGH IT SELF-GUIDED</a></p><p><a class="next" href="https://payhip.com/b/ZhPkp">RETURN TO YOURSELF BOOTCAMP</a></p>';
+   }else{
+     route='<p>Your answers point to the full four-stage process, but you have not said you want a live structured commitment right now. The self-guided journey lets you work through the same four stages in your own time.</p>';
+     cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey">WORK THROUGH IT SELF-GUIDED</a></p>';
+   }
  }
-}
-let bridge='';
-if(qual.length>0){
- bridge='<div class="bridge"><h2>'+ (belief>=2?'You already understand a lot.':'You may still be trying to make sense of him.') +'</h2>'+
- '<p>'+(belief>=2?'But knowing what the pattern is has not stopped what happens when you are actually in it.':'And understanding can help. But there comes a point where another answer about him still leaves you dealing with the same reaction in you.')+'</p>'+
- '<p><strong>Knowing why he did it won\'t stop what it did to you.</strong></p>'+
- '<p>And you do not have to stop loving him, stop wanting him or make a decision about the relationship before you start working on yourself.</p>'+
- '<p>You told me what you want most is to <strong>'+outcome+'</strong>. So that is where I want the recommendation to take us.</p></div>';
+ bridge=mechanism;
 }
 let el=document.getElementById('result');el.classList.add('active');
 el.innerHTML='<div class="eyebrow">Your personalised assessment</div>'+recognition+bridge+'<div class="rec">'+recommendation+route+cta+'</div>';
-track('assessment_complete',{total_score:total,breadth_count:qual.length,recommendation:qual.length>=3?'Return to Yourself':qual.length===2?'Two-stage pathway':qual.length===1?stageCopy[qual[0]].name:'The Bare Minimum'});
+track('assessment_complete',{total_score:total,breadth_count:qual.length,recommendation:qual.length>=3?'Full four-stage process':qual.length===2?'Two-stage recommendation':qual.length===1?stageCopy[qual[0]].name:'The Bare Minimum'});
 }
 function recommendationCopy(q,r){if(q.length===0)return 'Your scored answers do not show a strong enough concentration in one of the four stages for me to push you into a larger programme. Start with the smallest sensible next step.';if(q.length===1)return 'One stage is clearly asking for attention first. I would begin there rather than giving you more than your answers suggest you need.';if(q.length===2)return 'Two stages are showing up strongly. I would work through those in sequence so the support matches the pattern your answers actually show.';if(r===3)return 'Your answers show a broad pattern across at least three stages, and you have said you are ready to participate consistently. That makes the full four-stage process the most relevant route to consider.';return 'Your answers show a broad pattern across at least three stages. The full four-stage self-guided process lets you work through it in sequence without requiring a live group commitment.'}
 track('assessment_start');render();
