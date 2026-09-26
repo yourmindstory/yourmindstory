@@ -873,7 +873,7 @@
         '<p class="result-lede">Your saved result is from an earlier version of the quiz.</p>' +
         '<p>I can still show you the result you received, but I don’t have enough of the original scoring data in this browser to recalculate a broader recommendation accurately.</p>' +
         '<p>If you want me to reassess which level of support fits you now, you can retake the quiz. Otherwise, you can keep reading your result above.</p>' +
-        '<div class="cta-row"><a class="btn-cta" href="quiz.html">REASSESS MY RESULT</a></div>';
+        '<div class="cta-row"><a class="btn-cta" href="/assessment">REASSESS MY RESULT</a></div>';
       return;
     }
 
