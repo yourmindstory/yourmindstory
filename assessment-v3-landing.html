@@ -20,5 +20,12 @@
 </div>
 <section class="proof"><div class="shell"><div class="inner"><div class="eyebrow">From women who have taken the assessment</div><h2>Recognition matters. So does knowing what to do next.</h2><p>More than half of the women in our recent feedback group said their result was mostly or very accurate. Twenty out of 21 said it reflected their experience to some degree.</p><div class="quote">“Everything. Specially that I understand but still feel stuck in the same cycle.”</div><small>Assessment feedback</small></div></div></section>
 <div class="shell"><section class="final"><div class="eyebrow">Start here</div><h2>Find out what this pattern is doing to you.</h2><a class="cta" href="assessment-v3.html">START MY ASSESSMENT</a><span class="micro">Free · Personalised · Around 3 minutes</span></section><footer class="footer">Your Mind Story · This assessment is not a diagnosis or a substitute for medical or mental health care.</footer></div>
-<script>try{if(window.gtag)gtag('event','assessment_landing_view',{assessment_version:'YMS-ASSESSMENT-2026-V3'});}catch(e){}</script>
+<script>
+function ymsAnalyticsAllowed(){return localStorage.getItem('yms_analytics_consent')==='yes'}
+function ymsLoadAnalytics(){if(!ymsAnalyticsAllowed()||window.YMSQuiz)return;let s=document.createElement('script');s.src='assets/yms-quiz-shared.js';s.async=true;document.head.appendChild(s)}
+function ymsLandingTrack(name,params){try{if(window.YMSQuiz&&YMSQuiz.track)YMSQuiz.track(name,Object.assign({assessment_version:'YMS-ASSESSMENT-2026-V3'},params||{}))}catch(e){}}
+ymsLoadAnalytics();
+window.addEventListener('load',()=>ymsLandingTrack('assessment_landing_view'));
+document.querySelectorAll('a.cta').forEach(a=>a.addEventListener('click',()=>ymsLandingTrack('assessment_start',{source:'v3_landing'})));
+</script>
 </body></html>
