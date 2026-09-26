@@ -95,19 +95,19 @@ let recognition='',recommendation='',cta='',route='',bridge='';
 if(qual.length===0){
  recognition='<h1>I would not start you with one of the hypnotherapy audios.</h1><p class="lead">Your answers do not show one of the four areas strongly enough for me to recommend more support than they suggest you need right now.</p>';
  recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>The Bare Minimum</h2><p>I would start one step earlier. The Bare Minimum gives you five non-negotiables a woman needs to stay healthy in love, so you have something solid to come back to when feelings, hope or uncertainty make you question what you need and what you will accept.</p>';
- cta='<p><a class="next" href="https://stan.store/YourMindStory/p/the-bare-minimum">START WITH THE BARE MINIMUM</a></p>';
+ cta='<p><a class="next" href="https://stan.store/YourMindStory/p/the-bare-minimum" data-rec-product="The Bare Minimum" data-rec-route="Bare Minimum">START WITH THE BARE MINIMUM</a></p>';
 }else if(qual.length===1){
  let x=stageCopy[qual[0]];
  recognition='<h1>'+x.name+'</h1>'+lived+'<p>'+x.story+'</p>';
  bridge=mechanism;
  recommendation='<small>WHY I\'M RECOMMENDING THIS</small><p>'+x.work+'</p>'+progress;
- cta='<p><a class="next" href="'+links[x.name]+'">START WITH '+x.name.toUpperCase()+'</a></p>';
+ cta='<p><a class="next" href="'+links[x.name]+'" data-rec-product="'+x.name+'" data-rec-route="Single Stage">START WITH '+x.name.toUpperCase()+'</a></p>';
 }else if(qual.length===2){
  let x=stageCopy[qual[0]],y=stageCopy[qual[1]],key=qual.join('|');
  recognition='<h1>'+x.name+' → '+y.name+'</h1>'+lived+'<p>'+x.story+'</p><p>'+y.story+'</p><p><strong>'+pairInsight[key]+'</strong></p>';
  bridge=mechanism;
  recommendation='<small>WHY THESE TWO</small><p><strong>'+x.name+'.</strong> '+x.work+'</p><p><strong>'+y.name+'.</strong> '+y.work+'</p>'+progress;
- cta='<p><a class="next" href="'+pairLinks[key]+'">START WITH THESE TWO SESSIONS</a></p>';
+ cta='<p><a class="next" href="'+pairLinks[key]+'" data-rec-product="'+x.name+' → '+y.name+'" data-rec-route="Two-Stage Pair">START WITH THESE TWO SESSIONS</a></p>';
 }else{
  recognition='<h1>You understand what is happening. But knowing has not stopped it from affecting you.</h1>'+lived+
  '<p>Your body can react before you have had time to think. Then your mind starts going. You replay what happened, check, wonder, wait or look for an answer. You can tell yourself you are not going to get pulled into it again and still find yourself right back there.</p>'+
@@ -123,10 +123,10 @@ if(qual.length===0){
  if(ready===3){
    recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Return to Yourself Bootcamp</h2><p><strong>Your answers show that several parts of this are affecting you at the same time, and you have said you are ready for a structured process and willing to participate consistently.</strong></p><p>That is why I am recommending the supported four-stage route rather than asking you to work out which part to tackle alone.</p>'+progress;
    route='<p>You have spent enough time thinking about it, analysing it, trying to understand it and trying to talk yourself out of feeling the way you feel. <strong>It is exhausting.</strong></p><p>The Bootcamp takes you through Quiet the Alarm, Break the Pull, Restore Self-Trust and Return to Yourself in sequence, with more support around the process.</p><p>If you would rather work through the same four stages independently, the Complete Self-Guided Journey is still available as the lower-support option.</p>';
-   cta='<p><a class="next" href="https://payhip.com/b/ZhPkp">RETURN TO YOURSELF BOOTCAMP</a></p><p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey">OR WORK THROUGH IT SELF-GUIDED</a></p>';
+   cta='<p><a class="next" href="https://payhip.com/b/ZhPkp" data-rec-product="Return to Yourself Bootcamp" data-rec-route="Bootcamp">RETURN TO YOURSELF BOOTCAMP</a></p><p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" data-rec-product="Complete Self-Guided Journey" data-rec-route="Complete Self-Guided">OR WORK THROUGH IT SELF-GUIDED</a></p>';
  }else{
    route='<p>You can work through the four stages independently, in your own time, with the guided hypnotherapy audios and progress check-ins.</p>';
-   cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey">WORK THROUGH IT SELF-GUIDED</a></p>';
+   cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" data-rec-product="Complete Self-Guided Journey" data-rec-route="Complete Self-Guided">WORK THROUGH IT SELF-GUIDED</a></p>';
  }
 }
 let el=document.getElementById('result');el.classList.add('active');
@@ -157,6 +157,8 @@ if(qual.length>=3){
 }else panels.push('<div class="rec">'+recommendation+route+cta+'</div>');
 let labels=panels.map((html,n)=>html.includes('Before you see what I recommend')?'SEE WHAT I RECOMMEND':'CONTINUE');
 el.innerHTML=panels.map((html,n)=>'<section class="result-panel'+(n===0?' active':'')+'" data-result-step="'+n+'"><div class="result-step">Part '+(n+1)+' of '+panels.length+'</div>'+html+(n<panels.length-1?'<div class="actions">'+(n>0?'<button type="button" class="back result-back">Back</button>':'<span></span>')+'<button type="button" class="next result-next">'+labels[n]+'</button></div>':(n>0?'<div class="actions"><button type="button" class="back result-back">Back</button><span></span></div>':''))+'</section>').join('');
+function recommendationHandoff(link){let last={};try{last=JSON.parse(sessionStorage.getItem('yms_v3_last_submission')||'{}')}catch(e){}let p={product:link.dataset.recProduct||'',route:link.dataset.recRoute||'',submission_id:last.submissionId||'',journey_id:last.journeyId||'',destination:(link.hostname||'').toLowerCase()};track('recommendation_click',p);track('checkout_click',p);try{sessionStorage.setItem('yms_v3_last_checkout',JSON.stringify(Object.assign({clickedAt:new Date().toISOString()},p)))}catch(e){}}
+el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link)recommendationHandoff(link)});
 let rp=-1,navLocked=false;const showPanel=(n,historyMode)=>{rp=n;el.querySelectorAll('.result-panel').forEach((p,j)=>p.classList.toggle('active',j===n));document.getElementById('count').textContent='YOUR RESULT · '+(n+1)+' / '+panels.length;document.getElementById('fill').style.width=((n+1)/panels.length*100)+'%';if(historyMode==='push')history.pushState({ymsResult:true,resultStep:n},'',location.href);else if(historyMode==='replace')history.replaceState({ymsResult:true,resultStep:n},'',location.href);window.scrollTo({top:0,behavior:'smooth'});track('result_step_view',{step:n+1,total_steps:panels.length})};
 el.addEventListener('click',e=>{if(navLocked)return;let next=e.target.closest('.result-next'),back=e.target.closest('.result-back');if(!next&&!back)return;navLocked=true;if(next)showPanel(Math.min(rp+1,panels.length-1),'push');else history.back();setTimeout(()=>navLocked=false,350)});
 showPanel(0,'replace');
