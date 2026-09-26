@@ -97,7 +97,7 @@
   }
 
   // ---------------- attribution capture/persistence ----------------
-  // Captured at first funnel entry (landing page, or quiz.html if a visitor
+  // Captured at first funnel entry (landing page, or /assessment if a visitor
   // lands there directly) and persisted via sessionStorage so it survives
   // the landing -> quiz -> submission chain even if a later page's URL
   // no longer carries the query string.
@@ -677,7 +677,7 @@
     var container=document.getElementById(containerId); if(!container)return;
     var data=getResultData()||{}, level=data.recommendationLevel||'';
     if(!level){
-      container.innerHTML='<div class="divider"></div><span class="og-label">YOUR UPDATED RESULT</span><p class="result-lede">I need the current quiz version to give you the right recommendation.</p><p>Your browser has carried over an older result session, so I will not guess which support level is right for you.</p><div class="cta-row"><a class="btn-cta" href="quiz.html?v=20260910-rec2">RETAKE THE UPDATED QUIZ</a></div>';
+      container.innerHTML='<div class="divider"></div><span class="og-label">YOUR UPDATED RESULT</span><p class="result-lede">I need the current quiz version to give you the right recommendation.</p><p>Your browser has carried over an older result session, so I will not guess which support level is right for you.</p><div class="cta-row"><a class="btn-cta" href="/assessment?v=20260910-rec2">RETAKE THE UPDATED QUIZ</a></div>';
       return;
     }
     if(level==='bootcamp_level'){ mountOGBootcampBridge(containerId,resultBucketKey); return; }
