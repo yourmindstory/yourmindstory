@@ -139,8 +139,9 @@ if(qual.length>0){
  '<p>The next time you find yourself questioning a decision you genuinely meant, notice <strong>what changed</strong>.</p><p>Did you receive a message? Miss him? Remember something good? Start hoping? Feel guilty?</p><p>Before you reconsider the decision, notice whether <strong>the facts changed, or the feeling changed</strong>.</p><p>Those are not always the same thing.</p>',
  '<p>The next time you realise your mind has gone back to him, notice what <strong>your own life was asking for before your attention moved away from it</strong>.</p><p>Your work. Your rest. Your plans. Something you were enjoying. Something you needed.</p><p>You do not have to force yourself not to think about him. Start by noticing <strong>what keeps losing your attention when you do</strong>.</p>'
  ][focus];
- panels.push('<div class="result-desire"><div class="eyebrow">One thing I want you to take from this</div><h2>Whether you decide to work with me or not, there is one thing I want you to start noticing.</h2>'+take+'</div>');
+ panels.push('<div class="result-desire"><div class="eyebrow">One thing I want you to take from this</div><h2>Before you see what I recommend, there is one thing I want you to take from your result.</h2>'+take+'<div class="bridge"><p><strong>You told me you want to '+outcome+'.</strong></p><p>So the question now isn\'t whether you understand what\'s happening.</p><p><strong>It\'s what needs to change for you to actually get there.</strong></p></div></div>');
 }
+recommendation='<div class="eyebrow" style="color:#c4aa6b">Based on your answers</div><h2>Here\'s what I recommend you work on next.</h2>'+recommendation;
 if(qual.length>=3){
  if(ready===3){
    let cut=recommendation.indexOf(progress),head=cut>=0?recommendation.slice(0,cut)+progress:recommendation;
