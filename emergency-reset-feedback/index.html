@@ -121,11 +121,52 @@ addNext(steps[7],()=>{
   showStep(8);
 });
 
-form.addEventListener('submit',e=>{
+const ENDPOINT='https://script.google.com/macros/s/AKfycbzfk9aTPgStX7qfBBEbmUGwKqykLNH8Run9nkL2Dun3JJe9KU0sR60gKWR0wEkDl3A5/exec';
+
+function values(name){
+  return checked(name).map(x=>x.value||x.parentElement.textContent.trim());
+}
+function value(name){
+  const x=checked(name)[0];
+  return x?(x.value||x.parentElement.textContent.trim()):'';
+}
+
+form.addEventListener('submit',async e=>{
   e.preventDefault();
   if(!requireChoice('research'))return;
-  form.style.display='none'; hero.style.display='none';
-  document.getElementById('thanks').style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
+
+  const original=submit.textContent;
+  submit.disabled=true;
+  submit.textContent='SENDING...';
+
+  const payload={
+    used:value('used'),
+    situation:values('situation'),
+    effect:values('effect'),
+    behaviour:value('behaviour'),
+    behaviour_text:(form.querySelector('textarea[name="behaviour_text"]')||{}).value||'',
+    before:value('before'),
+    after:value('after'),
+    deeper:value('deeper'),
+    hesitate:value('hesitate'),
+    own_words:(form.querySelector('textarea[name="own_words"]')||{}).value||'',
+    research:value('research')
+  };
+
+  try{
+    await fetch(ENDPOINT,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    });
+    form.style.display='none'; hero.style.display='none';
+    document.getElementById('thanks').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    alert('Your feedback could not be sent. Please try again.');
+    submit.disabled=false;
+    submit.textContent=original;
+  }
 });
 </script></body></html>
