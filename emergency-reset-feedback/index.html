@@ -124,7 +124,7 @@ addNext(steps[7],()=>{
 const ENDPOINT='https://script.google.com/macros/s/AKfycbzfk9aTPgStX7qfBBEbmUGwKqykLNH8Run9nkL2Dun3JJe9KU0sR60gKWR0wEkDl3A5/exec';
 
 function values(name){
-  return checked(name).map(x=>x.value||x.parentElement.textContent.trim());
+  return checked(name).map(x=>x.value==='on'?x.parentElement.textContent.trim():(x.value||x.parentElement.textContent.trim()));
 }
 function value(name){
   const x=checked(name)[0];
