@@ -48,7 +48,7 @@ document.getElementById('back').onclick=()=>{if(i){i--;render()}};const nb=docum
 function showResult(){
 postJourneyEvent('result_view');
 document.getElementById('form').style.display='none';document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width='100%';
-let s=[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]],total=s.reduce((x,y)=>x+y,0),qual=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),ready=a[13],belief=a[8],context=a[10];
+let s=[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]],total=s.reduce((x,y)=>x+y,0),affected=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),clear=s.map((x,j)=>x>=4?j:-1).filter(x=>x>=0),moderate=s.map((x,j)=>x===3?j:-1).filter(x=>x>=0),wholeJourney=clear.length>=3||(clear.length>=2&&moderate.length>=1),qual=wholeJourney?affected:(clear.length?clear.slice():moderate.slice());if(!wholeJourney&&qual.length>2)qual=qual.sort((x,y)=>(s[y]-s[x])||(x-y)).slice(0,2);let ready=a[13],belief=a[8],context=a[10];
 const outcome=[
  'get your peace back',
  'trust yourself and your decisions again',
