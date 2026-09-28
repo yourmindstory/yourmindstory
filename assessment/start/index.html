@@ -118,19 +118,19 @@ if(qual.length===0){
  '<p>And somewhere in all of that, you can start questioning yourself too. What you saw. What you felt. What you decided. Whether you are asking for too much.</p>'+
  '<p>Meanwhile, the rest of your life is still there. Your sleep. Your work. Your relationships. Your plans. The things you wanted to do before your attention went back to him again.</p>'+
  '<p><strong>And this is where things need to change. Not in how much more you can understand about him, but in what this experience is still doing to you.</strong></p>';
- bridge=mechanism;
- recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Work through all four stages</h2>'+
- '<p><strong>Quiet the Alarm.</strong> '+stageCopy[0].story+' '+stageCopy[0].work+'</p>'+
- '<p><strong>Break the Pull.</strong> '+stageCopy[1].story+' '+stageCopy[1].work+'</p>'+
- '<p><strong>Restore Self-Trust.</strong> '+stageCopy[2].story+' '+stageCopy[2].work+'</p>'+
- '<p><strong>Return to Yourself.</strong> '+stageCopy[3].story+' '+stageCopy[3].work+'</p>'+progress;
+ bridge='<div class="bridge"><h2>Why knowing hasn\'t been enough</h2><p>You might understand the avoidant pattern. But understanding the pattern and being able to respond differently when that feeling comes over you are not necessarily the same thing.</p><p><strong>That is the part we need to work on.</strong></p></div>';
+ recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Return to Yourself</h2>'+
+ '<p>Your results show that this is affecting you across several parts of the cycle, rather than in one isolated area.</p>'+
+ '<p>That is why I\'m recommending the complete four-stage process:</p>'+
+ '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>'+
+ '<p>Rather than asking you to choose one part to work on, you can work through the whole pattern in order.</p>';
  if(ready===3){
    recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Return to Yourself Bootcamp</h2><p>Your answers show that this isn\'t affecting you in just one area.</p><p>It\'s affecting how you respond when you\'re triggered, what happens when the pull comes, how much you trust yourself and how much of your own life is getting pushed into the background.</p><p>But there was something else in your answers that mattered.</p><p><strong>You said that understanding what is happening isn\'t enough anymore. You\'re ready for a structured process and willing to participate consistently.</strong></p><p>That\'s why I\'m recommending <strong>Return to Yourself Bootcamp</strong>.</p><p>Rather than asking you to work out which part to tackle by yourself, we\'re going to work through all four stages together, in order:</p><p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>'+progress;
    route='<p>The Bootcamp takes you through the same four-stage process as Return to Yourself, but with more support around you while you do the work.</p>';
    cta='<p><a class="next" href="https://payhip.com/b/ZhPkp" data-rec-product="Return to Yourself Bootcamp" data-rec-route="Bootcamp">SEE WHY I\'VE RECOMMENDED THE BOOTCAMP</a></p><p><a class="next" href="/assessment/return-to-yourself/" data-rec-product="Return to Yourself" data-rec-route="Complete Self-Guided">OR WORK THROUGH RETURN TO YOURSELF IN YOUR OWN TIME</a></p>';
  }else{
-   route='<p>You can work through the four stages independently, in your own time, with the guided hypnotherapy audios and progress check-ins.</p>';
-   cta='<p><a class="next" href="/assessment/return-to-yourself/" data-rec-product="Complete Self-Guided Journey" data-rec-route="Complete Self-Guided">WORK THROUGH IT SELF-GUIDED</a></p>';
+   route='';
+   cta='<p><a class="next" href="/assessment/return-to-yourself/" data-rec-product="Return to Yourself" data-rec-route="Complete Self-Guided">SEE WHY I\'VE RECOMMENDED RETURN TO YOURSELF</a></p>';
  }
 }
 let el=document.getElementById('result');el.classList.add('active');
@@ -139,13 +139,7 @@ panels.push('<div class="eyebrow">Your personalised assessment</div>'+recognitio
 if(bridge)panels.push(bridge);
 if(qual.length>0)panels.push('<div class="result-desire"><div class="eyebrow">What you want to change</div><h2>You already know what you want from all of this.</h2><p>You told me you want to <strong>'+outcome+'</strong>.</p><p>That is what the guided hypnotherapy audios are designed to help you move towards.</p></div>');
 if(qual.length>0){
- let focus=qual.reduce((best,j)=>s[j]>s[best]?j:best,qual[0]),take=[
- '<p>The next time something about him hits you, notice how quickly your body and emotions react before you have had time to think about what is happening.</p><p>You do not need to fix it in that moment. Just notice the difference between <strong>what happened</strong> and <strong>what your system did next</strong>.</p><p>That distinction is important. Because understanding the situation and changing your response to it are two different things.</p>',
- '<p>The next time you feel the urge to check, message, search, replay or look for another answer, notice what happened immediately before the urge.</p><p>Do not try to stop yourself perfectly. Just ask: <strong>what am I hoping doing this will change about how I feel right now?</strong></p><p>That gives you something much more useful to work with than simply telling yourself you should not check.</p>',
- '<p>The next time you find yourself questioning a decision you genuinely meant, notice <strong>what changed</strong>.</p><p>Did you receive a message? Miss him? Remember something good? Start hoping? Feel guilty?</p><p>Before you reconsider the decision, notice whether <strong>the facts changed, or the feeling changed</strong>.</p><p>Those are not always the same thing.</p>',
- '<p>The next time you realise your mind has gone back to him, notice what <strong>your own life was asking for before your attention moved away from it</strong>.</p><p>Your work. Your rest. Your plans. Something you were enjoying. Something you needed.</p><p>You do not have to force yourself not to think about him. Start by noticing <strong>what keeps losing your attention when you do</strong>.</p>'
- ][focus];
- panels.push('<div class="result-desire"><div class="eyebrow">One thing I want you to take from this</div><h2>Before you see what I recommend, there is one thing I want you to take from your result.</h2>'+take+'<div class="bridge"><p><strong>You told me you want to '+outcome+'.</strong></p><p>So the question now isn\'t whether you understand what\'s happening.</p><p><strong>It\'s what needs to change for you to actually get there.</strong></p></div></div>');
+ // The result now moves directly from personalised recognition and desired outcome to the recommendation.
 }
 recommendation='<div class="eyebrow" style="color:#c4aa6b">Based on your answers</div><h2>Here\'s what I recommend you work on next.</h2>'+recommendation;
 if(qual.length>=3){
