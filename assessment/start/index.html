@@ -137,11 +137,11 @@ let el=document.getElementById('result');el.classList.add('active');
 let panels=[];
 panels.push('<div class="eyebrow">Your personalised assessment</div>'+recognition);
 if(bridge)panels.push(bridge);
-if(qual.length>0)panels.push('<div class="result-desire"><div class="eyebrow">What you want to change</div><h2>You already know what you want from all of this.</h2><p>You told me you want to <strong>'+outcome+'</strong>.</p><p>That is what the guided hypnotherapy audios are designed to help you move towards.</p></div>');
+if(qual.length>0)panels.push('<div class="result-desire"><div class="eyebrow">What you want to change</div><h2>You already know what you want from all of this.</h2><p>You told me you want to <strong>'+outcome+'</strong>.</p><p>That is what the guided Cognitive Behavioral Hypnotherapy audio sessions are designed to help you move towards.</p></div>');
 if(qual.length>0){
  // The result now moves directly from personalised recognition and desired outcome to the recommendation.
 }
-recommendation='<div class="eyebrow" style="color:#c4aa6b">Based on your answers</div><h2>Here\'s what I recommend you work on next.</h2>'+recommendation;
+recommendation='<div class="eyebrow" style="color:#c4aa6b">Based on your answers</div>'+recommendation;
 if(qual.length>=3){
  if(ready===3){
    let cut=recommendation.indexOf(progress),head=cut>=0?recommendation.slice(0,cut)+progress:recommendation;
