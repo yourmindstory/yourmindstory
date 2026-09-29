@@ -4,7 +4,7 @@
    0 qualifying -> Bare Minimum
    1 qualifying -> exact single audio
    2 qualifying -> exact two-stage pathway
-   3-4 qualifying -> Complete Self-Guided Journey
+   3-4 qualifying -> Return to Yourself
    3-4 qualifying + total >= 15 -> readiness gate before Bootcamp is offered
 */
 (function (global) {
@@ -75,7 +75,7 @@
   };
 
   var SELF_GUIDED = {
-    name: "Complete Self-Guided Journey",
+    name: "Return to Yourself",
     url: "https://stan.store/Yourmindstory/p/complete-selfguided-journey"
   };
   var BARE_MINIMUM = "https://stan.store/YourMindStory/p/the-bare-minimum";
@@ -571,7 +571,7 @@
 
     container.innerHTML =
       '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede">I recommend the Complete Self-Guided Journey.</p>' +
+      '<p class="result-lede">I recommend the Return to Yourself.</p>' +
       '<p>Something happens and your body reacts. Then you’re checking, replaying or looking for an answer. You start questioning what you already know. And while your mind is caught up in all of that, <strong>your own life gets less of you.</strong></p>' +
       '<p><strong>Does this sound like you?</strong></p>' +
       '<p>You might feel some parts more strongly than others. But they don’t always stay separate.</p>' +
@@ -580,7 +580,7 @@
       '<p>You don’t need another explanation of avoidant attachment.</p>' +
       '<p><strong>You need to start working on what this pattern is doing to you.</strong></p>' +
       '<div class="divider"></div>' +
-      '<p class="result-lede">That’s what the Complete Self-Guided Journey is for.</p>' +
+      '<p class="result-lede">That’s what the Return to Yourself is for.</p>' +
       '<p>You work through four stages, <strong>one at a time</strong>:</p>' +
       '<p><strong>Quiet the Alarm</strong><br>Work on the thoughts and emotional responses underneath the anxiety and alarm.</p>' +
       '<p><strong>Break the Pull</strong><br>Work on what keeps pulling you into checking, replaying, reaching out or looking for another answer.</p>' +
@@ -600,14 +600,14 @@
       '<p><strong>Understanding the cycle is not the same as breaking it.</strong></p>' +
       '<p>Nothing changes if nothing changes.</p>' +
       '<p><strong>Are you ready to start feeling like yourself again?</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START MY SELF-GUIDED JOURNEY - £117</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START RETURN TO YOURSELF - £117</a></div>' +
       downsellHtml(false);
 
-    logRoute("Complete Self-Guided", "Complete Self-Guided Journey");
+    logRoute("Return to Yourself", "Return to Yourself");
     var cta = container.querySelector("[data-yms-self-guided]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
-      recordJourney("primary_cta_click", { cta: "Complete Self-Guided Journey - £117" });
+      recordJourney("primary_cta_click", { cta: "Return to Yourself - £117" });
     });
     wireDownsell(container, reasonText ? "self_guided_private" : "self_guided_" + stages.length);
     return true;
@@ -721,7 +721,7 @@
       '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN THE BOOTCAMP - £297</a></div>' +
       '<div style="margin-top:42px;padding-top:22px;border-top:1px solid rgba(36,61,46,.12);font-size:.94em;opacity:.9;">' +
         '<p style="margin-bottom:8px;"><strong>Prefer to work privately?</strong></p>' +
-        '<p style="margin-top:0;">The <strong>Complete Self-Guided Journey</strong> gives you the same four-stage structure without the group support or live integration calls.</p>' +
+        '<p style="margin-top:0;">The <strong>Return to Yourself</strong> gives you the same four-stage structure without the group support or live integration calls.</p>' +
         '<p style="margin-bottom:0;"><a data-yms-self-alt href="' + SELF_GUIDED.url + '">See the self-guided option - £117</a></p>' +
       '</div>';
 
