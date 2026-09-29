@@ -150,7 +150,7 @@
 const V3_BACKEND='https://script.google.com/macros/s/AKfycbzDtA92i-aQeyeuamBdA4LbxGUruh55qxSOk_nwLncBM3stllbZoaipxNzKb9xyTveLdA/exec';
 function identity(){try{return JSON.parse(sessionStorage.getItem('yms_v3_last_submission')||'{}')}catch(e){return{}}}
 function postEvent(eventType,values){const id=identity();if(!id.submissionId&&!id.resultToken)return;try{fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'recordJourneyEvent',eventType,submissionId:id.submissionId||'',journeyId:id.journeyId||'',resultToken:id.resultToken||'',values:values||{}}),keepalive:true}).catch(()=>{})}catch(e){}}
-postEvent('sales_page_view',{product:'Return to Yourself',route:'Complete Self-Guided'});
-document.getElementById('buy').addEventListener('click',function(){postEvent('checkout_click',{product:'Return to Yourself',route:'Complete Self-Guided',cta:'START RETURN TO YOURSELF',destination:'stan.store'})});
+postEvent('sales_page_view',{product:'Return to Yourself',route:'Return to Yourself'});
+document.getElementById('buy').addEventListener('click',function(){postEvent('checkout_click',{product:'Return to Yourself',route:'Return to Yourself',cta:'START RETURN TO YOURSELF',destination:'stan.store'})});
 </script>
 </body></html>
