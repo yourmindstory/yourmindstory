@@ -42,7 +42,7 @@ let introIndex=0;
 function showIntro(){
  document.getElementById('intro').style.display='block';document.getElementById('form').style.display='none';
  const steps=[...document.querySelectorAll('.intro-step')],back=document.getElementById('introBack'),next=document.getElementById('introNext');
- function paint(){steps.forEach((x,n)=>x.classList.toggle('active',n===introIndex));document.getElementById('count').textContent='INTRO · '+(introIndex+1)+' / 4';document.getElementById('fill').style.width=((introIndex+1)/4*100)+'%';back.style.visibility=introIndex?'visible':'hidden';next.textContent=introIndex===3?'SHOW ME WHERE I AM':'CONTINUE';window.scrollTo({top:0,behavior:'smooth'});track('assessment_intro_view',{intro_step:introIndex+1,total_intro_steps:4})}
+ function paint(){steps.forEach((x,n)=>x.classList.toggle('active',n===introIndex));document.getElementById('count').textContent='';document.getElementById('fill').style.width=((introIndex+1)/4*100)+'%';back.style.visibility=introIndex?'visible':'hidden';next.textContent=introIndex===3?'SHOW ME WHERE I AM':'CONTINUE';window.scrollTo({top:0,behavior:'smooth'});track('assessment_intro_view',{intro_step:introIndex+1,total_intro_steps:4})}
  back.onclick=()=>{if(introIndex>0){introIndex--;paint()}};
  next.onclick=()=>{if(introIndex<3){introIndex++;paint()}else{track('assessment_intro_complete');document.getElementById('intro').style.display='none';document.getElementById('form').style.display='block';track('assessment_start');i=0;render()}};
  paint();
