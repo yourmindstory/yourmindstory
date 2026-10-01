@@ -241,8 +241,11 @@
         '<p>Quiet the Alarm is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work on that automatic alarm response.</p>' +
         '<p>So thinking about him doesn’t have to mean losing the next few hours of your day to panic, anxiety or overthinking.</p>',
       "Break the Pull":
-        '<p>Break the Pull is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work on that automatic pull underneath the checking, replaying, analysing and reaching out.</p>' +
-        '<p>Because at some point, knowing better needs to become <strong>doing differently</strong>.</p>',
+        '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
+        '<p>You don’t need another explanation of why you shouldn’t check, replay or reach out. You already know.</p>' +
+        '<p><strong>Break the Pull</strong> is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work with what happens when the urge actually arrives, so you can practise noticing the pull without automatically following it.</p>' +
+        '<p><strong>21-day audio session + Progress Reviews</strong></p>' +
+        '<p><strong>£37 until 4 October · £49 after</strong></p>',
       "Restore Self-Trust":
         '<p>Restore Self-Trust is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work on the beliefs and automatic responses underneath all that second-guessing.</p>' +
         '<p>The work here is <strong>you trusting you again</strong>.</p>',
