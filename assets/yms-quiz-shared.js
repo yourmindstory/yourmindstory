@@ -66,18 +66,6 @@
   function track(eventName, params) {
     if (!analyticsAllowed()) return;
     params = params || {};
-    // Campaign metadata only; never include names, email addresses, answers, or free text.
-    try {
-      var attribution = getAttribution();
-      if (attribution.utm_source && !params.utm_source) params.utm_source = attribution.utm_source;
-      if (attribution.utm_medium && !params.utm_medium) params.utm_medium = attribution.utm_medium;
-      if (attribution.utm_campaign && !params.utm_campaign) params.utm_campaign = attribution.utm_campaign;
-      if (attribution.utm_id && !params.utm_id) params.utm_id = attribution.utm_id;
-      if (attribution.utm_content && !params.content_id) params.content_id = attribution.utm_content;
-      if (attribution.referrer) {
-        try { params.referrer_host = new URL(attribution.referrer).hostname; } catch (e) {}
-      }
-    } catch (e) {}
     try { global.gtag('event', eventName, params); } catch (e) {}
     try { if (global.clarity) global.clarity('event', eventName); } catch (e) {}
   }
