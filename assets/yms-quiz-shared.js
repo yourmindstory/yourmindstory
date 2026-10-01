@@ -17,48 +17,57 @@
   var META_PIXEL_ID = "1255763909834805";
   var CLARITY_ID = "xl81ev553e";
 
-  // ---------------- GA4 ----------------
+  // ---------------- consent-aware analytics ----------------
   global.dataLayer = global.dataLayer || [];
-  function gtag() { global.dataLayer.push(arguments); }
-  global.gtag = global.gtag || gtag;
-  (function () {
-    var s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA4_ID;
-    document.head.appendChild(s);
-  })();
-  gtag('js', new Date());
-  gtag('config', GA4_ID);
-
-  // ---------------- Meta Pixel ----------------
-  var advertisingConsent = false;
-  try { advertisingConsent = global.localStorage.getItem('yms_ads_consent') === 'yes'; } catch (e) {}
-  if (advertisingConsent) {
-  (function (f, b, e, v, n, t, s) {
-    if (f.fbq) return; n = f.fbq = function () {
-      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-    };
-    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = true; n.version = '2.0';
-    n.queue = []; t = b.createElement(e); t.async = true;
-    t.src = v; s = b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t, s);
-  })(global, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-  global.fbq('init', META_PIXEL_ID);
-  global.fbq('track', 'PageView');
+  function analyticsAllowed() {
+    try { return global.localStorage.getItem('yms_analytics_consent') === 'yes'; } catch (e) { return false; }
   }
-
-  // ---------------- Microsoft Clarity ----------------
-  (function (c, l, a, r, i, t, y) {
-    c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
-    t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
-    y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-  })(global, document, "clarity", "script", CLARITY_ID);
-
-  // ---------------- unified non-PII event helper ----------------
-  // params must never contain name, email, answer text, or open response.
+  function advertisingAllowed() {
+    try { return global.localStorage.getItem('yms_ads_consent') === 'yes'; } catch (e) { return false; }
+  }
+  function gtag() {
+    if (arguments[0] === 'event' && !analyticsAllowed()) return;
+    global.dataLayer.push(arguments);
+  }
+  global.gtag = gtag;
+  function loadTagScript(id, src) {
+    if (document.querySelector('script[data-yms-tag="' + id + '"]')) return;
+    var s = document.createElement('script');
+    s.async = true; s.src = src; s.setAttribute('data-yms-tag', id);
+    document.head.appendChild(s);
+  }
+  function ensureAnalyticsTags() {
+    if (!analyticsAllowed()) return false;
+    loadTagScript('ga4', 'https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD');
+    gtag('js', new Date());
+    gtag('config', 'G-0MFXQ5ETCD');
+    if (!global.__ymsClarityLoaded) {
+      global.__ymsClarityLoaded = true;
+      (function (c, l, a, r, i, t, y) {
+        c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+        t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+        y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+      })(global, document, "clarity", "script", "xl81ev553e");
+    }
+    if (advertisingAllowed() && !global.__ymsMetaLoaded) {
+      global.__ymsMetaLoaded = true;
+      (function (f, b, e, v, n, t, s) {
+        if (f.fbq) return; n = f.fbq = function () {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n; n.push = n; n.loaded = true; n.version = '2.0';
+        n.queue = []; t = b.createElement(e); t.async = true;
+        t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+      })(global, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      global.fbq('init', '1255763909834805');
+      global.fbq('track', 'PageView');
+    }
+    return true;
+  }
   function track(eventName, params) {
+    if (!analyticsAllowed()) return;
     params = params || {};
-    // Carry only campaign metadata, never answers, names, emails, or free text.
+    // Campaign metadata only; never include names, email addresses, answers, or free text.
     try {
       var attribution = getAttribution();
       if (attribution.utm_source && !params.utm_source) params.utm_source = attribution.utm_source;
@@ -707,6 +716,7 @@
 
   global.YMSQuiz = {
     track: track,
+    enableAnalytics: ensureAnalyticsTags,
     recordJourneyEvent: recordJourneyEvent,
     captureAttribution: captureAttribution,
     getAttribution: getAttribution,
@@ -719,4 +729,5 @@
     mountOGBootcampBridge: mountOGBootcampBridge,
     mountRecommendationV1: mountRecommendationV1
   };
+  ensureAnalyticsTags();
 })(window);
