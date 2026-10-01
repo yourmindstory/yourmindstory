@@ -17,7 +17,7 @@
   window.YMSTracking.track=track;
   function loadAnalytics(){
     if(read(analyticsKey)!=='yes')return;
-    if(window.YMSQuiz){try{window.YMSQuiz.captureAttribution()}catch(e){};flush();return}
+    if(window.YMSQuiz){try{if(window.YMSQuiz.enableAnalytics)window.YMSQuiz.enableAnalytics();if(window.YMSQuiz.captureAttribution)window.YMSQuiz.captureAttribution()}catch(e){};flush();return}
     if(document.querySelector('script[data-yms-analytics]'))return;
     var s=document.createElement('script');s.src='/assets/yms-quiz-shared.js?v=20261001-tracking';s.async=true;s.dataset.ymsAnalytics='yes';
     s.onload=function(){try{if(window.YMSQuiz)window.YMSQuiz.captureAttribution()}catch(e){};flush();};
@@ -25,6 +25,9 @@
   }
   var choice=read(analyticsKey);
   if(choice==='yes')loadAnalytics();
+  else if(choice==='no')window.__ymsPendingEvents=[];
+  if(location.pathname==='/bootcamp.html'||location.pathname==='/assessment/return-to-yourself/'||location.pathname==='/assessment/return-to-yourself')track('offer_page_view',{offer_type:location.pathname.indexOf('bootcamp')>=0?'bootcamp':'complete_self_guided_journey',page_path:location.pathname});
+  if(/^\\/assessment\\/start\\/?$/.test(location.pathname))track('assessment_engine_view',{assessment_version:'YMS-ASSESSMENT-2026-V3',page_path:location.pathname});
   function assessmentLinks(){
     return Array.from(document.querySelectorAll('a[href]')).filter(function(a){
       try{var u=new URL(a.href,location.href);return u.origin===location.origin&&(/^\/assessment\/?$/.test(u.pathname)||/^\/assessment\/start\/?$/.test(u.pathname)||/quiz\.html$/.test(u.pathname))}catch(e){return false}
@@ -50,9 +53,10 @@
     if(!isOffer||read(analyticsKey)!=='yes')return;
     var product=a.getAttribute('data-rec-product')||a.getAttribute('data-product')||a.getAttribute('aria-label')||(a.innerText||'').trim().replace(/\s+/g,' ').slice(0,80);
     var route=a.getAttribute('data-rec-route')||'';
-    var params={destination_host:host,destination_path:url.pathname,product:product,route:route,page_path:location.pathname,cta_id:a.id||a.getAttribute('data-cta-id')||''};
+    var params={destination_host:host,destination_path:url.pathname,product:product,route:route,page_path:location.pathname,cta_id:a.id||a.getAttribute('data-cta-id')||'',transport_type:'beacon'};
     params.transport_type='beacon';track('offer_cta_click',params);
     var attr=window.YMSQuiz&&window.YMSQuiz.getAttribution?window.YMSQuiz.getAttribution():null;
+    if(!attr){try{attr={};['utm_source','utm_medium','utm_campaign','utm_id','utm_term','utm_content'].forEach(function(k){attr[k]=sessionStorage.getItem('yms_quiz_'+k)||''})}catch(e){}}
     if(attr){
       ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function(k){if(attr[k]&&!url.searchParams.has(k))url.searchParams.set(k,attr[k])});
       a.href=url.toString();
@@ -65,7 +69,7 @@
     var style=document.createElement('style');style.textContent='#yms-consent-banner{position:fixed;z-index:99999;left:12px;right:12px;bottom:12px;max-width:760px;margin:auto;padding:15px 16px;background:#fff;color:#111827;border:1px solid #d6d9d4;box-shadow:0 8px 30px rgba(17,24,39,.17);font:14px/1.45 "DM Sans",Arial,sans-serif;display:flex;gap:18px;align-items:center;justify-content:space-between}#yms-consent-banner[hidden]{display:none}.yms-consent-copy{max-width:440px}.yms-consent-copy p{margin:5px 0 0;font-size:12px}.yms-consent-copy a{color:#111827}.yms-consent-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.yms-consent-actions button,.yms-consent-settings{font:600 11px "DM Sans",Arial,sans-serif;padding:9px 10px;border:1px solid #111827;background:#fff;color:#111827;cursor:pointer}.yms-consent-actions button[data-choice="analytics"]{background:#111827;color:#fff}#yms-consent-settings{position:fixed;z-index:99998;right:12px;bottom:12px;font:11px "DM Sans",Arial,sans-serif;background:#fff;color:#343b34;border:1px solid #d6d9d4;padding:6px 9px;cursor:pointer}@media(max-width:640px){#yms-consent-banner{display:block;padding:12px}.yms-consent-actions{justify-content:flex-start;margin-top:10px}.yms-consent-actions button{flex:1 1 30%;padding:8px 5px;font-size:10px}#yms-consent-settings{bottom:8px;right:8px}}';
     document.head.appendChild(style);document.body.appendChild(banner);
     banner.querySelectorAll('button[data-choice]').forEach(function(button){button.addEventListener('click',function(){
-      var c=button.getAttribute('data-choice'),oldA=read(analyticsKey),oldD=read(adsKey);write(analyticsKey,c==='reject'?'no':'yes');write(adsKey,c==='all'?'yes':'no');window.__ymsPendingEvents=[];
+      var c=button.getAttribute('data-choice'),oldA=read(analyticsKey),oldD=read(adsKey);write(analyticsKey,c==='reject'?'no':'yes');write(adsKey,c==='all'?'yes':'no');window.__ymsPendingEvents=[];window.dataLayer=(window.dataLayer||[]).filter(function(x){return !x||x[0]!=='event'});
       if(c==='reject'||c==='analytics')clearFirstPartyTrackingCookies();
       banner.hidden=true;
       if(oldA!==null&&(oldA!==(c==='reject'?'no':'yes')||oldD!==(c==='all'?'yes':'no'))){location.reload();return}
