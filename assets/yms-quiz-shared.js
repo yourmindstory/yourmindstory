@@ -39,8 +39,7 @@
   function ensureAnalyticsTags() {
     if (!analyticsAllowed()) return false;
     loadTagScript('ga4', 'https://www.googletagmanager.com/gtag/js?id=G-0MFXQ5ETCD');
-    gtag('js', new Date());
-    gtag('config', 'G-0MFXQ5ETCD');
+    if (!global.__ymsGA4Configured) { global.__ymsGA4Configured = true; gtag('js', new Date()); gtag('config', 'G-0MFXQ5ETCD'); }
     if (!global.__ymsClarityLoaded) {
       global.__ymsClarityLoaded = true;
       (function (c, l, a, r, i, t, y) {
