@@ -19,6 +19,8 @@
     if(read(analyticsKey)!=='yes')return;
     if(window.YMSQuiz){try{if(window.YMSQuiz.enableAnalytics)window.YMSQuiz.enableAnalytics();if(window.YMSQuiz.captureAttribution)window.YMSQuiz.captureAttribution()}catch(e){};flush();return}
     if(document.querySelector('script[data-yms-analytics]'))return;
+    var existing=Array.from(document.scripts).find(function(x){return /yms-quiz-shared\\.js/.test(x.src)});
+    if(existing){existing.addEventListener('load',function(){try{if(window.YMSQuiz&&window.YMSQuiz.enableAnalytics)window.YMSQuiz.enableAnalytics();if(window.YMSQuiz&&window.YMSQuiz.captureAttribution)window.YMSQuiz.captureAttribution()}catch(e){};flush()},{once:true});return}
     var s=document.createElement('script');s.src='/assets/yms-quiz-shared.js?v=20261001-tracking';s.async=true;s.dataset.ymsAnalytics='yes';
     s.onload=function(){try{if(window.YMSQuiz)window.YMSQuiz.captureAttribution()}catch(e){};flush();};
     document.head.appendChild(s);
