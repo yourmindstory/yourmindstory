@@ -30,7 +30,7 @@
   if(choice==='yes')loadAnalytics();
   else if(choice==='no')window.__ymsPendingEvents=[];
   if(location.pathname==='/bootcamp.html'||location.pathname==='/assessment/return-to-yourself/'||location.pathname==='/assessment/return-to-yourself')track('offer_page_view',{offer_type:location.pathname.indexOf('bootcamp')>=0?'bootcamp':'complete_self_guided_journey',page_path:location.pathname});
-  if(/^\\/assessment\\/start\\/?$/.test(location.pathname))track('assessment_engine_view',{assessment_version:'YMS-ASSESSMENT-2026-V3',page_path:location.pathname});
+  if(location.pathname==='/assessment/start/'||location.pathname==='/assessment/start')track('assessment_engine_view',{assessment_version:'YMS-ASSESSMENT-2026-V3',page_path:location.pathname});
   function assessmentLinks(){
     return Array.from(document.querySelectorAll('a[href]')).filter(function(a){
       try{var u=new URL(a.href,location.href);return u.origin===location.origin&&(/^\/assessment\/?$/.test(u.pathname)||/^\/assessment\/start\/?$/.test(u.pathname)||/quiz\.html$/.test(u.pathname))}catch(e){return false}
