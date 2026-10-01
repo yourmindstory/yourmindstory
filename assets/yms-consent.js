@@ -19,13 +19,13 @@
     if(read(analyticsKey)!=='yes')return;
     if(window.YMSQuiz){try{if(window.YMSQuiz.enableAnalytics)window.YMSQuiz.enableAnalytics();if(window.YMSQuiz.captureAttribution)window.YMSQuiz.captureAttribution()}catch(e){};flush();return}
     if(document.querySelector('script[data-yms-analytics]'))return;
-    var existing=Array.from(document.scripts).find(function(x){return /yms-quiz-shared\\.js/.test(x.src)});
+    var existing=Array.from(document.scripts).find(function(x){return /yms-quiz-shared\.js/.test(x.src)});
     if(existing){existing.addEventListener('load',function(){try{if(window.YMSQuiz&&window.YMSQuiz.enableAnalytics)window.YMSQuiz.enableAnalytics();if(window.YMSQuiz&&window.YMSQuiz.captureAttribution)window.YMSQuiz.captureAttribution()}catch(e){};flush()},{once:true});return}
     var s=document.createElement('script');s.src='/assets/yms-quiz-shared.js?v=20261001-tracking';s.async=true;s.dataset.ymsAnalytics='yes';
     s.onload=function(){try{if(window.YMSQuiz)window.YMSQuiz.captureAttribution()}catch(e){};flush();};
     document.head.appendChild(s);
   }
-  document.addEventListener('ymsConsentAnalyticsGranted',function(){ctas.forEach(function(a){if(a.dataset.ymsCtaViewSent)return;var r=a.getBoundingClientRect();if(r.bottom>0&&r.top<global.innerHeight){var p={cta_id:a.id||a.getAttribute('data-cta-id')||'',cta_label:(a.innerText||a.getAttribute('aria-label')||'').trim().replace(/\\s+/g,' ').slice(0,80),page_path:location.pathname,destination_path:(new URL(a.href,location.href)).pathname,transport_type:'beacon'};track('assessment_cta_view',p);a.dataset.ymsCtaViewSent='1'}})});
+  document.addEventListener('ymsConsentAnalyticsGranted',function(){ctas.forEach(function(a){if(a.dataset.ymsCtaViewSent)return;var r=a.getBoundingClientRect();if(r.bottom>0&&r.top<window.innerHeight){var p={cta_id:a.id||a.getAttribute('data-cta-id')||'',cta_label:(a.innerText||a.getAttribute('aria-label')||'').trim().replace(/\\s+/g,' ').slice(0,80),page_path:location.pathname,destination_path:(new URL(a.href,location.href)).pathname,transport_type:'beacon'};track('assessment_cta_view',p);a.dataset.ymsCtaViewSent='1'}})});
   var choice=read(analyticsKey);
   if(choice==='yes')loadAnalytics();
   else if(choice==='no')window.__ymsPendingEvents=[];
@@ -73,7 +73,7 @@
     document.head.appendChild(style);document.body.appendChild(banner);
     banner.querySelectorAll('button[data-choice]').forEach(function(button){button.addEventListener('click',function(){
       var c=button.getAttribute('data-choice'),oldA=read(analyticsKey),oldD=read(adsKey);write(analyticsKey,c==='reject'?'no':'yes');write(adsKey,c==='all'?'yes':'no');window.__ymsPendingEvents=[];window.dataLayer=(window.dataLayer||[]).filter(function(x){return !x||x[0]!=='event'});
-      if(c==='reject'||c==='analytics')clearFirstPartyTrackingCookies();
+      if(c==='reject'||(c==='analytics'&&oldD==='yes'))clearFirstPartyTrackingCookies();
       banner.hidden=true;
       if(oldA!==null&&(oldA!==(c==='reject'?'no':'yes')||oldD!==(c==='all'?'yes':'no'))){location.reload();return}
       if(c!=='reject'){document.dispatchEvent(new Event('ymsConsentAnalyticsGranted'));loadAnalytics();setTimeout(function(){track('tracking_consent_updated',{analytics_consent:'yes',advertising_consent:c==='all'?'yes':'no'})},0)}
