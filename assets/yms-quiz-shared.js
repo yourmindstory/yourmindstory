@@ -31,6 +31,9 @@
   gtag('config', GA4_ID);
 
   // ---------------- Meta Pixel ----------------
+  var advertisingConsent = false;
+  try { advertisingConsent = global.localStorage.getItem('yms_ads_consent') === 'yes'; } catch (e) {}
+  if (advertisingConsent) {
   (function (f, b, e, v, n, t, s) {
     if (f.fbq) return; n = f.fbq = function () {
       n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
@@ -42,6 +45,7 @@
   })(global, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
   global.fbq('init', META_PIXEL_ID);
   global.fbq('track', 'PageView');
+  }
 
   // ---------------- Microsoft Clarity ----------------
   (function (c, l, a, r, i, t, y) {
@@ -54,6 +58,18 @@
   // params must never contain name, email, answer text, or open response.
   function track(eventName, params) {
     params = params || {};
+    // Carry only campaign metadata, never answers, names, emails, or free text.
+    try {
+      var attribution = getAttribution();
+      if (attribution.utm_source && !params.utm_source) params.utm_source = attribution.utm_source;
+      if (attribution.utm_medium && !params.utm_medium) params.utm_medium = attribution.utm_medium;
+      if (attribution.utm_campaign && !params.utm_campaign) params.utm_campaign = attribution.utm_campaign;
+      if (attribution.utm_id && !params.utm_id) params.utm_id = attribution.utm_id;
+      if (attribution.utm_content && !params.content_id) params.content_id = attribution.utm_content;
+      if (attribution.referrer) {
+        try { params.referrer_host = new URL(attribution.referrer).hostname; } catch (e) {}
+      }
+    } catch (e) {}
     try { global.gtag('event', eventName, params); } catch (e) {}
     try { if (global.clarity) global.clarity('event', eventName); } catch (e) {}
   }
@@ -101,7 +117,7 @@
   // lands there directly) and persisted via sessionStorage so it survives
   // the landing -> quiz -> submission chain even if a later page's URL
   // no longer carries the query string.
-  var ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  var ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_id', 'utm_term', 'utm_content'];
   var STORAGE_PREFIX = 'yms_quiz_';
 
   function captureAttribution() {
