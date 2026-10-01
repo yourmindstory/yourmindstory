@@ -25,6 +25,7 @@
     s.onload=function(){try{if(window.YMSQuiz)window.YMSQuiz.captureAttribution()}catch(e){};flush();};
     document.head.appendChild(s);
   }
+  document.addEventListener('ymsConsentAnalyticsGranted',function(){ctas.forEach(function(a){if(a.dataset.ymsCtaViewSent)return;var r=a.getBoundingClientRect();if(r.bottom>0&&r.top<global.innerHeight){var p={cta_id:a.id||a.getAttribute('data-cta-id')||'',cta_label:(a.innerText||a.getAttribute('aria-label')||'').trim().replace(/\\s+/g,' ').slice(0,80),page_path:location.pathname,destination_path:(new URL(a.href,location.href)).pathname,transport_type:'beacon'};track('assessment_cta_view',p);a.dataset.ymsCtaViewSent='1'}})});
   var choice=read(analyticsKey);
   if(choice==='yes')loadAnalytics();
   else if(choice==='no')window.__ymsPendingEvents=[];
@@ -43,10 +44,10 @@
     var label=(a.innerText||a.getAttribute('aria-label')||'').trim().replace(/\s+/g,' ').slice(0,80);
     var p={cta_id:id,cta_label:label,page_path:location.pathname,destination_path:(new URL(a.href,location.href)).pathname};
     if('IntersectionObserver'in window){
-      var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){track('assessment_cta_view',p);observer.disconnect()}})},{threshold:.25});
+      var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting&&read(analyticsKey)==='yes'&&!a.dataset.ymsCtaViewSent){p.transport_type='beacon';track('assessment_cta_view',p);a.dataset.ymsCtaViewSent='1';observer.disconnect()}})},{threshold:.25});
       observer.observe(a);
     }else track('assessment_cta_view',p);
-    a.addEventListener('click',function(){track('assessment_cta_click',p)});
+    a.addEventListener('click',function(){p.transport_type='beacon';track('assessment_cta_click',p)});
   });
   document.addEventListener('click',function(e){
     var a=e.target&&e.target.closest?e.target.closest('a[href]'):null;if(!a)return;
@@ -75,7 +76,7 @@
       if(c==='reject'||c==='analytics')clearFirstPartyTrackingCookies();
       banner.hidden=true;
       if(oldA!==null&&(oldA!==(c==='reject'?'no':'yes')||oldD!==(c==='all'?'yes':'no'))){location.reload();return}
-      if(c!=='reject'){loadAnalytics();setTimeout(function(){track('tracking_consent_updated',{analytics_consent:'yes',advertising_consent:c==='all'?'yes':'no'})},0)}
+      if(c!=='reject'){document.dispatchEvent(new Event('ymsConsentAnalyticsGranted'));loadAnalytics();setTimeout(function(){track('tracking_consent_updated',{analytics_consent:'yes',advertising_consent:c==='all'?'yes':'no'})},0)}
     })});
     return banner;
   }
