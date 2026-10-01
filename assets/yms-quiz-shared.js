@@ -89,6 +89,7 @@
   var JOURNEY_BACKEND_URL = "https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec";
 
   function recordJourneyEvent(eventType, values) {
+    if (!analyticsAllowed()) return false;
     var data = getResultData ? (getResultData() || {}) : {};
     var resultToken = data && data.resultToken ? String(data.resultToken).trim() : "";
     if (!resultToken || !eventType) return false;
@@ -129,6 +130,7 @@
   var STORAGE_PREFIX = 'yms_quiz_';
 
   function captureAttribution() {
+    if (!analyticsAllowed()) return { landingUrl: '', referrer: '' };
     var params = new URLSearchParams(window.location.search);
     var hasAnyUtm = ATTRIBUTION_KEYS.some(function (k) { return params.get(k); });
 
