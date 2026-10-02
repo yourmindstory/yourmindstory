@@ -721,6 +721,11 @@
       '<p><strong>Does this sound like what you need?</strong></p>' +
       '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start.</p>' +
       '<p><strong>You can still love somebody and stop losing yourself in what they do, or what they did.</strong></p>' +
+      '<p class="result-lede"><strong>And if part of you thinks you should be able to do this by yourself, I want you to know something.</strong></p>' +
+      '<p>You are doing it yourself.</p>' +
+      '<p>You’re the one making the decisions, choosing not to send the message, creating distance, redirecting your attention and deciding what happens next.</p>' +
+      '<p>The hypnotherapy isn’t there to do that for you. <strong>It’s there to support the changes you’re already trying to make</strong>, by helping you practise different responses rather than relying on conscious effort alone when the old automatic response kicks in.</p>' +
+      '<p><strong>You’re still doing the work. You’re just giving yourself more support to make the changes you’re already trying to make.</strong></p>' +
       '<p class="result-lede"><strong>Bootcamp</strong></p>' +
       '<p><strong>12 weeks · Starts Sunday 4 October 2026</strong></p>' +
       '<p><strong>£297 or 3 monthly payments of £105</strong></p>' +
