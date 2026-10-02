@@ -580,14 +580,14 @@
 
     container.innerHTML =
       '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede">I recommend the Return to Yourself.</p>' +
-      '<p>Something happens and your body reacts. Then you’re checking, replaying or looking for an answer. You start questioning what you already know. And while your mind is caught up in all of that, <strong>your own life gets less of you.</strong></p>' +
-      '<p><strong>Does this sound like you?</strong></p>' +
-      '<p>You might feel some parts more strongly than others. But they don’t always stay separate.</p>' +
-      '<p><strong>One can keep pulling you back into another.</strong></p>' +
-      '<p>And that’s why knowing what’s happening hasn’t necessarily been enough to change it.</p>' +
-      '<p>You don’t need another explanation of avoidant attachment.</p>' +
-      '<p><strong>You need to start working on what this pattern is doing to you.</strong></p>' +
+      '<p class="result-lede">I recommend Return to Yourself.</p>' +
+      '<p><strong>You told me you want to feel like yourself again and be able to move forward, whether he’s in your life or not.</strong></p>' +
+      '<p>Your answers show me why I wouldn’t start you with just one part of this.</p>' +
+      '<p>This is showing up across more than one area: how strongly you react, what your mind gets pulled back into, how much you question yourself and how much of <strong>you</strong> this situation is taking with it.</p>' +
+      '<p><strong>That’s why I’m recommending the complete Return to Yourself journey.</strong></p>' +
+      '<p>You may already understand the pattern. You may already know you shouldn’t check, replay, analyse, go back on a boundary or let your whole day disappear into what he does next.</p>' +
+      '<p>But knowing what’s happening and being able to respond differently <strong>when you’re actually in it</strong> are two different things.</p>' +
+      '<p><strong>That’s the part this work is for.</strong></p>' +
       '<div class="divider"></div>' +
       '<p class="result-lede">That’s what the Return to Yourself is for.</p>' +
       '<p>You work through four stages, <strong>one at a time</strong>:</p>' +
