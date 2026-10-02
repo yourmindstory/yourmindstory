@@ -695,6 +695,14 @@
       '<p>Don’t check. Don’t reach out. Stop analysing. Stop going back. Focus on yourself.</p>' +
       '<p>But knowing what you should do and being able to do it <strong>when you’re actually in the feeling</strong> are two different things.</p>' +
       '<p><strong>That’s the part we’re going to work on.</strong></p>' +
+      '<p class="result-lede"><strong>And if part of you is thinking, “I should be able to do this by myself”...</strong></p>' +
+      '<p>You are doing it yourself.</p>' +
+      '<p>You’re still the one making the decisions, creating the distance, not sending the message, redirecting your attention and choosing what you do next.</p>' +
+      '<p>The hypnotherapy doesn’t do that instead of you. It’s designed to <strong>support the changes you’re already trying to make</strong>, so you’re not relying on conscious effort alone while the same automatic responses keep pulling you back.</p>' +
+      '<p>Through repetition and practice, we work on strengthening different responses at a more automatic level, so what you consciously want to do has more support underneath it.</p>' +
+      '<p><strong>You’re still doing the work. You’re giving yourself more support to make the changes you’re already trying to make.</strong></p>' +
+      '<p>And if you’ve already spent months trying to think, reason or willpower your way out of the same cycle, the question isn’t whether you <em>should</em> be able to do it alone.</p>' +
+      '<p><strong>It’s whether you want the next 12 weeks to be spent fighting the same responses in the same way, or practising a different response with support.</strong></p>' +
       '<p class="result-lede">For 12 weeks, we’ll work through four stages.</p>' +
       '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
       '<p>And the work is deliberately simple.</p>' +
