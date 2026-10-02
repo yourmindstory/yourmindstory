@@ -264,6 +264,9 @@
       '<div class="divider"></div>' +
       '<p class="result-lede" style="margin-top:0;">I recommend ' + Y.escapeText(stage) + '.</p>' +
       productCopy +
+      '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
+      '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone.</p>' +
+      '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' - £37</a></div>' +
       downsellHtml(true);
 
@@ -427,6 +430,9 @@
       '<p>Work with it for 21 days and complete your check-ins.</p>' +
       '<p>Then move on to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
       '<p><strong>One stage at a time.</strong></p>') +
+      '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
+      '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone.</p>' +
+      '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
       '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">GET MY 2 SESSIONS NOW - £74</a></div>' +
       downsellHtml(false);
 
@@ -588,6 +594,9 @@
       '<p>You may already understand the pattern. You may already know you shouldn’t check, replay, analyse, go back on a boundary or let your whole day disappear into what he does next.</p>' +
       '<p>But knowing what’s happening and being able to respond differently <strong>when you’re actually in it</strong> are two different things.</p>' +
       '<p><strong>That’s the part this work is for.</strong></p>' +
+      '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
+      '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone.</p>' +
+      '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
       '<div class="divider"></div>' +
       '<p class="result-lede">That’s what the Return to Yourself is for.</p>' +
       '<p>You work through four stages, <strong>one at a time</strong>:</p>' +
@@ -721,11 +730,9 @@
       '<p><strong>Does this sound like what you need?</strong></p>' +
       '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start.</p>' +
       '<p><strong>You can still love somebody and stop losing yourself in what they do, or what they did.</strong></p>' +
-      '<p class="result-lede"><strong>And if part of you thinks you should be able to do this by yourself, I want you to know something.</strong></p>' +
-      '<p>You are doing it yourself.</p>' +
-      '<p>You’re the one making the decisions, choosing not to send the message, creating distance, redirecting your attention and deciding what happens next.</p>' +
-      '<p>The hypnotherapy isn’t there to do that for you. <strong>It’s there to support the changes you’re already trying to make</strong>, by helping you practise different responses rather than relying on conscious effort alone when the old automatic response kicks in.</p>' +
-      '<p><strong>You’re still doing the work. You’re just giving yourself more support to make the changes you’re already trying to make.</strong></p>' +
+      '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
+      '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone.</p>' +
+      '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
       '<p class="result-lede"><strong>Bootcamp</strong></p>' +
       '<p><strong>12 weeks · Starts Sunday 4 October 2026</strong></p>' +
       '<p><strong>£297 or 3 monthly payments of £105</strong></p>' +
