@@ -247,8 +247,14 @@
         '<p><strong>21-day audio session + Progress Reviews</strong></p>' +
         '<p><strong>£37 until 4 October · £49 after</strong></p>',
       "Restore Self-Trust":
-        '<p>Restore Self-Trust is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work on the beliefs and automatic responses underneath all that second-guessing.</p>' +
-        '<p>The work here is <strong>you trusting you again</strong>.</p>',
+        '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
+        '<p>You told me you want to feel like yourself again and move forward, whether he’s in your life or not.</p>' +
+        '<p>Your answers show me that one of the things making that harder is what happens to <strong>your own judgement</strong> once this relationship gets activated. You can make a decision or set a boundary and genuinely mean it, then find yourself second-guessing it or going back on it.</p>' +
+        '<p><strong>That’s why I’d start with Restore Self-Trust.</strong></p>' +
+        '<p>If you’ve already tried understanding the pattern, reasoning with yourself, journalling, distancing yourself or managing it alone, the problem may not be that you need another explanation.</p>' +
+        '<p><strong>Restore Self-Trust</strong> is my guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio designed to work on the beliefs and automatic responses underneath that second-guessing, so the work becomes <strong>you trusting you again</strong>.</p>' +
+        '<p><strong>21-day audio session + Progress Reviews</strong></p>' +
+        '<p><strong>£37 until 4 October · £49 after</strong></p>',
       "Return to Yourself":
         '<p>Return to Yourself is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to help bring your attention, energy and sense of self back to you.</p>' +
         '<p>So your plans, your time and your life start becoming about <strong>you</strong> again.</p>'
