@@ -64,13 +64,13 @@ const stageCopy=[
  {name:'Quiet the Alarm',story:'You can feel grief-stricken. Choked up. Like you cannot breathe properly. The racing thoughts, the anxiety, or that horrible feeling when something he does, does not do, or even a thought about him knocks you completely off-centre.',work:'The outcome is not to never react. It is being able to settle again without losing hours to it or having it destroy the rest of your day.'},
  {name:'Break the Pull',story:'You know you do not need to check again. But then the impulse comes. Check the phone. Read the messages again. Look at his social media. Watch another video about avoidants. Ask ChatGPT another question. Reach out. Look for something that might make the uncertainty go away. You might even be watching yourself do it while another part of you is thinking, why am I doing this again?',work:'The outcome is not simply to stop checking your phone. It is getting to the point where the impulse does not control what you do before you have even had a chance to think. So you can feel the impulse without automatically having to follow it.'},
  {name:'Restore Self-Trust',story:'You can make a decision you genuinely mean, then miss him, hear from him, remember the good parts or start hoping something might change and find yourself questioning it all over again. Maybe I was too harsh. Maybe I expected too much. Maybe this time will be different.',work:'The outcome is being able to trust what you know and stand by the decisions you make for yourself, even when your feelings change.'},
- {name:'Return to Yourself',story:'While he has been thinking about himself and you have been thinking about him, who has been thinking about you? So much of your attention can go towards him, what happened, what it meant and what might happen next, while your own life gets less of you. Your peace. Your sleep. Your plans. Your attention. Your energy. Sometimes just the ability to enjoy a normal day without him somehow ending up in the middle of it.',work:'The outcome is not detachment for the sake of detachment. It is taking your life back and feeling like yourself again.'}
+ {name:'Return to You',story:'While he has been thinking about himself and you have been thinking about him, who has been thinking about you? So much of your attention can go towards him, what happened, what it meant and what might happen next, while your own life gets less of you. Your peace. Your sleep. Your plans. Your attention. Your energy. Sometimes just the ability to enjoy a normal day without him somehow ending up in the middle of it.',work:'The outcome is not detachment for the sake of detachment. It is taking your life back and feeling like yourself again.'}
 ];
 const links={
  'Quiet the Alarm':'https://stan.store/YourMindStory/p/quiet-the-alarm',
  'Break the Pull':'https://stan.store/YourMindStory/p/break-the-pull',
  'Restore Self-Trust':'https://stan.store/YourMindStory/p/restore-self-trust',
- 'Return to Yourself':'https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg'
+ 'Return to You':'https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg'
 };
 const pairLinks={
  '0|1':'https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull',
@@ -101,7 +101,7 @@ if(qual.length===0){
  recognition='<h1>'+x.name+'</h1>'+lived+'<p>'+x.story+'</p>';
  bridge=mechanism;
  recommendation='<small>WHY I\'M RECOMMENDING THIS</small><p>'+x.work+'</p>'+progress;
- cta='<p><a class="next" href="'+links[x.name]+'" data-rec-product="'+x.name+'" data-rec-route="Single Stage">START WITH '+x.name.toUpperCase()+'</a></p>';
+ cta='<p><a class="next" href="'+links[x.name]+'" data-rec-product="'+x.name+'" data-rec-route="Single Stage">START WITH '+x.name.toUpperCase()+' · £49</a></p>';
 }else if(qual.length===2){
  let x=stageCopy[qual[0]],y=stageCopy[qual[1]],key=qual.join('|');
  recognition='<h1>'+x.name+' → '+y.name+'</h1>'+lived+'<p>'+x.story+'</p><p>'+y.story+'</p><p><strong>'+pairInsight[key]+'</strong></p>';
@@ -119,15 +119,10 @@ if(qual.length===0){
  '<p><strong>Quiet the Alarm.</strong> '+stageCopy[0].story+' '+stageCopy[0].work+'</p>'+
  '<p><strong>Break the Pull.</strong> '+stageCopy[1].story+' '+stageCopy[1].work+'</p>'+
  '<p><strong>Restore Self-Trust.</strong> '+stageCopy[2].story+' '+stageCopy[2].work+'</p>'+
- '<p><strong>Return to Yourself.</strong> '+stageCopy[3].story+' '+stageCopy[3].work+'</p>'+progress;
- if(ready===3){
-   recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Return to Yourself Bootcamp</h2><p><strong>Your answers show that several parts of this are affecting you at the same time, and you have said you are ready for a structured process and willing to participate consistently.</strong></p><p>That is why I am recommending the supported four-stage route rather than asking you to work out which part to tackle alone.</p>'+progress;
-   route='<p>You have spent enough time thinking about it, analysing it, trying to understand it and trying to talk yourself out of feeling the way you feel. <strong>It is exhausting.</strong></p><p>The Bootcamp takes you through Quiet the Alarm, Break the Pull, Restore Self-Trust and Return to Yourself in sequence, with more support around the process.</p><p><strong>The founding group is £297.</strong></p><p>If you would rather work through the same four stages independently, <strong>The Return to Yourself Journey is £117 until 4 October, then £149 from 5 October.</strong></p>';
-   cta='<p><a class="next" href="https://payhip.com/b/ZhPkp" data-rec-product="Return to Yourself Bootcamp" data-rec-route="Bootcamp">RETURN TO YOURSELF BOOTCAMP</a></p><p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" data-rec-product="The Return to Yourself Journey" data-rec-route="Complete Self-Guided">OR WORK THROUGH IT SELF-GUIDED</a></p>';
- }else{
-   route='<p>You can work through the four stages independently, in your own time, with the guided hypnotherapy audios and progress check-ins.</p><p><strong>The Return to Yourself Journey is £117 until 4 October, then £149 from 5 October.</strong></p>';
-   cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" data-rec-product="The Return to Yourself Journey" data-rec-route="Complete Self-Guided">WORK THROUGH IT SELF-GUIDED</a></p>';
- }
+ '<p><strong>Return to You.</strong> '+stageCopy[3].story+' '+stageCopy[3].work+'</p>'+progress;
+ recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Return to Yourself</h2><p><strong>The Complete Self-Guided Journey · £149</strong></p><p>Your answers show that several parts of the pattern are affecting you at the same time. Rather than asking you to choose one part to work on, you can work through all four stages in sequence.</p><p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to You</strong></p>'+progress;
+ route='<p>You can work through the four stages independently, in your own time, with the guided hypnotherapy audios and progress check-ins.</p><p><strong>Return to Yourself</strong><br>The Complete Self-Guided Journey<br><strong>£149</strong></p>';
+ cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" data-rec-product="Return to Yourself: The Complete Self-Guided Journey" data-rec-route="Complete Self-Guided">START THE COMPLETE SELF-GUIDED JOURNEY · £149</a></p>'
 }
 let el=document.getElementById('result');el.classList.add('active');
 let panels=[];
@@ -164,7 +159,7 @@ el.addEventListener('click',e=>{if(navLocked)return;let next=e.target.closest('.
 showPanel(0,'replace');
 track('assessment_complete',{total_score:total,breadth_count:qual.length,recommendation:qual.length>=3?'Full four-stage process':qual.length===2?'Two-stage recommendation':qual.length===1?stageCopy[qual[0]].name:'The Bare Minimum'});
 }
-function recommendationCopy(q,r){if(q.length===0)return 'Your scored answers do not show a strong enough concentration in one of the four stages for me to push you into a larger programme. Start with the smallest sensible next step.';if(q.length===1)return 'One stage is clearly asking for attention first. I would begin there rather than giving you more than your answers suggest you need.';if(q.length===2)return 'Two stages are showing up strongly. I would work through those in sequence so the support matches the pattern your answers actually show.';if(r===3)return 'Your answers show a broad pattern across at least three stages, and you have said you are ready to participate consistently. That makes the full four-stage process the most relevant route to consider.';return 'Your answers show a broad pattern across at least three stages. The full four-stage self-guided process lets you work through it in sequence without requiring a live group commitment.'}
+function recommendationCopy(q,r){if(q.length===0)return 'Your scored answers do not show a strong enough concentration in one of the four stages for me to push you into a larger programme. Start with the smallest sensible next step.';if(q.length===1)return 'One stage is clearly asking for attention first. I would begin there rather than giving you more than your answers suggest you need.';if(q.length===2)return 'Two stages are showing up strongly. I would work through those in sequence so the support matches the pattern your answers actually show.';return 'Your answers show a broad pattern across at least three stages, so the complete four-stage self-guided process is the relevant next step. It lets you work through every area in sequence, in your own time.'}
 window.addEventListener('popstate',e=>{if(!document.getElementById('result').classList.contains('active'))return;let panels=[...document.querySelectorAll('.result-panel')];if(!panels.length)return;let step=e.state&&e.state.ymsResult&&Number.isInteger(e.state.resultStep)?e.state.resultStep:null;if(step!==null&&step>=0&&step<panels.length){let cur=panels.findIndex(p=>p.classList.contains('active'));if(cur!==step){panels.forEach((p,j)=>p.classList.toggle('active',j===step));document.getElementById('count').textContent='YOUR RESULT · '+(step+1)+' / '+panels.length;document.getElementById('fill').style.width=((step+1)/panels.length*100)+'%';window.scrollTo({top:0,behavior:'smooth'})}}});
 try{let saved=JSON.parse(sessionStorage.getItem('yms_v3_result_state')||'null');if(saved&&saved.submitted&&Array.isArray(saved.answers)){a=saved.answers;lead=saved.lead||{};showResult()}else{track('assessment_start');render()}}catch(e){track('assessment_start');render()}
 </script><script src="/assets/yms-consent.js?v=20261001-tracking" defer></script></body></html>
