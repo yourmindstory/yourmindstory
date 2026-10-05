@@ -12,7 +12,7 @@
     "quiet-the-alarm": "Quiet the Alarm",
     "break-the-pull": "Break the Pull",
     "restore-self-trust": "Restore Self-Trust",
-    "return-to-yourself": "Return to Yourself"
+    "return-to-yourself": "Return to You"
   };
 
   var AUDIO_RESULTS = {
@@ -63,12 +63,12 @@
         '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;I\'m slowly unraveling from years of survival mode. I\'m finding my center and power again.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Sky</p></div>' +
         '<p>You\'ll work with Restore Self-Trust for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
-    "Return to Yourself": {
+    "Return to You": {
       url: "https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg",
-      cta: "START WITH RETURN TO YOURSELF",
+      cta: "START WITH RETURN TO YOU",
       html:
-        '<p class="result-lede" style="margin-top:0;">I recommend Return to Yourself.</p>' +
-        '<p>Return to Yourself is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts and learned responses that keep pulling your attention, energy and sense of self back towards him.</strong></p>' +
+        '<p class="result-lede" style="margin-top:0;">I recommend Return to You.</p>' +
+        '<p>Return to You is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts and learned responses that keep pulling your attention, energy and sense of self back towards him.</strong></p>' +
         '<p>Because the goal isn\'t to force yourself to stop caring or never think about him again.</p>' +
         '<p><strong>It\'s being able to think about him without losing yourself.</strong></p>' +
         '<p>Less waiting. Less organising your day around what he might do. Less putting your plans, needs and happiness on hold.</p>' +
@@ -76,12 +76,13 @@
         '<p>You don\'t have to leave him, be over him, or even know what\'s going to happen between you to start returning to yourself.</p>' +
         '<p><strong>This isn\'t about forcing yourself to stop caring. It\'s about stopping yourself from disappearing from your own life while you do.</strong></p>' +
         '<div class="og-secondary" style="margin-top:22px;"><p><strong>&ldquo;I\'m slowly unraveling from years of survival mode. I\'m finding my center and power again.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Sky</p></div>' +
-        '<p>You\'ll work with Return to Yourself for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
+        '<p>You\'ll work with Return to You for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     }
   };
 
   function canonicalStage(name) {
     if (name === "Restore Self Trust") return "Restore Self-Trust";
+    if (name === "Return to Yourself") return "Return to You";
     return name || "";
   }
 
@@ -94,7 +95,8 @@
       '<div class="divider"></div>' +
       '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
       copy.html +
-      '<div class="cta-row"><a class="btn-cta" href="' + copy.url + '" id="ymsFinalAudioCta">' + copy.cta + '</a></div>';
+      '<p><strong>£49</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" href="' + copy.url + '" id="ymsFinalAudioCta">' + copy.cta + ' · £49</a></div>';
 
     var cta = document.getElementById("ymsFinalAudioCta");
     if (cta) cta.addEventListener("click", function () {
@@ -107,73 +109,24 @@
     var card = container.closest ? container.closest(".result-card") : null;
     if (!card) card = container;
     var firstName = data && data.firstName ? String(data.firstName).trim() : "";
+    var stageCount = Array.isArray(data && data.qualifyingStages) ? data.qualifyingStages.length : 0;
 
     card.innerHTML =
       (firstName ? '<p class="result-greeting">Hi, ' + Y.escapeText(firstName) + '.</p>' : '') +
       '<span class="result-tag">YOUR RESULT</span>' +
-      '<h1>This isn\'t just one part of the cycle anymore.</h1>' +
-      '<p>Your answers show that <strong>several parts of it are affecting you at the same time.</strong></p>' +
-      '<p>Your body reacts.</p>' +
-      '<p>Your mind goes into the loop.</p>' +
-      '<p>You check, replay, wait and look for signs.</p>' +
-      '<p>You get pulled back towards him even when you know better.</p>' +
-      '<p>You question yourself and the decisions you\'ve already made.</p>' +
-      '<p>And while all of that is happening, <strong>your own life is getting less and less of you.</strong></p>' +
-      '<p>Because this isn\'t only costing you your peace.</p>' +
-      '<p><strong>It\'s costing you hours. Your attention. Your plans. Your confidence. Time in your own life that you don\'t get back.</strong></p>' +
-      '<p>And let\'s face it, at this point you\'re basically an expert on him.</p>' +
-      '<p>You\'ve watched the videos. Thought it through. Tried to understand what happened, why he does what he does and what it all means.</p>' +
-      '<p><strong>But knowing hasn\'t stopped what happens next.</strong></p>' +
-      '<p>You can know exactly what you should do and still find yourself right back in the loop.</p>' +
-      '<p>And that\'s the problem.</p>' +
-      '<p>You don\'t need more information about him.</p>' +
-      '<p><strong>You need to stop this cycle running your body, your mind and your life.</strong></p>' +
-      '<p>So you can have a normal day again.</p>' +
-      '<p>Get through the day on your own terms.</p>' +
-      '<p>Stop losing hours to overthinking and endless scenarios.</p>' +
-      '<p>Make plans for yourself.</p>' +
-      '<p>Trust yourself again.</p>' +
-      '<p>Feel like yourself again.</p>' +
-      '<p class="result-lede"><strong>Basically, you want your mind and your life back.</strong></p>' +
-      '<div class="divider"></div>' +
-      '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede" style="margin-top:0;">I recommend the Your Mind Story Bootcamp.</p>' +
-      '<p>I wouldn\'t point you towards one standalone guided Cognitive Behavioural Hypnotherapy audio when your results are showing that this is affecting you across several parts of the cycle.</p>' +
-      '<p class="result-lede"><strong>You need the complete 4-Step programme.</strong></p>' +
-      '<p>That means working on the alarm in your body, the pull that keeps taking you back into the loop, the self-trust you\'ve lost along the way, and getting your attention and your life back to you.</p>' +
-      '<p>And because this is the Original Group, you won\'t be doing that work on your own. You\'ll have the complete guided Cognitive Behavioural Hypnotherapy programme, a simple structure to follow, and live group support as you move through it.</p>' +
-      '<p><strong>The goal isn\'t more information about him. It\'s to help you break the cycle and get your mind and your life back.</strong></p>' +
-      '<ul class="og-steps">' +
-        '<li><span class="og-step-label">Step 1: Quiet the Alarm</span><span class="og-step-desc">Work on the physical and emotional reaction.</span></li>' +
-        '<li><span class="og-step-label">Step 2: Break the Pull</span><span class="og-step-desc">Work on the checking, replaying, waiting and getting pulled back in.</span></li>' +
-        '<li><span class="og-step-label">Step 3: Restore Self-Trust</span><span class="og-step-desc">Start trusting what you know and following through on the decisions you make for yourself.</span></li>' +
-        '<li><span class="og-step-label">Step 4: Return to Yourself</span><span class="og-step-desc">Put your attention, plans and life back where they belong. With you.</span></li>' +
-      '</ul>' +
-      '<p><strong>This isn\'t another 12 weeks of analysing him.</strong></p>' +
-      '<p>You\'ve done enough of that.</p>' +
-      '<p><strong>The focus is you.</strong></p>' +
-      '<p>And because you\'re already carrying enough, I\'ve deliberately kept the process simple.</p>' +
-      '<p class="result-lede"><strong>Your main daily job is to press play.</strong></p>' +
-      '<p>You\'ll also complete one short Your Mind Story reflection and check-in each week, so you can actually see what\'s changing as you go.</p>' +
-      '<div class="og-secondary" style="margin-top:20px;"><p><strong>&ldquo;They\'re like an online journal to track how you feel as you go on. And it\'s good to see how you felt in the past cos it keeps you motivated.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Miso</p></div>' +
-      '<p>Then every three weeks, we come together for a group integration call.</p>' +
-      '<div class="og-secondary" style="margin-top:20px;"><p><strong>&ldquo;The loop of him playing in my head is wearing off. I\'m gaining my nervous system back.&rdquo;</strong></p><p class="cta-microcopy" style="margin-bottom:0;">Kimberly</p></div>' +
-      '<p>That is the kind of movement we\'re working towards. Less of him taking over your head. More of you getting yourself back.</p>' +
-      '<div class="divider"></div>' +
-      '<p class="result-lede"><strong>12 weeks. 4 steps. One goal: Take your life back.</strong></p>' +
-      '<div class="price-card">' +
-        '<span class="og-label" style="margin-bottom:6px;">Original Group &bull; 2026</span>' +
-        '<p class="price-start">Starts Sunday 4 October 2026</p>' +
-        '<p class="price-figure">£297 <span class="price-unit">in full</span></p>' +
-        '<p class="price-or">or</p>' +
-        '<p class="price-installments">3 monthly payments of £105</p>' +
-      '</div>' +
-      '<div class="cta-row"><a class="btn-cta" href="bootcamp.html" id="ymsFinalBootcampCta">SEE THE BOOTCAMP</a></div>' +
+      '<h1>This is affecting you across several parts of the pattern.</h1>' +
+      '<p>Your answers show that this is not one isolated problem. The alarm, the pull, the second-guessing and the amount of your life affected by the pattern are connected.</p>' +
+      '<p><strong>That is why I recommend working through all four stages in sequence.</strong></p>' +
+      '<p>Return to Yourself<br><strong>The Complete Self-Guided Journey</strong></p>' +
+      '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to You</strong></p>' +
+      '<p>You can work through the four stages independently, in your own time, with guided audio sessions and progress check-ins.</p>' +
+      '<p><strong>£149</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" id="ymsFinalSelfGuidedCta">START THE COMPLETE SELF-GUIDED JOURNEY · £149</a></div>' +
       '<p class="cta-microcopy" style="margin-top:18px;">★★★★★ 5 stars on Google<br><strong>Cognitive Behavioural Hypnotherapist</strong></p>';
 
-    var cta = document.getElementById("ymsFinalBootcampCta");
+    var cta = document.getElementById("ymsFinalSelfGuidedCta");
     if (cta) cta.addEventListener("click", function () {
-      Y.track("quiz_bootcamp_recommendation_click", {});
+      Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stageCount });
     });
   }
 
