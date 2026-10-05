@@ -247,7 +247,7 @@
         '<p>You don’t need another explanation of why you shouldn’t check, replay or reach out. You already know.</p>' +
         '<p><strong>Break the Pull</strong> is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work with what happens when the urge actually arrives, so you can practise noticing the pull without automatically following it.</p>' +
         '<p><strong>21-day audio session + Progress Reviews</strong></p>' +
-        '<p><strong>£49 until 4 October · £49 after</strong></p>',
+        '<p><strong>£49</strong></p>',
       "Restore Self-Trust":
         '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
         '<p>You told me you want to feel like yourself again and move forward, whether he’s in your life or not.</p>' +
@@ -256,7 +256,7 @@
         '<p>If you’ve already tried understanding the pattern, reasoning with yourself, journalling, distancing yourself or managing it alone, the problem may not be that you need another explanation.</p>' +
         '<p><strong>Restore Self-Trust</strong> is my guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio designed to work on the beliefs and automatic responses underneath that second-guessing, so the work becomes <strong>you trusting you again</strong>.</p>' +
         '<p><strong>21-day audio session + Progress Reviews</strong></p>' +
-        '<p><strong>£49 until 4 October · £49 after</strong></p>',
+        '<p><strong>£49</strong></p>',
       "Return to You":
         '<p>Return to You is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to help bring your attention, energy and sense of self back to you.</p>' +
         '<p>So your plans, your time and your life start becoming about <strong>you</strong> again.</p>'
