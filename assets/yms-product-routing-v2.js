@@ -18,14 +18,14 @@
     "Quiet the Alarm",
     "Break the Pull",
     "Restore Self-Trust",
-    "Return to Yourself"
+    "Return to You"
   ];
 
   var STAGE_SUBTITLES = {
     "Quiet the Alarm": "Calm the panic and anxiety when you think of him",
     "Break the Pull": "Stop the checking, replaying and getting pulled back in",
     "Restore Self-Trust": "Stop second-guessing what you know",
-    "Return to Yourself": "Get your mind and your life back"
+    "Return to You": "Get your mind and your life back"
   };
 
   var SINGLES = {
@@ -41,7 +41,7 @@
       url: "https://stan.store/YourMindStory/p/restore-self-trust",
       description: "You know what happened. Then you question yourself, change your mind and start wondering if you got it wrong."
     },
-    "Return to Yourself": {
+    "Return to You": {
       url: "https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg",
       description: "Too much of your attention is ending up with him, while your own plans, needs and life get pushed further into the background."
     }
@@ -56,20 +56,20 @@
       name: "Quiet the Alarm → Restore Self-Trust",
       url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--restore-selftrust"
     },
-    "Quiet the Alarm|Return to Yourself": {
-      name: "Quiet the Alarm → Return to Yourself",
+    "Quiet the Alarm|Return to You": {
+      name: "Quiet the Alarm → Return to You",
       url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--return-to-yourself"
     },
     "Break the Pull|Restore Self-Trust": {
       name: "Break the Pull → Restore Self-Trust",
       url: "https://stan.store/Yourmindstory/p/break-the-pull--restore-selftrust"
     },
-    "Break the Pull|Return to Yourself": {
-      name: "Break the Pull → Return to Yourself",
+    "Break the Pull|Return to You": {
+      name: "Break the Pull → Return to You",
       url: "https://stan.store/Yourmindstory/p/break-the-pull--return-to-yourself"
     },
-    "Restore Self-Trust|Return to Yourself": {
-      name: "Restore Self-Trust → Return to Yourself",
+    "Restore Self-Trust|Return to You": {
+      name: "Restore Self-Trust → Return to You",
       url: "https://stan.store/Yourmindstory/p/restore-selftrust--return-to-yourself"
     }
   };
@@ -117,6 +117,7 @@
   function canonicalStage(name) {
     name = String(name || "").trim();
     if (name === "Restore Self Trust") return "Restore Self-Trust";
+    if (name === "Return to Yourself") return "Return to You";
     return name;
   }
 
@@ -132,13 +133,14 @@
   function scoreForStage(scores, stage) {
     if (!scores) return null;
     var direct = scores[stage];
+    if (direct == null && stage === "Return to You") direct = scores["Return to Yourself"];
     if (direct == null && stage === "Restore Self-Trust") direct = scores["Restore Self Trust"];
     if (direct == null) {
       var internal = {
         "Quiet the Alarm":"quietTheAlarm",
         "Break the Pull":"breakThePull",
         "Restore Self-Trust":"restoreSelfTrust",
-        "Return to Yourself":"returnToYourself"
+        "Return to You":"returnToYourself"
       }[stage];
       if (internal) direct = scores[internal];
     }
@@ -245,7 +247,7 @@
         '<p>You don’t need another explanation of why you shouldn’t check, replay or reach out. You already know.</p>' +
         '<p><strong>Break the Pull</strong> is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to work with what happens when the urge actually arrives, so you can practise noticing the pull without automatically following it.</p>' +
         '<p><strong>21-day audio session + Progress Reviews</strong></p>' +
-        '<p><strong>£37 until 4 October · £49 after</strong></p>',
+        '<p><strong>£49 until 4 October · £49 after</strong></p>',
       "Restore Self-Trust":
         '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
         '<p>You told me you want to feel like yourself again and move forward, whether he’s in your life or not.</p>' +
@@ -254,9 +256,9 @@
         '<p>If you’ve already tried understanding the pattern, reasoning with yourself, journalling, distancing yourself or managing it alone, the problem may not be that you need another explanation.</p>' +
         '<p><strong>Restore Self-Trust</strong> is my guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio designed to work on the beliefs and automatic responses underneath that second-guessing, so the work becomes <strong>you trusting you again</strong>.</p>' +
         '<p><strong>21-day audio session + Progress Reviews</strong></p>' +
-        '<p><strong>£37 until 4 October · £49 after</strong></p>',
-      "Return to Yourself":
-        '<p>Return to Yourself is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to help bring your attention, energy and sense of self back to you.</p>' +
+        '<p><strong>£49 until 4 October · £49 after</strong></p>',
+      "Return to You":
+        '<p>Return to You is the guided <strong>Cognitive Behavioural Hypnotherapy</strong> audio I created to help bring your attention, energy and sense of self back to you.</p>' +
         '<p>So your plans, your time and your life start becoming about <strong>you</strong> again.</p>'
     }[stage] || "";
 
@@ -267,14 +269,15 @@
       '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
       '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone, when you already know that hasn’t been enough to create the change you want.</p>' +
       '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' - £37</a></div>' +
+      '<p><strong>£49</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' - £49</a></div>' +
       downsellHtml(true);
 
     logRoute("Single Audio", stage);
     var cta = container.querySelector("[data-yms-single]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_audio_recommendation_click", { selected_stage: stage });
-      recordJourney("primary_cta_click", { cta: stage + " - £37" });
+      recordJourney("primary_cta_click", { cta: stage + " - £49" });
     });
     wireDownsell(container, "single_" + stage);
     return true;
@@ -332,9 +335,9 @@
         '<p><strong>More calm. More clarity. More trust in yourself.</strong></p>' +
         '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>',
 
-      "Quiet the Alarm|Return to Yourself":
+      "Quiet the Alarm|Return to You":
         '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Quiet the Alarm → Return to Yourself</h1>' +
+        '<h1>Quiet the Alarm → Return to You</h1>' +
         '<p>Something happens with him and your body reacts.</p>' +
         '<p>Your chest tightens. Your stomach drops. Your mind starts going. And once the alarm is on, it can be difficult to properly come back down.</p>' +
         '<p>While you’re trying to make sense of what happened, more and more of your attention can disappear into him.</p>' +
@@ -344,9 +347,9 @@
         '<p><strong>It’s not only the alarm. It’s how much of your life the alarm can take with it.</strong></p>' +
         '<div class="divider"></div>' +
         '<span class="og-label">I’D START HERE</span>' +
-        '<p class="result-lede" style="margin-top:0;">Quiet the Alarm → Return to Yourself</p>' +
+        '<p class="result-lede" style="margin-top:0;">Quiet the Alarm → Return to You</p>' +
         '<p>First, <strong>Quiet the Alarm</strong> helps you work on the thoughts and emotional responses underneath that first reaction, so a change connected to him does not have to take over your whole system.</p>' +
-        '<p>Then <strong>Return to Yourself</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
+        '<p>Then <strong>Return to You</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
         '<p><strong>First, help the alarm settle. Then start giving your own life more of you again.</strong></p>' +
         '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether you’re settling more easily and whether your attention is returning to your own life more quickly.</p>' +
         '<p class="result-lede"><strong>The outcome?</strong></p>' +
@@ -377,9 +380,9 @@
         '<p><strong>More clarity. More steadiness. More trust in yourself.</strong></p>' +
         '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>',
 
-      "Break the Pull|Return to Yourself":
+      "Break the Pull|Return to You":
         '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Break the Pull → Return to Yourself</h1>' +
+        '<h1>Break the Pull → Return to You</h1>' +
         '<p>You can know you need to leave it alone and still find yourself checking, replaying, waiting or wanting to reach out.</p>' +
         '<p>One more look. One more replay. One more attempt to understand what he meant or what he might do next.</p>' +
         '<p>And every time your attention goes back there, <strong>your own life gets a little less of you.</strong></p>' +
@@ -388,9 +391,9 @@
         '<p><strong>It’s not only the pull towards him. It’s what the pull keeps taking you away from.</strong></p>' +
         '<div class="divider"></div>' +
         '<span class="og-label">I’D START HERE</span>' +
-        '<p class="result-lede" style="margin-top:0;">Break the Pull → Return to Yourself</p>' +
+        '<p class="result-lede" style="margin-top:0;">Break the Pull → Return to You</p>' +
         '<p>First, <strong>Break the Pull</strong> helps you work on the thoughts, urges and learned responses underneath the checking, replaying, analysing and reaching out.</p>' +
-        '<p>Then <strong>Return to Yourself</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
+        '<p>Then <strong>Return to You</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
         '<p><strong>First, interrupt what keeps pulling you back. Then start building the habit of coming back to you.</strong></p>' +
         '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether the pull is becoming easier to leave alone and whether more of your attention is staying with your own life.</p>' +
         '<p class="result-lede"><strong>The outcome?</strong></p>' +
@@ -399,9 +402,9 @@
         '<p><strong>More attention. More energy. More of yourself back.</strong></p>' +
         '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start working on what this dynamic is doing to you.</p>',
 
-      "Restore Self-Trust|Return to Yourself":
+      "Restore Self-Trust|Return to You":
         '<span class="result-tag">YOUR RESULT</span>' +
-        '<h1>Restore Self-Trust → Return to Yourself</h1>' +
+        '<h1>Restore Self-Trust → Return to You</h1>' +
         '<p>You know something doesn’t feel right, and then you start questioning what you know.</p>' +
         '<p>Explaining things away. Changing your mind. Wondering whether you were wrong, too sensitive or expecting too much.</p>' +
         '<p>And while so much of your energy goes into second-guessing yourself and trying to work him out, <strong>your own life gets less and less of you.</strong></p>' +
@@ -409,9 +412,9 @@
         '<p><strong>When you stop trusting yourself, it becomes easier for your attention, decisions and emotional energy to keep organising themselves around him.</strong></p>' +
         '<div class="divider"></div>' +
         '<span class="og-label">I’D START HERE</span>' +
-        '<p class="result-lede" style="margin-top:0;">Restore Self-Trust → Return to Yourself</p>' +
+        '<p class="result-lede" style="margin-top:0;">Restore Self-Trust → Return to You</p>' +
         '<p>First, <strong>Restore Self-Trust</strong> helps you work on the beliefs and automatic responses underneath the second-guessing, so you can start trusting what you feel, notice and know.</p>' +
-        '<p>Then <strong>Return to Yourself</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
+        '<p>Then <strong>Return to You</strong> helps you work on bringing your attention, energy and sense of self back to your own plans, needs and life.</p>' +
         '<p><strong>First, rebuild trust in yourself. Then start living from that trust.</strong></p>' +
         '<p>You’ll work with each session for <strong>21 days</strong>, with short check-ins along the way to help you see your progress, including whether you’re second-guessing yourself less and whether your own life is getting more of your attention again.</p>' +
         '<p class="result-lede"><strong>The outcome?</strong></p>' +
@@ -482,7 +485,7 @@
       '<p>When your system is already activated, it becomes harder to trust your own judgement. And the more you second-guess yourself, the harder it becomes to feel settled.</p>' +
       '<p><strong>So I wouldn’t work on the reaction without also helping you trust yourself again.</strong></p>',
 
-    "Quiet the Alarm|Return to Yourself":
+    "Quiet the Alarm|Return to You":
       '<span class="result-tag">YOUR RESULT</span>' +
       '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
       '<p>Something happens with him and your body reacts.</p>' +
@@ -504,7 +507,7 @@
       '<p>And every time you go back looking, you can end up questioning yourself all over again.</p>' +
       '<p><strong>So this isn’t about knowing more. We need to work on the pull and rebuild your trust in yourself.</strong></p>',
 
-    "Break the Pull|Return to Yourself":
+    "Break the Pull|Return to You":
       '<span class="result-tag">YOUR RESULT</span>' +
       '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
       '<p>You can know you need to leave it alone and still find yourself checking, replaying, waiting or wanting to reach out.</p>' +
@@ -514,7 +517,7 @@
       '<p>And the more space he occupies, the easier it becomes to get pulled back in again.</p>' +
       '<p><strong>So we need to interrupt the pull and start giving your own life more of you again.</strong></p>',
 
-    "Restore Self-Trust|Return to Yourself":
+    "Restore Self-Trust|Return to You":
       '<span class="result-tag">YOUR RESULT</span>' +
       '<h1>Based on your answers, two parts of this cycle are showing up strongly for you.</h1>' +
       '<p>You know something doesn’t feel right and then find yourself questioning what you know.</p>' +
@@ -531,7 +534,7 @@
     var hasQuiet = stages.indexOf("Quiet the Alarm") !== -1;
     var hasPull = stages.indexOf("Break the Pull") !== -1;
     var hasTrust = stages.indexOf("Restore Self-Trust") !== -1;
-    var hasReturn = stages.indexOf("Return to Yourself") !== -1;
+    var hasReturn = stages.indexOf("Return to You") !== -1;
 
     var html =
       '<span class="result-tag">YOUR RESULT</span>' +
@@ -586,7 +589,8 @@
 
     container.innerHTML =
       '<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span>' +
-      '<p class="result-lede">I recommend Return to Yourself.</p>' +
+      '<p class="result-lede">Return to Yourself</p>' +
+      '<p><strong>The Complete Self-Guided Journey</strong></p>' +
       '<p><strong>You told me you want to feel like yourself again and be able to move forward, whether he’s in your life or not.</strong></p>' +
       '<p>Your answers show me why I wouldn’t start you with just one part of this.</p>' +
       '<p>This is showing up across more than one area: how strongly you react, what your mind gets pulled back into, how much you question yourself and how much of <strong>you</strong> this situation is taking with it.</p>' +
@@ -603,7 +607,7 @@
       '<p><strong>Quiet the Alarm</strong><br>Work on the thoughts and emotional responses underneath the anxiety and alarm.</p>' +
       '<p><strong>Break the Pull</strong><br>Work on what keeps pulling you into checking, replaying, reaching out or looking for another answer.</p>' +
       '<p><strong>Restore Self-Trust</strong><br>Work on the second-guessing that makes it difficult to trust what you already know.</p>' +
-      '<p><strong>Return to Yourself</strong><br>Work on bringing your attention, energy and life back to you.</p>' +
+      '<p><strong>Return to You</strong><br>Work on bringing your attention, energy and life back to you.</p>' +
       '<p class="result-lede">You have a clear structure, with check-ins to help you see your progress as you go.</p>' +
       '<p>You’ll work with each stage for <strong>21 days</strong>, with short check-ins along the way.</p>' +
       '<p><strong>You have a clear pathway to follow, with regular points to check in, notice what’s changing and keep moving through the work.</strong></p>' +
@@ -618,14 +622,15 @@
       '<p><strong>Understanding the cycle is not the same as breaking it.</strong></p>' +
       '<p>Nothing changes if nothing changes.</p>' +
       '<p><strong>Are you ready to start feeling like yourself again?</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START RETURN TO YOURSELF - £117</a></div>' +
+      '<p><strong>£149</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START THE COMPLETE SELF-GUIDED JOURNEY - £149</a></div>' +
       downsellHtml(false);
 
     logRoute("Return to Yourself", "Return to Yourself");
     var cta = container.querySelector("[data-yms-self-guided]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
-      recordJourney("primary_cta_click", { cta: "Return to Yourself - £117" });
+      recordJourney("primary_cta_click", { cta: "Return to Yourself - £149" });
     });
     wireDownsell(container, reasonText ? "self_guided_private" : "self_guided_" + stages.length);
     return true;
@@ -690,73 +695,9 @@
   }
 
   function renderBootcamp(container, stages, data) {
-    stages = orderedUnique(stages);
-    container.innerHTML =
-      '<span class="result-tag">Based on what you’ve told me...</span>' +
-      '<h1>I think you should start with the Bootcamp.</h1>' +
-      '<p>This isn’t just affecting you in one place.</p>' +
-      '<p>Something happens and your body reacts. Then you’re checking, replaying or looking for an answer. You start questioning what you already know. And while your mind is caught up in all of that, <strong>your own life gets less of you.</strong></p>' +
-      '<p><strong>Does this sound like you?</strong></p>' +
-      bootcampGoalBridge(data) +
-      '<div class="divider"></div>' +
-      '<p class="result-lede"><strong>Because knowing isn’t the problem.</strong></p>' +
-      '<p>You probably already know what you <em>should</em> do.</p>' +
-      '<p>Don’t check. Don’t reach out. Stop analysing. Stop going back. Focus on yourself.</p>' +
-      '<p>But knowing what you should do and being able to do it <strong>when you’re actually in the feeling</strong> are two different things.</p>' +
-      '<p><strong>That’s the part we’re going to work on.</strong></p>' +
-      '<p class="result-lede">For 12 weeks, we’ll work through four stages.</p>' +
-      '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to Yourself</strong></p>' +
-      '<p>And the work is deliberately simple.</p>' +
-      '<p><strong>Press play. Write. Check in. Come back.</strong></p>' +
-      '<p>You’ll use the guided <strong>Cognitive Behavioral Hypnotherapy</strong> audios throughout each stage.</p>' +
-      '<p>Every week, I’ll give you <strong>one writing prompt</strong> connected to the stage you’re working on. Over the 12 weeks, you’ll start putting together the story of <strong>where you’ve been, where you are now and where you want to go next.</strong></p>' +
-      '<p>Not more analysing him.</p>' +
-      '<p><strong>Understanding yourself. Seeing your own patterns more clearly and building a different story about what happens next.</strong></p>' +
-      '<p>Your short check-ins give you somewhere to <strong>notice and track what’s actually changing</strong>, rather than relying on whether you happen to feel better or worse that day.</p>' +
-      '<p>So if you’re someone who worries:</p>' +
-      '<p><strong>“What if I don’t stick with it?”</strong></p>' +
-      '<p>You’re not being asked to figure out a whole programme by yourself.</p>' +
-      '<p><strong>You have something to do, somewhere to check in and somewhere to come back to each week.</strong></p>' +
-      '<p class="result-lede">And every three weeks, we come together live.</p>' +
-      '<p>This is where we talk about what we’ve been learning about ourselves, what has come up and what we’re taking into the next stage.</p>' +
-      '<p>You’ll be doing that alongside other women who are <strong>switched on, self-aware and ready to stop making their lives about understanding somebody else and start moving into the next chapter of their own.</strong></p>' +
-      '<p>It’s also the opportunity to realise:</p>' +
-      '<p><strong>I’m not the only woman who knows better and still finds this hard. And I don’t have to work through it on my own.</strong></p>' +
-      '<blockquote><strong>“For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</strong><br>C.J.</blockquote>' +
-      '<blockquote><strong>“Took me out of my own head and helped calm the voice screaming at me to reach out.”</strong><br>K.</blockquote>' +
-      '<blockquote><strong>“I’m slowly unraveling from years of survival mode. I’m finding my center and power again.”</strong><br>Sky</blockquote>' +
-      '<p class="result-lede"><strong>What are we working towards?</strong></p>' +
-      '<p><strong>Less checking and replaying.<br>Less second-guessing yourself.<br>More peace.<br>More trust in yourself.<br>More of you back in your own life.</strong></p>' +
-      '<p><strong>Does this sound like what you need?</strong></p>' +
-      '<p>You don’t have to leave him, be over him, or know what’s going to happen between you to start.</p>' +
-      '<p><strong>You can still love somebody and stop losing yourself in what they do, or what they did.</strong></p>' +
-      '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
-      '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone, when you already know that hasn’t been enough to create the change you want.</p>' +
-      '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
-      '<p class="result-lede"><strong>Bootcamp</strong></p>' +
-      '<p><strong>12 weeks · Starts Sunday 4 October 2026</strong></p>' +
-      '<p><strong>£297 or 3 monthly payments of £105</strong></p>' +
-      '<p>Understanding the cycle is not the same as breaking it.</p>' +
-      '<p><strong>Nothing changes if nothing changes.</strong></p>' +
-      '<p class="result-lede"><strong>Are you ready to start feeling like yourself again, with guided support to help you get there?</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-bootcamp href="' + BOOTCAMP + '">JOIN THE BOOTCAMP - £297</a></div>' +
-      '<div style="margin-top:42px;padding-top:22px;border-top:1px solid rgba(36,61,46,.12);font-size:.94em;opacity:.9;">' +
-        '<p style="margin-bottom:8px;"><strong>Prefer to work privately?</strong></p>' +
-        '<p style="margin-top:0;">The <strong>Return to Yourself</strong> gives you the same four-stage structure without the group support or live integration calls.</p>' +
-        '<p style="margin-bottom:0;"><a data-yms-self-alt href="' + SELF_GUIDED.url + '">See the self-guided option - £117</a></p>' +
-      '</div>';
-
-    logRoute("Bootcamp", "Bootcamp");
-    var boot = container.querySelector("[data-yms-bootcamp]");
-    var selfAlt = container.querySelector("[data-yms-self-alt]");
-    if (boot) boot.addEventListener("click", function () {
-      if (Y.track) Y.track("quiz_bootcamp_recommendation_click", { total_score: totalScoreFromData(data), qualifying_stage_count: stages.length });
-      recordJourney("bootcamp_click", {});
-    });
-    if (selfAlt) selfAlt.addEventListener("click", function () {
-      if (Y.track) Y.track("quiz_self_guided_alternative_click", { source_route: "bootcamp_ready" });
-      recordJourney("self_guided_alternative_click", {});
-    });
+    // Keep this legacy entry point safe for any saved readiness state. New
+    // assessment users go directly to the complete self-guided programme.
+    renderSelfGuided(container, stages, "");
   }
 
   function optionHtml(group, index, text) {
@@ -883,7 +824,7 @@
         "quiet-the-alarm": "Quiet the Alarm",
         "break-the-pull": "Break the Pull",
         "restore-self-trust": "Restore Self-Trust",
-        "return-to-yourself": "Return to Yourself"
+        "return-to-yourself": "Return to You"
       };
       var legacyStage = legacyStageByBucket[resultBucketKey] || data.recommendedStage || data.primaryResult || "";
       if (legacyStage && renderSingle(container, legacyStage)) return;
@@ -903,10 +844,6 @@
     if (stages.length === 2 && renderPair(container, stages)) return;
 
     var total = totalScoreFromData(data);
-    if (stages.length >= 3 && total != null && total >= 15) {
-      renderReadinessGate(container, stages, data);
-      return;
-    }
     if (stages.length >= 3) {
       renderSelfGuided(container, stages, "");
       return;
