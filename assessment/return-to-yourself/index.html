@@ -82,7 +82,7 @@
 </article>
 
 <article class="stage">
-<div class="num">Stage 4</div><h2>Return to You</h2>
+<div class="num">Stage 4</div><h2>Return to Yourself</h2>
 <p><strong>When so much of your attention has gone into him that there isn't enough of you left for you.</strong></p>
 <p>We're working towards being <strong>fully present in your own life again, without the gloom and heaviness of this following you everywhere.</strong></p>
 <p>Being able to concentrate. Sleep. Enjoy something without your mind wandering straight back to him. Be with your children, your friends, your family and actually be there. Make plans without them revolving around whether he contacts you. And start feeling like the woman you recognise again.</p>
@@ -169,7 +169,7 @@
 </main>
 <script>
 const V3_BACKEND='https://script.google.com/macros/s/AKfycbzDtA92i-aQeyeuamBdA4LbxGUruh55qxSOk_nwLncBM3stllbZoaipxNzKb9xyTveLdA/exec';
-function identity(){try{return JSON.parse(sessionStorage.getItem('yms_v3_last_submission')||'{}')}catch(e){return{}}}
+function identity(){let x={};try{x=JSON.parse(sessionStorage.getItem('yms_v3_last_submission')||'{}')||{}}catch(e){x={}}const q=new URLSearchParams(location.search);if(!x.submissionId&&q.get('sid'))x.submissionId=q.get('sid');if(!x.journeyId&&q.get('jid'))x.journeyId=q.get('jid');return x}
 function postEvent(eventType,values){const id=identity();if(!id.submissionId&&!id.resultToken)return;try{fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'recordJourneyEvent',eventType,submissionId:id.submissionId||'',journeyId:id.journeyId||'',resultToken:id.resultToken||'',values:values||{}}),keepalive:true}).catch(()=>{})}catch(e){}}
 postEvent('sales_page_view',{product:'Return to You Series',route:'Return to You Series',experiment:'RTY-decision-math-v1',price:'149'});
 document.getElementById('buy').addEventListener('click',function(){postEvent('checkout_click',{product:'Return to You Series',route:'Return to You Series',cta:'START THE RETURN TO YOU SERIES',destination:'stan.store',experiment:'RTY-decision-math-v1',price:'149'})});
