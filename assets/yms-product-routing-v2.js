@@ -487,14 +487,14 @@
       '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
       '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone, when you already know that hasn’t been enough to create the change you want.</p>' +
       '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY 2 SESSIONS - £74</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY 2 SESSIONS - £89</a></div>' +
       downsellHtml(false);
 
     logRoute("Two-Stage Pathway", pair.name);
     var cta = container.querySelector("[data-yms-pair]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_pair_recommendation_click", { pair: pair.name, first_stage: first, second_stage: second });
-      recordJourney("primary_cta_click", { cta: pair.name + " - £74" });
+      recordJourney("primary_cta_click", { cta: pair.name + " - £89" });
     });
     wireDownsell(container, "pair_" + pairKey(stages));
     return true;
