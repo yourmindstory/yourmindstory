@@ -234,6 +234,55 @@
     });
   }
 
+  var PRESS_PLAY = {
+    "Quiet the Alarm": {
+      moment: "When his silence, distance or change in energy makes your stomach drop, press play.",
+      practice: "Practise settling the reaction so what happens with him doesn’t have to take your whole day with it.",
+      proof: "For the first time in 5 weeks I was able to regulate my breathing, stop my racing heart and I actually slept.",
+      person: "C.J."
+    },
+    "Break the Pull": {
+      moment: "When you reach for your phone to check, chase or message him, press play instead.",
+      practice: "Practise staying with the impulse without automatically following it.",
+      proof: "Took me out of my own head and helped calm the voice screaming at me to reach out.",
+      person: "K."
+    },
+    "Restore Self-Trust": {
+      moment: "When anxiety, hope or missing him has you about to break the boundary you set for yourself, press play first.",
+      practice: "Practise trusting your decision and following through.",
+      proof: "I’m slowly unraveling from years of survival mode. I’m finding my center and power again.",
+      person: "Sky"
+    },
+    "Return to You": {
+      moment: "When you realise you’ve lost another hour thinking about him instead of living your own life, press play and come back to you.",
+      practice: "Practise bringing your attention, energy and plans back to your own life.",
+      proof: "It’s not easy but the loop of him playing in my head is wearing off. I’m gaining my nervous system back.",
+      person: "Kimberly"
+    }
+  };
+
+  function pressPlayHtml(stage) {
+    var item = PRESS_PLAY[stage];
+    if (!item) return "";
+    return '<div class="divider"></div>' +
+      '<p class="result-lede"><strong>So what do you actually do when the moment comes?</strong></p>' +
+      '<p><strong>' + item.moment + '</strong></p>' +
+      '<p>' + item.practice + '</p>' +
+      '<p class="cta-microcopy"><strong>What can happen when you press play?</strong></p>' +
+      '<blockquote><strong>“' + item.proof + '”</strong><br>' + item.person + '</blockquote>';
+  }
+
+  function pairPressPlayHtml(stages) {
+    return '<div class="divider"></div>' +
+      '<p class="result-lede"><strong>So what do you actually do when the moment comes?</strong></p>' +
+      stages.map(function(stage) {
+        var item = PRESS_PLAY[stage];
+        return item ? '<p><strong>' + Y.escapeText(stage) + '</strong><br><strong>' + item.moment + '</strong><br>' + item.practice + '</p>' +
+          '<p class="cta-microcopy"><strong>What can happen when you press play?</strong></p>' +
+          '<blockquote><strong>“' + item.proof + '”</strong><br>' + item.person + '</blockquote>' : '';
+      }).join('');
+  }
+
   function renderSingle(container, stage) {
     var product = SINGLES[stage];
     if (!product) return false;
@@ -266,11 +315,12 @@
       '<div class="divider"></div>' +
       '<p class="result-lede" style="margin-top:0;">I recommend ' + Y.escapeText(stage) + '.</p>' +
       productCopy +
+      pressPlayHtml(stage) +
       '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
       '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone, when you already know that hasn’t been enough to create the change you want.</p>' +
       '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
       '<p><strong>£49</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START WITH ' + Y.escapeText(stage).toUpperCase() + ' - £49</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-single href="' + product.url + '">START MY SESSION - £49</a></div>' +
       downsellHtml(true);
 
     logRoute("Single Audio", stage);
@@ -433,10 +483,11 @@
       '<p>Work with it for 21 days and complete your check-ins.</p>' +
       '<p>Then move on to <strong>' + Y.escapeText(second) + '</strong>.</p>' +
       '<p><strong>One stage at a time.</strong></p>') +
+      pairPressPlayHtml(stages) +
       '<p><strong>You might think you should be able to do this by yourself. And you are doing it yourself.</strong></p>' +
       '<p>You’re already making choices about how you want to respond. The hypnotherapy is designed to support those choices at a subconscious level, rather than leaving you to rely on conscious effort and willpower alone, when you already know that hasn’t been enough to create the change you want.</p>' +
       '<p><strong>You’re still the one making the change. The hypnotherapy is there to support you in making the choices you already want to make.</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">GET MY 2 SESSIONS NOW - £74</a></div>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-pair href="' + pair.url + '">START MY 2 SESSIONS - £74</a></div>' +
       downsellHtml(false);
 
     logRoute("Two-Stage Pathway", pair.name);
