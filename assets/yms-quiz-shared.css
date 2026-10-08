@@ -339,3 +339,24 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 .og-accordion-panel-inner{overflow:hidden;}
 .og-accordion-panel-inner > .og-accordion-content{padding-top:22px;}
 .og-accordion-content .og-label:not(:first-child){margin-top:22px;}
+
+/* Stepped recommendation UX — mirrors Return to You Series purchase flow */
+.yms-stepped-offer{font-family:'Inter',sans-serif;color:var(--ink);scroll-margin-top:18px}
+.yms-step-progress{display:flex;align-items:center;gap:12px;margin:4px 0 24px;font-size:12px;font-weight:700;color:#62666d}
+.yms-step-track{height:5px;background:#ececea;flex:1;border-radius:99px;overflow:hidden}
+.yms-step-bar{height:100%;background:#9b7a45;transition:width .25s ease}
+.yms-step-panel{display:none;animation:ymsStepEnter .2s ease}
+.yms-step-panel.active{display:block}
+@keyframes ymsStepEnter{from{opacity:.2;transform:translateX(8px)}to{opacity:1;transform:none}}
+.yms-step-panel h2{font-family:'Fraunces',serif;font-size:clamp(29px,8vw,40px);line-height:1.08;margin:0 0 18px}
+.yms-step-panel h3{font-family:'Fraunces',serif;font-size:23px;line-height:1.1;margin:0 0 8px}
+.yms-step-panel blockquote{margin:14px 0 18px;padding:14px 16px;border-left:3px solid #eef2ec;background:#fff;font-size:14px}
+.yms-step-panel blockquote strong{font-weight:600}
+.yms-stage{padding:17px 0;border-bottom:1px solid #e7e8e6}.yms-stage:last-of-type{border-bottom:0}
+.yms-flow-row{padding:12px 0;border-bottom:1px solid #e7e8e6}.yms-flow-row span{display:block;font-size:13px;color:#62666d}.yms-flow-row strong{display:block;margin-top:2px}
+.yms-buy{display:block;width:100%;border:0;border-radius:5px;background:#c84f20;color:#fff!important;text-decoration:none;text-align:center;font-weight:700;font-size:15px;padding:16px 14px;margin:18px 0 10px;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.yms-buy:hover,.yms-buy:focus{background:#a63f18;opacity:1}
+.yms-step-next{display:block;width:100%;border:1px solid #111827;border-radius:5px;background:#fff;color:#111827;font-weight:700;font-size:14px;padding:14px;margin:14px 0 6px;cursor:pointer}
+.yms-step-back{display:block;border:0;background:transparent;color:#62666d;text-decoration:underline;font-weight:600;font-size:13px;margin:15px auto 0;cursor:pointer}
+.yms-offer-box{background:#faf9f6;border:1px solid #e7e8e6;padding:20px;margin:22px 0}.yms-price{font-family:'Fraunces',serif;font-size:40px;line-height:1;margin:12px 0}
+@media(prefers-reduced-motion:reduce){.yms-step-panel{animation:none}.yms-step-bar{transition:none}}
