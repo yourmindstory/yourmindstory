@@ -47,6 +47,9 @@
         t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
         y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
       })(global, document, "clarity", "script", "xl81ev553e");
+      // The visitor has accepted analytics cookies (checked above), so tell Clarity. Without this,
+      // Clarity runs cookieless and no Clarity session can be linked to an assessment.
+      try { global.clarity('consent'); } catch (e) {}
     }
     if (advertisingAllowed() && !global.__ymsMetaLoaded) {
       global.__ymsMetaLoaded = true;
