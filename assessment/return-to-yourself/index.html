@@ -112,14 +112,17 @@ p{font-size:16px;margin:0 0 15px}.lead{font-size:18px}.muted{color:var(--muted)}
 const V3_BACKEND='https://script.google.com/macros/s/AKfycbzDtA92i-aQeyeuamBdA4LbxGUruh55qxSOk_nwLncBM3stllbZoaipxNzKb9xyTveLdA/exec';
 const EXPERIMENT='RTY-stepped-mobile-v1';
 function identity(){let x={};try{x=JSON.parse(sessionStorage.getItem('yms_v3_last_submission')||'{}')||{}}catch(e){x={}}const q=new URLSearchParams(location.search);if(!x.submissionId&&q.get('sid'))x.submissionId=q.get('sid');if(!x.journeyId&&q.get('jid'))x.journeyId=q.get('jid');return x}
-function postEvent(eventType,values){const id=identity();if(!id.submissionId&&!id.resultToken)return;try{fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'recordJourneyEvent',eventType,submissionId:id.submissionId||'',journeyId:id.journeyId||'',resultToken:id.resultToken||'',values:values||{}}),keepalive:true}).catch(()=>{})}catch(e){}}
+// How she arrived: from her on-page results, from the results email, or another route. First-party operational record only.
+const ENTRY=(function(){try{const q=new URLSearchParams(location.search);if(q.get('utm_medium')==='email'&&q.get('utm_source')==='yms_assessment')return 'results_email';let r=document.referrer||'';if(/\/assessment\/start/.test(r)||sessionStorage.getItem('yms_v3_last_submission'))return 'assessment_results';if(q.get('sid')||q.get('jid'))return 'link_with_assessment_ids';return 'direct_or_other'}catch(e){return 'unknown'}})();
+function consentState(){try{let v=localStorage.getItem('yms_analytics_consent');return v==='yes'?'yes':v==='no'?'no':'unset'}catch(e){return 'unset'}}
+function postEvents(list){const id=identity();if(!id.submissionId&&!id.resultToken)return;try{fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'recordJourneyEvents',submissionId:id.submissionId||'',journeyId:id.journeyId||'',resultToken:id.resultToken||'',analyticsConsent:consentState(),page:'sales',entry:ENTRY,events:list.map(e=>({eventType:e[0],values:Object.assign({entry:ENTRY},e[1]||{}),clientTime:new Date().toISOString()}))}),keepalive:true}).catch(()=>{})}catch(e){}}
+function postEvent(eventType,values){postEvents([[eventType,values]])}
 let step=1;
 function showStep(n){if(n<1||n>6)return;document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',Number(p.dataset.step)===n));step=n;document.getElementById('count').textContent=n+' of 6';document.getElementById('bar').style.width=(n/6*100)+'%';window.scrollTo({top:0,behavior:'smooth'});postEvent('sales_step_view',{step:n,product:'Return to You Series',experiment:EXPERIMENT,price:'149'})}
 document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>showStep(Number(b.dataset.next))));
 document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>showStep(Number(b.dataset.back))));
 document.querySelectorAll('.buy').forEach(a=>a.addEventListener('click',function(){postEvent('checkout_click',{product:'Return to You Series',route:'Return to You Series',cta:this.textContent.trim(),screen:step,destination:'stan.store',experiment:EXPERIMENT,price:'149'})}));
-postEvent('sales_page_view',{product:'Return to You Series',route:'Return to You Series',experiment:EXPERIMENT,price:'149'});
-postEvent('sales_step_view',{step:1,product:'Return to You Series',experiment:EXPERIMENT,price:'149'});
+postEvents([['sales_page_view',{product:'Return to You Series',route:'Return to You Series',experiment:EXPERIMENT,price:'149'}],['sales_step_view',{step:1,product:'Return to You Series',experiment:EXPERIMENT,price:'149'}]]);
 </script>
 <script src="/assets/yms-consent.js?v=20261001-tracking" defer></script>
 </body></html>
