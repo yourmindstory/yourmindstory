@@ -114,13 +114,13 @@ if(qual.length===0){
  let x=stageCopy[qual[0]];
  recognition='<h1>'+x.name+'</h1>'+lived+'<p>'+x.story+'</p>';
  bridge=mechanism;
- recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>'+x.name+'</h2><p class="rec-price">Focused 21-day audio programme · £49</p><p class="rec-benefit">'+x.work+'</p><p class="rec-includes"><strong>What you receive:</strong> guided hypnotherapy audio practice for this stage, a 21-day routine and progress check-ins on Days 0, 7, 14 and 21.</p><p class="rec-proof">The aim is a first practical shift in how you respond, not another explanation of his behaviour.</p>';
+ recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>'+x.name+'</h2><p class="rec-price">One guided cognitive behavioural hypnotherapy stage · £49</p><p class="rec-benefit">'+x.work+'</p><p class="rec-includes"><strong>What you receive:</strong> guided cognitive behavioural hypnotherapy audio sessions for this stage, a 21-day practice routine and progress check-ins on Days 0, 7, 14 and 21.</p><p class="rec-proof">The aim is a first practical shift in how you respond, not another explanation of his behaviour.</p>';
  cta='<p><a class="next" href="'+links[x.name]+'" data-rec-product="'+x.name+'" data-rec-route="Single Stage">START WITH '+x.name.toUpperCase()+' · £49</a></p>';
 }else if(qual.length===2){
  let x=stageCopy[qual[0]],y=stageCopy[qual[1]],key=qual.join('|');
  recognition='<h1>'+x.name+' → '+y.name+'</h1>'+lived+'<p>'+x.story+'</p><p>'+y.story+'</p><p><strong>'+pairInsight[key]+'</strong></p>';
  bridge=mechanism;
- recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>'+x.name+' + '+y.name+'</h2><p class="rec-price">Two-stage journey · £89</p><p class="rec-benefit">Your answers point to two connected responses. Working through these stages in sequence gives you a focused place to begin.</p><p class="rec-includes"><strong>What you receive:</strong> both stage-specific audio programmes, guided practice and progress check-ins on Days 0, 7, 14 and 21.</p><p class="rec-proof"><strong>'+x.name+':</strong> '+x.work+'<br><strong>'+y.name+':</strong> '+y.work+'</p>';
+ recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>'+x.name+' + '+y.name+'</h2><p class="rec-price">Two guided cognitive behavioural hypnotherapy stages · £89</p><p class="rec-benefit">Your answers point to two connected responses. Working through these stages in sequence gives you a focused place to begin.</p><p class="rec-includes"><strong>What you receive:</strong> both stage-specific guided cognitive behavioural hypnotherapy audio programmes, with practice and progress check-ins on Days 0, 7, 14 and 21.</p><p class="rec-proof"><strong>'+x.name+':</strong> '+x.work+'<br><strong>'+y.name+':</strong> '+y.work+'</p>';
  cta='<p><a class="next" href="'+pairLinks[key]+'" data-rec-product="'+x.name+' → '+y.name+'" data-rec-route="Two-Stage Pair">START WITH THESE TWO SESSIONS · £89</a></p>';
 }else{
  recognition='<h1>You understand what is happening. But knowing has not stopped it from affecting you.</h1>'+lived+
@@ -146,7 +146,7 @@ const kimberlyReview='<div class="kimberly-review"><div class="kimberly-review-h
 recommendation='<div class="eyebrow" style="color:#c4aa6b">Based on your answers</div>'+recommendation;
 if(qual.length>0){
  panels.push('<div class="rec rec-evidence">'+kimberlyReview+'</div>');
- panels.push('<div class="rec rec-offer">'+recommendation+route+'<p class="rec-proof">★★★★★ Kimberly J. · Verified Buyer — “I still have the loop but it’s not consuming me constantly”</p>'+cta+'</div>');
+ panels.push('<div class="rec rec-offer">'+recommendation+route+'<p class="rec-proof">★★★★★ Kimberly J. · Verified Buyer — “I still have the loop but it’s not consuming me constantly” <a href="https://payhip.com/b/MlUoB" target="_blank" rel="noopener noreferrer">Read Kimberly\'s full review here</a></p>'+cta+'</div>');
 }else{
  panels.push('<div class="rec">'+recommendation+route+cta+'</div>');
 }
