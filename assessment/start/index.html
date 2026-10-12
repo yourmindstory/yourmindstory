@@ -139,7 +139,7 @@ let el=document.getElementById('result');el.classList.add('active');
 let panels=[];
 const kimberlyReview='<div class="kimberly-review"><div class="kimberly-review-head">WOMEN WHO PRESSED PLAY</div><p class="kimberly-review-quote">“I still have the loop but it’s not consuming me constantly”</p><p class="kimberly-review-stars"><span>Kimberly J.</span></p><p>Kimberly described the thoughts becoming less consuming after using Your Mind Story guided audio sessions.</p><p><a href="https://payhip.com/b/MlUoB" target="_blank" rel="noopener noreferrer">Read Kimberly\'s full review</a></p></div>';
 const checkinProof='<div class="checkin-proof"><p class="checkin-proof-head">HOW THE CHECK-INS HELP</p><p class="checkin-proof-quote">“They’re like an online journal to track how you feel as you go on.”</p><p class="checkin-proof-quote">“And it’s good to see how you felt in the past cos it keeps you motivated.”</p><p class="checkin-proof-source">Princess M.</p></div>';
-const noContact=/ended|little or no contact|no contact/i.test(String(a[10]||''));
+const noContact=context===3;
 const experienceByGoal=[
  'You might know you need to settle yourself, but a memory, silence or something you see can still leave you anxious for hours.',
  'You can mean it when you decide not to go back. Then you miss him, remember the good parts or start hoping, and find yourself questioning your decision again.',
