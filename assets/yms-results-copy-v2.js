@@ -95,8 +95,8 @@
       '<div class="divider"></div>' +
       '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
       copy.html +
-      '<p><strong>£49</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" href="' + copy.url + '" id="ymsFinalAudioCta">' + copy.cta + ' · £49</a></div>';
+      '<p><strong>£37</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" href="' + copy.url + '" id="ymsFinalAudioCta">' + copy.cta + ' · £37</a></div>';
 
     var cta = document.getElementById("ymsFinalAudioCta");
     if (cta) cta.addEventListener("click", function () {
@@ -120,8 +120,8 @@
       '<p>Return to Yourself<br><strong>The Complete Self-Guided Journey</strong></p>' +
       '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to You</strong></p>' +
       '<p>You can work through the four stages independently, in your own time, with guided audio sessions and progress check-ins.</p>' +
-      '<p><strong>£149</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" id="ymsFinalSelfGuidedCta">START THE COMPLETE SELF-GUIDED JOURNEY · £149</a></div>' +
+      '<p><strong>£117</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" id="ymsFinalSelfGuidedCta">START THE COMPLETE SELF-GUIDED JOURNEY · £117</a></div>' +
       '<p class="cta-microcopy" style="margin-top:18px;">★★★★★ 5 stars on Google<br><strong>Cognitive Behavioural Hypnotherapist</strong></p>';
 
     var cta = document.getElementById("ymsFinalSelfGuidedCta");
