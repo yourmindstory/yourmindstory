@@ -327,7 +327,7 @@
   function renderSingle(container, stage) {
     var product=SINGLES[stage], item=PRESS_PLAY[stage];
     if(!product||!item)return false;
-    var cfg={product:stage,route:"Single Audio",price:49,url:product.url};
+    var cfg={product:stage,route:"Single Audio",price:37,url:product.url};
     var why={
       "Quiet the Alarm":"Your answers show the alarm response is the part hitting you hardest. Something connected to him happens and your body can react before you have had time to think it through.",
       "Break the Pull":"Your answers show the pull is the part hitting you hardest. You can know checking, replaying or reaching out will not help and still feel the urge when the moment comes.",
@@ -342,10 +342,10 @@
     }[stage];
     var screens=[
       {html:'<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span><h2>'+Y.escapeText(stage)+'</h2><p><strong>'+why+'</strong></p><p>This is why I would start here.</p>',next:'SEE WHY THIS SESSION FITS →'},
-      {html:'<span class="og-label">WHY THIS SESSION?</span><h2>You already know a lot about what you should do.</h2><p>The difficult part is being able to do it <strong>when you are actually in the moment.</strong></p><p><strong>Understanding the pattern and changing your response to the pattern are two different jobs.</strong></p><p>Cognitive Behavioural Hypnotherapy helps you practise a different response so you are not relying on conscious effort alone.</p>'+purchaseButton(cfg,'START MY SESSION — £49'),next:'SHOW ME HOW I USE IT →'},
-      {html:'<span class="og-label">WHEN THE MOMENT COMES</span><h2>So what do you actually do?</h2><p><strong>'+item.moment+'</strong></p><p>'+item.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+item.proof+'”</strong><br>'+item.person+'</blockquote>'+purchaseButton(cfg,'START MY SESSION — £49'),next:'WHAT HAPPENS AFTER I BUY? →'},
-      {html:'<span class="og-label">YOU ARE NOT LEFT TO IT</span><h2>Work with the session for 21 days.</h2><p>You will have your session and short Progress Reviews along the way so you can notice what is changing, what is getting easier and where the old response is still showing up.</p><p><strong>You are not just pressing play and hoping something changes.</strong> You are paying attention to whether the work is showing up in your real life.</p>'+purchaseButton(cfg,'START MY SESSION — £49'),next:'SHOW ME THE OUTCOME →'},
-      {html:'<span class="og-label">'+Y.escapeText(stage)+'</span><h2>What would the change actually look like?</h2><p><strong>'+outcome+'</strong></p><div class="yms-offer-box"><p>21-day Cognitive Behavioural Hypnotherapy session + Progress Reviews</p><div class="yms-price">£49</div>'+purchaseButton(cfg,'START MY SESSION — £49')+'</div>'}
+      {html:'<span class="og-label">WHY THIS SESSION?</span><h2>You already know a lot about what you should do.</h2><p>The difficult part is being able to do it <strong>when you are actually in the moment.</strong></p><p><strong>Understanding the pattern and changing your response to the pattern are two different jobs.</strong></p><p>Cognitive Behavioural Hypnotherapy helps you practise a different response so you are not relying on conscious effort alone.</p>'+purchaseButton(cfg,'START MY SESSION — £37'),next:'SHOW ME HOW I USE IT →'},
+      {html:'<span class="og-label">WHEN THE MOMENT COMES</span><h2>So what do you actually do?</h2><p><strong>'+item.moment+'</strong></p><p>'+item.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+item.proof+'”</strong><br>'+item.person+'</blockquote>'+purchaseButton(cfg,'START MY SESSION — £37'),next:'WHAT HAPPENS AFTER I BUY? →'},
+      {html:'<span class="og-label">YOU ARE NOT LEFT TO IT</span><h2>Work with the session for 21 days.</h2><p>You will have your session and short Progress Reviews along the way so you can notice what is changing, what is getting easier and where the old response is still showing up.</p><p><strong>You are not just pressing play and hoping something changes.</strong> You are paying attention to whether the work is showing up in your real life.</p>'+purchaseButton(cfg,'START MY SESSION — £37'),next:'SHOW ME THE OUTCOME →'},
+      {html:'<span class="og-label">'+Y.escapeText(stage)+'</span><h2>What would the change actually look like?</h2><p><strong>'+outcome+'</strong></p><div class="yms-offer-box"><p>21-day Cognitive Behavioural Hypnotherapy session + Progress Reviews</p><div class="yms-price">£37</div>'+purchaseButton(cfg,'START MY SESSION — £37')+'</div>'}
     ];
     cfg.screens=screens;
     container.innerHTML=steppedRecommendationHtml(cfg)+downsellHtml(true);
@@ -541,15 +541,15 @@
       '<p><strong>Understanding the cycle is not the same as breaking it.</strong></p>' +
       '<p>Nothing changes if nothing changes.</p>' +
       '<p><strong>Are you ready to start feeling like yourself again?</strong></p>' +
-      '<p><strong>£149</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START THE COMPLETE SELF-GUIDED JOURNEY - £149</a></div>' +
+      '<p><strong>£117</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START THE COMPLETE SELF-GUIDED JOURNEY - £117</a></div>' +
       downsellHtml(false);
 
     logRoute("Return to Yourself", "Return to Yourself");
     var cta = container.querySelector("[data-yms-self-guided]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
-      recordJourney("primary_cta_click", { cta: "Return to Yourself - £149" });
+      recordJourney("primary_cta_click", { cta: "Return to Yourself - £117" });
     });
     wireDownsell(container, reasonText ? "self_guided_private" : "self_guided_" + stages.length);
     return true;
