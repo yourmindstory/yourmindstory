@@ -130,8 +130,9 @@ if(qual.length===0){
  const joined=stages.map(i=>stageStruggles[i]).join(', ');
  const name=full?'Return to Yourself Series':stages.map(i=>stageNames[i]).join(' + ');
  const price=full?117:stages.length===2?74:37;
- const heading=full?'It\'s time to return to yourself.':stages.length===1?'It\'s time to '+stageNames[stages[0]].toLowerCase()+'.':'It\'s time to start getting yourself back.';
- recognition='<h1>Hasn\'t this had enough power over your life?</h1><p>You came here because you\'re tired of '+joined+'.</p><p>Your answers show that this has affected '+(full?'more than one part of your life':stages.length===1?'this part of your life':'these connected parts of your life')+'.</p><p><strong>And the truth is, this isn\'t what you thought was going to happen with him.</strong></p><p>You wanted a relationship. Not to spend your days lost in chaos, confusion and heartbreak.</p>';
+ const actionPhrases=['quiet the alarm','break the pull','restore your self-trust','return to you'];
+ const heading=full?'It\'s time to return to yourself.':'It\'s time to '+(stages.length===1?actionPhrases[stages[0]]:actionPhrases[stages[0]]+' and '+actionPhrases[stages[1]])+'.';
+ recognition='<h1>Hasn\'t this had enough power over your life?</h1><p>You came here because you\'re tired of '+joined+'.</p><p>Your answers show that this has affected '+(full?'more than one part of your life':stages.length===1?'this part of your life':'these connected parts of your life')+'.</p><p><strong>And the truth is, this isn\'t what you thought was going to happen with him.</strong></p><p>You wanted a relationship. Not to spend your days lost in chaos, confusion and heartbreak.</p><p><strong>'+heading+'</strong></p>';
  const stagesHtml=stages.map((i,n)=>'<p class="rec-benefit"><strong>'+(n+1)+'. '+stageNames[i]+'</strong></p><p>'+stageBenefits[i]+'</p>').join('');
  const sessionCount=full?4:stages.length;
  const journeyLine=sessionCount>1?'<p>We work through these stages in order, helping you find your way back to yourself, one stage at a time.</p>':'';
