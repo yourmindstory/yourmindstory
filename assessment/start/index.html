@@ -111,29 +111,37 @@ if(qual.length===0){
  recognition='<h1>I would not start you with one of the hypnotherapy audios.</h1><p class="lead">Your answers do not show one of the four areas strongly enough for me to recommend more support than they suggest you need right now.</p>';
  recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>The Bare Minimum</h2><p>I would start one step earlier. The Bare Minimum gives you five non-negotiables a woman needs to stay healthy in love, so you have something solid to come back to when feelings, hope or uncertainty make you question what you need and what you will accept.</p>';
  cta='<p><a class="next" href="https://stan.store/YourMindStory/p/the-bare-minimum" data-rec-product="The Bare Minimum" data-rec-route="Bare Minimum">START WITH THE BARE MINIMUM</a></p>';
-}else if(qual.length===1){
- let x=stageCopy[qual[0]];
- recognition='<h1>'+x.name+'</h1>'+lived+'<p>'+x.story+'</p>';
- bridge=mechanism;
- recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>'+x.name+'</h2><p class="rec-price">One guided cognitive behavioural hypnotherapy stage · £37</p><p class="rec-benefit">'+x.work+' <strong>'+customerBenefits[qual[0]]+'</strong></p><p class="rec-includes"><strong>What you receive:</strong> guided cognitive behavioural hypnotherapy audio sessions for this stage, a 21-day practice routine and progress check-ins on Days 0, 7, 14 and 21.</p><p class="rec-proof">The aim is a first practical shift in how you respond, not another explanation of his behaviour.</p>';
- cta='<p><a class="next" href="'+links[x.name]+'" data-rec-product="'+x.name+'" data-rec-route="Single Stage">START WITH '+x.name.toUpperCase()+' · £37</a></p>';
-}else if(qual.length===2){
- let x=stageCopy[qual[0]],y=stageCopy[qual[1]],key=qual.join('|');
- recognition='<h1>'+x.name+' → '+y.name+'</h1>'+lived+'<p>'+x.story+'</p><p>'+y.story+'</p><p><strong>'+pairInsight[key]+'</strong></p>';
- bridge=mechanism;
- recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>'+x.name+' + '+y.name+'</h2><p class="rec-price">Two guided cognitive behavioural hypnotherapy stages · £74</p><p class="rec-benefit">Your answers point to two connected responses. Working through these stages in sequence gives you a focused place to begin.</p><p class="rec-includes"><strong>What you receive:</strong> both stage-specific guided cognitive behavioural hypnotherapy audio programmes, with practice and progress check-ins on Days 0, 7, 14 and 21.</p><p class="rec-proof"><strong>'+x.name+':</strong> '+customerBenefits[qual[0]]+'<br><strong>'+y.name+':</strong> '+customerBenefits[qual[1]]+'</p>';
- cta='<p><a class="next" href="'+pairLinks[key]+'" data-rec-product="'+x.name+' → '+y.name+'" data-rec-route="Two-Stage Pair">START WITH THESE TWO SESSIONS · £74</a></p>';
 }else{
- recognition='<h1>You understand what is happening. But knowing has not stopped it from affecting you.</h1>'+lived+
- '<p>Your body can react before you have had time to think. Then your mind starts going. You replay what happened, check, wonder, wait or look for an answer. You can tell yourself you are not going to get pulled into it again and still find yourself right back there.</p>'+
- '<p>And somewhere in all of that, you can start questioning yourself too. What you saw. What you felt. What you decided. Whether you are asking for too much.</p>'+
- '<p>Meanwhile, the rest of your life is still there. Your sleep. Your work. Your relationships. Your plans. The things you wanted to do before your attention went back to him again.</p>'+
- '<p><strong>And this is where things need to change. Not in how much more you can understand about him, but in what this experience is still doing to you.</strong></p>';
- bridge='<div class="bridge"><h2>Why knowing hasn\'t been enough</h2><p>You might understand the avoidant pattern. But understanding the pattern and being able to respond differently when that feeling comes over you are not necessarily the same thing.</p><p><strong>That is the part we need to work on.</strong></p></div>';
- recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>Return to You Series</h2><p class="rec-price">The complete four-stage guided cognitive behavioural hypnotherapy journey back to yourself · £117</p><p class="rec-benefit">You told me you want to <strong>'+outcome+'</strong>. Your answers point to more than one part of this cycle: the emotional reaction, the pull to check or go back, the decisions you question and the attention it takes from your own life. That is why I recommend all four stages together. The aim is to help you practise changing those responses, not to give you more information about him.</p><p class="rec-proof">The first change is not forgetting him. It is beginning to quieten the noise and get some space back in your own mind, so the checking, waiting and replaying do not have to take over your day.</p><p class="rec-includes"><strong>What you receive:</strong> four guided cognitive behavioural hypnotherapy stages, with eight audio recordings across Quiet the Alarm, Break the Pull, Restore Self-Trust and Return to You, plus progress check-ins on Days 0, 7, 14 and 21.</p>';
- route='<p class="rec-value">A one-to-one session with me is £225. This complete self-guided journey is £117, so you can practise in your own time.</p>';
- let seriesId=journeyIdentity();
- cta='<p><a class="next" href="/assessment/return-to-yourself/?jid='+encodeURIComponent(seriesId.journeyId||'')+'&sid='+encodeURIComponent(seriesId.submissionId||'')+'" data-rec-product="Return to You Series" data-rec-route="Return to You Series">RETURN TO YOURSELF · £117</a></p>'
+ const full=qual.length>=3;
+ const stages=full?[0,1,2,3]:qual;
+ const stageNames=['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to You'];
+ const stageBenefits=[
+ 'So a thought, a memory, his silence or something he does doesn\'t have to send you into hours of anxiety.',
+ 'So you can stop automatically checking, chasing, replaying conversations or reaching out when you know you don\'t want to.',
+ 'So you can choose yourself again. Stop questioning your worth, stand by your decisions and stop abandoning yourself for hope or memories of how things used to be.',
+ 'So your attention, energy and life can start belonging to you again.'
+ ];
+ const stageStruggles=[
+ 'overthinking and anxiety',
+ 'preoccupation with him, checking and replaying conversations',
+ 'questioning your worth and your own decisions',
+ 'abandoning yourself and feeling like you have lost who you are'
+ ];
+ const joined=stages.map(i=>stageStruggles[i]).join(', ');
+ const name=full?'Return to Yourself Series':stages.map(i=>stageNames[i]).join(' + ');
+ const price=full?117:stages.length===2?74:37;
+ const heading=full?'It\'s time to return to yourself.':stages.length===1?'It\'s time to '+stageNames[stages[0]].toLowerCase()+'.':'It\'s time to start getting yourself back.';
+ recognition='<h1>Hasn\'t this had enough power over your life?</h1><p>You came here because you\'re tired of '+joined+'.</p><p>Your answers show that this has affected '+(full?'more than one part of your life':stages.length===1?'this part of your life':'these connected parts of your life')+'.</p><p><strong>And the truth is, this isn\'t what you thought was going to happen with him.</strong></p><p>You wanted a relationship. Not to spend your days lost in chaos, confusion and heartbreak.</p>';
+ const stagesHtml=stages.map((i,n)=>'<p class="rec-benefit"><strong>'+(n+1)+'. '+stageNames[i]+'</strong></p><p>'+stageBenefits[i]+'</p>').join('');
+ const sessionCount=full?4:stages.length;
+ const journeyLine=sessionCount>1?'<p>We work through these stages in order, helping you find your way back to yourself, one stage at a time.</p>':'';
+ const support='<h3>And you won\'t be doing this alone.</h3><p>This experience can be incredibly isolating. Maybe nobody even knows how much this has affected you.</p><p><strong>I\'ll be checking in with you.</strong></p><p>You\'ll receive weekly emails from me with progress check-ins to help you recognise what\'s changing, reflect on how you\'re feeling and stay connected to your journey.</p>';
+ const review='<div class="checkin-proof"><p class="checkin-proof-quote">“They\'re like an online journal to track how you feel as you go on. And it\'s good to see how you felt in the past cos it keeps you motivated.”</p><p class="checkin-proof-source">— Princess M.</p></div><h3>What women are experiencing</h3><p class="rec-proof">“For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”<br>— CeeJayMayDay</p><p class="rec-proof"><strong>WITHIN SEVEN DAYS, THIS IS WHAT KIMBERLY EXPERIENCED:</strong><br>“The loop of him playing in my head is wearing off. I\'m gaining my nervous system back.”<br>— Kimberly</p>';
+ recommendation='<h2>'+heading+'</h2><p>The <strong>'+name+'</strong> includes '+sessionCount+' guided Cognitive Behavioural Hypnotherapy '+(sessionCount===1?'session':'sessions')+' to help you:</p>'+stagesHtml+journeyLine+support+review+'<h2>I want this for you. The question is, do you?</h2><p class="rec-price"><strong>'+name+' · £'+price+'</strong></p>';
+ const link=full?'/assessment/return-to-yourself/?jid='+encodeURIComponent(journeyIdentity().journeyId||'')+'&sid='+encodeURIComponent(journeyIdentity().submissionId||''):stages.length===1?links[stageCopy[stages[0]].name]:pairLinks[stages.join('|')];
+ const routeName=full?'Return to You Series':stages.length===1?'Single Stage':'Two-Stage Pair';
+ const ctaText=full?'I WANT TO RETURN TO MYSELF':stages.length===1?'I WANT TO '+stageNames[stages[0]].toUpperCase(): 'I WANT TO START GETTING MYSELF BACK';
+ cta='<p><a class="next" href="'+link+'" data-rec-product="'+name+'" data-rec-route="'+routeName+'">'+ctaText+'</a></p><p>I can\'t help you change him. But I can help you get out of the exhausting loop you\'re in, so you can take your power back and have more control than he has over how you feel in your life.</p>';
 }
 let el=document.getElementById('result');el.classList.add('active');
 let panels=[];
@@ -164,7 +172,7 @@ const proof=qual.length>0?'<div class="rec rec-evidence"><p class="rec-benefit">
 const offer='<div class="rec rec-offer"><div class="eyebrow" style="color:#c4aa6b">Based on your answers</div>'+recommendation+route+cta+'</div>';
 panels.push('<div class="eyebrow">Your personalised assessment</div>'+recognition);
 if(outcomeSummary)panels.push(outcomeSummary);
-panels.push(offer+proof);
+panels.push(offer);
 el.innerHTML=panels.map((html,n)=>'<section class="result-panel'+(n===0?' active':'')+'" data-result-step="'+n+'"><div class="result-step">Part '+(n+1)+' of '+panels.length+'</div>'+html+(n<panels.length-1?'<div class="actions">'+(n>0?'<button type="button" class="back result-back">Back</button>':'<span></span>')+'<button type="button" class="next result-next">'+(n===panels.length-2?'SEE MY RECOMMENDATION':'CONTINUE')+'</button></div>':(n>0?'<div class="actions"><button type="button" class="back result-back">Back</button><span></span></div>':''))+'</section>').join('');
 function recommendationHandoff(link){let last=journeyIdentity(),route=link.dataset.recRoute||'',productType=route==='Single Stage'?'single_stage':route==='Two-Stage Pair'?'two_stage_pair':route==='Bare Minimum'?'bare_minimum':'return_to_you_series';let p={product:link.dataset.recProduct||'',route:route,recommendation_category:recommendationCategory,product_type:productType,submission_id:last.submissionId||'',journey_id:last.journeyId||'',destination:(link.hostname||location.hostname||'').toLowerCase()};let external=link.origin&&link.origin!==location.origin;let jv={product:p.product,route:p.route,recommendation_category:p.recommendation_category,cta:p.product,destination:p.destination};postJourneyEvents(external?[['primary_cta_click',jv],['checkout_click',jv]]:[['primary_cta_click',jv]]);let analyticsParams={product:p.product,route:p.route,recommendation_category:p.recommendation_category,product_type:p.product_type,destination:p.destination,transport_type:'beacon'};track('recommendation_click',analyticsParams);track('primary_cta_click',analyticsParams);if(external){track('checkout_click',analyticsParams);try{sessionStorage.setItem('yms_v3_last_checkout',JSON.stringify(Object.assign({clickedAt:new Date().toISOString()},p)))}catch(e){}}}
 el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link)recommendationHandoff(link)});
