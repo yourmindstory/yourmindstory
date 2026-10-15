@@ -175,8 +175,7 @@ const namedHeading='YOUR PERSONALISED RESULTS'+(safeName?', '+safeName:'');
 const recLink=cta.match(/<a\b[^>]*data-rec-product[^>]*>[\s\S]*?<\/a>/);
 const purchase=recLink?recLink[0]:'';
 if(qual.length===0){
- panels.push('<div class="eyebrow">'+namedHeading+'</div>'+recognition);
- panels.push('<div class="rec rec-offer">'+recommendation+route+cta+'</div>');
+ panels.push('<div class="eyebrow">'+namedHeading+'</div>'+recognition+'<div class="rec rec-offer">'+recommendation+route+cta+'</div>');
 }else{
  const supportStart=recommendation.indexOf('<h3>And you won');
  const proofStart=recommendation.indexOf('<div class="checkin-proof">',supportStart);
@@ -188,12 +187,11 @@ if(qual.length===0){
  const finalDetails=recommendation.slice(finalStart);
  const priceLine='<p class="rec-price"><strong>'+name+' · £'+price+'</strong></p>';
  const guarantee='<div class="rec-guarantee"><p><strong>14-day money-back guarantee</strong></p><p>Give yourself the opportunity to feel more like yourself.</p><p>If you use the sessions as directed for 14 days and don\'t feel you\'ve received any benefit or value, you can request a refund within 14 days of purchase.*</p></div>';
- panels.push('<div class="eyebrow">'+namedHeading+'</div>'+recognition);
- panels.push('<div class="rec rec-offer"><div class="eyebrow">Your personalised recommendation'+(safeName?', '+safeName:'')+'</div>'+stageDetails+priceLine+guarantee+'<div class="actions">'+purchase+'</div></div>');
+ panels.push('<div class="eyebrow">'+namedHeading+'</div>'+recognition+'<div class="rec rec-offer"><div class="eyebrow">Your personalised recommendation'+(safeName?', '+safeName:'')+'</div>'+stageDetails+priceLine+guarantee+'<div class="actions">'+purchase+'</div></div>');
  panels.push('<div class="rec rec-offer">'+supportDetails+'</div>');
  panels.push('<div class="rec rec-offer">'+proofDetails+finalDetails+cta+'</div>');
 }
-const nextLabels=qual.length===0?['SEE MY RECOMMENDATION']:['SEE MY RECOMMENDATION',"SEE HOW I'LL BE SUPPORTED","SEE WOMEN'S EXPERIENCES"];
+const nextLabels=qual.length===0?[]:["SEE HOW I'LL BE SUPPORTED","SEE WOMEN'S EXPERIENCES"];
 el.innerHTML=panels.map((html,n)=>'<section class="result-panel'+(n===0?' active':'')+'" data-result-step="'+n+'>'+html+(n<panels.length-1?'<div class="actions">'+(n>0?'<button type="button" class="back result-back">Back</button>':'<span></span>')+'<button type="button" class="next result-next">'+nextLabels[n]+'</button></div>':(n>0?'<div class="actions"><button type="button" class="back result-back">Back</button><span></span></div>':''))+'</section>').join('');
 function recommendationHandoff(link){let last=journeyIdentity(),route=link.dataset.recRoute||'',productType=route==='Single Stage'?'single_stage':route==='Two-Stage Pair'?'two_stage_pair':route==='Bare Minimum'?'bare_minimum':'return_to_you_series';let p={product:link.dataset.recProduct||'',route:route,recommendation_category:recommendationCategory,product_type:productType,submission_id:last.submissionId||'',journey_id:last.journeyId||'',destination:(link.hostname||location.hostname||'').toLowerCase()};let external=link.origin&&link.origin!==location.origin;let jv={product:p.product,route:p.route,recommendation_category:p.recommendation_category,cta:p.product,destination:p.destination};postJourneyEvents(external?[['primary_cta_click',jv],['checkout_click',jv]]:[['primary_cta_click',jv]]);let analyticsParams={product:p.product,route:p.route,recommendation_category:p.recommendation_category,product_type:p.product_type,destination:p.destination,transport_type:'beacon'};track('recommendation_click',analyticsParams);track('primary_cta_click',analyticsParams);if(external){track('checkout_click',analyticsParams);try{sessionStorage.setItem('yms_v3_last_checkout',JSON.stringify(Object.assign({clickedAt:new Date().toISOString()},p)))}catch(e){}}}
 el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link)recommendationHandoff(link)});
