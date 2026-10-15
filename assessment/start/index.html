@@ -187,11 +187,11 @@ if(qual.length===0){
  const proofDetails=recommendation.slice(testimonialStart,finalStart);
  const finalDetails=recommendation.slice(finalStart);
  const priceLine='<p class="rec-price"><strong>'+name+' · £'+price+'</strong></p>';
- const guarantee='<div class="rec-guarantee"><p><strong>14-day money-back guarantee</strong></p><p>Give yourself the opportunity to feel more like yourself.</p><p>If you don\'t feel it\'s helping you, you can request a refund within 14 days of purchase. You just need to press play and check in.*</p></div>';
+ const guarantee='<div class="rec-guarantee"><p><strong>14-day money-back guarantee</strong></p><p>Give yourself the opportunity to feel more like yourself.</p><p>If you use the sessions as directed for 14 days and don\'t feel you\'ve received any benefit or value, you can request a refund within 14 days of purchase.*</p></div>';
  panels.push('<div class="eyebrow">'+namedHeading+'</div>'+recognition);
  panels.push('<div class="rec rec-offer"><div class="eyebrow">Your personalised recommendation'+(safeName?', '+safeName:'')+'</div>'+stageDetails+priceLine+guarantee+'<div class="actions">'+purchase+'</div></div>');
  panels.push('<div class="rec rec-offer">'+supportDetails+'</div>');
- panels.push('<div class="rec rec-offer">'+proofDetails+finalDetails+guarantee+cta+'</div>');
+ panels.push('<div class="rec rec-offer">'+proofDetails+finalDetails+cta+'</div>');
 }
 const nextLabels=qual.length===0?['SEE MY RECOMMENDATION']:['SEE MY RECOMMENDATION',"SEE HOW I'LL BE SUPPORTED","SEE WOMEN'S EXPERIENCES"];
 el.innerHTML=panels.map((html,n)=>'<section class="result-panel'+(n===0?' active':'')+'" data-result-step="'+n+'>'+html+(n<panels.length-1?'<div class="actions">'+(n>0?'<button type="button" class="back result-back">Back</button>':'<span></span>')+'<button type="button" class="next result-next">'+nextLabels[n]+'</button></div>':(n>0?'<div class="actions"><button type="button" class="back result-back">Back</button><span></span></div>':''))+'</section>').join('');
