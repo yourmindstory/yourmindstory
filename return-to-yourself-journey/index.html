@@ -272,6 +272,32 @@ footer a{margin:0 6px;color:#f4f1ea}
 .jan-result blockquote{margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(24px,6.2vw,32px);line-height:1.3;color:#f4f1ea}
 .jan-name{font-weight:700;margin-top:6px}
 @media(min-width:760px){.jan-result{padding:40px 44px}}
+
+/* review wall */
+.wall{columns:1;column-gap:16px}
+.wall>*{break-inside:avoid;margin:0 0 16px}
+.t-shot{background:#fff;border-radius:16px;padding:10px;overflow:hidden}
+.t-shot img{width:100%;height:auto;border-radius:10px}
+.wall .t-card{background:#f4f1ea;color:var(--ink)}
+@media(min-width:700px){.wall{columns:2}}
+@media(min-width:1000px){.wall{columns:3}}
+.t-grid .t-shot{margin:0}
+
+/* photos blended like hers */
+.soft-photo{display:block;width:100%;max-width:420px;height:auto;margin:0 auto 30px;
+  -webkit-mask-image:radial-gradient(ellipse 72% 70% at 50% 45%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 72% 70% at 50% 45%,#000 55%,transparent 100%)}
+.soft-edge{-webkit-mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,#000 60%,transparent 100%);border-radius:0!important}
+.photo-bg{position:relative;background:var(--band);overflow:hidden}
+.photo-bg::before{content:"";position:absolute;inset:0;background:var(--bg) center 18%/cover no-repeat;opacity:.9}
+.photo-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(230,236,226,0) 0%,rgba(230,236,226,.25) 40%,rgba(230,236,226,.85) 100%)}
+.photo-bg{padding-top:300px}
+@media(min-width:760px){.photo-bg{padding-top:360px}}
+.photo-bg>.wrap{position:relative;z-index:1}
+.dark-photo{position:relative;overflow:hidden}
+.dark-photo::before{content:"";position:absolute;inset:0;background:var(--bg) center top/cover no-repeat;opacity:.16}
+.dark-photo>.wrap{position:relative;z-index:1}
+.banner-band{padding:40px 0}
+.banner{display:block;width:100%;max-width:900px;height:auto;margin:0 auto}
 </style>
 </head>
 <body>
@@ -343,8 +369,8 @@ footer a{margin:0 6px;color:#f4f1ea}
     <h2 id="t1-h" class="center">Women who have <em>listened</em> to the sessions</h2>
     <figure class="feature-quote"><blockquote>“The most incredible result was getting out of the loop. The hypnotherapy helped me ground my energy back to the amazing person that I am.”</blockquote><figcaption>Jan</figcaption></figure>
     <div class="t-grid">
-      <figure class="t-card" data-shot="TESTIMONIAL_KIMBERLY_SCREENSHOT"><blockquote>“It's not easy but the loop of him playing in my head is wearing off. I'm gaining my nervous system back.”</blockquote><figcaption>Kimberly</figcaption></figure>
-      <figure class="t-card" data-shot="TESTIMONIAL_K_SCREENSHOT"><blockquote>“Took me out of my own head and helped calm the voice screaming at me to reach out.”</blockquote><figcaption>K</figcaption></figure>
+      <figure class="t-shot"><img src="img/reviews/kimberly-dm-1.jpg" width="749" height="622" alt="Kimberly: You have helped so much. I have listened to the recordings so many times. It's not easy but the loop of him playing in my head is wearing off. I'm gaining my nervous system back." loading="lazy" decoding="async"></figure>
+      <figure class="t-shot"><img src="img/reviews/k-review.jpg" width="648" height="256" alt="Five-star review: Took me out of my own head and helped calm the voice screaming at me to reach out." loading="lazy" decoding="async"></figure>
     </div>
   </div>
 </section>
@@ -352,6 +378,7 @@ footer a{margin:0 6px;color:#f4f1ea}
 <!-- 4. RECOGNITION -->
 <section class="paper" aria-labelledby="rec-h">
   <div class="wrap narrow">
+    <img class="soft-photo pink" src="img/onye-pink.jpg" width="900" height="1080" alt="Onye, founder of Your Mind Story" loading="lazy" decoding="async">
     <h2 id="rec-h">You probably need <em>Return to Yourself</em> if…</h2>
     <ul class="arrows">
       <li>His silence makes your stomach drop and sends you into anxiety.</li>
@@ -362,11 +389,12 @@ footer a{margin:0 6px;color:#f4f1ea}
       <li>You have spent so much time thinking about him that you barely recognise yourself.</li>
     </ul>
     <p class="pull">You understand the pattern. You just cannot seem to switch it off.</p>
+    <figure class="proof"><blockquote>“I know to stop. It just happens.”</blockquote><figcaption>Lucy</figcaption></figure>
   </div>
 </section>
 
 <!-- 5. DEFINITION -->
-<section class="cream" aria-labelledby="def-h">
+<section class="photo-bg" style="--bg:url(img/onye-kitchen.jpg)" aria-labelledby="def-h">
   <div class="wrap">
     <div class="def-card">
       <h2 id="def-h">What returning to yourself <em>actually means</em></h2>
@@ -378,11 +406,10 @@ footer a{margin:0 6px;color:#f4f1ea}
       <p>It's feeling calmer when he goes quiet, being able to resist the urge to check, trusting your decisions and waking up with your own life on your mind again.</p>
       <p class="strong-line">You don't have to decide what happens with him before you start changing what this is doing to you.</p>
       <div class="cta-block">
-        <a class="cta cta-dark js-buy" data-cta-placement="definition" href="#checkout-pending">START GETTING RELIEF TODAY<span class="cta-price">£117</span></a>
+        <a class="cta cta-dark js-buy" data-cta-placement="definition" href="#checkout-pending">START GETTING RELIEF TODAY</a>
         <p class="cta-pending" role="status"></p>
       </div>
     </div>
-    <img class="def-photo" src="img/onye-kitchen.jpg" width="960" height="1200" alt="Onye smiling at home in her kitchen" loading="lazy" decoding="async">
   </div>
 </section>
 
@@ -414,7 +441,7 @@ footer a{margin:0 6px;color:#f4f1ea}
         </div>
       </div>
       <div class="cta-block">
-        <a class="cta cta-dark js-buy" data-cta-placement="comparison" href="#checkout-pending">START BREAKING THE LOOP TODAY<span class="cta-price">£117</span></a>
+        <a class="cta cta-dark js-buy" data-cta-placement="comparison" href="#checkout-pending">START BREAKING THE LOOP TODAY</a>
         <p class="cta-pending" role="status"></p>
       </div>
     </div>
@@ -436,7 +463,7 @@ footer a{margin:0 6px;color:#f4f1ea}
 </section>
 
 <!-- 8. BELIEF SHIFT -->
-<section class="dark" aria-labelledby="shift-h">
+<section class="dark dark-photo" style="--bg:url(img/onye-wall.jpg)" aria-labelledby="shift-h">
   <div class="wrap narrow shift">
     <h2 id="shift-h">You don't need another course teaching you about <em>avoidant attachment</em></h2>
     <p>You already know he's avoidant. You know about the push and pull.</p>
@@ -444,11 +471,8 @@ footer a{margin:0 6px;color:#f4f1ea}
     <p>But there's still a loop of him playing in your head that you cannot seem to switch off.</p>
     <figure class="proof"><blockquote>“Everything. Specially that I understand but still feel stuck in the same cycle.”</blockquote><figcaption>Assessment feedback <small>Asked what resonated with her assessment result, which she rated “very accurate”</small></figcaption></figure>
     <p class="big">Knowing why he did it hasn't stopped what it did to you.</p>
-    <p>And somebody telling you to ‘just leave’ doesn't make the anxiety, checking or emotional pull disappear.</p>
     <div class="its">
-      <p>It's not another course teaching you about avoidant attachment.</p>
       <p>It's not another course teaching you how to detach.</p>
-      <p><strong>It's guided Cognitive Behavioural Hypnotherapy designed to help you work on the automatic responses keeping you stuck.</strong></p>
     </div>
     <p>You can understand the pattern and still feel caught in it. Cognitive Behavioural Hypnotherapy helps you work on the thoughts, feelings and automatic responses that keep the cycle going, so change doesn't depend on willpower alone.</p>
     <p>For a lot of women, this situation is incredibly isolating. You can feel like you're going mad and nobody else knows how much you're struggling.</p>
@@ -468,7 +492,7 @@ footer a{margin:0 6px;color:#f4f1ea}
       </ul>
     </div>
     <div class="cta-block">
-      <a class="cta cta-light js-buy" data-cta-placement="belief_shift" href="#checkout-pending">START BREAKING THE LOOP TODAY<span class="cta-price">£117</span></a>
+      <a class="cta cta-light js-buy" data-cta-placement="belief_shift" href="#checkout-pending">START BREAKING THE LOOP TODAY</a>
       <p class="cta-pending" role="status"></p>
     </div>
   </div>
@@ -535,14 +559,19 @@ footer a{margin:0 6px;color:#f4f1ea}
   </div>
 </section>
 
-<!-- 9. TESTIMONIALS 2 -->
-<section class="cream" aria-labelledby="t2-h">
+<!-- 9. REVIEW WALL -->
+<section class="dark" aria-labelledby="t2-h">
   <div class="wrap">
-    <h2 id="t2-h" class="center">More from women who have <em>used the sessions</em></h2>
-    <div class="t-grid three">
-      <figure class="t-card" data-shot="TESTIMONIAL_PRINCESS_SCREENSHOT"><blockquote>“They're like an online journal to track how you feel as you go on. And it's good to see how you felt in the past cos it keeps you motivated.”</blockquote><figcaption>Princess M. <small>On the weekly check-ins</small></figcaption></figure>
-      <figure class="t-card" data-shot="TESTIMONIAL_SKY_SCREENSHOT"><blockquote>“I'm slowly unraveling from years of survival mode. I'm finding my center and power again.”</blockquote><figcaption>Sky</figcaption></figure>
-      <figure class="t-card" data-shot="TESTIMONIAL_KIMBERLY_2_SCREENSHOT"><blockquote>“It was money well spent. My peace of mind is all I want and need.”</blockquote><figcaption>Kimberly</figcaption></figure>
+    <h2 id="t2-h" class="center">What women <em>say</em></h2>
+    <div class="wall">
+      <figure class="t-shot"><img src="img/reviews/kimberly-review.jpg" width="648" height="414" alt="Five-star review: I was at my wits end with constantly thinking about the ending of my relationship. I still have the loop but it's not consuming me constantly." loading="lazy" decoding="async"></figure>
+      <figure class="t-card"><blockquote>“They're like an online journal to track how you feel as you go on. And it's good to see how you felt in the past cos it keeps you motivated.”</blockquote><figcaption>Princess M. <small>On the weekly check-ins</small></figcaption></figure>
+      <figure class="t-shot"><img src="img/reviews/sky-review.jpg" width="648" height="198" alt="Five-star review: I'm slowly unraveling from years of survival mode. I'm finding my center and power again." loading="lazy" decoding="async"></figure>
+      <figure class="t-card"><blockquote>“I honestly listen to your audio so frequently it really puts me right back where I need to be!”</blockquote><figcaption>Jessica</figcaption></figure>
+      <figure class="t-shot"><img src="img/reviews/britt-review.jpg" width="648" height="319" alt="Five-star review: This recording has helped calm the spike of wanting to reach out to my ex. I feel at peace when I listen." loading="lazy" decoding="async"></figure>
+      <figure class="t-card"><blockquote>“I did it earlier! It was amazing! Im going to do it again in a bit”</blockquote><figcaption>Lucy</figcaption></figure>
+      <figure class="t-shot"><img src="img/reviews/kimberly-dm-2.jpg" width="744" height="400" alt="Kimberly: It was money well spent. My peace of mind is all I want and need." loading="lazy" decoding="async"></figure>
+      <figure class="t-card"><blockquote>“I've managed 8 days no contact whilst still living under the same roof so I'm really proud of myself x”</blockquote><figcaption>Jessica</figcaption></figure>
     </div>
   </div>
 </section>
@@ -600,10 +629,15 @@ footer a{margin:0 6px;color:#f4f1ea}
   </div>
 </section>
 
+<!-- 11b. BREAK THE CYCLE BANNER -->
+<section class="paper banner-band" aria-label="Break the cycle. Take your life back.">
+  <div class="wrap"><img class="soft-edge banner" src="img/break-the-cycle.jpg" width="1274" height="691" alt="Break the cycle. Take your life back. Onye against a green wall." loading="lazy" decoding="async"></div>
+</section>
+
 <!-- 12. FOUNDER + FINAL PURCHASE -->
 <section class="paper final" aria-labelledby="final-h">
   <div class="wrap final-grid">
-    <div class="final-photo"><img src="img/onye-garden.jpg" width="900" height="1200" alt="Onye Iweha, founder of Your Mind Story, sitting at a garden table" loading="lazy" decoding="async"></div>
+    <div class="final-photo"><img class="soft-edge" src="img/onye-garden.jpg" width="900" height="1200" alt="Onye Iweha, founder of Your Mind Story, sitting at a garden table" loading="lazy" decoding="async"></div>
     <div class="final-text">
       <div class="creds">
         <div class="who">
