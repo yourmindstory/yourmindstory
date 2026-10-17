@@ -155,11 +155,10 @@
    PAGE CONFIGURATION: the only block you need to edit.
    ===================================================================== */
 window.RTY_CONFIG = {
-  /* CHECKOUT_URL_PENDING_APPROVAL
-     Paste the approved £117 Stripe Payment Link here (https://buy.stripe.com/...).
-     In Stripe, set the link's "After payment" to redirect to:
-     https://yourmindstory.co.uk/return-to-yourself-journey/welcome/?session_id={CHECKOUT_SESSION_ID} */
-  checkoutUrl: "",
+  /* CHECKOUT: Payhip direct checkout for the £117 product (payhip.com/b/DLyd5).
+     In Payhip, set this product's checkout success redirect to:
+     https://yourmindstory.co.uk/return-to-yourself-journey/welcome/?src=payhip */
+  checkoutUrl: "https://payhip.com/buy?link=DLyd5",
   price: 117, currency: "GBP",
   productId: "return_to_yourself_complete",
   /* Optional testimonial screenshots: paste a file path to replace that text card. */

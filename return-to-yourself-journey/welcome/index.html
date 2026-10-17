@@ -34,7 +34,7 @@ p{margin:0 0 14px}
   <div class="card">
     <div class="eyebrow">Payment confirmed</div>
     <h1>You're in. Welcome to Return to Yourself.</h1>
-    <p>Your sessions are on their way to your inbox now. Look for an email from <strong>yourmindstory.co.uk@gmail.com</strong> and check your spam or promotions folder if it isn't there in a few minutes.</p>
+    <p>Your sessions are on their way to your inbox now. Look for your Payhip download email and check your spam or promotions folder if it isn't there in a few minutes.</p>
     <ul class="steps">
       <li><span>1</span>Complete your baseline check-in below. It takes a couple of minutes.</li>
       <li><span>2</span>Start with Quiet the Alarm.</li>
@@ -45,24 +45,21 @@ p{margin:0 0 14px}
   </div>
 </main>
 <script>
-/* Purchase tracking: fires once per Stripe Checkout session, only when arriving from Stripe. */
+/* Purchase tracking: fires once per browser, only when arriving from the Payhip checkout redirect (?src=payhip). */
 (function(){
-  var VALUE = 117, CURRENCY = 'GBP', PRODUCT = 'return_to_yourself_complete';
+  var VALUE = 117, CURRENCY = 'GBP', PRODUCT = 'return_to_yourself_complete', KEY = 'yms_rty_purchase_sent';
   var q = new URLSearchParams(location.search);
-  var sid = q.get('session_id') || '';
-  var valid = /^cs_(live|test)_[A-Za-z0-9]+$/.test(sid);
-  function seen(){ try{ return localStorage.getItem('yms_purchase_' + sid) === '1'; }catch(e){ return false; } }
-  function mark(){ try{ localStorage.setItem('yms_purchase_' + sid, '1'); }catch(e){} }
+  var fromPayhip = q.get('src') === 'payhip' || /(^|\.)payhip\.com$/i.test((document.referrer ? new URL(document.referrer).hostname : ''));
+  function seen(){ try{ return localStorage.getItem(KEY) === '1'; }catch(e){ return false; } }
+  function mark(){ try{ localStorage.setItem(KEY, '1'); }catch(e){} }
   function track(name, p){ try{ if(window.YMSTracking && window.YMSTracking.track) window.YMSTracking.track(name, p); }catch(e){} }
   function sendPurchase(){
-    if(!valid){ track('checkout_error', { reason: sid ? 'invalid_session_id' : 'missing_session_id', page_path: location.pathname }); return; }
-    if(seen()) return;
-    var sent = false;
-    track('purchase', { transaction_id: sid, value: VALUE, currency: CURRENCY, product: PRODUCT, items: [{ item_id: PRODUCT, item_name: 'Return to Yourself: The Complete Four-Stage Journey', price: VALUE, quantity: 1 }], test_mode: sid.indexOf('cs_test_') === 0 ? 'yes' : 'no', page_path: location.pathname });
-    try{ if(localStorage.getItem('yms_analytics_consent') === 'yes'){ mark(); sent = true; } }catch(e){}
-    return sent;
+    if(!fromPayhip || seen()) return;
+    var tid = 'payhip_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+    track('purchase', { transaction_id: tid, value: VALUE, currency: CURRENCY, product: PRODUCT, checkout: 'payhip', items: [{ item_id: PRODUCT, item_name: 'Return to Yourself: The Complete Four-Stage Journey', price: VALUE, quantity: 1 }], page_path: location.pathname });
+    try{ if(localStorage.getItem('yms_analytics_consent') === 'yes') mark(); }catch(e){}
   }
-  document.getElementById('rty_welcome_baseline').addEventListener('click', function(){ track('progress_review_start', { point: 'baseline', product: PRODUCT, transport_type: 'beacon' }); });
+  document.getElementById('rty_welcome_baseline').addEventListener('click', function(){ track('checkin_start', { point: 'baseline', product: PRODUCT, transport_type: 'beacon' }); });
   if(document.readyState === 'complete') sendPurchase(); else window.addEventListener('load', sendPurchase);
   document.addEventListener('ymsConsentAnalyticsGranted', function once(){ sendPurchase(); document.removeEventListener('ymsConsentAnalyticsGranted', once); });
 })();
