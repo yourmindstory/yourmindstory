@@ -30,19 +30,19 @@
 
   var SINGLES = {
     "Quiet the Alarm": {
-      url: "https://stan.store/YourMindStory/p/quiet-the-alarm",
+      url: "https://payhip.com/b/53N2B",
       description: "When something shifts with him, your body goes with it. The alarm comes on fast and takes too long to switch off."
     },
     "Break the Pull": {
-      url: "https://stan.store/YourMindStory/p/break-the-pull",
+      url: "https://payhip.com/b/N8hbz",
       description: "You can know you need to stop checking, replaying or reaching out and still feel yourself getting pulled straight back in."
     },
     "Restore Self-Trust": {
-      url: "https://stan.store/YourMindStory/p/restore-self-trust",
+      url: "https://payhip.com/b/3RlF7",
       description: "You know what happened. Then you question yourself, change your mind and start wondering if you got it wrong."
     },
     "Return to You": {
-      url: "https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg",
+      url: "https://payhip.com/b/6pE8S",
       description: "Too much of your attention is ending up with him, while your own plans, needs and life get pushed further into the background."
     }
   };
@@ -76,7 +76,7 @@
 
   var SELF_GUIDED = {
     name: "Return to Yourself",
-    url: "https://stan.store/Yourmindstory/p/complete-selfguided-journey"
+    url: "/return-to-yourself-journey/"
   };
   var BARE_MINIMUM = "https://stan.store/YourMindStory/p/the-bare-minimum";
   var BOOTCAMP = "https://payhip.com/b/ZhPkp";
@@ -318,7 +318,7 @@
     Array.prototype.forEach.call(root.querySelectorAll('[data-yms-next]'),function(b){b.addEventListener('click',function(){show(Number(b.getAttribute('data-yms-next')));});});
     Array.prototype.forEach.call(root.querySelectorAll('[data-yms-back]'),function(b){b.addEventListener('click',function(){show(Number(b.getAttribute('data-yms-back')));});});
     Array.prototype.forEach.call(root.querySelectorAll('[data-yms-buy]'),function(a){a.addEventListener('click',function(){
-      recordJourney('checkout_click',{product:config.product,route:config.route,cta:a.textContent.trim(),screen:current,destination:'stan.store',experiment:'result-stepped-v1',price:String(config.price)});
+      recordJourney('checkout_click',{product:config.product,route:config.route,cta:a.textContent.trim(),screen:current,destination:(function(){try{return new URL(config.url,location.href).hostname}catch(e){return ''}})(),experiment:'result-stepped-v1',price:String(config.price)});
     });});
     recordJourney('sales_page_view',{product:config.product,route:config.route,price:String(config.price),experiment:'result-stepped-v1'});
     recordJourney('sales_step_view',{step:1,product:config.product,route:config.route,price:String(config.price),experiment:'result-stepped-v1'});
@@ -327,7 +327,7 @@
   function renderSingle(container, stage) {
     var product=SINGLES[stage], item=PRESS_PLAY[stage];
     if(!product||!item)return false;
-    var cfg={product:stage,route:"Single Audio",price:37,url:product.url};
+    var cfg={product:stage,route:"Single Audio",price:47,url:product.url};
     var why={
       "Quiet the Alarm":"Your answers show the alarm response is the part hitting you hardest. Something connected to him happens and your body can react before you have had time to think it through.",
       "Break the Pull":"Your answers show the pull is the part hitting you hardest. You can know checking, replaying or reaching out will not help and still feel the urge when the moment comes.",
@@ -342,10 +342,10 @@
     }[stage];
     var screens=[
       {html:'<span class="result-tag">YOUR RECOMMENDED NEXT STEP</span><h2>'+Y.escapeText(stage)+'</h2><p><strong>'+why+'</strong></p><p>This is why I would start here.</p>',next:'SEE WHY THIS SESSION FITS →'},
-      {html:'<span class="og-label">WHY THIS SESSION?</span><h2>You already know a lot about what you should do.</h2><p>The difficult part is being able to do it <strong>when you are actually in the moment.</strong></p><p><strong>Understanding the pattern and changing your response to the pattern are two different jobs.</strong></p><p>Cognitive Behavioural Hypnotherapy helps you practise a different response so you are not relying on conscious effort alone.</p>'+purchaseButton(cfg,'START MY SESSION — £37'),next:'SHOW ME HOW I USE IT →'},
-      {html:'<span class="og-label">WHEN THE MOMENT COMES</span><h2>So what do you actually do?</h2><p><strong>'+item.moment+'</strong></p><p>'+item.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+item.proof+'”</strong><br>'+item.person+'</blockquote>'+purchaseButton(cfg,'START MY SESSION — £37'),next:'WHAT HAPPENS AFTER I BUY? →'},
-      {html:'<span class="og-label">YOU ARE NOT LEFT TO IT</span><h2>Work with the session for 21 days.</h2><p>You will have your session and short Progress Reviews along the way so you can notice what is changing, what is getting easier and where the old response is still showing up.</p><p><strong>You are not just pressing play and hoping something changes.</strong> You are paying attention to whether the work is showing up in your real life.</p>'+purchaseButton(cfg,'START MY SESSION — £37'),next:'SHOW ME THE OUTCOME →'},
-      {html:'<span class="og-label">'+Y.escapeText(stage)+'</span><h2>What would the change actually look like?</h2><p><strong>'+outcome+'</strong></p><div class="yms-offer-box"><p>21-day Cognitive Behavioural Hypnotherapy session + Progress Reviews</p><div class="yms-price">£37</div>'+purchaseButton(cfg,'START MY SESSION — £37')+'</div>'}
+      {html:'<span class="og-label">WHY THIS SESSION?</span><h2>You already know a lot about what you should do.</h2><p>The difficult part is being able to do it <strong>when you are actually in the moment.</strong></p><p><strong>Understanding the pattern and changing your response to the pattern are two different jobs.</strong></p><p>Cognitive Behavioural Hypnotherapy helps you practise a different response so you are not relying on conscious effort alone.</p>'+purchaseButton(cfg,'START MY SESSION — £47'),next:'SHOW ME HOW I USE IT →'},
+      {html:'<span class="og-label">WHEN THE MOMENT COMES</span><h2>So what do you actually do?</h2><p><strong>'+item.moment+'</strong></p><p>'+item.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+item.proof+'”</strong><br>'+item.person+'</blockquote>'+purchaseButton(cfg,'START MY SESSION — £47'),next:'WHAT HAPPENS AFTER I BUY? →'},
+      {html:'<span class="og-label">YOU ARE NOT LEFT TO IT</span><h2>Work with the session for 21 days.</h2><p>You will have your session and short Progress Reviews along the way so you can notice what is changing, what is getting easier and where the old response is still showing up.</p><p><strong>You are not just pressing play and hoping something changes.</strong> You are paying attention to whether the work is showing up in your real life.</p>'+purchaseButton(cfg,'START MY SESSION — £47'),next:'SHOW ME THE OUTCOME →'},
+      {html:'<span class="og-label">'+Y.escapeText(stage)+'</span><h2>What would the change actually look like?</h2><p><strong>'+outcome+'</strong></p><div class="yms-offer-box"><p>21-day Cognitive Behavioural Hypnotherapy session + Progress Reviews</p><div class="yms-price">£47</div>'+purchaseButton(cfg,'START MY SESSION — £47')+'</div>'}
     ];
     cfg.screens=screens;
     container.innerHTML=steppedRecommendationHtml(cfg)+downsellHtml(true);
@@ -355,13 +355,13 @@
   function renderPair(container, stages) {
     stages=orderedUnique(stages); var pair=PAIRS[pairKey(stages)]; if(!pair)return false;
     var first=stages[0],second=stages[1],a=PRESS_PLAY[first],b=PRESS_PLAY[second];
-    var cfg={product:pair.name,route:"Two-Stage Pathway",price:74,url:pair.url};
+    var cfg={product:pair.name,route:"Two-Stage Pathway",price:89,url:pair.url};
     var screens=[
       {html:'<span class="result-tag">YOUR RESULT</span><h2>Two parts of this cycle are showing up strongly for you.</h2><p><strong>'+Y.escapeText(first)+' → '+Y.escapeText(second)+'</strong></p><p>Your answers show these two responses are connected. That is why I would not treat either one in isolation.</p>',next:'SEE WHY I RECOMMENDED BOTH →'},
-      {html:'<span class="og-label">WHY THESE TWO?</span><h2>Work on them in the order they happen.</h2><div class="yms-flow-row"><span>First</span><strong>'+Y.escapeText(first)+'</strong></div><div class="yms-flow-row"><span>Then</span><strong>'+Y.escapeText(second)+'</strong></div><p><strong>Understanding the pattern and changing your response to the pattern are two different jobs.</strong></p>'+purchaseButton(cfg,'START MY 2 SESSIONS — £74'),next:'SHOW ME HOW I USE THEM →'},
-      {html:'<span class="og-label">WHEN THE MOMENT COMES</span><h2>So what do you actually do?</h2><div class="yms-stage"><h3>'+Y.escapeText(first)+'</h3><p><strong>'+a.moment+'</strong></p><p>'+a.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+a.proof+'”</strong><br>'+a.person+'</blockquote></div><div class="yms-stage"><h3>'+Y.escapeText(second)+'</h3><p><strong>'+b.moment+'</strong></p><p>'+b.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+b.proof+'”</strong><br>'+b.person+'</blockquote></div>'+purchaseButton(cfg,'START MY 2 SESSIONS — £74'),next:'WHAT HAPPENS AFTER I BUY? →'},
-      {html:'<span class="og-label">YOU ARE NOT LEFT TO IT</span><h2>One stage at a time.</h2><p>Start with <strong>'+Y.escapeText(first)+'</strong>. Work with it for 21 days and complete your Progress Reviews. Then move to <strong>'+Y.escapeText(second)+'</strong>.</p><p>The check-ins help you notice what is changing rather than having to guess whether the work is helping.</p>'+purchaseButton(cfg,'START MY 2 SESSIONS — £74'),next:'SHOW ME WHAT I GET →'},
-      {html:'<span class="og-label">'+Y.escapeText(pair.name)+'</span><h2>Your two-stage pathway.</h2><div class="yms-offer-box"><p>✓ '+Y.escapeText(first)+'</p><p>✓ '+Y.escapeText(second)+'</p><p>✓ Progress Reviews for each stage</p><div class="yms-price">£74</div>'+purchaseButton(cfg,'START MY 2 SESSIONS — £74')+'</div>'}
+      {html:'<span class="og-label">WHY THESE TWO?</span><h2>Work on them in the order they happen.</h2><div class="yms-flow-row"><span>First</span><strong>'+Y.escapeText(first)+'</strong></div><div class="yms-flow-row"><span>Then</span><strong>'+Y.escapeText(second)+'</strong></div><p><strong>Understanding the pattern and changing your response to the pattern are two different jobs.</strong></p>'+purchaseButton(cfg,'START MY 2 SESSIONS — £89'),next:'SHOW ME HOW I USE THEM →'},
+      {html:'<span class="og-label">WHEN THE MOMENT COMES</span><h2>So what do you actually do?</h2><div class="yms-stage"><h3>'+Y.escapeText(first)+'</h3><p><strong>'+a.moment+'</strong></p><p>'+a.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+a.proof+'”</strong><br>'+a.person+'</blockquote></div><div class="yms-stage"><h3>'+Y.escapeText(second)+'</h3><p><strong>'+b.moment+'</strong></p><p>'+b.practice+'</p><p class="cta-microcopy"><strong>What can happen when you press play?</strong></p><blockquote><strong>“'+b.proof+'”</strong><br>'+b.person+'</blockquote></div>'+purchaseButton(cfg,'START MY 2 SESSIONS — £89'),next:'WHAT HAPPENS AFTER I BUY? →'},
+      {html:'<span class="og-label">YOU ARE NOT LEFT TO IT</span><h2>One stage at a time.</h2><p>Start with <strong>'+Y.escapeText(first)+'</strong>. Work with it for 21 days and complete your Progress Reviews. Then move to <strong>'+Y.escapeText(second)+'</strong>.</p><p>The check-ins help you notice what is changing rather than having to guess whether the work is helping.</p>'+purchaseButton(cfg,'START MY 2 SESSIONS — £89'),next:'SHOW ME WHAT I GET →'},
+      {html:'<span class="og-label">'+Y.escapeText(pair.name)+'</span><h2>Your two-stage pathway.</h2><div class="yms-offer-box"><p>✓ '+Y.escapeText(first)+'</p><p>✓ '+Y.escapeText(second)+'</p><p>✓ Progress Reviews for each stage</p><div class="yms-price">£89</div>'+purchaseButton(cfg,'START MY 2 SESSIONS — £89')+'</div>'}
     ];
     cfg.screens=screens;
     container.innerHTML=steppedRecommendationHtml(cfg)+downsellHtml(false);
@@ -541,15 +541,15 @@
       '<p><strong>Understanding the cycle is not the same as breaking it.</strong></p>' +
       '<p>Nothing changes if nothing changes.</p>' +
       '<p><strong>Are you ready to start feeling like yourself again?</strong></p>' +
-      '<p><strong>£117</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START THE COMPLETE SELF-GUIDED JOURNEY - £117</a></div>' +
+      '<p><strong>£147</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" data-yms-self-guided href="' + SELF_GUIDED.url + '">START THE COMPLETE SELF-GUIDED JOURNEY - £147</a></div>' +
       downsellHtml(false);
 
     logRoute("Return to Yourself", "Return to Yourself");
     var cta = container.querySelector("[data-yms-self-guided]");
     if (cta) cta.addEventListener("click", function () {
       if (Y.track) Y.track("quiz_self_guided_recommendation_click", { qualifying_stage_count: stages.length, qualifying_stages: stages.join("|") });
-      recordJourney("primary_cta_click", { cta: "Return to Yourself - £117" });
+      recordJourney("primary_cta_click", { cta: "Return to Yourself - £147" });
     });
     wireDownsell(container, reasonText ? "self_guided_private" : "self_guided_" + stages.length);
     return true;

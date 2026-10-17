@@ -81,10 +81,10 @@ const stageCopy=[
  {name:'Return to Yourself',story:'While he has been thinking about himself and you have been thinking about him, who has been thinking about you? So much of your attention can go towards him, what happened, what it meant and what might happen next, while your own life gets less of you. Your peace. Your sleep. Your plans. Your attention. Your energy. Sometimes just the ability to enjoy a normal day without him somehow ending up in the middle of it.',work:'The outcome is not detachment for the sake of detachment. It is taking your life back and feeling like yourself again.'}
 ];
 const links={
- 'Quiet the Alarm':'https://stan.store/YourMindStory/p/quiet-the-alarm',
- 'Break the Pull':'https://stan.store/YourMindStory/p/break-the-pull',
- 'Restore Self-Trust':'https://stan.store/YourMindStory/p/restore-self-trust',
- 'Return to Yourself':'https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg'
+ 'Quiet the Alarm':'https://payhip.com/b/53N2B',
+ 'Break the Pull':'https://payhip.com/b/N8hbz',
+ 'Restore Self-Trust':'https://payhip.com/b/3RlF7',
+ 'Return to Yourself':'https://payhip.com/b/6pE8S'
 };
 const pairLinks={
  '0|1':'https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull',
@@ -129,7 +129,7 @@ if(qual.length===0){
  ];
  const joined=stages.map(i=>stageStruggles[i]).join(', ');
  const name=full?'Return to Yourself Series':stages.map(i=>stageNames[i]).join(' + ');
- const price=full?117:stages.length===2?74:37;
+ const price=full?147:stages.length===2?89:47;
  const actionPhrases=['quiet the alarm','break the pull','restore your self-trust','return to you'];
  const heading=full?'It\'s time to return to yourself.':'It\'s time to '+(stages.length===1?actionPhrases[stages[0]]:actionPhrases[stages[0]]+' and '+actionPhrases[stages[1]])+'.';
  recognition='<h1>Hasn\'t this had enough power over your life?</h1><p>You came here because you\'re tired of '+joined+'.</p><p>Your answers show that this has affected '+(full?'more than one part of your life':stages.length===1?'this part of your life':'these connected parts of your life')+'.</p><p><strong>And the truth is, this isn\'t what you thought was going to happen with him.</strong></p><p>You wanted a relationship. Not to spend your days lost in chaos, confusion and heartbreak.</p><p><strong>'+heading+'</strong></p>';
@@ -139,7 +139,7 @@ if(qual.length===0){
  const support='<h3>And you won\'t be doing this alone.</h3><p>This experience can be so isolating. Maybe nobody even knows how much this has affected you.</p><p><strong>I\'ll be checking in with you.</strong></p><p>You\'ll receive weekly emails from me with progress check-ins to help you recognise what\'s changing, reflect on how you\'re feeling and stay connected to your journey.</p>';
  const review='<div class="checkin-proof"><p class="checkin-proof-quote">“They\'re like an online journal to track how you feel as you go on. And it\'s good to see how you felt in the past cos it keeps you motivated.”</p><p class="checkin-proof-source">— Princess M.</p></div><h3>What women are experiencing with these hypnotherapy sessions</h3><p class="rec-proof"><strong>WITHIN THE FIRST NIGHT, THIS IS WHAT TJ EXPERIENCED:</strong><br>“For the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”<br>— TJ</p><p class="rec-proof"><strong>WITHIN SEVEN DAYS, THIS IS WHAT KIMBERLY EXPERIENCED:</strong><br>“The loop of him playing in my head is wearing off. I\'m gaining my nervous system back.”<br>— Kimberly</p>';
  recommendation='<h2>'+heading+'</h2><p>'+(sessionCount===1?'<strong>'+name+'</strong> is a guided Cognitive Behavioural Hypnotherapy session to help you:':'The <strong>'+name+'</strong> includes '+sessionCount+' guided Cognitive Behavioural Hypnotherapy sessions to help you:')+'</p>'+stagesHtml+journeyLine+support+review+'<h2>I want this for you. The question is, do you?</h2><p class="rec-price"><strong>'+name+' · £'+price+'</strong></p>';
- const link=full?'/assessment/return-to-yourself/?jid='+encodeURIComponent(journeyIdentity().journeyId||'')+'&sid='+encodeURIComponent(journeyIdentity().submissionId||''):stages.length===1?links[stageCopy[stages[0]].name]:pairLinks[stages.join('|')];
+ const link=full?'/return-to-yourself-journey/?jid='+encodeURIComponent(journeyIdentity().journeyId||'')+'&sid='+encodeURIComponent(journeyIdentity().submissionId||''):stages.length===1?links[stageCopy[stages[0]].name]:pairLinks[stages.join('|')];
  const routeName=full?'Return to You Series':stages.length===1?'Single Stage':'Two-Stage Pair';
  const ctaText=full?'I WANT TO RETURN TO MYSELF':stages.length===1?'I WANT TO '+stageNames[stages[0]].toUpperCase(): 'I WANT TO START GETTING MYSELF BACK';
  cta='<p><a class="next" href="'+link+'" data-rec-product="'+name+'" data-rec-route="'+routeName+'">'+ctaText+'</a></p><p>I can\'t help you change him. But I can help you get out of the exhausting loop you\'re in, so you can take your power back and have more control than he has over how you feel in your life.</p>';

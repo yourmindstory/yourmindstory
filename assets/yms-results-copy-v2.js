@@ -17,7 +17,7 @@
 
   var AUDIO_RESULTS = {
     "Quiet the Alarm": {
-      url: "https://stan.store/YourMindStory/p/quiet-the-alarm",
+      url: "https://payhip.com/b/53N2B",
       cta: "START WITH QUIET THE ALARM",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Quiet the Alarm.</p>' +
@@ -32,7 +32,7 @@
         '<p>You\'ll work with Quiet the Alarm for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Break the Pull": {
-      url: "https://stan.store/YourMindStory/p/break-the-pull",
+      url: "https://payhip.com/b/N8hbz",
       cta: "START WITH BREAK THE PULL",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Break the Pull.</p>' +
@@ -49,7 +49,7 @@
         '<p>You\'ll work with Break the Pull for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Restore Self-Trust": {
-      url: "https://stan.store/YourMindStory/p/restore-self-trust",
+      url: "https://payhip.com/b/3RlF7",
       cta: "START WITH RESTORE SELF-TRUST",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Restore Self-Trust.</p>' +
@@ -64,7 +64,7 @@
         '<p>You\'ll work with Restore Self-Trust for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Return to You": {
-      url: "https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg",
+      url: "https://payhip.com/b/6pE8S",
       cta: "START WITH RETURN TO YOU",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Return to You.</p>' +
@@ -95,8 +95,8 @@
       '<div class="divider"></div>' +
       '<span class="og-label">YOUR RECOMMENDED NEXT STEP</span>' +
       copy.html +
-      '<p><strong>£37</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" href="' + copy.url + '" id="ymsFinalAudioCta">' + copy.cta + ' · £37</a></div>';
+      '<p><strong>£47</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" href="' + copy.url + '" id="ymsFinalAudioCta">' + copy.cta + ' · £47</a></div>';
 
     var cta = document.getElementById("ymsFinalAudioCta");
     if (cta) cta.addEventListener("click", function () {
@@ -120,8 +120,8 @@
       '<p>Return to Yourself<br><strong>The Complete Self-Guided Journey</strong></p>' +
       '<p><strong>Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to You</strong></p>' +
       '<p>You can work through the four stages independently, in your own time, with guided audio sessions and progress check-ins.</p>' +
-      '<p><strong>£117</strong></p>' +
-      '<div class="cta-row"><a class="btn-cta" href="https://stan.store/Yourmindstory/p/complete-selfguided-journey" id="ymsFinalSelfGuidedCta">START THE COMPLETE SELF-GUIDED JOURNEY · £117</a></div>' +
+      '<p><strong>£147</strong></p>' +
+      '<div class="cta-row"><a class="btn-cta" href="/return-to-yourself-journey/" id="ymsFinalSelfGuidedCta">START THE COMPLETE SELF-GUIDED JOURNEY · £147</a></div>' +
       '<p class="cta-microcopy" style="margin-top:18px;">★★★★★ 5 stars on Google<br><strong>Cognitive Behavioural Hypnotherapist</strong></p>';
 
     var cta = document.getElementById("ymsFinalSelfGuidedCta");
