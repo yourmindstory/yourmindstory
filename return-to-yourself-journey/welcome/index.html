@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>You're in — Return to Yourself | Your Mind Story</title>
+<title>You're in: Return to Yourself | Your Mind Story</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet">
@@ -58,7 +58,7 @@ p{margin:0 0 14px}
     if(!valid){ track('checkout_error', { reason: sid ? 'invalid_session_id' : 'missing_session_id', page_path: location.pathname }); return; }
     if(seen()) return;
     var sent = false;
-    track('purchase', { transaction_id: sid, value: VALUE, currency: CURRENCY, product: PRODUCT, items: [{ item_id: PRODUCT, item_name: 'Return to Yourself — The Complete Four-Stage Journey', price: VALUE, quantity: 1 }], test_mode: sid.indexOf('cs_test_') === 0 ? 'yes' : 'no', page_path: location.pathname });
+    track('purchase', { transaction_id: sid, value: VALUE, currency: CURRENCY, product: PRODUCT, items: [{ item_id: PRODUCT, item_name: 'Return to Yourself: The Complete Four-Stage Journey', price: VALUE, quantity: 1 }], test_mode: sid.indexOf('cs_test_') === 0 ? 'yes' : 'no', page_path: location.pathname });
     try{ if(localStorage.getItem('yms_analytics_consent') === 'yes'){ mark(); sent = true; } }catch(e){}
     return sent;
   }
