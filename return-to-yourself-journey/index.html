@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Return to Yourself: The Complete Four-Stage Journey | Your Mind Story</title>
 <meta name="description" content="Four guided Cognitive Behavioural Hypnotherapy sessions with weekly Progress Reviews to help you break the patterns keeping you stuck in an avoidant relationship cycle.">
-<!-- PREVIEW: keep noindex until launch approval (Gate 5) -->
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Your Mind Story">
+<meta property="og:title" content="Return to Yourself: The Complete Four-Stage Journey">
+<meta property="og:description" content="Four guided Cognitive Behavioural Hypnotherapy sessions with weekly Progress Reviews to help you break the patterns keeping you stuck in an avoidant relationship cycle.">
+<meta property="og:url" content="https://yourmindstory.co.uk/return-to-yourself-journey/">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://yourmindstory.co.uk/return-to-yourself-journey/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,11 +40,8 @@ window.RTY_CONFIG = {
     HERO_PHOTO_ONYE: "",
     ABOUT_ONYE_PHOTO: "",
     PROGRAMME_PRODUCT_MOCKUP: "",
-    TESTIMONIAL_CJ_SCREENSHOT: "",
     TESTIMONIAL_KIMBERLY_SCREENSHOT: "",
     TESTIMONIAL_K_SCREENSHOT: "",
-    TESTIMONIAL_JAN_SCREENSHOT: "",
-    TESTIMONIAL_JAN_2_SCREENSHOT: "",
     TESTIMONIAL_PRINCESS_SCREENSHOT: "",
     TESTIMONIAL_SKY_SCREENSHOT: "",
     TESTIMONIAL_KIMBERLY_2_SCREENSHOT: ""
@@ -93,6 +95,7 @@ p{margin:0 0 14px}
 .cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:58px;padding:16px 18px;border-radius:6px;background:var(--brass);color:#fff;text-decoration:none;text-align:center;font:700 15px/1.25 var(--sans);letter-spacing:.04em;box-shadow:0 3px 0 rgba(0,0,0,.12);transition:background .15s,transform .15s}
 .cta:hover,.cta:focus-visible{background:var(--brass-dark)}
 .cta:active{transform:translateY(1px)}
+@media(max-width:520px){.cta{flex-direction:column;gap:2px}.cta .sep{display:none}.cta-price{font-size:17px}}
 .cta-block{max-width:460px;margin:26px auto 0}
 .cta-meta{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0}
 .bg-ink .cta-meta{color:#cfd2d6}
@@ -116,6 +119,7 @@ p{margin:0 0 14px}
 .hero .cta-block{margin:22px 0 0;max-width:440px}
 .hero .cta-meta{text-align:left}
 .hero-photo{max-width:440px;width:100%;margin:0 auto}
+@media(min-width:760px) and (max-width:999px){.hero .wrap{max-width:680px}.hero-photo{max-width:380px}}
 
 /* offer card */
 .offer{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 40px rgba(17,24,39,.07);padding:26px 22px;max-width:560px;margin:0 auto}
@@ -136,6 +140,7 @@ p{margin:0 0 14px}
 .t-card blockquote{margin:0;font-family:var(--serif);font-size:19px;line-height:1.42}
 .t-card figcaption{margin-top:14px;font-size:14px;font-weight:700}
 .t-card figcaption small{display:block;font-weight:500;color:var(--muted)}
+.t-grid.two{max-width:820px;margin-left:auto;margin-right:auto}
 .t-card .stars{color:var(--brass);letter-spacing:2px;font-size:13px;margin-bottom:8px}
 .t-card.is-shot{padding:0;overflow:hidden}
 .t-card.is-shot img{width:100%;height:auto}
@@ -183,11 +188,25 @@ p{margin:0 0 14px}
 .faq summary{list-style:none;cursor:pointer;padding:18px 40px 18px 0;position:relative;font-weight:700;font-size:17px}
 .faq summary::-webkit-details-marker{display:none}
 .faq summary::after{content:"+";position:absolute;right:6px;top:13px;font:400 26px/1 var(--serif);color:var(--brass)}
-.faq details[open] summary::after{content:"–"}
+.faq summary::after{transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
 .faq .ans{padding:0 0 18px}
 .faq .ans p{font-size:16px}
-.faq-quote{margin:14px 0 0;background:var(--cream)}
-.faq-quote blockquote{font-size:18px}
+/* inline proof: quotes placed beside the claim they support */
+.proof{margin:30px auto;max-width:560px;padding:0 0 0 22px;border-left:2px solid var(--brass)}
+.proof blockquote{margin:0;font-family:var(--serif);font-size:clamp(20px,5.2vw,24px);line-height:1.38}
+.proof figcaption{margin-top:10px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brass)}
+.proof figcaption small{display:block;font-weight:500;letter-spacing:0;text-transform:none;color:var(--muted);font-size:13px;margin-top:2px}
+.bg-ink .proof{border-left-color:var(--gold-soft)}
+.bg-ink .proof figcaption{color:var(--gold-soft)}
+.bg-ink .proof figcaption small{color:#c9ccd1}
+.stage .proof{margin:18px 0 0;padding-left:16px}
+.stage .proof blockquote{font-size:18px}
+.guarantee-note{font-size:13px;color:var(--muted);margin:12px 0 0;text-align:center}
+.guarantee-note a{color:inherit}
+.terms{margin:4px 0 14px;padding-left:20px}
+.terms li{margin:6px 0;font-size:16px}
+.flag-note{font-size:13px;color:var(--muted)}
 .guarantee{background:var(--sage-soft);border-radius:12px;padding:18px 18px 4px;margin:0 0 18px}
 .questions{max-width:var(--narrow);margin:34px auto 0;text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 18px}
 .questions h3{margin-bottom:8px}
@@ -198,6 +217,7 @@ p{margin:0 0 14px}
 .final p{font-size:19px}
 .final .prodline{font-family:var(--serif);font-size:20px;margin-top:24px}
 .final .small{font-size:13px;color:#b9bdc3;margin-top:26px}
+.final .cta-meta{font-size:13px}
 .final-grid{display:grid;gap:30px;align-items:center}
 .final-photo{max-width:340px;width:100%;margin:0 auto}
 
@@ -208,7 +228,6 @@ footer a{margin:0 6px}
 @media(min-width:760px){
   section{padding:84px 0}
   .hero{padding:64px 0 76px}
-  .hero-grid{grid-template-columns:1.15fr .85fr;gap:56px}
   .t-grid{grid-template-columns:1fr 1fr;gap:20px}
   .split{grid-template-columns:1fr 1fr;gap:56px}
   .stages{grid-template-columns:1fr 1fr;gap:20px}
@@ -221,7 +240,9 @@ footer a{margin:0 6px}
   .offer{padding:34px 34px}
 }
 @media(min-width:1000px){
-  .t-grid.four{grid-template-columns:repeat(4,1fr)}
+  .hero-grid{grid-template-columns:1.15fr .85fr;gap:56px}
+  .hero h1{font-size:60px}
+  .t-grid.three{grid-template-columns:repeat(3,1fr)}
 }
 /* very small phones: keep comparison readable */
 @media(max-width:359px){
@@ -245,7 +266,7 @@ footer a{margin:0 6px}
       <p>Four guided Cognitive Behavioural Hypnotherapy sessions with weekly Progress Reviews to help you break the patterns keeping you stuck in an avoidant relationship cycle.</p>
       <p class="note">You don't have to be over him to begin.</p>
       <div class="cta-block">
-        <a class="cta js-buy" data-cta-placement="hero" href="#checkout-pending">START MY FIRST SESSION TODAY · £117</a>
+        <a class="cta js-buy" data-cta-placement="hero" href="#checkout-pending">START MY FIRST SESSION TODAY<span class="cta-price"><span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>£117</span></a>
         <p class="cta-pending" role="status"></p>
         <p class="cta-meta">Immediate access · Lifetime access · Weekly Progress Reviews</p>
       </div>
@@ -272,8 +293,9 @@ footer a{margin:0 6px}
         <li>Immediate digital access and lifetime access</li>
       </ul>
       <div class="cta-block">
-        <a class="cta js-buy" data-cta-placement="offer_early" href="#checkout-pending">START GETTING RELIEF TODAY · £117</a>
+        <a class="cta js-buy" data-cta-placement="offer_early" href="#checkout-pending">START GETTING RELIEF TODAY<span class="cta-price"><span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>£117</span></a>
         <p class="cta-pending" role="status"></p>
+        <p class="guarantee-note">14-day conditional money-back guarantee<a href="#guarantee" class="js-guarantee" aria-label="See guarantee conditions">*</a></p>
       </div>
     </div>
   </div>
@@ -283,11 +305,9 @@ footer a{margin:0 6px}
 <section aria-labelledby="t1-h">
   <div class="wrap">
     <h2 id="t1-h" class="center">WOMEN WHO HAVE LISTENED TO THE SESSIONS</h2>
-    <div class="t-grid four">
-      <figure class="t-card" data-shot="TESTIMONIAL_CJ_SCREENSHOT"><blockquote>“I've listened twice and can honestly say for the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</blockquote><figcaption>CJ</figcaption></figure>
+    <div class="t-grid two">
       <figure class="t-card" data-shot="TESTIMONIAL_KIMBERLY_SCREENSHOT"><blockquote>“It's not easy but the loop of him playing in my head is wearing off. I'm gaining my nervous system back.”</blockquote><figcaption>Kimberly</figcaption></figure>
       <figure class="t-card" data-shot="TESTIMONIAL_K_SCREENSHOT"><blockquote>“Took me out of my own head and helped calm the voice screaming at me to reach out.”</blockquote><figcaption>K</figcaption></figure>
-      <figure class="t-card" data-shot="TESTIMONIAL_JAN_SCREENSHOT"><blockquote>“My mind has settled so much it is incredible.”</blockquote><figcaption>Jan</figcaption></figure>
     </div>
   </div>
 </section>
@@ -325,7 +345,7 @@ footer a{margin:0 6px}
       <p>It's feeling calmer when he goes quiet, being able to resist the urge to check, trusting your decisions and waking up with your own life on your mind again.</p>
       <p class="callout">You don't have to decide what happens with him before you start changing what this is doing to you.</p>
       <div class="cta-block" style="margin-left:0">
-        <a class="cta js-buy" data-cta-placement="definition" href="#checkout-pending">START GETTING RELIEF TODAY · £117</a>
+        <a class="cta js-buy" data-cta-placement="definition" href="#checkout-pending">START GETTING RELIEF TODAY<span class="cta-price"><span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>£117</span></a>
         <p class="cta-pending" role="status"></p>
       </div>
     </div>
@@ -347,8 +367,9 @@ footer a{margin:0 6px}
       <div role="row" style="display:contents"><div class="cell now" role="cell">You are questioning yourself and your decisions.</div><div class="cell want" role="cell">To trust yourself and rebuild your confidence.</div></div>
       <div role="row" style="display:contents"><div class="cell now" role="cell">You don't feel like yourself anymore.</div><div class="cell want" role="cell">To feel like yourself again.</div></div>
     </div>
+    <figure class="proof"><blockquote>“I would go back to who I was. I was living in peace.”</blockquote><figcaption>Assessment feedback <small>Asked what change she wanted</small></figcaption></figure>
     <div class="cta-block">
-      <a class="cta js-buy" data-cta-placement="comparison" href="#checkout-pending">START BREAKING THE LOOP TODAY · £117</a>
+      <a class="cta js-buy" data-cta-placement="comparison" href="#checkout-pending">START BREAKING THE LOOP TODAY<span class="cta-price"><span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>£117</span></a>
       <p class="cta-pending" role="status"></p>
     </div>
   </div>
@@ -359,8 +380,8 @@ footer a{margin:0 6px}
   <div class="wrap">
     <h2 id="stg-h" class="center">WHAT YOU'LL GET</h2>
     <div class="stages">
-      <article class="stage"><div class="num">01</div><h3>Quiet the Alarm</h3><p class="for"><strong>For the anxiety.</strong> When his silence, distance or a memory makes your stomach drop.</p><p class="out">Feel calmer. Settle your mind and body. Get your day back.</p></article>
-      <article class="stage"><div class="num">02</div><h3>Break the Pull</h3><p class="for"><strong>For the obsessive checking and overthinking.</strong> When you cannot stop checking, chasing, replaying or looking for another answer.</p><p class="out">Quiet the mental loop. Feel more in control of what you do next.</p></article>
+      <article class="stage"><div class="num">01</div><h3>Quiet the Alarm</h3><p class="for"><strong>For the anxiety.</strong> When his silence, distance or a memory makes your stomach drop.</p><p class="out">Feel calmer. Settle your mind and body. Get your day back.</p><figure class="proof"><blockquote>“I've listened twice and can honestly say for the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</blockquote><figcaption>CJ <small>A woman who listened to the sessions</small></figcaption></figure></article>
+      <article class="stage"><div class="num">02</div><h3>Break the Pull</h3><p class="for"><strong>For the obsessive checking and overthinking.</strong> When you cannot stop checking, chasing, replaying or looking for another answer.</p><p class="out">Quiet the mental loop. Feel more in control of what you do next.</p><figure class="proof"><blockquote>“Hypnotherapy really got me out of the ever ending exhausting loop of what’s wrong with me and thinking about him especially at night.”</blockquote><figcaption>Jan <small>A woman who listened to the sessions</small></figcaption></figure></article>
       <article class="stage"><div class="num">03</div><h3>Restore Self-Trust</h3><p class="for"><strong>For the self-doubt.</strong> When missing him or hoping things will change makes you question yourself again.</p><p class="out">Trust your judgement. Feel more confident in your boundaries and decisions.</p></article>
       <article class="stage"><div class="num">04</div><h3>Return to Yourself</h3><p class="for"><strong>For getting your life back.</strong> When so much of your attention has gone towards him that you have lost touch with yourself.</p><p class="out">Get your focus, energy and enjoyment back.</p></article>
     </div>
@@ -374,6 +395,7 @@ footer a{margin:0 6px}
     <p>You already know he's avoidant. You know about the push and pull.</p>
     <p>You've watched the videos, read the explanations and probably asked ChatGPT. You might even have been to therapy.</p>
     <p>But there's still a loop of him playing in your head that you cannot seem to switch off.</p>
+    <figure class="proof"><blockquote>“Everything. Specially that I understand but still feel stuck in the same cycle.”</blockquote><figcaption>Assessment feedback <small>Asked what resonated with her assessment result, which she rated “very accurate”</small></figcaption></figure>
     <p class="big">Knowing why he did it hasn't stopped what it did to you.</p>
     <p>And somebody telling you to ‘just leave’ doesn't make the anxiety, checking or emotional pull disappear.</p>
     <div class="its">
@@ -383,12 +405,13 @@ footer a{margin:0 6px}
     </div>
     <p>Your conscious mind can know what to do while your emotional reactions keep pulling you in the opposite direction.</p>
     <p>The sessions are designed to help you work on those responses so you can feel calmer, more in control and more confident in yourself.</p>
+    <figure class="proof"><blockquote>“My mind has settled so much it is incredible.”</blockquote><figcaption>Jan <small>A woman who listened to the sessions</small></figcaption></figure>
     <p>For a lot of women, this situation is incredibly isolating. You can feel like you're going mad and nobody else knows how much you're struggling.</p>
     <p>That's why your guided sessions work alongside weekly Progress Reviews.</p>
     <p><strong>The sessions help you work on the patterns. The reviews help you see what's changing.</strong></p>
     <p class="big">Just press play every night and check in once a week.</p>
     <div class="cta-block">
-      <a class="cta js-buy" data-cta-placement="belief_shift" href="#checkout-pending">START BREAKING THE LOOP TODAY · £117</a>
+      <a class="cta js-buy" data-cta-placement="belief_shift" href="#checkout-pending">START BREAKING THE LOOP TODAY<span class="cta-price"><span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>£117</span></a>
       <p class="cta-pending" role="status"></p>
     </div>
   </div>
@@ -398,8 +421,7 @@ footer a{margin:0 6px}
 <section aria-labelledby="t2-h">
   <div class="wrap">
     <h2 id="t2-h" class="center">MORE FROM WOMEN WHO HAVE USED THE SESSIONS</h2>
-    <div class="t-grid four">
-      <figure class="t-card" data-shot="TESTIMONIAL_JAN_2_SCREENSHOT"><blockquote>“Hypnotherapy really got me out of the ever ending exhausting loop of what’s wrong with me and thinking about him especially at night.”</blockquote><figcaption>Jan</figcaption></figure>
+    <div class="t-grid three">
       <figure class="t-card" data-shot="TESTIMONIAL_PRINCESS_SCREENSHOT"><blockquote>“They're like an online journal to track how you feel as you go on. And it's good to see how you felt in the past cos it keeps you motivated.”</blockquote><figcaption>Princess M. <small>On the Progress Reviews</small></figcaption></figure>
       <figure class="t-card" data-shot="TESTIMONIAL_SKY_SCREENSHOT"><blockquote>“I'm slowly unraveling from years of survival mode. I'm finding my center and power again.”</blockquote><figcaption>Sky</figcaption></figure>
       <figure class="t-card" data-shot="TESTIMONIAL_KIMBERLY_2_SCREENSHOT"><blockquote>“It was money well spent. My peace of mind is all I want and need.”</blockquote><figcaption>Kimberly</figcaption></figure>
@@ -420,8 +442,9 @@ footer a{margin:0 6px}
       <p class="saving" style="margin-top:16px">Bought individually: £148. <strong>Your saving: £31.</strong></p>
       <div class="price">£117</div>
       <div class="cta-block">
-        <a class="cta js-buy" data-cta-placement="offer_repeat" href="#checkout-pending">START GETTING RELIEF TODAY · £117</a>
+        <a class="cta js-buy" data-cta-placement="offer_repeat" href="#checkout-pending">START GETTING RELIEF TODAY<span class="cta-price"><span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>£117</span></a>
         <p class="cta-pending" role="status"></p>
+        <p class="guarantee-note">14-day conditional money-back guarantee<a href="#guarantee" class="js-guarantee" aria-label="See guarantee conditions">*</a></p>
       </div>
     </div>
   </div>
@@ -436,14 +459,19 @@ footer a{margin:0 6px}
       <details><summary>Do I have to complete all four stages at once?</summary><div class="ans"><p>No. The programme is designed to be completed in stages. Being stuck in an avoidant relationship cycle is draining enough already. This is designed to reduce your mental load, not add to it. Start with your first session, listen as instructed and complete your weekly Progress Reviews.</p></div></details>
       <details><summary>What if I have already tried everything?</summary><div class="ans"><p>You've probably spent months researching, journalling, analysing and trying to talk yourself out of how you feel. You might even have been to therapy. But you still cannot seem to switch off the loop of him playing in your mind. This isn't traditional talking therapy or another collection of information. The guided hypnotherapy sessions are designed to help you work on that loop and the automatic responses that keep pulling you back into it.</p></div></details>
       <details><summary>Do I have to leave him first?</summary><div class="ans"><p>No. You can still love him, miss him or want the relationship. You might still be together, on and off, separated or unsure what happens next. I'm not here to tell you whether to stay or leave. You don't have to make a decision about him before you start working on what this is doing to you.</p></div></details>
-      <details><summary>Is this one-to-one hypnotherapy?</summary><div class="ans"><p>No. These are guided Cognitive Behavioural Hypnotherapy sessions you can listen to in your own time, with weekly Progress Reviews to help you track what's changing. Over 1,800 women have taken the Your Mind Story assessment, helping us understand the patterns women experience in avoidant relationship dynamics. The sessions are built around four recurring areas identified through Your Mind Story's work with women: anxiety; compulsive checking and overthinking; self-doubt; losing yourself. This isn't generic detachment advice or a generic detachment hypnotherapy recording. It's a four-stage programme specifically designed around the patterns women describe when they're caught in an avoidant relationship cycle.</p>
-        <figure class="t-card faq-quote"><div class="stars">Assessment result rated: Very accurate</div><blockquote>“Everything. Specially that I understand but still feel stuck in the same cycle.”</blockquote><figcaption>Your Mind Story assessment respondent <small>On what resonated with her about the assessment</small></figcaption></figure>
-        <figure class="t-card faq-quote"><blockquote>“I would go back to who I was. I was living in peace.”</blockquote><figcaption>The same respondent <small>On the change she wanted</small></figcaption></figure>
-      </div></details>
+      <details><summary>Is this one-to-one hypnotherapy?</summary><div class="ans"><p>No. These are guided Cognitive Behavioural Hypnotherapy sessions you can listen to in your own time, with weekly Progress Reviews to help you track what's changing. Over 1,800 women have taken the Your Mind Story assessment, helping us understand the patterns women experience in avoidant relationship dynamics. The sessions are built around four recurring areas identified through Your Mind Story's work with women: anxiety; compulsive checking and overthinking; self-doubt; losing yourself. This isn't generic detachment advice or a generic detachment hypnotherapy recording. It's a four-stage programme specifically designed around the patterns women describe when they're caught in an avoidant relationship cycle.</p></div></details>
       <details><summary>Will one listen change everything?</summary><div class="ans"><p>Some women have reported feeling calmer after their first few listens. Everyone responds differently, and no particular result is guaranteed. The sessions are designed to be used consistently.</p></div></details>
       <details><summary>How long will I have access?</summary><div class="ans"><p>You'll have lifetime access to your digital sessions.</p></div></details>
       <details id="guarantee"><summary>What if it does not work for me?</summary><div class="ans"><div class="guarantee">
         <p>You've already been through enough. When I work with women, one of the most important things is helping them rebuild confidence in themselves. I want you to feel confident about taking this next step, too. I want you to actually use what you've bought rather than leave it sitting in your inbox. That's why I offer a 14-day conditional money-back guarantee. If you use the sessions as directed, complete your Progress Reviews and feel you've received no benefit or value, you can request a refund within 14 days of purchase.</p>
+        <p><strong>To qualify for a refund:</strong></p>
+        <ul class="terms">
+          <li>Listen to your sessions every night, as directed.</li>
+          <li>Complete your baseline Progress Review before you start.</li>
+          <li>Complete your Day 7 and Day 14 Progress Reviews.</li>
+          <li>Request your refund within 14 days of purchase by emailing yourmindstory.co.uk@gmail.com.</li>
+        </ul>
+        <p class="flag-note">Your statutory rights are unaffected.</p>
       </div></div></details>
     </div>
     <div class="questions">
@@ -464,7 +492,7 @@ footer a{margin:0 6px}
       <p>But I can help you work on changing how you respond to the situation. And that can change so much for you.</p>
       <p class="prodline">Return to Yourself: The Complete Four-Stage Journey | £117</p>
       <div class="cta-block">
-        <a class="cta js-buy" data-cta-placement="final" href="#checkout-pending">START MY FIRST SESSION TODAY · £117</a>
+        <a class="cta js-buy" data-cta-placement="final" href="#checkout-pending">START MY FIRST SESSION TODAY<span class="cta-price"><span class="sep" aria-hidden="true">&nbsp;·&nbsp;</span>£117</span></a>
         <p class="cta-pending" role="status"></p>
         <p class="cta-meta">Immediate access · Lifetime access · Secure checkout</p>
       </div>
@@ -501,6 +529,11 @@ footer a{margin:0 6px}
     fig.appendChild(i);
   });
 
+  document.querySelectorAll('.js-guarantee').forEach(function(a){
+    a.addEventListener('click', function(){ var d = document.getElementById('guarantee'); if(d) d.open = true; });
+  });
+  if(location.hash === '#guarantee'){ var g = document.getElementById('guarantee'); if(g) g.open = true; }
+
   /* Attribution: pass through UTM params from this page's URL to checkout */
   var UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'];
   var here = new URLSearchParams(location.search);
@@ -531,7 +564,7 @@ footer a{margin:0 6px}
     }
     a.addEventListener('click', function(e){
       var p = {
-        cta_id: a.id, cta_placement: placement, cta_label: a.textContent.trim(), is_primary_cta: placement === 'hero' ? 'yes' : 'no',
+        cta_id: a.id, cta_placement: placement, cta_label: a.textContent.replace(/\s+/g,' ').trim(), is_primary_cta: placement === 'hero' ? 'yes' : 'no',
         product: C.productId, value: C.price, currency: C.currency,
         page_path: location.pathname, checkout_connected: hasCheckout ? 'yes' : 'no', transport_type: 'beacon'
       };
