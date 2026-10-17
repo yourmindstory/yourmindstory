@@ -44,7 +44,7 @@ window.RTY_CONFIG = {
 <style>
 /* Layout: alternating deep green-charcoal and warm paper bands, one idea per screen, cards for offers. */
 :root{
-  --deep:#20241f;--deep-2:#2b3029;--paper:#faf8f4;--cream:#f4efe6;--card:#ffffff;
+  --deep:#20241f;--deep-2:#2b3029;--paper:#ffffff;--cream:#f4efe6;--band:#e6ece2;--card:#ffffff;
   --ink:#1c1f1b;--muted:#5d625b;--line:#e3dfd6;--line-dark:rgba(255,255,255,.14);
   --brass:#8a6a37;--brass-dark:#6f5429;--gold:#d8c39b;--sage:#dce4d8;--sage2:#6f8169;
   --serif:"Fraunces",Georgia,serif;--sans:"DM Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
@@ -65,7 +65,7 @@ section{padding:64px 0}
 .dark{background:var(--deep);color:#f4f1ea}
 .dark-2{background:var(--deep-2);color:#f4f1ea}
 .paper{background:var(--paper)}
-.cream{background:var(--cream)}
+.cream{background:var(--band)}
 .center{text-align:center}
 
 /* type */
@@ -117,11 +117,12 @@ p{margin:0 0 14px}
 .hero h1{font-size:clamp(31px,8.4vw,58px);line-height:1.06;margin-bottom:14px}
 .hero .outcome{font-family:var(--serif);font-size:20px;line-height:1.3;color:#f4f1ea;margin-bottom:10px}
 .hero .what{font-size:16px;line-height:1.5;color:#e2e0d8;margin-bottom:0}
-.hero .cta-block{margin:18px 0 0;max-width:440px}
-.hero .reassure{font-size:14px;color:#e2e0d8;margin:12px 0 0;text-align:center;max-width:440px}
+.hero .cta-block{margin:18px 0 0;max-width:none}
+.hero .cta{width:auto;display:inline-flex;flex-direction:row;padding:16px 28px;min-height:56px;font-size:15px}
+.hero .reassure{font-size:14px;color:#e2e0d8;margin:12px 0 0;text-align:left}
 
 /* offer card */
-.offer{background:var(--card);border-radius:14px;box-shadow:0 18px 44px rgba(28,31,27,.08);padding:34px 24px;max-width:560px;margin:0 auto;text-align:center}
+.offer{background:var(--card);border-radius:14px;border:1px solid #e4e9e1;box-shadow:0 18px 44px rgba(28,31,27,.08);padding:34px 24px;max-width:560px;margin:0 auto;text-align:center}
 .offer h2{font-size:clamp(26px,6.6vw,34px);margin-bottom:6px}
 .price{font-family:var(--serif);font-size:64px;line-height:1;margin:14px 0 10px;color:var(--ink)}
 .saving{font-size:15px;color:var(--muted);margin-bottom:20px}
@@ -198,7 +199,7 @@ p{margin:0 0 14px}
 .faq .ans p,.faq .ans li{font-size:16px;color:#e2e0d8}
 .terms{margin:4px 0 14px;padding-left:20px}
 .terms li{margin:6px 0}
-.questions{max-width:var(--narrow);margin:28px auto 0;text-align:center;background:var(--cream);color:var(--ink);border-radius:12px;padding:24px 20px}
+.questions{max-width:var(--narrow);margin:28px auto 0;text-align:center;background:#ffffff;color:var(--ink);border-radius:12px;padding:24px 20px}
 .questions h3{margin-bottom:8px}
 .questions p{color:var(--ink)}
 .questions a{font-weight:700}
@@ -251,7 +252,7 @@ footer a{margin:0 6px;color:#f4f1ea}
 @media(min-width:760px){.feature-quote{padding:40px 52px}}
 
 /* one-week checklist */
-.week1{background:var(--cream);color:var(--ink);border-radius:14px;padding:28px 22px;margin:30px 0 4px}
+.week1{background:#ffffff;color:var(--ink);border-radius:14px;padding:28px 22px;margin:30px 0 4px}
 .week1 h3{font-size:clamp(23px,5.6vw,28px);margin-bottom:6px}
 .week1-sub{font-size:15px!important;color:var(--muted);margin-bottom:12px}
 .week1 ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
@@ -305,7 +306,7 @@ footer a{margin:0 6px;color:#f4f1ea}
     <p class="outcome">Get your peace back. Feel like yourself again.</p>
     <p class="what">Four guided Cognitive Behavioural Hypnotherapy sessions with weekly check-in support.</p>
     <div class="cta-block">
-      <a class="cta cta-light js-buy" data-cta-placement="hero" href="#checkout-pending">START MY FIRST SESSION TODAY<span class="cta-price">£117</span></a>
+      <a class="cta cta-light js-buy" data-cta-placement="hero" href="#checkout-pending">START MY FIRST SESSION TODAY</a>
       <p class="cta-pending" role="status"></p>
     </div>
     <p class="reassure">You don't have to be over him to begin.</p>
@@ -426,7 +427,7 @@ footer a{margin:0 6px;color:#f4f1ea}
   <div class="wrap">
     <h2 id="stg-h" class="center">What you'll <em>get</em></h2>
     <div class="stages">
-      <article class="stage"><div class="num">01</div><h3>Quiet the Alarm</h3><p class="for"><strong>For the anxiety.</strong> When his silence, distance or a memory makes your stomach drop.</p><p class="out">Feel calmer. Settle your mind and body. Get your day back.</p><figure class="proof"><blockquote>“I've listened twice and can honestly say for the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</blockquote><figcaption>CJ <small>A woman who listened to the sessions</small></figcaption></figure></article>
+      <article class="stage"><div class="num">01</div><h3>Quiet the Alarm</h3><p class="for"><strong>For the anxiety.</strong> When his silence, distance or a memory makes your stomach drop.</p><p class="out">Feel calmer. Settle your mind and body. Get your day back.</p><figure class="proof"><blockquote>“I've listened twice and can honestly say for the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</blockquote><figcaption>CJ</figcaption></figure></article>
       <article class="stage"><div class="num">02</div><h3>Break the Pull</h3><p class="for"><strong>For the obsessive checking and overthinking.</strong> When you cannot stop checking, chasing, replaying or looking for another answer.</p><p class="out">Quiet the mental loop. Feel more in control of what you do next.</p></article>
       <article class="stage"><div class="num">03</div><h3>Restore Self-Trust</h3><p class="for"><strong>For the self-doubt.</strong> When missing him or hoping things will change makes you question yourself again.</p><p class="out">Trust your judgement. Feel more confident in your boundaries and decisions.</p></article>
       <article class="stage"><div class="num">04</div><h3>Return to Yourself</h3><p class="for"><strong>For getting your life back.</strong> When so much of your attention has gone towards him that you have lost touch with yourself.</p><p class="out">Get your focus, energy and enjoyment back.</p></article>
@@ -607,15 +608,11 @@ footer a{margin:0 6px;color:#f4f1ea}
       <div class="creds">
         <div class="who">
           <div class="name">Onye Iweha</div>
-          <p class="role">Cognitive Behavioural Hypnotherapist and founder of Your Mind Story</p>
+          <p class="role">Cognitive Behavioural Hypnotherapist</p>
+          <p class="role">Your Mind Story, online Cognitive Behavioural Hypnotherapy practice</p>
         </div>
-        <img src="img/fht-logo.png" width="243" height="95" alt="Federation of Holistic Therapists (FHT) logo" loading="lazy">
+        <img src="img/fht-logo.png" width="243" height="95" alt="Federation of Holistic Therapists (FHT) member logo" loading="lazy">
       </div>
-      <ul class="cred-list">
-        <li>Diploma in Cognitive Behavioural Hypnotherapy, recognised by the British Psychological Society</li>
-        <li>Member of the Federation of Holistic Therapists (FHT)</li>
-        <li>Insured</li>
-      </ul>
       <h2 id="final-h">Knowing why he did it hasn't stopped <em>what it did to you</em></h2>
       <p>I can't help you change him.</p>
       <p>But I can help you work on changing how you respond to the situation. And that can change so much for you.</p>
