@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>You're in — Return to Yourself | Your Mind Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111827;--muted:#5d6168;--line:#e4e4df;--cream:#faf8f4;--sage-soft:#eef2ec;--brass:#8a6a37;--brass-dark:#6f5429}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:17px/1.6 "DM Sans",system-ui,sans-serif}
+:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+.top{background:#fff;border-bottom:1px solid var(--line);height:58px;display:flex;align-items:center;justify-content:center}
+.logo{font-size:12px;font-weight:700;letter-spacing:.18em;text-decoration:none;color:inherit}
+main{max-width:600px;margin:0 auto;padding:44px 20px 80px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px 22px;box-shadow:0 14px 40px rgba(17,24,39,.06)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:10px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:clamp(32px,8vw,44px);line-height:1.08;margin:0 0 16px;letter-spacing:-.02em}
+p{margin:0 0 14px}
+.steps{list-style:none;padding:0;margin:20px 0}
+.steps li{padding:12px 0 12px 34px;border-top:1px solid var(--line);position:relative}
+.steps li span{position:absolute;left:0;top:12px;font-family:Fraunces,Georgia,serif;color:var(--brass)}
+.cta{display:flex;align-items:center;justify-content:center;min-height:56px;padding:15px 18px;border-radius:6px;background:var(--brass);color:#fff;text-decoration:none;font:700 15px "DM Sans",sans-serif;letter-spacing:.04em;margin-top:18px}
+.cta:hover,.cta:focus-visible{background:var(--brass-dark)}
+.small{font-size:13px;color:var(--muted);margin-top:18px}
+</style>
+</head>
+<body>
+<header class="top"><a class="logo" href="https://yourmindstory.co.uk/">YOUR MIND STORY</a></header>
+<main>
+  <div class="card">
+    <div class="eyebrow">Payment confirmed</div>
+    <h1>You're in. Welcome to Return to Yourself.</h1>
+    <p>Your sessions are on their way to your inbox now. Look for an email from <strong>yourmindstory.co.uk@gmail.com</strong> and check your spam or promotions folder if it isn't there in a few minutes.</p>
+    <ul class="steps">
+      <li><span>1</span>Complete your baseline Progress Review below. It takes a couple of minutes.</li>
+      <li><span>2</span>Start with Quiet the Alarm.</li>
+      <li><span>3</span>Just press play and check in once a week.</li>
+    </ul>
+    <a class="cta" id="rty_welcome_baseline" href="/quiet/?day=0">START MY BASELINE PROGRESS REVIEW</a>
+    <p class="small">Problem with your access? Email yourmindstory.co.uk@gmail.com and include the email address you paid with.</p>
+  </div>
+</main>
+<script>
+/* Purchase tracking: fires once per Stripe Checkout session, only when arriving from Stripe. */
+(function(){
+  var VALUE = 117, CURRENCY = 'GBP', PRODUCT = 'return_to_yourself_complete';
+  var q = new URLSearchParams(location.search);
+  var sid = q.get('session_id') || '';
+  var valid = /^cs_(live|test)_[A-Za-z0-9]+$/.test(sid);
+  function seen(){ try{ return localStorage.getItem('yms_purchase_' + sid) === '1'; }catch(e){ return false; } }
+  function mark(){ try{ localStorage.setItem('yms_purchase_' + sid, '1'); }catch(e){} }
+  function track(name, p){ try{ if(window.YMSTracking && window.YMSTracking.track) window.YMSTracking.track(name, p); }catch(e){} }
+  function sendPurchase(){
+    if(!valid){ track('checkout_error', { reason: sid ? 'invalid_session_id' : 'missing_session_id', page_path: location.pathname }); return; }
+    if(seen()) return;
+    var sent = false;
+    track('purchase', { transaction_id: sid, value: VALUE, currency: CURRENCY, product: PRODUCT, items: [{ item_id: PRODUCT, item_name: 'Return to Yourself — The Complete Four-Stage Journey', price: VALUE, quantity: 1 }], test_mode: sid.indexOf('cs_test_') === 0 ? 'yes' : 'no', page_path: location.pathname });
+    try{ if(localStorage.getItem('yms_analytics_consent') === 'yes'){ mark(); sent = true; } }catch(e){}
+    return sent;
+  }
+  document.getElementById('rty_welcome_baseline').addEventListener('click', function(){ track('progress_review_start', { point: 'baseline', product: PRODUCT, transport_type: 'beacon' }); });
+  if(document.readyState === 'complete') sendPurchase(); else window.addEventListener('load', sendPurchase);
+  document.addEventListener('ymsConsentAnalyticsGranted', function once(){ sendPurchase(); document.removeEventListener('ymsConsentAnalyticsGranted', once); });
+})();
+</script>
+<script src="/assets/yms-consent.js?v=20261001-tracking" defer></script>
+</body>
+</html>

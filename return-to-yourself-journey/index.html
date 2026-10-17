@@ -18,7 +18,9 @@
    ===================================================================== */
 window.RTY_CONFIG = {
   /* CHECKOUT_URL_PENDING_APPROVAL
-     Paste the approved £117 direct checkout link here (Gate 4).
+     Paste the approved £117 Stripe Payment Link here (https://buy.stripe.com/...).
+     In Stripe, set the link's "After payment" to redirect to:
+     https://yourmindstory.co.uk/return-to-yourself-journey/welcome/?session_id={CHECKOUT_SESSION_ID}
      While empty, every purchase button shows a "checkout not connected"
      notice instead of sending anyone to a wrong or broken page. */
   checkoutUrl: "",
@@ -49,7 +51,7 @@ window.RTY_CONFIG = {
 :root{
   --ink:#111827;--muted:#5d6168;--line:#e4e4df;
   --cream:#faf8f4;--blush:#f6efe9;--sage:#dce4d8;--sage-soft:#eef2ec;--sage2:#6f8169;
-  --brass:#8a6a37;--action:#c84f20;--action-dark:#a63f18;--white:#fff;
+  --brass:#8a6a37;--brass-dark:#6f5429;--gold-soft:#d8c39b;--white:#fff;
   --serif:"Fraunces",Georgia,serif;--sans:"DM Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   --wrap:1080px;--narrow:680px;
 }
@@ -88,13 +90,13 @@ p{margin:0 0 14px}
 .logo{font-size:12px;font-weight:700;letter-spacing:.18em;text-decoration:none}
 
 /* CTA */
-.cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:58px;padding:16px 18px;border-radius:6px;background:var(--action);color:#fff;text-decoration:none;text-align:center;font:700 15px/1.25 var(--sans);letter-spacing:.04em;box-shadow:0 3px 0 rgba(0,0,0,.12);transition:background .15s,transform .15s}
-.cta:hover,.cta:focus-visible{background:var(--action-dark)}
+.cta{display:flex;align-items:center;justify-content:center;width:100%;min-height:58px;padding:16px 18px;border-radius:6px;background:var(--brass);color:#fff;text-decoration:none;text-align:center;font:700 15px/1.25 var(--sans);letter-spacing:.04em;box-shadow:0 3px 0 rgba(0,0,0,.12);transition:background .15s,transform .15s}
+.cta:hover,.cta:focus-visible{background:var(--brass-dark)}
 .cta:active{transform:translateY(1px)}
 .cta-block{max-width:460px;margin:26px auto 0}
 .cta-meta{font-size:13px;color:var(--muted);text-align:center;margin:10px 0 0}
 .bg-ink .cta-meta{color:#cfd2d6}
-.cta-pending{display:none;margin:10px 0 0;padding:10px 12px;border:1px dashed var(--action);border-radius:6px;background:#fff6f1;color:#7a2f12;font-size:13px;text-align:center}
+.cta-pending{display:none;margin:10px 0 0;padding:10px 12px;border:1px dashed var(--brass);border-radius:6px;background:#faf6ee;color:var(--brass-dark);font-size:13px;text-align:center}
 .cta-pending.show{display:block}
 
 /* placeholders */
@@ -121,7 +123,7 @@ p{margin:0 0 14px}
 .offer h2{font-size:clamp(25px,6.4vw,34px);margin-bottom:6px}
 .price{font-family:var(--serif);font-size:56px;line-height:1;margin:14px 0 8px}
 .saving{font-size:15px;color:var(--muted);margin-bottom:18px}
-.saving strong{color:var(--action-dark)}
+.saving strong{color:var(--brass-dark)}
 .ticks{list-style:none;margin:0;padding:0}
 .ticks li{position:relative;padding:11px 0 11px 30px;border-top:1px solid var(--line);font-size:16px}
 .ticks li:first-child{border-top:0}
