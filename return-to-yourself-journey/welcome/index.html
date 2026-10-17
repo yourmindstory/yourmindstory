@@ -47,7 +47,7 @@ p{margin:0 0 14px}
 <script>
 /* Purchase tracking: fires once per browser, only when arriving from the Payhip checkout redirect (?src=payhip). */
 (function(){
-  var VALUE = 117, CURRENCY = 'GBP', PRODUCT = 'return_to_yourself_complete', KEY = 'yms_rty_purchase_sent';
+  var VALUE = 147, CURRENCY = 'GBP', PRODUCT = 'return_to_yourself_complete', KEY = 'yms_rty_purchase_sent';
   var q = new URLSearchParams(location.search);
   var fromPayhip = q.get('src') === 'payhip' || /(^|\.)payhip\.com$/i.test((document.referrer ? new URL(document.referrer).hostname : ''));
   function seen(){ try{ return localStorage.getItem(KEY) === '1'; }catch(e){ return false; } }
