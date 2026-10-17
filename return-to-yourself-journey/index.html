@@ -287,11 +287,10 @@ footer a{margin:0 6px;color:#f4f1ea}
 .soft-photo{display:block;width:100%;max-width:420px;height:auto;margin:0 auto 30px;
   -webkit-mask-image:radial-gradient(ellipse 72% 70% at 50% 45%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 72% 70% at 50% 45%,#000 55%,transparent 100%)}
 .soft-edge{-webkit-mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,#000 60%,transparent 100%);border-radius:0!important}
-.photo-bg{position:relative;background:var(--band);overflow:hidden}
-.photo-bg::before{content:"";position:absolute;inset:0;background:var(--bg) center 18%/cover no-repeat;opacity:.9}
-.photo-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(230,236,226,0) 0%,rgba(230,236,226,.25) 40%,rgba(230,236,226,.85) 100%)}
-.photo-bg{padding-top:300px}
-@media(min-width:760px){.photo-bg{padding-top:360px}}
+.photo-bg{position:relative;background:var(--band);overflow:hidden;--ph:340px;padding-top:var(--ph)}
+.photo-bg::before{content:"";position:absolute;left:0;right:0;top:0;height:calc(var(--ph) + 140px);background:var(--bg) center 22%/cover no-repeat}
+.photo-bg::after{content:"";position:absolute;left:0;right:0;top:0;height:calc(var(--ph) + 140px);background:linear-gradient(180deg,rgba(230,236,226,0) 55%,var(--band) 100%)}
+@media(min-width:760px){.photo-bg{--ph:420px}.photo-bg::before{background-size:min(100%,760px) auto;background-position:center 20%}.photo-bg::after{background:linear-gradient(180deg,rgba(230,236,226,0) 55%,var(--band) 100%),linear-gradient(90deg,var(--band) 0%,rgba(230,236,226,0) 25%,rgba(230,236,226,0) 75%,var(--band) 100%)}}
 .photo-bg>.wrap{position:relative;z-index:1}
 .dark-photo{position:relative;overflow:hidden}
 .dark-photo::before{content:"";position:absolute;inset:0;background:var(--bg) center top/cover no-repeat;opacity:.16}
@@ -355,7 +354,7 @@ footer a{margin:0 6px;color:#f4f1ea}
         <li>Immediate digital access and lifetime access</li>
       </ul>
       <div class="cta-block">
-        <a class="cta cta-dark js-buy" data-cta-placement="offer_early" href="#checkout-pending">START GETTING RELIEF TODAY<span class="cta-price">£117</span></a>
+        <a class="cta cta-dark js-buy" data-cta-placement="offer_early" href="#checkout-pending">START GETTING RELIEF TODAY</a>
         <p class="cta-pending" role="status"></p>
         <p class="guarantee-note">21-day conditional money-back guarantee<a href="#guarantee" class="js-guarantee" aria-label="See guarantee conditions">*</a></p>
       </div>
@@ -378,7 +377,6 @@ footer a{margin:0 6px;color:#f4f1ea}
 <!-- 4. RECOGNITION -->
 <section class="paper" aria-labelledby="rec-h">
   <div class="wrap narrow">
-    <img class="soft-photo pink" src="img/onye-pink.jpg" width="900" height="1080" alt="Onye, founder of Your Mind Story" loading="lazy" decoding="async">
     <h2 id="rec-h">You probably need <em>Return to Yourself</em> if…</h2>
     <ul class="arrows">
       <li>His silence makes your stomach drop and sends you into anxiety.</li>
@@ -577,7 +575,7 @@ footer a{margin:0 6px;color:#f4f1ea}
 </section>
 
 <!-- 10. REPEATED OFFER -->
-<section class="paper" aria-labelledby="offer2-h">
+<section class="photo-bg offer-photo" style="--bg:url(img/onye-pink.jpg)" aria-labelledby="offer2-h">
   <div class="wrap">
     <div class="offer">
       <h2 id="offer2-h">Return to Yourself: The Complete Four-Stage Journey</h2>
@@ -589,7 +587,7 @@ footer a{margin:0 6px;color:#f4f1ea}
       <p class="saving" style="margin-top:18px">Bought individually: £148. <strong>Your saving: £31.</strong></p>
       <div class="price">£117</div>
       <div class="cta-block">
-        <a class="cta cta-dark js-buy" data-cta-placement="offer_repeat" href="#checkout-pending">START GETTING RELIEF TODAY<span class="cta-price">£117</span></a>
+        <a class="cta cta-dark js-buy" data-cta-placement="offer_repeat" href="#checkout-pending">START GETTING RELIEF TODAY</a>
         <p class="cta-pending" role="status"></p>
         <p class="guarantee-note">21-day conditional money-back guarantee<a href="#guarantee" class="js-guarantee" aria-label="See guarantee conditions">*</a></p>
       </div>
@@ -652,7 +650,7 @@ footer a{margin:0 6px;color:#f4f1ea}
       <p>But I can help you work on changing how you respond to the situation. And that can change so much for you.</p>
       <p class="prodline">Return to Yourself: The Complete Four-Stage Journey | £117</p>
       <div class="cta-block">
-        <a class="cta cta-dark js-buy" data-cta-placement="final" href="#checkout-pending">START MY FIRST SESSION TODAY<span class="cta-price">£117</span></a>
+        <a class="cta cta-dark js-buy" data-cta-placement="final" href="#checkout-pending">START MY FIRST SESSION TODAY</a>
         <p class="cta-pending" role="status"></p>
         <p class="cta-meta">Immediate access · Lifetime access · Secure checkout</p>
       </div>
