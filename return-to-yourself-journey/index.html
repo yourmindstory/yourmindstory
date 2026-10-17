@@ -243,6 +243,28 @@ footer a{margin:0 6px;color:#f4f1ea}
   .hero .reassure{text-align:left}
   .nav .wrap{display:flex;gap:32px}
 }
+
+/* one-week checklist */
+.week1{background:var(--cream);color:var(--ink);border-radius:14px;padding:28px 22px;margin:30px 0 4px}
+.week1 h3{font-size:clamp(23px,5.6vw,28px);margin-bottom:6px}
+.week1-sub{font-size:15px!important;color:var(--muted);margin-bottom:12px}
+.week1 ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.week1 li{position:relative;padding:9px 0 9px 36px;font-size:17px;font-weight:600}
+.week1 li::before{content:"✓";position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:var(--deep);color:var(--gold);font-size:14px;line-height:24px;text-align:center}
+@media(min-width:760px){.week1{padding:34px 36px}.week1 ul{grid-template-columns:1fr 1fr;column-gap:24px}}
+
+/* Jan's story */
+.jan h2{margin-bottom:8px}
+.jan-sub{font-family:var(--serif);font-size:clamp(20px,5vw,24px);line-height:1.3;color:var(--brass-dark);margin-bottom:18px}
+.jan p{font-size:17px}
+.jan-step{border-top:1px solid var(--line);padding-top:26px;margin-top:28px}
+.jan-step h3{font-size:clamp(21px,5.2vw,25px);margin-bottom:12px}
+.jq{margin:16px 0 18px;padding:2px 0 2px 18px;border-left:2px solid var(--brass);font-family:var(--serif);font-size:clamp(19px,4.8vw,22px);line-height:1.42;color:var(--ink)}
+.jan-result{background:var(--deep);color:#f4f1ea;border-radius:14px;padding:30px 24px;margin:34px 0 0}
+.jan-result .eyebrow{color:var(--gold)}
+.jan-result blockquote{margin:0;font-family:var(--serif);font-style:italic;font-size:clamp(24px,6.2vw,32px);line-height:1.3;color:#f4f1ea}
+.jan-name{font-weight:700;margin-top:6px}
+@media(min-width:760px){.jan-result{padding:40px 44px}}
 </style>
 </head>
 <body>
@@ -398,7 +420,7 @@ footer a{margin:0 6px;color:#f4f1ea}
     <h2 id="stg-h" class="center">What you'll <em>get</em></h2>
     <div class="stages">
       <article class="stage"><div class="num">01</div><h3>Quiet the Alarm</h3><p class="for"><strong>For the anxiety.</strong> When his silence, distance or a memory makes your stomach drop.</p><p class="out">Feel calmer. Settle your mind and body. Get your day back.</p><figure class="proof"><blockquote>“I've listened twice and can honestly say for the first time in 5 weeks I was able to regulate my breathing and stop my racing heart and I actually slept.”</blockquote><figcaption>CJ <small>A woman who listened to the sessions</small></figcaption></figure></article>
-      <article class="stage"><div class="num">02</div><h3>Break the Pull</h3><p class="for"><strong>For the obsessive checking and overthinking.</strong> When you cannot stop checking, chasing, replaying or looking for another answer.</p><p class="out">Quiet the mental loop. Feel more in control of what you do next.</p><figure class="proof"><blockquote>“Hypnotherapy really got me out of the ever ending exhausting loop of what’s wrong with me and thinking about him especially at night.”</blockquote><figcaption>Jan <small>A woman who listened to the sessions</small></figcaption></figure></article>
+      <article class="stage"><div class="num">02</div><h3>Break the Pull</h3><p class="for"><strong>For the obsessive checking and overthinking.</strong> When you cannot stop checking, chasing, replaying or looking for another answer.</p><p class="out">Quiet the mental loop. Feel more in control of what you do next.</p></article>
       <article class="stage"><div class="num">03</div><h3>Restore Self-Trust</h3><p class="for"><strong>For the self-doubt.</strong> When missing him or hoping things will change makes you question yourself again.</p><p class="out">Trust your judgement. Feel more confident in your boundaries and decisions.</p></article>
       <article class="stage"><div class="num">04</div><h3>Return to Yourself</h3><p class="for"><strong>For getting your life back.</strong> When so much of your attention has gone towards him that you have lost touch with yourself.</p><p class="out">Get your focus, energy and enjoyment back.</p></article>
     </div>
@@ -421,14 +443,86 @@ footer a{margin:0 6px;color:#f4f1ea}
       <p><strong>It's guided Cognitive Behavioural Hypnotherapy designed to help you work on the automatic responses keeping you stuck.</strong></p>
     </div>
     <p>You can understand the pattern and still feel caught in it. Cognitive Behavioural Hypnotherapy helps you work on the thoughts, feelings and automatic responses that keep the cycle going, so change doesn't depend on willpower alone.</p>
-    <figure class="proof"><blockquote>“My mind has settled so much it is incredible.”</blockquote><figcaption>Jan <small>A woman who listened to the sessions</small></figcaption></figure>
     <p>For a lot of women, this situation is incredibly isolating. You can feel like you're going mad and nobody else knows how much you're struggling.</p>
     <p>That's why your guided sessions work alongside weekly check-in support.</p>
     <p><strong>The sessions help you work on the patterns. The check-ins help you see what's changing.</strong></p>
     <p class="big">Just press play every night and check in once a week.</p>
+    <div class="week1" aria-labelledby="week1-h">
+      <h3 id="week1-h">After just one week of listening</h3>
+      <p class="week1-sub">What listeners are beginning to notice:</p>
+      <ul>
+        <li>Feeling safer</li>
+        <li>Feeling calmer</li>
+        <li>More acceptance of things as they are</li>
+        <li>Less anxiety</li>
+        <li>Feeling more connected to themselves</li>
+        <li>More able to focus on everyday life</li>
+      </ul>
+    </div>
     <div class="cta-block">
       <a class="cta cta-light js-buy" data-cta-placement="belief_shift" href="#checkout-pending">START BREAKING THE LOOP TODAY<span class="cta-price">£117</span></a>
       <p class="cta-pending" role="status"></p>
+    </div>
+  </div>
+</section>
+
+<!-- 8b. JAN'S STORY (quotes verbatim from Jan's feedback forms, 8 and 17 Oct 2026; marketing permission given) -->
+<section class="paper jan" aria-labelledby="jan-h">
+  <div class="wrap narrow">
+    <h2 id="jan-h">Jan's Story</h2>
+    <p class="jan-sub">From an exhausting mental loop to finding herself again.</p>
+    <p>Jan wanted to share her story so that you could see what's possible for you too, after using cognitive behavioural hypnotherapy sessions.</p>
+
+    <div class="jan-step">
+      <h3>“I just wanted the loop to stop.”</h3>
+      <p>Jan had been through a painful relationship ending. She described struggling to sleep, losing her appetite and being consumed by repetitive thoughts about what had happened.</p>
+      <p>Even after understanding more about the relationship, the thoughts kept coming.</p>
+      <blockquote class="jq">“At night in the quiet the loop would run and would not stop.”</blockquote>
+    </div>
+
+    <div class="jan-step">
+      <h3>She had already tried therapy.</h3>
+      <p>Jan had previously tried traditional therapy and inner child work.</p>
+      <blockquote class="jq">“The support I did was inner child work and therapy. But that did not break the loop”</blockquote>
+      <p>She knew she wanted something different.</p>
+      <blockquote class="jq">“I just wanted my mind to be free and my nervous system regulated”</blockquote>
+    </div>
+
+    <div class="jan-step">
+      <h3>Why she chose hypnotherapy</h3>
+      <p>When asked why she chose Your Mind Story, Jan's answer was simple:</p>
+      <blockquote class="jq">“Your page described me!”</blockquote>
+      <p>She recognised her experience in the descriptions of avoidant relationships and trauma bonding.</p>
+      <p>When asked whether she had doubts before buying, she answered:</p>
+      <blockquote class="jq">“No doubts I knew I needed help”</blockquote>
+    </div>
+
+    <div class="jan-step">
+      <h3>What happened when she started listening</h3>
+      <blockquote class="jq">“Your hypnotherapy calmed my mind and allowed me to reground myself”</blockquote>
+      <p>She also described what began happening to the thoughts that had been particularly difficult at night:</p>
+      <blockquote class="jq">“when I first started the hypnotherapy it started to take me back to my own self. The loop would be suppressed and my nervous system calmed down”</blockquote>
+    </div>
+
+    <div class="jan-step">
+      <h3>What changed in everyday life</h3>
+      <blockquote class="jq">“My mind has settled so much it is incredible.”</blockquote>
+      <p>When difficult feelings returned, Jan described responding differently:</p>
+      <blockquote class="jq">“When I was triggered  I would ground myself and calm my nervous system”</blockquote>
+      <p>She also described changes in her boundaries and how she felt about herself:</p>
+      <blockquote class="jq">“Inner work has set me freee so now I know how to set proper boundaries. Hypnotherapy really got me out of the ever ending exhausting loop of what’s wrong with me and thinking about him especially at night.”</blockquote>
+    </div>
+
+    <div class="jan-result">
+      <div class="eyebrow">The result that mattered most</div>
+      <blockquote>“The most incredible result was getting out of the loop. The hypnotherapy helped me ground my energy back to the amazing person that I am.”</blockquote>
+    </div>
+
+    <div class="jan-step">
+      <h3>What Jan would tell another woman</h3>
+      <blockquote class="jq">“Avoidant connection is really toxic . The hot and cold puts your nervous system on high alert! Your hypnotherapy dims the noise the breathing settles the nervous system it’s my go to if I need to ground myself.”</blockquote>
+      <blockquote class="jq">“The hypnotherapy helps you realize how much worth you actually have without external validation. None needed once you embrace your inner beauty and self worth.”</blockquote>
+      <p class="jan-name">Jan</p>
     </div>
   </div>
 </section>
