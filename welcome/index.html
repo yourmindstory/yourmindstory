@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>You're in | Your Mind Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111827;--muted:#5d6168;--line:#e4e4df;--cream:#faf8f4;--brass:#8a6a37;--brass-dark:#6f5429}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:17px/1.6 "DM Sans",system-ui,sans-serif}
+:focus-visible{outline:3px solid var(--brass);outline-offset:3px}
+.top{background:#fff;border-bottom:1px solid var(--line);height:58px;display:flex;align-items:center;justify-content:center}
+.logo{font-size:12px;font-weight:700;letter-spacing:.18em;text-decoration:none;color:inherit}
+main{max-width:600px;margin:0 auto;padding:44px 20px 80px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px 22px;box-shadow:0 14px 40px rgba(17,24,39,.06)}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:10px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:clamp(30px,8vw,42px);line-height:1.1;margin:0 0 16px;letter-spacing:-.02em}
+p{margin:0 0 14px}
+.steps{list-style:none;padding:0;margin:20px 0}
+.steps li{padding:12px 0 12px 34px;border-top:1px solid var(--line);position:relative}
+.steps li span{position:absolute;left:0;top:12px;font-family:Fraunces,Georgia,serif;color:var(--brass)}
+.note{background:#f3f5f1;border-radius:10px;padding:14px 16px;margin:18px 0 6px}
+.cta{display:flex;align-items:center;justify-content:center;text-align:center;min-height:56px;padding:15px 18px;border-radius:6px;background:var(--brass);color:#fff;text-decoration:none;font:700 15px "DM Sans",sans-serif;letter-spacing:.04em;margin-top:14px}
+.cta:hover,.cta:focus-visible{background:var(--brass-dark)}
+.cta.alt{background:#fff;color:var(--brass);border:2px solid var(--brass)}
+.small{font-size:13px;color:var(--muted);margin-top:18px}
+</style>
+</head>
+<body>
+<header class="top"><a class="logo" href="https://yourmindstory.co.uk/">YOUR MIND STORY</a></header>
+<main>
+  <div class="card">
+    <div class="eyebrow">Payment confirmed</div>
+    <h1 id="w_title">You're in. Welcome.</h1>
+    <p id="w_intro">Your purchase is on its way to your inbox now. Look for your Payhip download email and check your spam or promotions folder if it isn't there in a few minutes.</p>
+    <ul class="steps" id="w_steps"></ul>
+    <div class="note" id="w_note"><strong>Look out for emails from me.</strong> Your weekly check-in forms are part of your purchase and I'll send them to you by email. Check your spam and promotions folders, and move my emails to your main inbox so you don't miss a check-in.</div>
+    <div id="w_ctas"></div>
+    <p class="small">Problem with your access? Email yourmindstory.co.uk@gmail.com and include the email address you paid with.</p>
+  </div>
+</main>
+<script>
+(function(){
+  /* One welcome page for every Payhip product. Each product's Payhip success redirect is
+     https://yourmindstory.co.uk/welcome/?p=CODE&src=payhip  (CODE = the product's Payhip code). */
+  var S = {
+    quiet:{name:'Quiet the Alarm', checkin:'/quiet/?day=0'},
+    pull:{name:'Break the Pull', checkin:'/pull/?day=0'},
+    trust:{name:'Restore Self-Trust', checkin:'/trust/?day=0'},
+    ret:{name:'Return to Yourself', checkin:'/return/?day=0'},
+    calm:{name:'Calm the Spiral', checkin:'/calm/?day=0'},
+    nc:{name:'No Contact Reset', checkin:'/no-contact/?day=0'}
+  };
+  var P = {
+    DLyd5:{title:'Return to Yourself: The Complete Four-Stage Journey', price:147, s:['quiet','pull','trust','ret']},
+    '53N2B':{title:'Quiet the Alarm', price:47, s:['quiet']},
+    N8hbz:{title:'Break the Pull', price:47, s:['pull']},
+    '3RlF7':{title:'Restore Self-Trust', price:47, s:['trust']},
+    '6pE8S':{title:'Return to Yourself', price:47, s:['ret']},
+    vatYk:{title:'Quiet the Alarm + Break the Pull', price:89, s:['quiet','pull']},
+    '01XGD':{title:'Quiet the Alarm + Restore Self-Trust', price:89, s:['quiet','trust']},
+    n1BOZ:{title:'Quiet the Alarm + Return to Yourself', price:89, s:['quiet','ret']},
+    UQJXA:{title:'Break the Pull + Restore Self-Trust', price:89, s:['pull','trust']},
+    '1PGuN':{title:'Break the Pull + Return to Yourself', price:89, s:['pull','ret']},
+    Ft7Pw:{title:'Restore Self-Trust + Return to Yourself', price:89, s:['trust','ret']},
+    MlUoB:{title:'Calm the Spiral', price:null, s:['calm']},
+    nP3J1:{title:'No Contact Reset', price:null, s:['nc']},
+    ZcdmX:{title:'The Bare Minimum', price:4.99, s:[], book:true}
+  };
+  var q = new URLSearchParams(location.search);
+  var code = q.get('p') || '';
+  var prod = P[code] || null;
+  function el(id){ return document.getElementById(id); }
+  function esc(t){ var d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+  var steps = [];
+  if(prod){
+    el('w_title').textContent = "You're in. Welcome to " + prod.title + ".";
+    document.title = "You're in: " + prod.title + " | Your Mind Story";
+  }
+  if(prod && prod.book){
+    el('w_intro').textContent = 'Your copy of The Bare Minimum is on its way to your inbox now. Look for your Payhip download email and check your spam or promotions folder if it isn\'t there in a few minutes.';
+    el('w_note').innerHTML = '<strong>Look out for emails from me.</strong> Check your spam and promotions folders and move my emails to your main inbox so you don\'t miss anything.';
+    steps = ['Open your Payhip email and download your copy.', 'Read it through once, then come back to the five non-negotiables whenever you need them.'];
+  } else if(prod){
+    var first = S[prod.s[0]];
+    steps.push('Complete your baseline check-in below before you press play. It takes a couple of minutes.');
+    steps.push('Start with ' + first.name + '.');
+    if(prod.s.length > 1) steps.push('When you are ready, move on to ' + prod.s.slice(1).map(function(k){return S[k].name;}).join(', then ') + '.');
+    steps.push('Just press play and check in once a week.');
+    var html = '<a class="cta js-checkin" href="' + first.checkin + '" data-stage="' + prod.s[0] + '">START MY BASELINE CHECK-IN</a>';
+    el('w_ctas').innerHTML = html;
+  } else {
+    steps = ['Complete your baseline check-in before you press play. It takes a couple of minutes.', 'Just press play and check in once a week.'];
+    el('w_ctas').innerHTML = '<a class="cta js-checkin" href="/quiet/?day=0" data-stage="quiet">START MY BASELINE CHECK-IN</a>';
+  }
+  el('w_steps').innerHTML = steps.map(function(t,i){ return '<li><span>' + (i+1) + '</span>' + esc(t) + '</li>'; }).join('');
+
+  /* Purchase tracking: once per product per browser, only when arriving from Payhip. */
+  var KEY = 'yms_purchase_sent_' + (code || 'unknown');
+  var ref = ''; try{ ref = document.referrer ? new URL(document.referrer).hostname : ''; }catch(e){}
+  var fromPayhip = q.get('src') === 'payhip' || /(^|\.)payhip\.com$/i.test(ref);
+  function seen(){ try{ return localStorage.getItem(KEY) === '1'; }catch(e){ return false; } }
+  function mark(){ try{ localStorage.setItem(KEY, '1'); }catch(e){} }
+  function track(name, p){ try{ if(window.YMSTracking && window.YMSTracking.track) window.YMSTracking.track(name, p); }catch(e){} }
+  function sendPurchase(){
+    if(!fromPayhip || seen()) return;
+    var tid = 'payhip_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+    var item = { item_id: code || 'unknown', item_name: prod ? prod.title : 'Unknown product', quantity: 1 };
+    var ev = { transaction_id: tid, currency: 'GBP', product: code || 'unknown', checkout: 'payhip', items: [item], page_path: location.pathname };
+    if(prod && prod.price != null){ ev.value = prod.price; item.price = prod.price; }
+    track('purchase', ev);
+    try{ if(localStorage.getItem('yms_analytics_consent') === 'yes') mark(); }catch(e){}
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.js-checkin'), function(a){
+    a.addEventListener('click', function(){ track('checkin_start', { point: 'baseline', product: code || 'unknown', stage: a.getAttribute('data-stage'), transport_type: 'beacon' }); });
+  });
+  if(document.readyState === 'complete') sendPurchase(); else window.addEventListener('load', sendPurchase);
+  document.addEventListener('ymsConsentAnalyticsGranted', function once(){ sendPurchase(); document.removeEventListener('ymsConsentAnalyticsGranted', once); });
+})();
+</script>
+<script src="/assets/yms-consent.js?v=20261001-tracking" defer></script>
+</body>
+</html>
