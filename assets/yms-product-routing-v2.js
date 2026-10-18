@@ -54,7 +54,7 @@
     },
     "Quiet the Alarm|Restore Self-Trust": {
       name: "Quiet the Alarm → Restore Self-Trust",
-      url: "https://payhip.com/b/Oy4SL"
+      url: "https://payhip.com/b/01XGD"
     },
     "Quiet the Alarm|Return to You": {
       name: "Quiet the Alarm → Return to You",
