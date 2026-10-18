@@ -471,7 +471,7 @@ footer a{margin:0 6px;color:#f4f1ea}
     <p class="outcome">Get your peace back. Feel like yourself again.</p>
     <p class="what">Four guided Cognitive Behavioural Hypnotherapy sessions with weekly check-in support.</p>
     <div class="cta-block">
-      <a class="cta cta-light js-buy" data-cta-placement="hero" href="#checkout-pending">START MY FIRST SESSION TODAY</a>
+      <a class="cta cta-light js-buy" data-cta-placement="hero" data-jump="offer" href="#offer">START MY FIRST SESSION TODAY</a>
       <p class="cta-pending" role="status"></p>
     </div>
     <p class="reassure">You don't have to be over him to begin.</p>
@@ -873,7 +873,10 @@ footer a{margin:0 6px;color:#f4f1ea}
     /* data-rec-product stops the sitewide script sending a duplicate generic offer_cta_click */
     a.setAttribute('data-rec-product', C.productId || 'return_to_yourself_complete');
     a.setAttribute('data-rec-route', 'rty_landing');
-    if(hasCheckout){
+    var jump = a.getAttribute('data-jump');
+    if(jump){
+      a.href = '#' + jump; /* first button shows what's included before payment */
+    } else if(hasCheckout){
       var u = new URL(C.checkoutUrl);
       var at = attribution();
       UTM_KEYS.forEach(function(k){ if(at[k] && !u.searchParams.has(k)) u.searchParams.set(k, at[k]); });
@@ -886,7 +889,9 @@ footer a{margin:0 6px;color:#f4f1ea}
         page_path: location.pathname, checkout_connected: hasCheckout ? 'yes' : 'no', transport_type: 'beacon'
       };
       var at = attribution(); UTM_KEYS.forEach(function(k){ if(at[k]) p[k] = at[k]; });
+      if(jump) p.cta_action = 'scroll_to_offer';
       track('offer_cta_click', p);
+      if(jump) return;
       if(hasCheckout){
         /* Leaving our site for checkout: the last point this page can measure */
         track('begin_checkout', { product: C.productId, value: C.price, currency: C.currency, cta_placement: placement, page_path: location.pathname, transport_type: 'beacon' });
