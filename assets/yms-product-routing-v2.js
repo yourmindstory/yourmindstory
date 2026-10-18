@@ -50,27 +50,27 @@
   var PAIRS = {
     "Quiet the Alarm|Break the Pull": {
       name: "Quiet the Alarm → Break the Pull",
-      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull"
+      url: "https://payhip.com/b/vatYk"
     },
     "Quiet the Alarm|Restore Self-Trust": {
       name: "Quiet the Alarm → Restore Self-Trust",
-      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--restore-selftrust"
+      url: "https://payhip.com/b/Oy4SL"
     },
     "Quiet the Alarm|Return to You": {
       name: "Quiet the Alarm → Return to You",
-      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--return-to-yourself"
+      url: "https://payhip.com/b/n1BOZ"
     },
     "Break the Pull|Restore Self-Trust": {
       name: "Break the Pull → Restore Self-Trust",
-      url: "https://stan.store/Yourmindstory/p/break-the-pull--restore-selftrust"
+      url: "https://payhip.com/b/UQJXA"
     },
     "Break the Pull|Return to You": {
       name: "Break the Pull → Return to You",
-      url: "https://stan.store/Yourmindstory/p/break-the-pull--return-to-yourself"
+      url: "https://payhip.com/b/1PGuN"
     },
     "Restore Self-Trust|Return to You": {
       name: "Restore Self-Trust → Return to You",
-      url: "https://stan.store/Yourmindstory/p/restore-selftrust--return-to-yourself"
+      url: "https://payhip.com/b/Ft7Pw"
     }
   };
 
@@ -78,7 +78,7 @@
     name: "Return to Yourself",
     url: "/return-to-yourself-journey/"
   };
-  var BARE_MINIMUM = "https://stan.store/YourMindStory/p/the-bare-minimum";
+  var BARE_MINIMUM = "https://payhip.com/b/ZcdmX";
   var BOOTCAMP = "https://payhip.com/b/ZhPkp";
 
   function recordJourney(eventType, values) {
