@@ -55,9 +55,14 @@ p{margin:0 0 14px}
   function mark(){ try{ localStorage.setItem(KEY, '1'); }catch(e){} }
   function track(name, p){ try{ if(window.YMSTracking && window.YMSTracking.track) window.YMSTracking.track(name, p); }catch(e){} }
   function sendPurchase(){
-    if(!fromPayhip || seen()) return;
+    if(!fromPayhip) return;
+    try{ if(window.YMSJourney) window.YMSJourney.send('welcome', [['purchase_return_view', { product:'Return to You Series', price:VALUE, currency:CURRENCY, src:q.get('src') || '' }]], 'purchase_return_view'); }catch(err){}
+    if(seen()) return;
     var tid = 'payhip_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
-    track('purchase', { transaction_id: tid, value: VALUE, currency: CURRENCY, product: PRODUCT, checkout: 'payhip', items: [{ item_id: PRODUCT, item_name: 'Return to Yourself: The Complete Four-Stage Journey', price: VALUE, quantity: 1 }], page_path: location.pathname });
+    /* Tracking repair 22 Oct 2026: Payhip already sends the real GA4 'purchase' (with its own transaction ID)
+       to this GA4 property, so this page no longer sends a second, invented 'purchase'. It records that the
+       buyer returned from Payhip instead. The confirmed purchase itself comes from Payhip's webhook. */
+    track('purchase_return_view', { value: VALUE, currency: CURRENCY, product: PRODUCT, checkout: 'payhip', page_path: location.pathname });
     try{ if(localStorage.getItem('yms_analytics_consent') === 'yes') mark(); }catch(e){}
   }
   document.getElementById('rty_welcome_baseline').addEventListener('click', function(){ track('checkin_start', { point: 'baseline', product: PRODUCT, transport_type: 'beacon' }); });
@@ -65,6 +70,7 @@ p{margin:0 0 14px}
   document.addEventListener('ymsConsentAnalyticsGranted', function once(){ sendPurchase(); document.removeEventListener('ymsConsentAnalyticsGranted', once); });
 })();
 </script>
+<script src="/assets/yms-journey.js?v=20261022"></script>
 <script src="/assets/yms-sheet-log.js?v=20261018" defer></script>
 <script src="/assets/yms-consent.js?v=20261001-tracking" defer></script>
 </body>

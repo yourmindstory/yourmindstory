@@ -150,6 +150,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&display=swap" rel="stylesheet">
 
+<script src="/assets/yms-journey.js?v=20261022"></script>
 <script>
 /* =====================================================================
    PAGE CONFIGURATION: the only block you need to edit.
@@ -895,6 +896,8 @@ footer a{margin:0 6px;color:#f4f1ea}
       if(hasCheckout){
         /* Leaving our site for checkout: the last point this page can measure */
         track('begin_checkout', { product: C.productId, value: C.price, currency: C.currency, cta_placement: placement, page_path: location.pathname, transport_type: 'beacon' });
+        /* First-party journey record: this is an outbound click to Payhip, NOT proof that Payhip checkout loaded. */
+        try{ if(window.YMSJourney) window.YMSJourney.send('sales_page', [['outbound_payhip_click', { product:'Return to You Series', product_clicked:'Return to You Series', route:'rty_landing', price:C.price, currency:C.currency, cta:placement, destination:'payhip.com', destination_url:u_href(a) }]]); }catch(err){}
         return;
       }
       e.preventDefault();
@@ -909,7 +912,9 @@ footer a{margin:0 6px;color:#f4f1ea}
     var p = { offer_type: 'return_to_yourself_complete', page_path: location.pathname, value: C.price, currency: C.currency, referrer_host: (document.referrer ? new URL(document.referrer).hostname : '') };
     var at = attribution(); UTM_KEYS.forEach(function(k){ if(at[k]) p[k] = at[k]; });
     track('offer_page_view', p);
+    try{ if(window.YMSJourney) window.YMSJourney.send('sales_page', [['sales_page_view', { product:'Return to You Series', route:'rty_landing', price:C.price, currency:C.currency }]], 'sales_page_view'); }catch(err){}
   }
+  function u_href(a){ try{ return String(a.href || '').slice(0,200); }catch(e){ return ''; } }
   if(document.readyState === 'complete') sendView(); else window.addEventListener('load', sendView);
   document.addEventListener('ymsConsentAnalyticsGranted', function once(){ sendView(); document.removeEventListener('ymsConsentAnalyticsGranted', once); });
 })();
