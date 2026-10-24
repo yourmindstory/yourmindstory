@@ -18,7 +18,7 @@ header{height:72px;display:flex;align-items:center;border-bottom:1px solid var(-
 </style>
 </head>
 <body>
-<header><div class="wrap" style="width:100%"><a class="logo" href="/">YOUR MIND STORY</a></div></header>
+<header><div class="wrap" style="width:100%"><a class="logo" href="/" data-yms-track="home_logo">YOUR MIND STORY</a></div></header>
 <main>
 <section class="hero"><div class="wrap hero-grid">
 <div>
@@ -55,10 +55,28 @@ header{height:72px;display:flex;align-items:center;border-bottom:1px solid var(-
   document.querySelectorAll('a[href^="/"]').forEach(function(a){
     if(params && (a.matches('[data-yms-cta]'))) a.href=a.getAttribute('href')+params;
   });
+  function ymsTrack(name,params){
+    try{
+      params=Object.assign({page_path:location.pathname,page_title:document.title,transport_type:'beacon'},params||{});
+      if(window.YMSQuiz&&window.YMSQuiz.track) window.YMSQuiz.track(name,params);
+      else {
+        window.__ymsPendingEvents=window.__ymsPendingEvents||[];
+        window.__ymsPendingEvents.push({name:name,params:params});
+        if(window.YMSConsent&&window.YMSConsent.load) window.YMSConsent.load();
+      }
+    }catch(e){}
+  }
+  ymsTrack('start_page_view',{});
   document.querySelectorAll('[data-yms-cta]').forEach(function(a){
-    a.addEventListener('click',function(){
-      if(typeof gtag==='function') gtag('event','start_page_cta_click',{cta:a.dataset.ymsCta});
-    });
+    var p={cta_id:a.dataset.ymsCta,cta_label:(a.textContent||'').trim(),destination_path:(new URL(a.href,location.href)).pathname};
+    if('IntersectionObserver' in window){
+      var o=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting&&!a.dataset.ymsViewSent){a.dataset.ymsViewSent='1';ymsTrack('start_page_cta_view',p);o.disconnect();}})},{threshold:.25});
+      o.observe(a);
+    }
+    a.addEventListener('click',function(){ymsTrack('start_page_cta_click',p);});
+  });
+  document.querySelectorAll('[data-yms-track]').forEach(function(a){
+    a.addEventListener('click',function(){ymsTrack('start_page_link_click',{link_id:a.dataset.ymsTrack,link_label:(a.textContent||'').trim(),destination_path:(new URL(a.href,location.href)).pathname});});
   });
 })();
 </script>
