@@ -51,9 +51,25 @@ header{height:72px;display:flex;align-items:center;border-bottom:1px solid var(-
 <footer class="footer"><div class="wrap">Your Mind Story · Cognitive Behavioral Hypnotherapy</div></footer>
 <script>
 (function(){
+  var V3_BACKEND='https://script.google.com/macros/s/AKfycbzDtA92i-aQeyeuamBdA4LbxGUruh55qxSOk_nwLncBM3stllbZoaipxNzKb9xyTveLdA/exec';
+  function journeyId(){
+    try{
+      var x=localStorage.getItem('yms_v3_journey_id');
+      if(!x){x='YMSV3-J-'+(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));localStorage.setItem('yms_v3_journey_id',x);}
+      return x;
+    }catch(e){return 'YMSV3-J-'+Date.now()+'-'+Math.random().toString(36).slice(2);}
+  }
+  var jid=journeyId();
+  try{sessionStorage.setItem('yms_start_journey_id',jid);}catch(e){}
   var params=location.search;
   document.querySelectorAll('a[href^="/"]').forEach(function(a){
-    if(params && (a.matches('[data-yms-cta]'))) a.href=a.getAttribute('href')+params;
+    if(a.matches('[data-yms-cta]')){
+      var u=new URL(a.getAttribute('href'),location.href);
+      new URLSearchParams(params).forEach(function(v,k){if(!u.searchParams.has(k))u.searchParams.set(k,v);});
+      if(!u.searchParams.has('yms_journey_id'))u.searchParams.set('yms_journey_id',jid);
+      if(!u.searchParams.has('yms_entry'))u.searchParams.set('yms_entry','start');
+      a.href=u.pathname+u.search;
+    }
   });
   function ymsTrack(name,params){
     try{
@@ -66,17 +82,29 @@ header{height:72px;display:flex;align-items:center;border-bottom:1px solid var(-
       }
     }catch(e){}
   }
-  ymsTrack('start_page_view',{});
+  function touch(){
+    var q=new URLSearchParams(location.search);
+    return {utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||'',utm_term:q.get('utm_term')||'',referrer:document.referrer||'',landingUrl:location.href};
+  }
+  function postStartEvent(eventType,values){
+    try{
+      var payload={action:'recordJourneyEvents',journeyId:jid,analyticsConsent:(localStorage.getItem('yms_analytics_consent')==='yes'?'yes':'no'),page:'start',isTest:new URLSearchParams(location.search).get('yms_test')==='1',experimentVersion:'start-gateway-v1',touch:touch(),events:[{eventType:eventType,values:values||{},clientTime:new Date().toISOString()}]};
+      if(navigator.sendBeacon){var b=new Blob([JSON.stringify(payload)],{type:'text/plain;charset=UTF-8'});if(navigator.sendBeacon(V3_BACKEND,b))return;}
+      fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),keepalive:true}).catch(function(){});
+    }catch(e){}
+  }
+  ymsTrack('start_page_view',{journey_id:jid});
+  postStartEvent('start_page_view',{page_path:location.pathname});
   document.querySelectorAll('[data-yms-cta]').forEach(function(a){
     var p={cta_id:a.dataset.ymsCta,cta_label:(a.textContent||'').trim(),destination_path:(new URL(a.href,location.href)).pathname};
     if('IntersectionObserver' in window){
-      var o=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting&&!a.dataset.ymsViewSent){a.dataset.ymsViewSent='1';ymsTrack('start_page_cta_view',p);o.disconnect();}})},{threshold:.25});
+      var o=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting&&!a.dataset.ymsViewSent){a.dataset.ymsViewSent='1';ymsTrack('start_page_cta_view',Object.assign({journey_id:jid},p));postStartEvent('start_page_cta_view',p);o.disconnect();}})},{threshold:.25});
       o.observe(a);
     }
-    a.addEventListener('click',function(){ymsTrack('start_page_cta_click',p);});
+    a.addEventListener('click',function(){ymsTrack('start_page_cta_click',Object.assign({journey_id:jid},p));postStartEvent('start_page_cta_click',p);});
   });
   document.querySelectorAll('[data-yms-track]').forEach(function(a){
-    a.addEventListener('click',function(){ymsTrack('start_page_link_click',{link_id:a.dataset.ymsTrack,link_label:(a.textContent||'').trim(),destination_path:(new URL(a.href,location.href)).pathname});});
+    a.addEventListener('click',function(){var p={link_id:a.dataset.ymsTrack,link_label:(a.textContent||'').trim(),destination_path:(new URL(a.href,location.href)).pathname};ymsTrack('start_page_link_click',Object.assign({journey_id:jid},p));postStartEvent('start_page_link_click',p);});
   });
 })();
 </script>
