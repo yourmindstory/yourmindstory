@@ -17,7 +17,7 @@
   function consent(){ var v = ls('yms_analytics_consent'); return v === 'yes' ? 'yes' : v === 'no' ? 'no' : 'unset'; }
   function identity(){
     var last = {}; try{ last = JSON.parse(ss('yms_v3_last_submission') || '{}'); }catch(e){}
-    var jid = q('jid') || last.journeyId || ls('yms_v3_journey_id') || ss('yms_v3_handoff_jid');
+    var jid = q('jid') || q('yms_journey_id') || last.journeyId || ls('yms_v3_journey_id') || ss('yms_v3_handoff_jid');
     var sid = q('sid') || last.submissionId || ss('yms_v3_handoff_sid');
     try{ if(jid) sessionStorage.setItem('yms_v3_handoff_jid', jid); if(sid) sessionStorage.setItem('yms_v3_handoff_sid', sid); }catch(e){}
     try{ if(jid && !ls('yms_v3_journey_id')) localStorage.setItem('yms_v3_journey_id', jid); }catch(e){}
