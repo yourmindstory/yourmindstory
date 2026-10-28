@@ -61,16 +61,41 @@
    "brand": {
     "@id": "https://yourmindstory.co.uk/#org"
    },
-   "offers": {
-    "@type": "Offer",
-    "price": "117.00",
-    "priceCurrency": "GBP",
-    "availability": "https://schema.org/InStock",
-    "url": "https://yourmindstory.co.uk/return-to-yourself-journey/",
-    "seller": {
-     "@id": "https://yourmindstory.co.uk/#org"
-    }
-   }
+   "offers": [
+     {
+       "@type": "Offer",
+       "name": "Return to Yourself — Self-Guided",
+       "price": "117.00",
+       "priceCurrency": "GBP",
+       "availability": "https://schema.org/InStock",
+       "url": "https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx",
+       "seller": {
+         "@id": "https://yourmindstory.co.uk/#org"
+       }
+     },
+     {
+       "@type": "Offer",
+       "name": "Return to Yourself + Reality Reset",
+       "price": "147.00",
+       "priceCurrency": "GBP",
+       "availability": "https://schema.org/InStock",
+       "url": "https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset",
+       "seller": {
+         "@id": "https://yourmindstory.co.uk/#org"
+       }
+     },
+     {
+       "@type": "Offer",
+       "name": "Return to Yourself + Pattern Break Session",
+       "price": "197.00",
+       "priceCurrency": "GBP",
+       "availability": "https://schema.org/InStock",
+       "url": "https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break",
+       "seller": {
+         "@id": "https://yourmindstory.co.uk/#org"
+       }
+     }
+   ]
   },
   {
    "@type": "FAQPage",
@@ -156,9 +181,7 @@
    PAGE CONFIGURATION: the only block you need to edit.
    ===================================================================== */
 window.RTY_CONFIG = {
-  /* CHECKOUT: Payhip direct checkout for the £147 product (payhip.com/b/DLyd5).
-     In Payhip, set this product's checkout success redirect to:
-     https://yourmindstory.co.uk/return-to-yourself-journey/welcome/?src=payhip */
+  /* Default checkout for Self-Guided; tier buttons each carry their own live Stan link. */
   checkoutUrl: "https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx",
   price: 117, currency: "GBP",
   productId: "return_to_yourself_complete",
@@ -855,12 +878,14 @@ footer a{margin:0 6px;color:#f4f1ea}
     var placement = a.getAttribute('data-cta-placement');
     a.id = 'rty_cta_' + placement;
     /* data-rec-product stops the sitewide script sending a duplicate generic offer_cta_click */
-    a.setAttribute('data-rec-product', selectedName || 'return_to_yourself_complete');
-    a.setAttribute('data-rec-route', 'rty_landing');
     var jump = a.getAttribute('data-jump');
-    var selectedUrl = a.getAttribute('data-offer') ? a.getAttribute('href') : C.checkoutUrl;
+    var offerKey = a.getAttribute('data-offer');
+    var selectedUrl = offerKey ? a.getAttribute('href') : C.checkoutUrl;
     var selectedPrice = Number(a.getAttribute('data-offer-price') || C.price);
     var selectedName = a.getAttribute('data-offer-name') || C.productId;
+    a.setAttribute('data-rec-product', selectedName || 'return_to_yourself_complete');
+    a.setAttribute('data-rec-route', offerKey || 'rty_landing');
+    if(offerKey) a.setAttribute('data-rec-price', selectedPrice);
     if(jump){
       a.href = '#' + jump; /* first button shows what's included before payment */
     } else if(hasCheckout){
@@ -888,7 +913,7 @@ footer a{margin:0 6px;color:#f4f1ea}
       }
       e.preventDefault();
       var msg = a.parentNode.querySelector('.cta-pending');
-      if(msg){ msg.textContent = 'Preview only: checkout not connected yet (CHECKOUT_URL_PENDING_APPROVAL).'; msg.classList.add('show'); }
+      if(msg){ msg.textContent = 'Checkout unavailable. Please contact Your Mind Story.'; msg.classList.add('show'); }
       track('checkout_error', { reason: 'checkout_not_configured', cta_placement: placement, page_path: location.pathname });
     });
   });
