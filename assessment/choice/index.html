@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Taking you to checkout | Your Mind Story</title>
+<!--
+  Your Mind Story — result-email choice redirect (Complete route).
+  Path: /assessment/choice/   (index.html)
+  Used ONLY by the V3 result email's three Complete buttons:
+    ?o=self_guided | reality_reset | pattern_break  &jid=…&sid=…&utm_*=…
+  1. Records one first-party click event on the V3 backend (not a purchase).
+  2. Forwards immediately to the matching Stan offer (allowlist below, no open redirect).
+-->
+<style>
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;}
+  main{max-width:520px;margin:18vh auto 0;padding:0 16px;text-align:center;font-size:16px;line-height:1.6;}
+  a{color:#111827;}
+</style>
+</head>
+<body>
+<main>
+  <p>Taking you to checkout…</p>
+  <noscript>
+    <p><a href="https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx">Return to Yourself — Self-Guided</a></p>
+    <p><a href="https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset">Return to Yourself + Reality Reset</a></p>
+    <p><a href="https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break">Return to Yourself + Pattern Break Session</a></p>
+  </noscript>
+</main>
+<script>
+(function () {
+  var BACKEND = 'https://script.google.com/macros/s/AKfycbzDtA92i-aQeyeuamBdA4LbxGUruh55qxSOk_nwLncBM3stllbZoaipxNzKb9xyTveLdA/exec';
+  var CHOICES = {
+    self_guided:   { event: 'complete_self_guided_click', product: 'Return to Yourself — Self-Guided',           price: '117',
+                     url: 'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx' },
+    reality_reset: { event: 'reality_reset_click',        product: 'Return to Yourself + Reality Reset',          price: '147',
+                     url: 'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset' },
+    pattern_break: { event: 'pattern_break_click',        product: 'Return to Yourself + Pattern Break Session',  price: '197',
+                     url: 'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break' }
+  };
+  var q = new URLSearchParams(window.location.search);
+  var choice = CHOICES[q.get('o') || ''] || CHOICES.self_guided;   // unknown option -> £117 page, never an arbitrary URL
+
+  // Destination keeps the email UTMs so Stan sees where the visit came from.
+  var dest = new URL(choice.url);
+  ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach(function (k) {
+    if (q.get(k)) dest.searchParams.set(k, q.get(k));
+  });
+  var destination = dest.toString();
+
+  var jid = q.get('jid') || '', sid = q.get('sid') || '';
+  if ((jid || sid) && CHOICES[q.get('o') || '']) {
+    var body = JSON.stringify({
+      action: 'recordJourneyEvents',
+      journeyId: jid,
+      submissionId: sid,
+      page: 'result_email_choice',
+      entry: 'result_email',
+      events: [{
+        eventType: choice.event,
+        clientTime: new Date().toISOString(),
+        values: {
+          route: 'Return to You Series',
+          product: choice.product,
+          product_clicked: choice.product,
+          cta: q.get('o'),
+          price: choice.price,
+          currency: 'GBP',
+          source: 'result_email',
+          destination: destination
+        }
+      }]
+    });
+    try {
+      var sent = navigator.sendBeacon && navigator.sendBeacon(BACKEND, new Blob([body], { type: 'text/plain;charset=UTF-8' }));
+      if (!sent) fetch(BACKEND, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body, keepalive: true });
+    } catch (e) {}
+  }
+  window.location.replace(destination);
+})();
+</script>
+</body>
+</html>
