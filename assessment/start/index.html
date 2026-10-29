@@ -113,7 +113,7 @@ let recognition='',recommendation='',cta='',route='',bridge='',name='',price='';
 if(qual.length===0){
  recognition='<h1>I would not start you with one of the hypnotherapy audios.</h1><p class="lead">Your answers do not show one of the four areas strongly enough for me to recommend more support than they suggest you need right now.</p>';
  recommendation='<small>YOUR RECOMMENDED NEXT STEP</small><h2>The Bare Minimum</h2><p>I would start one step earlier. The Bare Minimum gives you five non-negotiables a woman needs to stay healthy in love, so you have something solid to come back to when feelings, hope or uncertainty make you question what you need and what you will accept.</p>';
- cta='<p><a class="next" href="https://payhip.com/b/ZcdmX" data-rec-product="The Bare Minimum" data-rec-route="Bare Minimum" data-rec-price="4.99">START WITH THE BARE MINIMUM</a></p>';
+ cta='<p><a class="next" href="https://stan.store/Yourmindstory/p/the-bare-minimum" data-rec-product="The Bare Minimum" data-rec-route="Bare Minimum" data-rec-price="4.99">START WITH THE BARE MINIMUM</a></p>';
 }else{
  const full=qual.length>=3;
  const stages=full?[0,1,2,3]:qual;
@@ -132,7 +132,7 @@ if(qual.length===0){
  ];
  const joined=stages.map(i=>stageStruggles[i]).join(', ');
  name=full?'Return to Yourself Series':stages.map(i=>stageNames[i]).join(' + ');
- price=full?117:stages.length===2?89:37;
+ price=full?117:stages.length===2?74:37;
  const actionPhrases=['quiet the alarm','break the pull','restore your self-trust','return to you'];
  const heading=full?'It\'s time to return to yourself.':'It\'s time to '+(stages.length===1?actionPhrases[stages[0]]:actionPhrases[stages[0]]+' and '+actionPhrases[stages[1]])+'.';
  recognition='<h1>Hasn\'t this had enough power over your life?</h1><p>You came here because you\'re tired of '+joined+'.</p><p>Your answers show that this has affected '+(full?'more than one part of your life':stages.length===1?'this part of your life':'these connected parts of your life')+'.</p><p><strong>And the truth is, this isn\'t what you thought was going to happen with him.</strong></p><p>You wanted a relationship. Not to spend your days lost in chaos, confusion and heartbreak.</p><p><strong>'+heading+'</strong></p>';
