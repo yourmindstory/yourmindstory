@@ -48,3 +48,14 @@ Event lifecycle:
 - Verify event emission exactly once per meaningful action, consent restrictions, backend delivery, GA4 visibility, Clarity capture when permitted and webhook matching.
 - Test failure/retry paths, including backend unavailable, duplicate click, duplicate webhook, ad blockers and navigation before event flush.
 - Require written evidence of passed tests before merging into main.
+
+## Additional historical and operational requirements (30 October)
+- Restore the September result email from the actual historical transactional template/backend, not merely the webpage. Match route-specific personalisation, timing, subject, saved-result link and CTA; update product/price/checkout for today's offer. Check Brevo versus Apps Script ownership before editing. Test all routes and deliverability.
+- Keep the existing public URLs, link-in-bio destination, redirects, old emailed result links and token lookup working. Preserve UTM/referrer data when redirecting.
+- Verify the September readiness question "Which sounds most like what you want now?" and its conditional routing; replace the obsolete 12-week Bootcamp commitment question with a truthful current-offer equivalent, not an unrelated sales question.
+- Restore the entire original question order and email-capture timing, including the historically effective personal cost/context question. Avoid accidentally introducing a new mandatory field or an unapproved question count.
+- Preserve mobile-first above-the-fold CTA and progressive reveals; avoid a long unstructured result scroll. Validate all navigation including back/forward and direct email result entry.
+- Confirm 14-day guarantee and support inclusions against current product terms before publishing; never invent bonuses or session duration for Reality Reset/Pattern Break.
+- Preserve existing purchasers' access and the January Bootcamp waitlist; do not re-open closed Bootcamp.
+- No live launch without test submission persistence, verified result email delivery, valid checkout destinations and first-party/GA4 events. Keep rollback and do not overwrite historical data.
+- After launch, compare cohort-matched source-to-sale conversion and source attribution rather than just clicks; record baseline before switch.
