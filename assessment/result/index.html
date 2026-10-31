@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Your Personalised Result | Your Mind Story</title>
+<style>body{margin:0;background:#f6f7f3;color:#162922;font:16px/1.6 system-ui,-apple-system,sans-serif}main{max-width:700px;margin:40px auto;padding:30px;background:#fff;box-shadow:0 6px 40px #24372c12}.eyebrow{text-transform:uppercase;letter-spacing:.15em;font-size:12px;color:#6b816d}.title{font-family:Georgia,serif;font-size:clamp(32px,5vw,44px);line-height:1.1}h2{font-family:Georgia,serif;font-size:27px}.muted{color:#56665c}.panel{margin:20px 0;border:1px solid #d9dfd5;padding:22px}.option{border:1px solid #d0d9cf;padding:18px;margin:12px 0}.option p{margin:6px 0 12px}.btn{display:inline-block;background:#162922;color:white;text-decoration:none;padding:13px 19px;border:0;font:600 14px system-ui;cursor:pointer}.btn:focus{outline:3px solid #9eac99}select,textarea{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:12px;font:inherit}#message{font-weight:600}footer{font-size:12px;color:#56665c;margin-top:35px}@media(max-width:740px){main{margin:0;padding:24px 18px}}</style></head>
+<body><main><div class="eyebrow">YOUR MIND STORY</div><h1 class="title">Your personalised assessment result</h1><p id="status">Retrieving your saved result.</p><div id="result" hidden></div><footer>These results reflect the answers you gave. They are not a diagnosis or a substitute for medical or mental health care.</footer></main>
+<script>
+(()=>{
+'use strict';
+const api='https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec';
+const token=(new URLSearchParams(location.search).get('resultToken')||new URLSearchParams(location.search).get('token')||'').trim();
+const status=document.getElementById('status'),view=document.getElementById('result');
+const stages=['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to You'];
+const links={
+'Quiet the Alarm':'https://stan.store/Yourmindstory/p/quiet-the-alarm',
+'Break the Pull':'https://stan.store/Yourmindstory/p/break-the-pull',
+'Restore Self-Trust':'https://stan.store/Yourmindstory/p/restore-self-trust',
+'Return to Yourself':'https://stan.store/Yourmindstory/p/return-to-yourself-7jc9h8lg',
+'Quiet the Alarm → Break the Pull':'https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull',
+'Quiet the Alarm → Restore Self-Trust':'https://stan.store/Yourmindstory/p/quiet-the-alarm--restore-selftrust',
+'Quiet the Alarm → Return to Yourself':'https://stan.store/Yourmindstory/p/quiet-the-alarm--return-to-yourself',
+'Break the Pull → Restore Self-Trust':'https://stan.store/Yourmindstory/p/break-the-pull--restore-selftrust',
+'Break the Pull → Return to Yourself':'https://stan.store/Yourmindstory/p/break-the-pull--return-to-yourself',
+'Restore Self-Trust → Return to Yourself':'https://stan.store/Yourmindstory/p/restore-selftrust--return-to-yourself',
+'The Bare Minimum':'https://stan.store/Yourmindstory/p/the-bare-minimum'
+};
+const complete=[
+{id:'self_guided',title:'Return to Yourself · Self-Guided',price:117,desc:'Four stages of guided Cognitive Behavioural Hypnotherapy, with a structured practice to work through at your own pace.',url:'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx'},
+{id:'reality_reset',title:'Return to Yourself + Reality Reset',price:147,desc:'The complete four-stage programme, workbook and private 20-minute session.',url:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset'},
+{id:'pattern_break',title:'Return to Yourself + Pattern Break',price:197,desc:'The complete four-stage programme, workbook and private 50-minute CBT session.',url:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break'}
+];
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const state={data:null};
+if(!/^[A-Za-z0-9_-]{20,128}$/.test(token)){status.textContent='This result link is incomplete. Please use the link in your assessment email.';return;}
+fetch(api+'?action=getResult&resultToken='+encodeURIComponent(token),{credentials:'omit',referrerPolicy:'no-referrer'}).then(r=>r.json()).then(d=>{
+ if(!d.ok||!d.recommendedProduct)throw Error('This result could not be retrieved. Please contact Your Mind Story.');
+ state.data=d;status.textContent='Your saved result has loaded.';
+ const all=d.scores||{};
+ const arr=[all.quiet,all.breakPull,all.restore,all.returnSelf];
+ const strength=arr.map((v,i)=>({score:Number(v)||0,label:stages[i]})).filter(x=>x.score>=3);
+ const stageText=strength.length?strength.map(x=>'<p><strong>'+esc(x.label)+'</strong></p>').join(''):'<p>Your answers did not indicate a strong concentration in one specific stage.</p>';
+ const isComplete=d.recommendedRoute==='Return to You Series';
+ let offer='';
+ if(isComplete){offer=complete.map(x=>'<div class="option"><h2>'+esc(x.title)+' · £'+x.price+'</h2><p>'+esc(x.desc)+'</p><button class="btn choose" type="button" data-id="'+x.id+'">'+(x.id==='self_guided'?'CHOOSE SELF-GUIDED':x.id==='reality_reset'?'CHOOSE REALITY RESET':'CHOOSE PATTERN BREAK')+'</button></div>').join('')}
+ else {const price=d.recommendedProduct==='The Bare Minimum'?4.99:d.recommendedRoute==='Two-Stage Pair'?74:37;const url=links[d.recommendedProduct];if(url)offer='<div class="option"><h2>'+esc(d.recommendedProduct)+' · £'+price+'</h2><button type="button" class="btn choose" data-id="">CONTINUE WITH MY RECOMMENDATION</button></div>';}
+ view.innerHTML='<p class="muted">For '+esc(d.firstName||'you')+'</p><div class="panel"><h2>Where this cycle may be affecting you</h2><p>Your answers point to these areas:</p>'+stageText+'<p>The next step is to practise responding differently when these feelings and habits are activated, not simply to understand his behaviour.</p></div><h2>Your recommended next step</h2><p>'+esc(d.recommendedProduct)+'</p>'+offer+'<div id="decision" hidden class="panel"></div>';
+ view.hidden=false;view.querySelectorAll('.choose').forEach(b=>b.onclick=()=>showDecision(b.dataset.id));
+}).catch(err=>{status.textContent=String(err.message||err)});
+function showDecision(option){
+ const d=state.data; if(!d)return;
+ const dest=option?complete.find(x=>x.id===option)?.url:links[d.recommendedProduct];
+ if(!dest)return;
+ const scores=Object.values(d.scores||{}).map(Number);
+ const needsReady=d.recommendedRoute==='Return to You Series'&&scores.filter(x=>x>=3).length>=3&&scores.reduce((a,b)=>a+b,0)>=15;
+ const title=option?complete.find(x=>x.id===option).title:d.recommendedProduct;
+ const box=document.getElementById('decision');box.hidden=false;
+ box.innerHTML='<h2>Confirm your support choice</h2><p>'+esc(title)+'</p>'+
+ (needsReady?'<label for="ready"><strong>Where are you in your readiness to work on this?</strong></label><select id="ready"><option value="">Choose one</option><option>I know understanding alone isn\'t enough and I\'m ready to start working on this.</option><option>I\'m ready for a structured process and willing to participate in it consistently.</option><option>I know something needs to change, but I\'m not sure I\'m ready to actively work on it yet.</option><option>Right now, I\'m mainly looking to understand what is happening.</option></select>':'')+
+ '<label for="hesitation">What, if anything, is making you hesitate? (Optional)</label><textarea id="hesitation" maxlength="500"></textarea><p id="message" role="status"></p><button class="btn" id="confirm" type="button">CONFIRM MY CHOICE</button>';
+ box.scrollIntoView({behavior:'smooth',block:'start'});
+ document.getElementById('confirm').onclick=async()=>{
+  const ready=needsReady?document.getElementById('ready').value:'';
+  if(needsReady&&!ready){document.getElementById('message').textContent='Please choose your readiness answer.';return;}
+  const hesitation=document.getElementById('hesitation').value.trim(),btn=document.getElementById('confirm');btn.disabled=true;
+  try{
+   const body={action:'finalizeResultV4',resultToken:token,finalOfferOption:option,readinessRequired:needsReady,readiness:ready,supportPreference:option?{id:option,answer:title}:null,hesitation:hesitation?{id:'other',answer:hesitation}:null};
+   const res=await fetch(api,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),referrerPolicy:'no-referrer'});
+   const result=await res.json();
+   if(!result.ok||result.status!=='choice_recorded_after_email')throw Error('The support choice could not be verified in V4. Please do not purchase until this is resolved.');
+   document.getElementById('message').innerHTML='Your support choice is saved. <a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a>';
+   btn.remove();
+  }catch(e){document.getElementById('message').textContent=String(e.message||e);btn.disabled=false}
+ };
+}
+})();
+</script></body></html>
