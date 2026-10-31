@@ -12,7 +12,7 @@ Status: **draft implementation specification**, not deployed. The live transacti
 - Email only after readiness and final offer are persisted for Complete routes. Idempotent sending and safe abandonment fallback. Never send marketing without consent.
 - Keep exact offer prices: single £37; pair £74; Self-Guided £117; Reality Reset £147; Pattern Break £197; Bare Minimum £4.99.
 
-## Question 15: purchase objection (proposal for controlled addition)
+## Question 15: approved, implementation pending
 **What, if anything, is making you hesitate about starting to work on this now?**
 A. I'm not sure guided hypnotherapy could help me.
 B. I'm not sure it would work for me, even if it helps other women.
@@ -23,7 +23,7 @@ F. Nothing is stopping me. I'm ready to begin.
 
 Use to tailor reassurance, not stage scoring, severity, readiness routing, or product choice. Preserve truthful objection selection; do not force a positive response. Confirm current assessment question count, location and abandonment before deploying. Objection answer may be saved as an optional field and shown after core scoring, before final email. No automatic claims of conversion lift.
 
-## Shared email skeleton
+## Shared email skeleton (superseded by approved copy below)
 **Subject:** Your Mind Story: your results are ready
 
 Hi {{first_name}},
@@ -89,3 +89,57 @@ F: Omit reassurance and move directly to recommendation.
 
 ## Acceptance checks
 Confirm permission and exact Jan excerpts against her source forms. Check Q15 non-duplication, completion friction and routing. Validate all final offers and checkout destinations. Verify safe HTML escaping, accurate stage/price interpolation, transactional email consent handling, idempotency, email renders on mobile, and tracked email-click -> checkout -> purchase reconciliation. Do not deploy without successful controlled test and explicit approval.
+
+
+## APPROVED FINAL EMAIL COPY, 31 October 2026
+
+Subject: Your Mind Story: your results are ready
+
+Hi {{first_name}},
+
+**YOUR MIND STORY RESULTS**
+
+Your answers show that {{personalised_assessment_finding}} is where you're struggling most.
+
+And what you want is {{selected_outcome}}.
+
+You might already understand his behaviour. You might know exactly what you should be doing differently.
+
+But knowing what to do and being able to do it are two different things.
+
+Because while your conscious mind understands what's happening, your subconscious can still be running the responses you've learned along the way.
+
+That's why you can tell yourself you're not going to check, chase, overthink or go back on a boundary, and find yourself doing it anyway.
+
+**And that's the part I want to help you change.**
+
+Not him. Not his behaviour.
+
+What his pattern has done to you.
+
+**WHERE I RECOMMEND YOU START**
+
+**{{recommended_programme}} | {{price}}**
+
+{{verified_offer_inclusions}}
+
+So you can begin to quieten the mental loop, keep your boundaries and be more present in your own life.
+
+**JAN'S STORY**
+
+Jan said:
+
+> “The support I did was inner child work and therapy. But that did not break the loop”
+
+After using Your Mind Story's guided Cognitive Behavioural Hypnotherapy sessions, Jan said:
+
+> “The most incredible result was getting out of the loop. The hypnotherapy helped me ground my energy back to the amazing person that I am.”
+
+**[START MY RECOMMENDED PROGRAMME]** {{tracked_direct_checkout_url}}
+
+**[VIEW MY PERSONALISED RESULTS]** {{tracked_saved_result_url}}
+
+Onye
+Your Mind Story
+
+Implementation requirements: preserve this approved wording, offer routing, Q15 choices and scoring. Do not send Complete emails before final offer saved. Do not deploy without end-to-end tests. This file is not the live Apps Script sender.
