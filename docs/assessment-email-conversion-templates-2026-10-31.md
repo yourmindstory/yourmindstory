@@ -143,3 +143,20 @@ Onye
 Your Mind Story
 
 Implementation requirements: preserve this approved wording, offer routing, Q15 choices and scoring. Do not send Complete emails before final offer saved. Do not deploy without end-to-end tests. This file is not the live Apps Script sender.
+
+## FINAL OFFER DESCRIPTIONS — APPROVED 31 OCTOBER 2026
+
+These replace earlier offer-inclusion placeholders in the short approved email. The personalised finding and desired outcome already appear above the offer, so do not repeat them.
+
+- **Single stage £37:** "You'll receive 21 days of guided Cognitive Behavioural Hypnotherapy focused on [stage name], helping you practise responding differently when [specific trigger] comes up, so it doesn't keep taking over your thoughts and your day."
+- **Two stages £74:** "You'll receive two stages of guided Cognitive Behavioural Hypnotherapy, with 21 days of practice for each stage, helping you work on both responses rather than trying to change one while the other keeps pulling you back."
+- **Self-Guided £117:** "You'll receive all four stages of Return to Yourself, with guided Cognitive Behavioural Hypnotherapy to practise over 12 weeks. You'll work on quietening the anxiety, breaking the pull to check or chase, trusting your decisions and boundaries again, and getting your attention back onto your own life. At your own pace, with a clear structure to follow."
+- **Reality Reset £147:** "You'll receive all four stages of Return to Yourself, a reflection workbook and a private 20-minute session with me. You'll work through the same 12-week journey, with an opportunity to talk through where you're getting stuck, ask questions and get focused guidance on what to practise next."
+- **Pattern Break £197:** "You'll receive all four stages of Return to Yourself, a reflection workbook and a private 50-minute CBT session with me. Alongside your 12-week journey, we'll have more time to explore the pattern that's keeping you stuck, identify the responses you want to change and work on practical ways to respond differently in your own circumstances."
+- **The Bare Minimum £4.99:** "You'll receive The Bare Minimum, an ebook covering five non-negotiables for healthy love. It's a starting point for recognising what you need from a relationship, identifying what you've been accepting that doesn't meet those needs and becoming clearer about the boundaries you want to hold."
+
+**Ebook-only belief shift:** "Understanding what healthy love looks like is a starting point. Recognising what you're willing to accept is where your choices begin."
+
+**Short email order:** personalised finding, desired outcome, offer name and price, corresponding description, START MY RECOMMENDED PROGRAMME button, short belief shift, Jan success-story link (hypnotherapy offers only), personalised results link. Do not use Jan's hypnotherapy story as proof for the ebook.
+
+**Deployment status:** These are approved copy specifications in GitHub, NOT the live Apps Script transactional email. Implement and controlled-test the live Apps Script sender before deployment; preserve final saved offer, routing, consent and idempotency.
