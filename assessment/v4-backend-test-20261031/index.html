@@ -72,7 +72,7 @@ btn.addEventListener('click',async()=>{
     say('Final offer: '+String(final.finalOffer||'not reported'));
     if(final.ok&&final.resultEmailSent) {
       state.textContent='Test submission and email send accepted. Check the test inbox and V4 sheet.';
-      say('SUCCESS — verify email content and matching TEST row in V4 Responses.');
+      say('SUCCESS — verify email content and matching TEST row in the V3 Responses tab of the V4 spreadsheet.');
     } else {
       state.textContent='Submission saved, but the email stage needs investigation.';
       say('CHECK — do not switch the customer website to V4 yet.');
