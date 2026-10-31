@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>V4 Backend Test | Your Mind Story</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#172926;background:#f7f8f4}
+body{margin:0;padding:28px 16px}main{max-width:630px;margin:auto;background:white;padding:30px;border:1px solid #d9dfd7;border-radius:8px}
+h1{font-size:27px;margin:5px 0 12px}p{line-height:1.6}
+label{display:block;font-weight:600;margin:18px 0 6px}select,button{font:inherit;width:100%;padding:13px;border:1px solid #9aa99e;border-radius:4px}
+button{margin-top:20px;color:white;background:#1b302e;font-weight:600;cursor:pointer}button:disabled{opacity:.55;cursor:wait}
+pre{font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f1;padding:16px;min-height:65px}
+small{color:#4c5a51}a{color:#1b5143}
+</style></head>
+<body><main><small>YOUR MIND STORY · ISOLATED TEST ONLY</small>
+<h1>V4 assessment backend test</h1>
+<p>This page is not the customer quiz. It tests the new V4 Google Sheet and Apps Script without sending anything to V3. Every submission is marked <strong>TEST</strong> and uses the business test inbox only.</p>
+<label for="offer">Complete programme option to test</label>
+<select id="offer">
+<option value="self_guided">Self-Guided · £117</option>
+<option value="reality_reset">Reality Reset · £147</option>
+<option value="pattern_break">Pattern Break · £197</option>
+</select>
+<p><small>This test will write a sample submission, record a readiness answer, support preference and hesitation, then attempt to send exactly one result email to yourmindstory.co.uk@gmail.com. It does not make any purchase.</small></p>
+<button type="button" id="start">Run one V4 test</button>
+<p id="state" role="status"></p>
+<pre id="log" aria-live="polite">No test run yet.</pre>
+<p><small>Only use once per option while checking results. A failed email should be investigated in the V4 sheet before retrying.</small></p>
+</main>
+<script>
+const ENDPOINT='https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec';
+const INBOX='yourmindstory.co.uk@gmail.com';
+const btn=document.getElementById('start'),log=document.getElementById('log'),state=document.getElementById('state');
+const say=s=>{log.textContent+='\n'+s;};
+const rnd=()=>crypto.randomUUID?crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16))).map(x=>x.toString(16).padStart(2,'0')).join('');
+async function post(payload){
+  const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  if(!res.ok)throw Error('HTTP '+res.status);
+  const raw=await res.text();
+  let data;try{data=JSON.parse(raw)}catch(_){throw Error('Backend returned non-JSON response: '+raw.slice(0,220))}
+  return data;
+}
+btn.addEventListener('click',async()=>{
+  btn.disabled=true;state.textContent='Testing V4 backend';log.textContent='';
+  try{
+    const option=document.getElementById('offer').value;
+    const uid=rnd();
+    const answers={};
+    for(let k=1;k<=8;k++)answers['q'+k]={score:3,value:3,answer:'Test: significant impact'};
+    for(let k=9;k<=13;k++)answers['q'+k]={answer:k===11?'Contact or the relationship is inconsistent, unclear or on-and-off.':k===12?'I want to feel like myself again and be able to move forward, whether he is in my life or not.':'V4 controlled test response'};
+    answers.q14={answer:'I know understanding alone is not enough and I am ready to start working on this.'};
+    answers.q15={answer:'TEST RECORD — please disregard'};
+    answers.q16={id:'test_cost',answer:'I am considering the cost'};
+    answers.q17={id:option,answer:option==='self_guided'?'I want to work through it myself':option==='reality_reset'?'I want a shorter private session':'I want more personalised help'};
+    const payload={firstName:'Test V4',email:INBOX,marketingConsent:false,
+      submissionId:'YMSV4-S-'+uid,journeyId:'YMSV4-J-'+uid,answers,
+      isTest:true,experimentVersion:'V4-backend-smoke-20261031',readinessRequired:true,
+      readiness:answers.q14.answer,supportPreference:answers.q17,hesitation:answers.q16,
+      deferResultEmail:true,sourceJourney:'V4 controlled test',assessmentTouchSource:'internal_test',
+      landingUrl:location.href,submissionUrl:location.href};
+    say('1. Submitting marked TEST assessment to V4…');
+    const saved=await post(payload);
+    if(!saved.ok||!saved.resultToken)throw Error('Submission failed: '+JSON.stringify(saved));
+    say('Assessment saved: '+saved.assessmentVersion+'; email pending: '+String(saved.resultEmailPending));
+    say('2. Finalising selected offer and checking result-email send…');
+    const final=await post({action:'finalizeResultV4',resultToken:saved.resultToken,
+      submissionId:payload.submissionId,finalOfferOption:option,
+      readinessRequired:true,readiness:answers.q14.answer,supportPreference:answers.q17,
+      hesitation:answers.q16});
+    say('Finalisation status: '+String(final.status||final.code));
+    say('Result email sent: '+String(final.resultEmailSent));
+    say('Email provider: '+String(final.provider||'not reported'));
+    say('Final offer: '+String(final.finalOffer||'not reported'));
+    if(final.ok&&final.resultEmailSent) {
+      state.textContent='Test submission and email send accepted. Check the test inbox and V4 sheet.';
+      say('SUCCESS — verify email content and matching TEST row in V4 Responses.');
+    } else {
+      state.textContent='Submission saved, but the email stage needs investigation.';
+      say('CHECK — do not switch the customer website to V4 yet.');
+    }
+  }catch(err){state.textContent='Test incomplete. V3 live website was not changed.';say('ERROR: '+String(err&&err.message||err))}
+  finally{btn.disabled=false}
+});
+</script></body></html>
