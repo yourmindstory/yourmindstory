@@ -1,0 +1,72 @@
+name: V4 controlled backend smoke test
+on:
+  push:
+    branches:
+      - restore-september-funnel-2026-10-30
+    paths:
+      - .github/workflows/v4-backend-smoke-20261031.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  v4-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Submit marked test assessments for all Complete support options
+        env:
+          YMS_V4_URL: https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec
+        run: |
+          node <<'NODE'
+          const crypto=require('node:crypto');
+          const endpoint=process.env.YMS_V4_URL;
+          const options=[['self_guided',117],['reality_reset',147],['pattern_break',197]];
+          async function post(obj) {
+            const resp=await fetch(endpoint,{
+              method:'POST',
+              headers:{'Content-Type':'text/plain;charset=utf-8'},
+              redirect:'follow',
+              body:JSON.stringify(obj)
+            });
+            const txt=await resp.text();
+            let data;try{data=JSON.parse(txt)}catch(e){throw new Error('HTTP '+resp.status+' returned non-JSON, first 120 chars: '+txt.slice(0,120).replace(/\s+/g,' '))}
+            if(!resp.ok)throw new Error('HTTP '+resp.status);
+            return data;
+          }
+          (async()=>{
+            for(const [option,price] of options){
+              const id=crypto.randomUUID();
+              const answers={};
+              for(let k=1;k<=8;k++)answers['q'+k]={score:3,value:3,answer:'TEST: strong impact'};
+              for(let k=9;k<=12;k++)answers['q'+k]={answer:'TEST ONLY, ignore this response'};
+              answers.q13={answer:'TEST ONLY',value:[]};
+              answers.q14={answer:"I know understanding alone isn't enough and I'm ready to start working on this."};
+              answers.q15={answer:'TEST RECORD, please disregard.'};
+              answers.q16={id:'test_cost',answer:'I am considering the cost'};
+              answers.q17={id:option,answer:option};
+              const submissionId='YMSV4-S-'+id;
+              const saved=await post({
+                firstName:'TEST V4',email:'yourmindstory.co.uk@gmail.com',
+                marketingConsent:false,isTest:true,deferResultEmail:true,
+                submissionId,journeyId:'YMSV4-J-'+id,
+                readinessRequired:true,readiness:answers.q14.answer,
+                supportPreference:answers.q17,hesitation:answers.q16,
+                experimentVersion:'V4-owned-smoke-20261031',answers
+              });
+              if(!saved.ok||!saved.resultToken||saved.assessmentVersion!=='YMS-ASSESSMENT-2026-V4')
+                throw new Error(option+' submission did not confirm V4 save: '+saved.code);
+              console.log(option+' submission stored in V4');
+              const final=await post({
+                action:'finalizeResultV4',resultToken:saved.resultToken,
+                submissionId,finalOfferOption:option,
+                readinessRequired:true,readiness:answers.q14.answer,
+                supportPreference:answers.q17,hesitation:answers.q16
+              });
+              if(!final.ok||!final.resultEmailSent||!String(final.finalOffer).includes('£'+price))
+                throw new Error(option+' final offer/email failed: '+String(final.code||final.status));
+              console.log(option+' £'+price+' final choice and result-email send accepted, provider '+(final.provider||'unspecified'));
+            }
+            console.log('PASS: three V4 marked tests; verify actual inbox arrival separately');
+          })().catch(err=>{console.error('FAIL:',err.message);process.exit(1)});
+          NODE
