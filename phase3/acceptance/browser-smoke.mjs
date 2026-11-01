@@ -147,7 +147,15 @@ async function runCase(test) {
     assert.equal(Number(await finalLink.getAttribute("data-rec-price")), test.price, test.id + ": wrong price");
 
     await finalLink.click({ timeout:10000 }).catch(() => {});
-    await page.waitForFunction(() => (window.__phase3ApiResults || []).some(x => x.action === "finalizeResultV3"), null, { timeout:15000 });
+    await page.waitForFunction(() => (window.__phase3ApiResults || []).some(x => x.action === "finalizeResultV3"), null, { timeout:15000 }).catch(async error => {
+      const detail = await page.evaluate(() => ({
+        results: window.__phase3ApiResults || [],
+        url: location.href,
+        finalizeError: document.querySelector("#finalize-error")?.innerText || "",
+        capError: document.querySelector("#caperr")?.innerText || ""
+      }));
+      throw new Error(error.message + " | browser state: " + JSON.stringify(detail));
+    });
     const finalize = await page.evaluate(() => window.__phase3ApiResults.filter(x => x.action === "finalizeResultV3").at(-1));
     assert(finalize && finalize.ok, test.id + ": final choice did not save");
     assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
