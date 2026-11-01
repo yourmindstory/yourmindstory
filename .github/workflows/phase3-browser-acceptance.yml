@@ -1,0 +1,45 @@
+name: Phase 3 isolated browser acceptance
+
+on:
+  push:
+    branches:
+      - phase3/voc-support-choice
+    paths:
+      - "assessment/**"
+      - "phase3/acceptance/**"
+      - ".github/workflows/phase3-browser-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase3-browser-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  isolated-browser-journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out Phase 3 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Playwright
+        run: npm install --no-save --no-package-lock playwright@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # This suite posts only synthetic .invalid addresses and fixed Phase 3 test IDs
+      # to the isolated development Web App and its synthetic-only spreadsheet.
+      # Stan navigation is intercepted before any checkout page or transaction.
+      - name: Run browser acceptance routes
+        run: node phase3/acceptance/browser-smoke.mjs
