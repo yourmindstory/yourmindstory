@@ -1,7 +1,7 @@
 /**
  * Your Mind Story V3 Assessment backend
  * Version: YMS-ASSESSMENT-2026-V3 (backend build 2026-10-06 offer-lock + purchase attribution)
- * Spreadsheet: 1MRK7_t-_HN8OCHpK8tm1E8QWXexo8ACLMTdsqZjaoXE
+ * Development-only spreadsheet: 1bxNPutXUvy62hCxBzkKBOFFQOCbEKXNtnn8WixsjWAg
  *
  * Deploy as a Web app:
  * Execute as: Me
