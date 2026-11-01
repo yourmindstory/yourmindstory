@@ -12,7 +12,7 @@ jobs:
   browser-test:
     runs-on: ubuntu-latest
     timeout-minutes: 12
-    # Updated for V4 editable-email backend 2026-11-01, library v4
+    # Testing live V4 editable-email fast-choice v2, library v5
     steps:
       - name: Install Chromium and Playwright
         run: |
