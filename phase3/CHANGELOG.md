@@ -8,6 +8,7 @@ The approved customer journey baseline is applied to the isolated candidate. No 
 
 ### Requirements applied
 
+- Only the two readiness questions at the end of the quiz change. All earlier quiz questions, wording, answer options, order and scoring remain as they were.
 - Question 1: “Which sounds most like what you want now?” with four recovered answer routes:
   - Self-work: “I want help understanding myself, breaking the cycle and getting my mind back.”
   - Understand him: “I mainly want to understand him and what his behaviour means.”
