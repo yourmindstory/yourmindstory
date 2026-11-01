@@ -153,13 +153,13 @@ async function v4OfferDecision(link,handoff){
  const total=scores.reduce((x,y)=>x+y,0),needsReadiness=complete && scores.filter(x=>x>=3).length>=3 && total>=15;
  const overlay=document.createElement('div');overlay.id='v4Decision';overlay.style.cssText='position:fixed;z-index:9999;inset:0;overflow:auto;background:rgba(15,28,24,.87);padding:20px';
  overlay.innerHTML=`<div role="dialog" aria-modal="true" aria-label="Your final support choice" style="max-width:620px;margin:25px auto;background:white;padding:25px;color:#111827;border-radius:5px"><h2 style="font-family:Fraunces,serif">Your next step</h2><p>You've selected: <strong>${label}</strong> at £${price}.</p>
- ${needsReadiness?`<label for="v4Readiness"><strong>Before we finish, where are you in your readiness to work on this?</strong></label><select id="v4Readiness" style="width:100%;padding:14px;margin:12px 0"><option value="">Choose one</option><option>I'm ready for a structured process and willing to participate in it consistently.</option><option>I know understanding alone isn't enough and I'm ready to start working on this.</option><option>I know something needs to change, but I'm not sure I'm ready to actively work on it yet.</option><option>Right now, I'm mainly looking to understand what is happening.</option></select>`:''}
+ ${needsReadiness&&!document.getElementById('v4PreReadiness')?`<label for="v4Readiness"><strong>Before we finish, where are you in your readiness to work on this?</strong></label><select id="v4Readiness" style="width:100%;padding:14px;margin:12px 0"><option value="">Choose one</option><option>I'm ready for a structured process and willing to participate in it consistently.</option><option>I know understanding alone isn't enough and I'm ready to start working on this.</option><option>I know something needs to change, but I'm not sure I'm ready to actively work on it yet.</option><option>Right now, I'm mainly looking to understand what is happening.</option></select>`:''}
  <label for="v4Hesitation" style="display:block;margin-top:18px"><strong>What, if anything, is making you hesitate about starting to work on this now?</strong> <small>(Optional)</small></label><textarea id="v4Hesitation" maxlength="500" style="width:100%;min-height:70px;padding:12px;margin:12px 0"></textarea>
  <p id="v4DecError" class="error" role="alert"></p><div class="actions"><button id="v4Cancel" class="back">Back</button><button id="v4Confirm" class="next">CONFIRM MY NEXT STEP</button></div></div>`;
  document.body.append(overlay);
  overlay.querySelector('#v4Cancel').onclick=()=>overlay.remove();
  overlay.querySelector('#v4Confirm').onclick=async()=>{
-  const readiness=needsReadiness?overlay.querySelector('#v4Readiness').value:'';
+  const readiness=needsReadiness?(document.getElementById('v4PreReadiness')?.value||overlay.querySelector('#v4Readiness')?.value||''):'';
   if(needsReadiness&&!readiness){overlay.querySelector('#v4DecError').textContent='Please choose the answer that best describes your readiness.';return}
   const hesitation=overlay.querySelector('#v4Hesitation').value.trim();
   const button=overlay.querySelector('#v4Confirm');button.disabled=true;button.textContent='SAVING YOUR CHOICE...';
@@ -172,13 +172,13 @@ async function v4OfferDecision(link,handoff){
    for(let attempt=0;attempt<6;attempt++){
     const resp=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     data=await resp.json();
-    if(data.ok&&data.resultEmailSent&&(data.status==='choice_recorded_after_email'||data.status==='finalized'))break;
+    if(data.ok&&data.status==='finalized'&&data.resultEmailSent)break;
     if(data.code!=='BUSY'&&data.code!=='SERVER_ERROR')throw Error(data.message||'Your choice could not be saved. Please try again.');
     overlay.querySelector('#v4DecError').textContent='Your assessment is still finishing securely. We are confirming your choice.';
     if(attempt===5)throw Error('The server is still busy. Please try your choice again.');
     await new Promise(resolve=>setTimeout(resolve,1800+attempt*800));
    }
-   if(!data||!data.ok||!data.resultEmailSent)throw Error('Your support choice could not be confirmed. Please try again.');
+   if(!data||!data.ok||data.status!=='finalized'||!data.resultEmailSent)throw Error('Your final choice and matching email could not both be verified. Please try again or contact support.');
    v4ResultAwaitingChoice=false; scheduleV4Flush(1400); // After choice is safely saved, flush buffered events.
    overlay.querySelector('#v4DecError').textContent='';
    overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>Your personalised result email has been submitted for delivery. Check your inbox.</p><p><a id="v4Checkout" class="next" href="${link.href}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button class="back" id="v4Finish">Return to results</button></p>`;
