@@ -28,6 +28,22 @@ const complete=[
 ];
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const state={data:null};
+const trackFirstParty=(events)=>{
+ try{
+  const body=JSON.stringify({action:'recordJourneyEvents',resultToken:token,page:'saved_result',events:events.map(e=>({eventType:e[0],values:e[1]||{},clientTime:new Date().toISOString()}))});
+  if(navigator.sendBeacon){const sent=navigator.sendBeacon(api,new Blob([body],{type:'text/plain;charset=UTF-8'}));if(sent)return;}
+  fetch(api,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true,referrerPolicy:'no-referrer'}).catch(()=>{});
+ }catch(e){}
+};
+const trackAnalytics=(name,params={})=>{
+ try{
+  if(localStorage.getItem('yms_analytics_consent')!=='yes')return;
+  const extra=Object.assign({assessment_version:'YMS-ASSESSMENT-2026-V4',surface:'saved_result'},params);
+  if(window.YMSQuiz&&YMSQuiz.track)YMSQuiz.track(name,extra);
+  else if(typeof window.gtag==='function')window.gtag('event',name,extra);
+ }catch(e){}
+};
+
 if(!/^[A-Za-z0-9_-]{20,128}$/.test(token)){status.textContent='This result link is incomplete. Please use the link in your assessment email.';return;}
 fetch(api+'?action=getResult&resultToken='+encodeURIComponent(token),{credentials:'omit',referrerPolicy:'no-referrer'}).then(r=>r.json()).then(d=>{
  if(!d.ok||!d.recommendedProduct)throw Error('This result could not be retrieved. Please contact Your Mind Story.');
@@ -41,7 +57,7 @@ fetch(api+'?action=getResult&resultToken='+encodeURIComponent(token),{credential
  if(isComplete){offer=complete.map(x=>'<div class="option"><h2>'+esc(x.title)+' · £'+x.price+'</h2><p>'+esc(x.desc)+'</p><button class="btn choose" type="button" data-id="'+x.id+'">'+(x.id==='self_guided'?'CHOOSE SELF-GUIDED':x.id==='reality_reset'?'CHOOSE REALITY RESET':'CHOOSE PATTERN BREAK')+'</button></div>').join('')}
  else {const price=d.recommendedProduct==='The Bare Minimum'?4.99:d.recommendedRoute==='Two-Stage Pair'?74:37;const url=links[d.recommendedProduct];if(url)offer='<div class="option"><h2>'+esc(d.recommendedProduct)+' · £'+price+'</h2><button type="button" class="btn choose" data-id="">CONTINUE WITH MY RECOMMENDATION</button></div>';}
  view.innerHTML='<p class="muted">For '+esc(d.firstName||'you')+'</p><div class="panel"><h2>Where this cycle may be affecting you</h2><p>Your answers point to these areas:</p>'+stageText+'<p>The next step is to practise responding differently when these feelings and habits are activated, not simply to understand his behaviour.</p></div><h2>Your recommended next step</h2><p>'+esc(d.recommendedProduct)+'</p>'+offer+'<div id="decision" hidden class="panel"></div>';
- view.hidden=false;view.querySelectorAll('.choose').forEach(b=>b.onclick=()=>showDecision(b.dataset.id));
+ view.hidden=false;trackFirstParty([['result_view',{entry:'result_email_saved_link'}]]);trackAnalytics('quiz_result_view',{recommendation_category:isComplete?'return_to_you_series':d.recommendedRoute});view.querySelectorAll('.choose').forEach(b=>b.onclick=()=>showDecision(b.dataset.id));
 }).catch(err=>{status.textContent=String(err.message||err)});
 function showDecision(option){
  const d=state.data; if(!d)return;
@@ -65,9 +81,15 @@ function showDecision(option){
    const result=await res.json();
    if(!result.ok||result.status!=='choice_recorded_after_email')throw Error('The support choice could not be verified in V4. Please do not purchase until this is resolved.');
    document.getElementById('message').innerHTML='Your support choice is saved. <a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a>';
+   const checkoutLink=document.querySelector('#message a[href*="stan.store"]');
+   if(checkoutLink)checkoutLink.addEventListener('click',()=>{
+     const v={product:title,route:d.recommendedRoute,price:option?(complete.find(x=>x.id===option)?.price||0):d.recommendedPrice||'',currency:'GBP',destination:'stan.store',source:'saved_result'};
+     trackFirstParty([['primary_cta_click',v],['outbound_stan_click',v]]);
+     trackAnalytics('recommendation_click',{route:d.recommendedRoute,product_type:d.recommendedRoute==='Return to You Series'?'return_to_you_series':'stage_or_pair'});
+   });
    btn.remove();
   }catch(e){document.getElementById('message').textContent=String(e.message||e);btn.disabled=false}
  };
 }
 })();
-</script></body></html>
+</script><script src="/assets/yms-consent.js?v=20261001-tracking" defer></script><script>(function(){try{if(localStorage.getItem('yms_analytics_consent')==='yes'){var s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;document.head.appendChild(s)}}catch(e){}})();</script></body></html>
