@@ -23,7 +23,7 @@ The approved customer journey baseline is applied to the isolated candidate. No 
 ### Isolated development resources
 
 - Test spreadsheet: `1bxNPutXUvy62hCxBzkKBOFFQOCbEKXNtnn8WixsjWAg` — tabs `V3 Responses` and `V3 Journey Events`; verified header-only, with no synthetic or customer rows written.
-- Apps Script project: `1q3wcaTAy_tqtN6dsPxidOKEyrDS85zITXmB9CPwvd5cQWb7yntojd87-`, titled “YMS Phase 3 DEV - Isolated Backend”. Candidate code is saved in the project but is not deployed.
+- Apps Script project: `1RSP7Mxdd0ao_kGHDs4F8PsLGBREOSQkPnLOtXJoP0zs2Ev3DLnvYteCe`, titled “YMS Phase 3 DEV - Isolated Backend”, created under `yourmindstory.co.uk@gmail.com`. Candidate code is saved in the correct business account but is not deployed. An earlier Kaci-owned draft project (`1q3wcaTAy_tqtN6dsPxidOKEyrDS85zITXmB9CPwvd5cQWb7yntojd87-`) was not deployed and is not the active dev project.
 - A Web App deployment was not completed. Google displayed its “Google hasn’t verified this app” OAuth warning. The warning was not bypassed. There is no dev deployment ID or endpoint URL yet; frontend API URL placeholders remain.
 
 ### Checks completed
