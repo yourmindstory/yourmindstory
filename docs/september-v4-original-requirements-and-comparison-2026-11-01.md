@@ -72,3 +72,27 @@ Scope: inspected `assessment/v4-preview/start/index.html` on `fix/v4-quiz-email-
 
 ### Release rule
 Do not merge or deploy until the backend contract and decision rule are proven and every route has a PASS with a real result screen, persisted data, delivered email and correct checkout. Preserve live V3 and rollback.
+
+
+## 1 November 23:52: approved owner implementation baseline (supersedes September Q1/Q2)
+
+The owner has confirmed a **21-day** guarantee. Scored question order/copy/thresholds and 29 October visual/progressive design are frozen. Post-result question 1, on applicable routes, is **"Which sounds most like what you want now?"** Responses: self-work; understand him; change him; unsure. Understand-him and change-him must lead to **The Bare Minimum £4.99**. Self-work and unsure continue to question 2.
+
+Question 2's heading is **"One more thing."** and its introductory paragraph is the exact 12-week, daily-audio and weekly-check-in wording supplied by the owner. The closing prompt is **"Would you like more personal support than this?"** Independent -> £117 self-guided. Additional support or some support -> £147 Reality Reset primary with £197 Pattern Break alternative. Unsure/recommend -> display all three Complete choices with one clear assessment-based primary. Continue score-qualified £37 Single and £74 Pair branches without changing stage scores. No Bootcamp.
+
+The final selection must be persisted before the matching transactional MailApp email, and abandonment must not send offer-specific email. Keep original copy from `phase3/YMS_V3_VERSION25_FINAL_CHOICE_DEV.gs` (branch `phase3/voc-support-choice`), namely `RESULT_EMAIL_SINGLE_V3`, `RESULT_EMAIL_PAIR_V3`, `RESULT_EMAIL_COMPLETE_V3` and `COMPLETE_CHOICES_V3`. No Brevo, no new email copy. Delivery must be idempotent and resumable.
+
+The user has identified V4 workbook `1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM` as the sole **forward production** destination; **never** use it for synthetic tests. Preserve V3 customer records and saved result links. Keep post-result Q1, Q2 and existing barrier stored separately by result/submission ID. Do not merge barrier with generic hesitation.
+
+### Verification completed this turn
+- GitHub source fetched successfully and the four referenced approved-copy identifiers were found. Phase 3 source handles `finalizeResultV3`, **not** a V4 finalize action; it is not safely interchangeable with a V4 endpoint.
+- The specified Google spreadsheet metadata was fetched, confirming the title **Your Mind Story V4 Assessment & Funnel Tracking** and tabs including V4 Responses, V4 Journey Events, V4 Sales Events. This is metadata verification only; no workbook edits.
+- PR #17 remains open as a **draft** on `fix/v4-quiz-email-2026-11-01` against main.
+- The isolated V4 HTML candidate has had its post-result question text and answer options replaced with approved Q1/Q2, superseded readiness overlay removed, and Q1/Q2 put in distinct finalization fields. **Not verified end-to-end; not deployed.**
+
+### Still blocked before production
+- Frontend routing and price/offer presentation must fully reflect Q1/Q2. The current candidate still builds the result offer from scores before the goal/support selection; the Q1 Bare Minimum fork and conditional Complete tiers are **not fully implemented**. Do not claim success.
+- Backend contract `finalizeResultV4` must be verified against a genuine, isolated V4 Apps Script deployment, not substituted with the V3 reference. Dedicated Q1/Q2/barrier persistence, MailApp email idempotency, abandonment resume, and production workbook separation remain unverified.
+- Synthetic-only test sheet identity not established, and no email HTML/plain previews have yet been generated.
+- The correct checkout URLs must be verified, not inferred from the historical Stan catalog (the owner also previously used Payhip).
+- Do not merge, deploy, send customer email or make a purchase. Obtain separate release approval after evidence, backups and rollback.
