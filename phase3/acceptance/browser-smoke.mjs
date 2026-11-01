@@ -112,6 +112,7 @@ async function runCase(test) {
     await page.locator("#fn").fill("Phase 3 synthetic");
     await page.locator("#em").fill("phase3.synthetic+" + test.id + "@example.invalid");
     assert.equal(await page.locator("#mc").isChecked(), false, "marketing consent must remain unchecked");
+    await page.locator("#capgo").click();
     await page.locator(".result-panel.active").waitFor({ state:"visible", timeout:20000 });
 
     while (await page.locator(".result-panel.active .result-next").count()) {
