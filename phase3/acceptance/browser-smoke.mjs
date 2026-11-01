@@ -58,8 +58,15 @@ async function runCase(test) {
   const context = await browser.newContext();
   const page = await context.newPage();
   const checkoutAttempts = [];
+  const apiResults = [];
+  let resolveFinalize;
+  const finalizeEvent = new Promise(resolve => { resolveFinalize = resolve; });
   let pageErrors = [];
   page.on("pageerror", error => pageErrors.push(String(error)));
+  await page.exposeFunction("__phase3RecordApi", entry => {
+    apiResults.push(entry);
+    if (entry.action === "finalizeResultV3") resolveFinalize(entry);
+  });
   await page.addInitScript(({ id }) => {
     sessionStorage.setItem("yms_v3_submission_id", "YMSV3-S-P3-" + id);
     localStorage.setItem("yms_v3_journey_id", "YMSV3-J-P3-" + id);
@@ -76,7 +83,7 @@ async function runCase(test) {
       if (url && url.indexOf("AKfycbyd5qw34QrENt1QRsipO0b6o0G-FNpzKAHdOq5vHpYnhXRr1aILiocCtHPHn_LvaYzjiA") >= 0) {
         try {
           const result = await response.clone().json();
-          window.__phase3ApiResults.push({
+          const entry = {
             action:requestBody.action || "assessment",
             ok:result.ok === true,
             resultEmailSuppressed:result.resultEmailSuppressed === true,
@@ -87,7 +94,9 @@ async function runCase(test) {
             finalOfferOption:requestBody.finalOfferOption || "",
             finalOfferProduct:requestBody.finalOfferProduct || "",
             finalOfferPrice:Number(requestBody.finalOfferPrice || 0)
-          });
+          };
+          window.__phase3ApiResults.push(entry);
+          if (window.__phase3RecordApi) await window.__phase3RecordApi(entry);
         } catch {}
       }
       return response;
@@ -149,20 +158,17 @@ async function runCase(test) {
     const saved = await page.evaluate(() => JSON.parse(sessionStorage.getItem("yms_v3_last_submission") || "null"));
     assert(saved && saved.confirmed && saved.resultToken, test.id + ": saved-result token missing before checkout");
 
-    const finalizeResponsePromise = page.waitForResponse(response => {
-      if (!response.request().url().includes(API) || response.request().method() !== "POST") return false;
-      try { return response.request().postDataJSON().action === "finalizeResultV3"; } catch { return false; }
-    }, { timeout:15000 });
     const checkoutRequestPromise = page.waitForRequest(request => request.url().startsWith("https://stan.store/"), { timeout:15000 });
     await finalLink.click({ timeout:10000, noWaitAfter:true });
-    const [finalizeResponse] = await Promise.all([finalizeResponsePromise, checkoutRequestPromise]);
-    const finalize = await finalizeResponse.json();
-    const finalizeRequest = finalizeResponse.request().postDataJSON();
+    const [finalize, checkoutRequest] = await Promise.all([
+      Promise.race([finalizeEvent, delay(15000).then(() => { throw new Error("Timed out waiting for final-choice API result"); })]),
+      checkoutRequestPromise
+    ]);
     assert(finalize && finalize.ok, test.id + ": final choice did not save: " + JSON.stringify(finalize));
     assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
-    assert.equal(finalizeRequest.finalOfferOption, test.offer, test.id + ": wrong final offer option sent");
-    assert.equal(finalizeRequest.finalOfferProduct, test.product, test.id + ": wrong final offer product sent");
-    assert.equal(Number(finalizeRequest.finalOfferPrice), test.price, test.id + ": wrong final offer price sent");
+    assert.equal(finalize.finalOfferOption, test.offer, test.id + ": wrong final offer option sent");
+    assert.equal(finalize.finalOfferProduct, test.product, test.id + ": wrong final offer product sent");
+    assert.equal(finalize.finalOfferPrice, test.price, test.id + ": wrong final offer price sent");
     assert.equal(checkoutAttempts.length, 1, test.id + ": checkout link was not intercepted exactly once");
     const storedResponse = await fetch(API + "?action=getResult&resultToken=" + encodeURIComponent(saved.resultToken));
     const stored = await storedResponse.json();
