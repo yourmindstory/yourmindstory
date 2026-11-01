@@ -107,7 +107,7 @@ async function runCase(test) {
   await page.route("**/__phase3_checkout_intercept__*", async route => {
     const url = route.request().url();
     checkoutAttempts.push(url);
-    await route.abort();
+    await route.fulfill({ status:200, contentType:"text/html", body:"<!doctype html><title>Checkout intercepted</title>" });
     resolveCheckoutInterception(url);
   });
   try {
