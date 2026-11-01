@@ -1,0 +1,128 @@
+name: V4 full customer journey smoke test
+on:
+  push:
+    branches:
+      - restore-september-funnel-2026-10-30
+    paths:
+      - .github/workflows/v4-frontend-smoke.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    # Updated for V4 editable-email backend 2026-11-01, library v4
+    steps:
+      - name: Install Chromium and Playwright
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Exercise staged V4 journey and saved result
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async () => {
+            const browser = await chromium.launch({headless:true,args:['--no-sandbox']});
+            const context = await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1});
+            const page = await context.newPage();
+            page.setDefaultTimeout(30000);
+            page.on('requestfailed',req=>console.log('REQUESTFAILED '+req.url().slice(0,155)+' '+(req.failure()&&req.failure().errorText)));
+            page.on('console',msg=>{if(/V4_FETCH|CORS|Failed to fetch/.test(msg.text()))console.log('WEB '+msg.text())});
+            await page.addInitScript(() => {
+              const original=window.fetch;
+              window.fetch=async function(...args){
+                try {const res=await original.apply(this,args);
+                  if(String(args[0]).includes('script.google.com/macros')){
+                    let d={};try{d=await res.clone().json()}catch(e){};
+                    console.log('V4_FETCH '+JSON.stringify({ok:res.ok,http:res.status,code:d.code||'',status:d.status||'',error:d.message||''}));
+                  }
+                  return res;
+                }catch(e){console.log('V4_FETCH ERROR '+String(e));throw e;}
+              };
+            });
+            const errs=[];
+            page.on('pageerror',err=>{errs.push(err.message);console.error('BROWSER-ERROR',err.message)});
+            try {
+              console.log('PHASE 1: landing');
+              const landing=await page.goto('https://yourmindstory.co.uk/assessment/v4-preview/?yms_test=1',{waitUntil:'domcontentloaded'});
+              const canFetch=await page.evaluate(async()=>{try{let r=await fetch('https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec');return {ok:r.ok,status:r.status}}catch(e){return {error:String(e)}}});
+              console.log('BROWSER GET V4 API:',JSON.stringify(canFetch));
+              if(!landing||landing.status()!==200)throw Error('Landing HTTP '+(landing&&landing.status()));
+              await page.locator('#startAssessment').click();
+              await page.locator('#beginV4').click();
+              console.log('PHASE 2: 8 scored + 4 context questions');
+              for(let n=1;n<=12;n++){
+                const q=page.locator('#form .q');
+                await q.waitFor({state:'visible',timeout:15000});
+                const buttons=page.locator('#form button.opt:not(.consent-opt)');
+                await buttons.nth(n<=8?3:0).click();
+                console.log('Q'+n+' selected');
+              }
+              console.log('PHASE 3: q13 selection + required personal-cost');
+              await page.locator('#form button.opt').first().click();
+              await page.locator('#form #next').click();
+              await page.locator('#form #txt').fill('TEST ONLY: this is affecting my sleep and my focus.');
+              await page.locator('#form #next').click();
+              await page.locator('#fn').fill('TEST V4 BROWSER');
+              await page.locator('#em').fill('yourmindstory.co.uk@gmail.com');
+              await page.locator('.consent-opt[data-consent="no"]').click();
+              const captureStarted=Date.now();
+              await page.locator('#capgo').click();
+              await Promise.race([
+                page.locator('.result-panel.active').waitFor({timeout:90000}),
+                page.locator('#caperr').filter({hasText:/./}).waitFor({timeout:90000}).then(async()=>{throw Error('Email capture save failed: '+await page.locator('#caperr').innerText())})
+              ]);
+              const saveMs=Date.now()-captureStarted;
+              console.log('BROWSER VERIFIED SAVE LATENCY (ms):',saveMs);
+              if(saveMs>25000)throw Error('Mobile result took more than 25 seconds to appear: '+saveMs);
+              const rec=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}'));
+              if(!rec.confirmed||!rec.resultToken||!rec.submissionId)throw Error('Client did not retain result token');
+              console.log('PHASE 4: result generated, submission id: '+rec.submissionId);
+              await page.locator('.result-next').first().click();
+              await page.locator('.result-panel.active .result-next').first().click();
+              const realChoice=page.locator('.result-panel.active a[data-rec-price="147"]');
+              await realChoice.waitFor({state:'visible',timeout:20000});
+              await realChoice.click();
+              await page.locator('#v4Readiness').selectOption({index:1});
+              const choiceStart=Date.now();
+              await page.locator('#v4Confirm').click();
+              await page.locator('#v4Checkout').waitFor({timeout:60000});
+              const choiceMs=Date.now()-choiceStart;
+              console.log('FINAL SUPPORT CHOICE LATENCY (ms):',choiceMs);
+              if(choiceMs>30000)throw Error('V4 support choice took longer than 30 seconds: '+choiceMs);
+              const href=await page.locator('#v4Checkout').getAttribute('href');
+              if(!href||!href.startsWith('https://stan.store/Yourmindstory/'))throw Error('Invalid £147 checkout URL '+href);
+              console.log('PHASE 5: V4 final-choice modal and Stan link passed');
+              console.log('PHASE 6: retrieve saved result in browser');
+              const saved=await context.newPage();
+              saved.setDefaultTimeout(60000);
+              saved.on('pageerror',err=>console.error('SAVED-RESULT-ERROR',err.message));
+              await saved.goto('https://yourmindstory.co.uk/assessment/result/?resultToken='+encodeURIComponent(rec.resultToken),{waitUntil:'domcontentloaded'});
+              try {await saved.locator('#result:not([hidden])').waitFor({timeout:45000});}
+              catch(e){throw Error('Saved results did not load: '+await saved.locator('#status').innerText());}
+              await saved.locator('.choose[data-id="reality_reset"]').first().click();
+              await saved.locator('#ready').selectOption({index:1});
+              await saved.locator('#confirm').click();
+              await saved.locator('#message a[href*="stan.store"]').waitFor({timeout:180000});
+              console.log('PHASE 7: saved-result confirm and checkout link passed');
+              if(errs.length)console.log('PAGE ERRORS:',errs.join(' | '));
+              console.log('PASS ALL: mobile landing, 14 questions, email capture, progressive results, support modal, saved result, V4 finalisation');
+              await browser.close();
+            } catch (e) {
+              console.error('FAIL:',e.message);
+              console.error('URL:',page.url());
+              console.error('PAGE STATE:',(await page.locator('body').innerText().catch(()=>'' )).slice(-3000));
+              await page.screenshot({path:'v4-browser-failure.png',fullPage:true}).catch(()=>{});
+              await browser.close();
+              process.exit(1);
+            }
+          })();
+          NODE
+      - name: Upload error screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v4-browser-failure
+          path: v4-browser-failure.png
+          if-no-files-found: ignore

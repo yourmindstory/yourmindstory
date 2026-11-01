@@ -1,0 +1,36 @@
+name: YMS offer link reachability check
+on:
+  push:
+    branches: [restore-september-funnel-2026-10-30]
+    paths: [.github/workflows/v4-stan-links.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Verify product pages respond
+        run: |
+          node <<'NODE'
+          const pages={
+            self_guided:'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx',
+            reality_reset:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',
+            pattern_break:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break',
+            bare_minimum:'https://stan.store/Yourmindstory/p/the-bare-minimum'
+          };
+          (async()=>{
+            let failed=0;
+            for(const [name,url] of Object.entries(pages)){
+              try{
+                const r=await fetch(url,{redirect:'follow',signal:AbortSignal.timeout(18000)});
+                const html=await r.text();const text=html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,250);
+                console.log(name, 'HTTP',r.status,'final',r.url,'preview',text);
+                if(r.status>=400)failed++;
+              }catch(e){failed++;console.log(name,'ERROR',String(e).slice(0,150));}
+            }
+            if(failed)process.exitCode=1;
+            else console.log('PASS: offer pages returned successful HTTP responses');
+          })();
+          NODE

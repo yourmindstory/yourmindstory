@@ -1,0 +1,31 @@
+name: V4 live deployment version verification
+on:
+  push:
+    branches:
+      - restore-september-funnel-2026-10-30
+    paths:
+      - .github/workflows/v4-live-version-check-20261101.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check live V4 web app build
+        run: |
+          node <<'NODE'
+          const url='https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec';
+          (async()=>{
+            const r=await fetch(url+'?v4_live_check=20261101-0917',{redirect:'follow',signal:AbortSignal.timeout(25000),cache:'no-store'});
+            const raw=await r.text();
+            let data;try{data=JSON.parse(raw)}catch(e){throw Error('Non-JSON: '+raw.slice(0,300))}
+            console.log('HTTP status:',r.status);
+            console.log('Assessment version:',data.assessmentVersion);
+            console.log('Live backend build:',data.backendBuild);
+            console.log('Spreadsheet target:',data.spreadsheetTarget);
+            console.log('Check:',data.backendBuild==='2026-11-01-v4-editable-email-v1'?'EDITABLE_EMAIL_DEPLOYED':'EDITABLE_EMAIL_NOT_DEPLOYED');
+            if(!r.ok||data.backendBuild!=='2026-11-01-v4-editable-email-v1')process.exitCode=1;
+          })().catch(e=>{console.error('CHECK_FAILED:',String(e));process.exitCode=1})
+          NODE

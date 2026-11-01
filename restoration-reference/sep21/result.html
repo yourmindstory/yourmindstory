@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Quiz Result | Your Mind Story</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/yms-quiz-shared.css">
+<script src="assets/yms-quiz-shared.js?v=20260910-rec3"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Your Mind Story</div>
+  <div class="result-card">
+    <span class="result-tag">YOUR RESULT</span>
+    <h1 id="statusTitle">Getting your result...</h1>
+    <p id="statusText">One moment while I load the result you were emailed.</p>
+    <div class="cta-row" id="retryRow" hidden>
+      <a class="btn-cta" href="quiz.html?v=20260910-emailfix1">RETAKE THE QUIZ</a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+
+  var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec';
+  var params = new URLSearchParams(window.location.search);
+  var token = (params.get('token') || params.get('resultToken') || '').trim();
+
+  var title = document.getElementById('statusTitle');
+  var text = document.getElementById('statusText');
+  var retryRow = document.getElementById('retryRow');
+
+  function fail(message){
+    title.textContent = 'I couldn\'t load that result.';
+    text.textContent = message || 'Please retake the quiz so I can give you the right recommendation.';
+    retryRow.hidden = false;
+  }
+
+  function canonicalStage(name){
+    if (name === 'Restore Self Trust') return 'Restore Self-Trust';
+    return name || '';
+  }
+
+  function activeStagesFor(data){
+    var order = ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+    var seen = {};
+    (data.leadingPatterns || []).concat(data.secondaryActivePatterns || []).forEach(function(item){
+      var stage = canonicalStage(item);
+      if (order.indexOf(stage) !== -1) seen[stage] = true;
+    });
+    if (!Object.keys(seen).length && data.primaryResult) {
+      var primary = canonicalStage(data.primaryResult);
+      if (order.indexOf(primary) !== -1) seen[primary] = true;
+    }
+    return order.filter(function(stage){ return seen[stage]; });
+  }
+
+  var STAGE_ORDER = ['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
+  var SCORE_KEYS = {
+    'Quiet the Alarm': 'quietTheAlarm',
+    'Break the Pull': 'breakThePull',
+    'Restore Self-Trust': 'restoreSelfTrust',
+    'Return to Yourself': 'returnToYourself'
+  };
+
+  function qualifyingStagesFor(data){
+    if (data && data.scores && typeof data.scores === 'object') {
+      return STAGE_ORDER.filter(function(stage){
+        var n = Number(data.scores[SCORE_KEYS[stage]]);
+        return isFinite(n) && n >= 3;
+      });
+    }
+    return activeStagesFor(data);
+  }
+
+  function stageScoresFor(data){
+    var out = {};
+    if (!data || !data.scores) return out;
+    STAGE_ORDER.forEach(function(stage){
+      var n = Number(data.scores[SCORE_KEYS[stage]]);
+      if (isFinite(n)) out[stage] = n;
+    });
+    return out;
+  }
+
+  function destinationFor(data){
+    var stages = qualifyingStagesFor(data);
+    var stageMap = {
+      'Quiet the Alarm': 'quiet-the-alarm.html?v=20260918-routing2',
+      'Break the Pull': 'break-the-pull.html?v=20260918-routing2',
+      'Restore Self-Trust': 'restore-self-trust.html?v=20260918-routing2',
+      'Return to Yourself': 'return-to-yourself.html?v=20260918-routing2'
+    };
+    if (stages.length === 0) return 'no-result.html?v=20260918-routing2';
+    if (stages.length === 1) return stageMap[stages[0]] || 'no-result.html?v=20260918-routing2';
+    return 'mixed-result.html?v=20260918-routing2';
+  }
+
+  if (!token) {
+    fail('This result link is missing its secure result token. Please retake the quiz.');
+    return;
+  }
+
+  fetch(APPS_SCRIPT_URL + '?action=getResult&resultToken=' + encodeURIComponent(token), { method: 'GET' })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if (!data || data.status !== 'ok' || !data.recommendationLevel) {
+        throw new Error(data && data.message ? data.message : 'Result not found');
+      }
+
+      var qualifyingStages = qualifyingStagesFor(data);
+      var recoveredStageScores = stageScoresFor(data);
+      var totalScore = data.totalFourStageScore;
+      if (totalScore == null && Object.keys(recoveredStageScores).length === 4) {
+        totalScore = STAGE_ORDER.reduce(function(sum, stage){ return sum + Number(recoveredStageScores[stage] || 0); }, 0);
+      }
+      var recoveredLevel = qualifyingStages.length === 0 ? 'bare_minimum'
+        : (qualifyingStages.length <= 2 ? 'audio_first' : 'complete_self_guided');
+      var recoveredRule = qualifyingStages.length === 0 ? 'no_stage_3'
+        : qualifyingStages.length === 1 ? 'one_stage_3'
+        : qualifyingStages.length === 2 ? 'two_stages_3'
+        : (Number(totalScore) >= 15 ? 'breadth_3_total_15' : 'breadth_3');
+
+      YMSQuiz.setResultData({
+        firstName: data.firstName || '',
+        email: '',
+        resultType: data.resultType || data.patternStructure || '',
+        primaryResult: data.primaryResult || null,
+        tiedResults: data.mixedResultBuckets || data.leadingPatterns || [],
+        overallActivationStrength: data.overallActivationStrength || '',
+        leadingPatterns: data.leadingPatterns || [],
+        secondaryActivePatterns: data.secondaryActivePatterns || [],
+        activeStages: activeStagesFor(data),
+        qualifyingStages: qualifyingStages,
+        stageScores: recoveredStageScores,
+        resultToken: data.resultToken || token,
+        recommendationEngineVersion: 'YMS-REC-2026-V2',
+        totalFourStageScore: totalScore,
+        breadthCount: qualifyingStages.length,
+        recommendationLevel: recoveredLevel,
+        recommendationRuleTriggered: recoveredRule,
+        broadModerateBoundary: qualifyingStages.length >= 3 && Number(totalScore) >= 12 && Number(totalScore) <= 14,
+        recommendedStage: qualifyingStages.length === 1 ? qualifyingStages[0] : null,
+        recommendedProduct: '',
+        mixedClarificationRequired: false,
+        mixedClarificationSelection: ''
+      });
+
+      window.location.replace(destinationFor(data));
+    })
+    .catch(function(err){
+      console.warn('Result recovery failed:', err);
+      fail('I could not recover this saved result. Please retake the quiz so I can give you the right recommendation.');
+    });
+})();
+</script>
+</body>
+</html>
