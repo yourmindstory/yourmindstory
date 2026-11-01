@@ -1,14 +1,14 @@
 # Phase 3 change log
 
-## 2026-11-01 — isolated implementation candidate
+## 2026-11-01 — isolated implementation candidate, not release-ready
 
 Branch: `phase3/voc-support-choice`
 
-Changes:
+Changes made:
 
-- `assessment/start/index.html`: retained the 29 October assessment and progressive result flow; added the approved conditional readiness question and the approved four support-choice routes. Complete-offer choice now precedes result-email delivery. Non-complete £37, qualifying £74 and Bare Minimum routes retain their scored checkout.
-- `assessment/result/index.html`: aligned saved-result access to the same readiness, support-choice, final-offer, email and checkout sequence.
-- `phase3/YMS_V3_VERSION25_FINAL_CHOICE_DEV.gs`: added the final-choice save/finalize path to the supplied Version 25 source; result email delivery uses Google MailApp and is deferred until the selected offer has been saved. Email content is restricted to the selected Complete offer and includes saved-result access.
+- `assessment/start/index.html`: retained the 29 October assessment and progressive result flow; added the approved four support-choice routes. Complete-offer choice now precedes result-email delivery. Scored £37 single-stage, qualifying £74 Pair and Bare Minimum routes retain their checkout mapping.
+- `assessment/result/index.html`: aligned saved-result access to the final support choice, email and checkout sequence.
+- `phase3/YMS_V3_VERSION25_FINAL_CHOICE_DEV.gs`: added the final-choice save/finalize path to the supplied Version 25 source. The candidate defers result email until the final choice is saved, uses Google MailApp for result delivery, restricts Complete email content to the chosen offer, and includes saved-result access.
 
 Commits:
 
@@ -16,10 +16,15 @@ Commits:
 - Saved-result page: `6b54477cdd856c7fbb054786ad118a4573b19010`
 - Version 25 backend candidate: `7d66aa862ed454a53098d12ecb30d4c781922d06`
 
+Unresolved before acceptance:
+
+- The exact Q1 stem and all answer wording/branch mapping are not yet verified. The historic answer options appear in `assets/yms-product-routing-v2.js`, but that file does not contain the question stem or branch mapping. `quiz_2.html` contains the scored assessment and does not contain this conditional result-stage Q1. The cited restoration patch SHA `dda45d118edc715ce2e0cbb3e5044371ca99a0fa` is not available in this repository. The readiness prompt currently present in the candidate was copied from the V4 preview and is not verified as the approved September Q1. Do not treat it as locked copy or release it.
+- Real HTML and plain-text email previews for each required route have not been generated.
+- The Apps Script candidate still targets the existing V3 workbook ID. The frontend URLs are placeholders. No isolated endpoint or safe data target exists yet.
+
 Verification and boundaries:
 
 - JavaScript syntax checks passed for both page scripts and the Apps Script source (parsed as JavaScript).
 - Remote branch files were fetched and matched the local development copies.
 - No Apps Script deployment was created or changed. No production website, Apps Script, sheet, customer submission, email or checkout was touched.
-- Frontend backend URLs remain `__SET_ISOLATED_APPS_SCRIPT_DEV_URL__`. A separate development deployment URL and safe data target must be established before end-to-end acceptance testing.
 - No live flow, route behaviour, email delivery or checkout has been tested.
