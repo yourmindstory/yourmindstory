@@ -4,35 +4,47 @@
 
 Branch: `phase3/voc-support-choice`
 
-Changes made:
+The approved customer journey baseline is applied to the isolated candidate. No production website, live Apps Script deployment, V3 customer sheet, real customer email, or checkout transaction was changed or used.
 
-- `assessment/start/index.html`: retained the 29 October assessment and progressive result flow; added the four support-choice routes. Complete-offer choice now precedes result-email delivery. Scored £37 single-stage, qualifying £74 Pair and Bare Minimum routes retain their checkout mapping.
-- `assessment/result/index.html`: aligned saved-result access to the final support choice, email and checkout sequence.
-- `assessment/choice/index.html`: replaced both tracking endpoints with the development placeholder to prevent a review click from writing journey events to a production backend.
-- `phase3/YMS_V3_VERSION25_FINAL_CHOICE_DEV.gs`: added the final-choice save/finalize path to the supplied Version 25 source. The candidate defers result email until the final choice is saved, uses Google MailApp for result delivery, restricts Complete email content to the chosen offer, and includes saved-result access.
+### Requirements applied
 
-Commits:
+- Question 1: “Which sounds most like what you want now?” with four recovered answer routes:
+  - Self-work: “I want help understanding myself, breaking the cycle and getting my mind back.”
+  - Understand him: “I mainly want to understand him and what his behaviour means.”
+  - Change him: “I mainly want help getting him back or changing his behaviour.”
+  - Unsure: “I'm not sure yet.”
+- Q1 wording and the Q1-to-offer route decision were recovered from prior approved conversation records, not from a surviving source commit. The specific restoration patch referenced in earlier notes is not present in this repository. Treat this provenance limitation as known.
+- The two Q1 routes focused on understanding/changing him use The Bare Minimum (£4.99). Self-work and unsure continue to the approved 12-week support question and its four offer routes.
+- Q2 wording, the four support answers, their £117/£147/£197 offer permissions, final-choice saving, saved-result access and direct checkout are retained.
+- The 29 October design and progressive personalised explanation remain the candidate baseline. No Bootcamp route was added.
+- The development Apps Script is pinned to the separate synthetic-only spreadsheet and blocks purchase sync, maintenance actions and email delivery.
 
-- Frontend assessment: `839c127e642a0109c99cf7a3e0e75d5a052ed4b2`
-- Saved-result page: `6b54477cdd856c7fbb054786ad118a4573b19010`
-- Version 25 backend candidate: `7d66aa862ed454a53098d12ecb30d4c781922d06`
-- Email-choice redirect isolation: `83f92540482de002dbb0747b1b4b24e8af46a77d`
-- Phase 3 status log: `31b0fd674bd7bd9933d3cab0edc9ca8aac599541`
+### Isolated development resources
 
-Completed offline review work:
+- Test spreadsheet: `1bxNPutXUvy62hCxBzkKBOFFQOCbEKXNtnn8WixsjWAg` — tabs `V3 Responses` and `V3 Journey Events`; verified header-only, with no synthetic or customer rows written.
+- Apps Script project: `1q3wcaTAy_tqtN6dsPxidOKEyrDS85zITXmB9CPwvd5cQWb7yntojd87-`, titled “YMS Phase 3 DEV - Isolated Backend”. Candidate code is saved in the project but is not deployed.
+- A Web App deployment was not completed. Google displayed its “Google hasn’t verified this app” OAuth warning. The warning was not bypassed. There is no dev deployment ID or endpoint URL yet; frontend API URL placeholders remain.
 
-- Generated 14 real-template email previews: four £37 singles, six £74 Pairs, three final-choice Complete variants (£117/£147/£197), and Bare Minimum. Each has HTML and plain-text output, subject and CTA details. The MailApp send function was stubbed; no email was sent. The saved-result token is a non-working demo value. The review artifact is in ChatGPT Library as `Your Mind Story result email previews`.
-- Offline source-level assertions passed for all four support-choice allowlists, all 4 single routes, all 6 Pair routes, all 3 selected-offer email variants and saved-result links. These checks do not exercise the browser, Apps Script service, spreadsheet or email delivery.
-- JavaScript syntax checks passed for both assessment page scripts and the Apps Script source (parsed as JavaScript).
-- Remote branch files were fetched and matched the local development copies.
+### Checks completed
 
-Unresolved before acceptance:
+- JavaScript syntax checks passed for both assessment page scripts and the Apps Script source.
+- A local harness exercised the candidate Apps Script final-choice validation with synthetic in-memory rows: 15 route/validation checks passed, covering all support-answer offer permissions, both Bare Minimum branches, invalid offer rejection, Q1 answer validation, lower-score scored routes and development email suppression. Mock MailApp send count was zero.
+- Checkout destination mapping was inspected in source; no checkout was opened and no transaction occurred.
+- The 14 email-template preview artifact remains available for owner review. It contains HTML and plain text previews, uses synthetic data, and no email was sent.
 
-- The exact Q1 stem and all answer wording/branch mapping are not yet verified. The historic answer options appear in `assets/yms-product-routing-v2.js`, but that file does not contain the question stem or branch mapping. `quiz_2.html` contains the scored assessment and does not contain this conditional result-stage Q1. The cited restoration patch SHA `dda45d118edc715ce2e0cbb3e5044371ca99a0fa` is not available in this repository. The readiness prompt currently present in the candidate was copied from the V4 preview and is not verified as the approved September Q1. Do not treat it as locked copy or release it.
-- The Apps Script candidate still targets the existing V3 workbook ID. The frontend API URLs are placeholders. No isolated endpoint or safe data target exists yet.
-- No full route, consent, resume/retry, checkout or email-delivery acceptance tests have been run.
+### Still blocked before browser acceptance
 
-Boundaries:
+- The deployed browser journey cannot be tested until the isolated Web App is authorized and deployed. Google’s unverified-app warning is the blocker. The candidate must not be tested against the production backend or production spreadsheet as a workaround.
+- Therefore CORS, Apps Script persistence in the dev sheet, resume/retry, real browser consent behavior, and actual saved-result/email timing are not yet end-to-end verified.
+- Production release remains out of scope until all acceptance checks pass and a separate release decision is made.
 
-- No Apps Script deployment was created or changed. No production website, Apps Script, sheet, customer submission, email or checkout was touched.
-- No live flow, route behaviour, email delivery or checkout has been tested.
+### Latest branch commits
+
+- Backend isolation and Q1 routing: `9ff1ec3bc12f79578080fcb05b98050e06d7c928`
+- Assessment journey update: `440d487ae6c4d2f32501eefe33136f78cbf8f5ee`
+- Saved-result journey update: `0fdbe79801d44476855e3d0fe15b34a14556f6a9`
+
+## Previous Phase 3 artifacts
+
+- Email previews: 14 variants — four £37 singles, six £74 pairs, three Complete choice emails (£117/£147/£197), and Bare Minimum. No real email was sent. The review artifact is in ChatGPT Library as “Your Mind Story result email previews”.
+- The Pages API URL remains a development placeholder until a dev Web App endpoint exists.
