@@ -145,8 +145,8 @@ if(qual.length===0){
  const link=full?'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx':stages.length===1?links[stageCopy[stages[0]].name]:pairLinks[stages.join('|')];
  const routeName=full?'Return to Yourself — Self-Guided':stages.length===1?'Single Stage':'Two-Stage Pair';
  const ctaText=full?'CHOOSE YOUR RECOMMENDED OPTION':stages.length===1?'I WANT TO '+stageNames[stages[0]].toUpperCase(): 'I WANT TO START GETTING MYSELF BACK';
- const readinessQuestion=full&&total>=15?'<div class=\"readiness-choice\"><h2>Where are you in your readiness to work on this?</h2><div class=\"support-options\" role=\"group\" aria-label=\"Choose your readiness answer\"><button type=\"button\" class=\"readiness-answer support-answer\" data-readiness=\"1\" aria-pressed=\"false\">I know understanding alone isn&#39;t enough and I&#39;m ready to start working on this.</button><button type=\"button\" class=\"readiness-answer support-answer\" data-readiness=\"2\" aria-pressed=\"false\">I&#39;m ready for a structured process and willing to participate in it consistently.</button><button type=\"button\" class=\"readiness-answer support-answer\" data-readiness=\"3\" aria-pressed=\"false\">I know something needs to change, but I&#39;m not sure I&#39;m ready to actively work on it yet.</button><button type=\"button\" class=\"readiness-answer support-answer\" data-readiness=\"4\" aria-pressed=\"false\">Right now, I&#39;m mainly looking to understand what is happening.</button></div></div>':'';
- cta=full?'<div class=\"support-choice\">'+readinessQuestion+'<h2>One more thing.</h2><p>This pattern didn&#39;t develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That&#39;s why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p><strong>Would you like more personal support than this?</strong></p><div class=\"support-options\" role=\"group\" aria-label=\"Choose your level of support\"><button type=\"button\" class=\"support-answer\" data-support-route=\"independent\" aria-pressed=\"false\">I&#39;m happy to work independently</button><button type=\"button\" class=\"support-answer\" data-support-route=\"additional\" aria-pressed=\"false\">I want additional support</button><button type=\"button\" class=\"support-answer\" data-support-route=\"some\" aria-pressed=\"false\">I think some support would help me with this</button><button type=\"button\" class=\"support-answer\" data-support-route=\"unsure\" aria-pressed=\"false\">I&#39;m not sure where to start. I&#39;d like you to recommend what would help me most.</button></div><div id=\"final-offer-options\" class=\"final-offer-options\" hidden></div><p id=\"finalize-error\" class=\"error\" role=\"alert\" hidden></p></div><p>I can&#39;t help you change him. But I can help you get out of the exhausting loop you&#39;re in, so you can take your power back and have more control than he has over how you feel in your life.</p>':'<p><a class=\"next\" href=\"'+link+'\" data-rec-product=\"'+name+'\" data-rec-route=\"'+routeName+'\" data-rec-price=\"'+price+'\" data-final-offer-option=\"scored_route\">'+ctaText+'</a></p><p>I can\'t help you change him. But I can help you get out of the exhausting loop you\'re in, so you can take your power back and have more control than he has over how you feel in your life.</p>';
+ const readinessQuestion=full&&total>=15?'<div class="goal-choice"><h2>Which sounds most like what you want now?</h2><div class="support-options" role="group" aria-label="Choose what you want help with"><button type="button" class="goal-answer support-answer" data-goal-choice="self_work" aria-pressed="false">I want help understanding myself, breaking the cycle and getting my mind back.</button><button type="button" class="goal-answer support-answer" data-goal-choice="understand_him" aria-pressed="false">I mainly want to understand him and what his behaviour means.</button><button type="button" class="goal-answer support-answer" data-goal-choice="change_him" aria-pressed="false">I mainly want help getting him back or changing his behaviour.</button><button type="button" class="goal-answer support-answer" data-goal-choice="unsure" aria-pressed="false">I&#39;m not sure yet.</button></div></div>':'';
+ cta=full?'<div class=\"support-choice\">'+readinessQuestion+'<div class="support-question" '+(readinessQuestion?'hidden':'')+'><h2>One more thing.</h2><p>This pattern didn&#39;t develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That&#39;s why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p><strong>Would you like more personal support than this?</strong></p><div class=\"support-options\" role=\"group\" aria-label=\"Choose your level of support\"><button type=\"button\" class=\"support-answer\" data-support-route=\"independent\" aria-pressed=\"false\">I&#39;m happy to work independently</button><button type=\"button\" class=\"support-answer\" data-support-route=\"additional\" aria-pressed=\"false\">I want additional support</button><button type=\"button\" class=\"support-answer\" data-support-route=\"some\" aria-pressed=\"false\">I think some support would help me with this</button><button type=\"button\" class=\"support-answer\" data-support-route=\"unsure\" aria-pressed=\"false\">I&#39;m not sure where to start. I&#39;d like you to recommend what would help me most.</button></div><div id=\"final-offer-options\" class=\"final-offer-options\" hidden></div><p id=\"finalize-error\" class=\"error\" role=\"alert\" hidden></p></div><div id=\"goal-route-result\" class=\"final-offer-options\" hidden></div></div><p>I can&#39;t help you change him. But I can help you get out of the exhausting loop you&#39;re in, so you can take your power back and have more control than he has over how you feel in your life.</p>':'<p><a class=\"next\" href=\"'+link+'\" data-rec-product=\"'+name+'\" data-rec-route=\"'+routeName+'\" data-rec-price=\"'+price+'\" data-final-offer-option=\"scored_route\">'+ctaText+'</a></p><p>I can\'t help you change him. But I can help you get out of the exhausting loop you\'re in, so you can take your power back and have more control than he has over how you feel in your life.</p>';
 }
 let el=document.getElementById('result');el.classList.add('active');
 let panels=[];
@@ -205,7 +205,7 @@ const completeChoices={
  reality_reset:{product:'Return to Yourself + Reality Reset',route:'Reality Reset',price:147,url:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',title:'Return to Yourself + Reality Reset',desc:'Everything in the self-guided programme, plus the workbook and a private 20-minute conversation with Onye.',button:'CHOOSE REALITY RESET — £147'},
  pattern_break:{product:'Return to Yourself + Pattern Break Session',route:'Pattern Break Session',price:197,url:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break',title:'Return to Yourself + Pattern Break Session',desc:'Everything in the self-guided programme, plus the workbook and a private 50-minute solution-focused CBT session with Onye.',button:'CHOOSE PATTERN BREAK — £197'}
 };
-let supportPreference='',readinessAnswer='';
+let supportPreference='',goalChoiceId='',goalChoiceAnswer='';
 function renderCompleteOffers(choiceId){
  const target=el.querySelector('#final-offer-options');
  if(!target)return;
@@ -220,12 +220,16 @@ function renderCompleteOffers(choiceId){
  target.hidden=false;
 }
 el.addEventListener('click',e=>{
- const ready=e.target.closest('.readiness-answer');
- if(ready){
-  readinessAnswer=ready.textContent.trim();
-  el.querySelectorAll('.readiness-answer').forEach(b=>b.setAttribute('aria-pressed',String(b===ready)));
-  postJourneyEvent('readiness_answer_selected',{answer_id:ready.dataset.readiness});
-  track('readiness_answer_selected',{answer_id:ready.dataset.readiness});
+ const goal=e.target.closest('.goal-answer');
+ if(goal){
+  goalChoiceId=goal.dataset.goalChoice||'';goalChoiceAnswer=goal.textContent.trim();
+  el.querySelectorAll('.goal-answer').forEach(b=>b.setAttribute('aria-pressed',String(b===goal)));
+  postJourneyEvent('goal_choice_selected',{choice_id:goalChoiceId});track('goal_choice_selected',{choice_id:goalChoiceId});
+  const bm=['understand_him','change_him'].includes(goalChoiceId);
+  el.querySelector('.support-question').hidden=bm;
+  el.querySelector('#final-offer-options').hidden=bm;
+  const bmBox=el.querySelector('#goal-route-result');bmBox.hidden=!bm;
+  if(bm){const offer={product:'The Bare Minimum',route:'Bare Minimum',price:4.99,url:'https://stan.store/Yourmindstory/p/the-bare-minimum',title:'The Bare Minimum',desc:'Five non-negotiables to help you stay healthy in love and get clear on what you need and will accept.'};bmBox.innerHTML='<div class=\"final-offer-card final-offer-primary\"><p class=\"eyebrow\">A SMALLER FIRST STEP</p><h3>'+offer.title+' · £4.99</h3><p>'+offer.desc+'</p><a class=\"next\" href=\"'+offer.url+'\" data-rec-product=\"The Bare Minimum\" data-rec-route=\"Bare Minimum\" data-rec-price=\"4.99\" data-final-offer-option=\"bare_minimum\">START WITH THE BARE MINIMUM</a></div>';}
   return;
  }
  const answer=e.target.closest('.support-answer:not(.readiness-answer)');
@@ -244,13 +248,14 @@ el.addEventListener('click',e=>{
 async function finalizeResultChoice(link){
  const id=journeyIdentity();
  if(!id.resultToken)throw new Error('Your saved result token is missing. Please reload your result before continuing.');
- if(recommendationCategory==='return_to_you_series'&&total>=15&&!readinessAnswer)throw new Error('Please choose your readiness answer before continuing.');
+ if(recommendationCategory==='return_to_you_series'&&total>=15&&!goalChoiceId)throw new Error('Please choose the answer that fits what you want now.');
+ if(recommendationCategory==='return_to_you_series'&&!(goalChoiceId==='understand_him'||goalChoiceId==='change_him')&&!supportPreference)throw new Error('Please choose the support answer that fits you best.');
  const payload={action:'finalizeResultV3',resultToken:id.resultToken,submissionId:id.submissionId,
   finalOfferOption:link.dataset.finalOfferOption||'scored_route',
   finalOfferProduct:link.dataset.recProduct||'',
   finalOfferRoute:link.dataset.recRoute||'',
   finalOfferPrice:Number(link.dataset.recPrice||0),
-  supportPreference:supportPreference||'',readiness:readinessAnswer};
+  supportPreference:supportPreference||'',goalChoiceId:goalChoiceId,goalChoiceAnswer:goalChoiceAnswer};
  const response=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),keepalive:true});
  if(!response.ok)throw new Error('Could not save your final offer choice.');
  const data=await response.json();
