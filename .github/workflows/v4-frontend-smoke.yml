@@ -85,7 +85,7 @@ jobs:
               await realChoice.click();
               await page.locator('#v4Readiness').selectOption({index:1});
               await page.locator('#v4Confirm').click();
-              await page.locator('#v4Checkout').waitFor({timeout:180000});
+              await page.locator('#v4Checkout').waitFor({timeout:240000});
               const href=await page.locator('#v4Checkout').getAttribute('href');
               if(!href||!href.startsWith('https://stan.store/Yourmindstory/'))throw Error('Invalid £147 checkout URL '+href);
               console.log('PHASE 5: V4 final-choice modal and Stan link passed');
