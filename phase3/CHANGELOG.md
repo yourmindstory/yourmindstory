@@ -61,3 +61,16 @@ This entry supersedes the earlier statements above that the development Web App 
 - The first full run passed the eight Complete support-choice combinations and both goal routes. It then exposed a scored £74 Pair naming mismatch: the candidate was sending a display title joined with “+” where the backend validates the canonical stage names joined with “→”. The candidate now sends canonical data values while keeping the existing display title and checkout URL.
 - Latest run on commit `9db24a50456993e8766a2839c03296d7facc60e0` passed seven cases and then timed out waiting for the result panel on `unsure-pattern-break`. The corrected Pair, £37 Single and Bare Minimum browser routes have not yet passed on the corrected candidate.
 - Acceptance is therefore incomplete. No production Pages settings, live Apps Script, V3 customer sheet, real email, or purchase transaction was used or changed.
+
+## 2026-11-01 — scored-route acceptance completed
+
+This entry supersedes the incomplete acceptance status above.
+
+- GitHub Actions run `41345404018`, commit `8fda21745bf69a8788b79162972d6991331b9bd2`: PASS for the corrected £74 Pair, £37 Single and Bare Minimum routes; PASS for the earlier quiz question bank matching `main`.
+- The run confirmed the saved final offer matches the selected canonical backend product, the development email remains suppressed, and the browser uses the expected direct Stan URL. Checkout navigation remains local to the test sentinel; no Stan checkout or transaction occurred.
+- A prior full run on the same customer-choice code passed the eight Complete support-choice combinations and both Q1 goal routes. Those ten routes are unchanged by the later scored-route URL/data-value corrections. Together, the runs provide passing evidence for all 13 acceptance cases. The entire 13-case suite did not finish green in one run because a repeated full run intermittently timed out while rendering a previously passing support route.
+- Scored-route corrections made on the Phase 3 branch:
+  - Backend data now uses the canonical stage names separated by `→`, while customer-facing pair display text remains unchanged.
+  - Single-stage Stan account URLs now use the same account-path capitalization as the other offer links.
+- The current workflow targets the three scored routes that remained unverified. The full case list remains in `phase3/acceptance/browser-smoke.mjs`; running it without a case filter exercises all cases.
+- No production deployment or production data changes were made. This completes development acceptance only; it does not authorize production release.
