@@ -49,3 +49,15 @@ The approved customer journey baseline is applied to the isolated candidate. No 
 
 - Email previews: 14 variants — four £37 singles, six £74 pairs, three Complete choice emails (£117/£147/£197), and Bare Minimum. No real email was sent. The review artifact is in ChatGPT Library as “Your Mind Story result email previews”.
 - The Pages API URL remains a development placeholder until a dev Web App endpoint exists.
+
+## 2026-11-01 — development deployment and browser acceptance update
+
+This entry supersedes the earlier statements above that the development Web App was not deployed and browser acceptance was blocked.
+
+- Owner-provided development deployment: `AKfycbyd5qw34QrENt1QRsipO0b6o0G-FNpzKAHdOq5vHpYnhXRr1aILiocCtHPHn_LvaYzjiA`.
+- Its read-only status response identified build `phase3-dev-2026-11-01`; the assessment candidate in `assessment/start/index.html` points to this development endpoint.
+- Development spreadsheet remains `1bxNPutXUvy62hCxBzkKBOFFQOCbEKXNtnn8WixsjWAg`, the synthetic-only sheet under the Your Mind Story account. Browser acceptance uses synthetic `.invalid` addresses; development email delivery is suppressed.
+- Added a branch-only GitHub Actions browser acceptance workflow and route harness. It checks that the earlier quiz question bank matches `main`, tests the four support answers and their allowed offers, both goal routes, saved-result persistence, final offer saving, email suppression, direct checkout URLs and retired Bootcamp absence. The synthetic checkout click is redirected to a local test sentinel; no Stan checkout or transaction is opened.
+- The first full run passed the eight Complete support-choice combinations and both goal routes. It then exposed a scored £74 Pair naming mismatch: the candidate was sending a display title joined with “+” where the backend validates the canonical stage names joined with “→”. The candidate now sends canonical data values while keeping the existing display title and checkout URL.
+- Latest run on commit `9db24a50456993e8766a2839c03296d7facc60e0` passed seven cases and then timed out waiting for the result panel on `unsure-pattern-break`. The corrected Pair, £37 Single and Bare Minimum browser routes have not yet passed on the corrected candidate.
+- Acceptance is therefore incomplete. No production Pages settings, live Apps Script, V3 customer sheet, real email, or purchase transaction was used or changed.
