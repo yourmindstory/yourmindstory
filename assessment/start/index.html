@@ -22,7 +22,7 @@ const Q=[
 ];
 const OMITTED_QUESTION_INDEX=13;
 const DISPLAY_QUESTION_COUNT=Q.length-1;
-const V3_BACKEND='__SET_ISOLATED_APPS_SCRIPT_DEV_URL__';
+const V3_BACKEND='https://script.google.com/macros/s/AKfycbyd5qw34QrENt1QRsipO0b6o0G-FNpzKAHdOq5vHpYnhXRr1aILiocCtHPHn_LvaYzjiA/exec';
 let a=Array(15).fill(null),i=0,lead=null;
 try{if(window.YMSQuiz&&YMSQuiz.captureAttribution)YMSQuiz.captureAttribution()}catch(e){}
 (function(){try{if(localStorage.getItem('yms_analytics_consent')!=='yes')return;let p=new URLSearchParams(location.search),keys=['utm_source','utm_medium','utm_campaign','utm_id','utm_term','utm_content','landing_variant'];if(!sessionStorage.getItem('yms_v3_landing_url')){sessionStorage.setItem('yms_v3_landing_url',location.href);sessionStorage.setItem('yms_v3_referrer',document.referrer||'')}keys.forEach(k=>{if(p.get(k))sessionStorage.setItem('yms_v3_'+k,p.get(k))})}catch(e){}})();
