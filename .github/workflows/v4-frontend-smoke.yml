@@ -84,8 +84,12 @@ jobs:
               await realChoice.waitFor({state:'visible',timeout:20000});
               await realChoice.click();
               await page.locator('#v4Readiness').selectOption({index:1});
+              const choiceStart=Date.now();
               await page.locator('#v4Confirm').click();
-              await page.locator('#v4Checkout').waitFor({timeout:240000});
+              await page.locator('#v4Checkout').waitFor({timeout:60000});
+              const choiceMs=Date.now()-choiceStart;
+              console.log('FINAL SUPPORT CHOICE LATENCY (ms):',choiceMs);
+              if(choiceMs>30000)throw Error('V4 support choice took longer than 30 seconds: '+choiceMs);
               const href=await page.locator('#v4Checkout').getAttribute('href');
               if(!href||!href.startsWith('https://stan.store/Yourmindstory/'))throw Error('Invalid £147 checkout URL '+href);
               console.log('PHASE 5: V4 final-choice modal and Stan link passed');
