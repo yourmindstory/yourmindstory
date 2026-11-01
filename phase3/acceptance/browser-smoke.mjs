@@ -150,7 +150,7 @@ async function runCase(test) {
     assert(saved && saved.confirmed && saved.resultToken, test.id + ": saved-result token missing before checkout");
 
     const finalizeResponsePromise = page.waitForResponse(response => {
-      if (!response.url().includes(API) || response.request().method() !== "POST") return false;
+      if (!response.request().url().includes(API) || response.request().method() !== "POST") return false;
       try { return response.request().postDataJSON().action === "finalizeResultV3"; } catch { return false; }
     }, { timeout:15000 });
     const checkoutRequestPromise = page.waitForRequest(request => request.url().startsWith("https://stan.store/"), { timeout:15000 });
