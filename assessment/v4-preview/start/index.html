@@ -167,9 +167,17 @@ async function v4OfferDecision(link,handoff){
    supportPreference:complete?{id:option,answer:label}:null,
    hesitation:hesitation?{id:'other',answer:hesitation}:null};
   try{
-   const resp=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-   const data=await resp.json();
-   if(!data.ok||data.status!=='choice_recorded_after_email')throw Error('A V4 backend update is required before this support choice can be recorded. This preview is not ready for customers.');
+   let data=null;
+   for(let attempt=0;attempt<6;attempt++){
+    const resp=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    data=await resp.json();
+    if(data.ok&&data.resultEmailSent&&(data.status==='choice_recorded_after_email'||data.status==='finalized'))break;
+    if(data.code!=='BUSY'&&data.code!=='SERVER_ERROR')throw Error(data.message||'Your choice could not be saved. Please try again.');
+    overlay.querySelector('#v4DecError').textContent='Your assessment is still finishing securely. We are confirming your choice.';
+    if(attempt===5)throw Error('The server is still busy. Please try your choice again.');
+    await new Promise(resolve=>setTimeout(resolve,1800+attempt*800));
+   }
+   if(!data||!data.ok||!data.resultEmailSent)throw Error('Your support choice could not be confirmed. Please try again.');
    overlay.querySelector('#v4DecError').textContent='';
    overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>Your personalised result email has been submitted for delivery. Check your inbox.</p><p><a id="v4Checkout" class="next" href="${link.href}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button class="back" id="v4Finish">Return to results</button></p>`;
    overlay.querySelector('#v4Checkout').addEventListener('click',()=>handoff(link));
