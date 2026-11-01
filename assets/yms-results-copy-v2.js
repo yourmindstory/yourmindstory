@@ -105,7 +105,7 @@
     return true;
   }
 
-  function renderBootcamp(container, data) {
+  function renderCompleteJourney(container, data) {
     var card = container.closest ? container.closest(".result-card") : null;
     if (!card) card = container;
     var firstName = data && data.firstName ? String(data.firstName).trim() : "";
@@ -138,7 +138,7 @@
     var level = data.recommendationLevel || "";
 
     if (level === "bootcamp_level") {
-      renderBootcamp(container, data);
+      renderCompleteJourney(container, data);
       return;
     }
 

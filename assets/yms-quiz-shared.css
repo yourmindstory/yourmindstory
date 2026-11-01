@@ -279,7 +279,7 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
   margin-bottom:10px; font-family:'Fraunces',serif; font-size:17px; color:var(--ink);
 }
 
-/* ---------------- OG Bootcamp bridge + fit check (shared across result pages) ---------------- */
+/* ---------------- Legacy result interface elements (shared across result pages) ---------------- */
 .btn-cta:disabled{opacity:.6; cursor:not-allowed;}
 .form-status{font-size:13px; color:var(--ink); opacity:.6; text-align:center; margin-top:14px; display:none;}
 .form-status.show{display:block;}
@@ -305,7 +305,7 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 .fc-other-input{width:100%; padding:13px 14px; border:1.5px solid var(--sage-soft); border-radius:8px; font-family:'Inter',sans-serif; font-size:15px; background:var(--warm-cream); color:var(--ink);}
 .fc-nav{display:flex; justify-content:space-between; align-items:center; margin-top:26px;}
 
-/* ---------------- Bootcamp recommendation section (result pages) ---------------- */
+/* ---------------- Legacy recommendation section (result pages) ---------------- */
 .og-label{display:block; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--warm-earth); font-weight:600; margin:0 0 14px;}
 .og-steps{list-style:none; margin:0 0 6px; padding:0;}
 .og-steps li{background:var(--warm-cream); border-radius:10px; padding:16px 18px; margin-bottom:10px;}
