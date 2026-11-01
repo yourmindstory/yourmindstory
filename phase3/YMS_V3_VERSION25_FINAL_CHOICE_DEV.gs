@@ -21,8 +21,9 @@
  * until it is re-authorised. The Gmail-based Stan purchase sync lives in a separate project.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V3';
-var V3_BACKEND_BUILD = '2026-10-28-funnel-report-stan';
-var V3_SHEET_ID = '1MRK7_t-_HN8OCHpK8tm1E8QWXexo8ACLMTdsqZjaoXE';
+var V3_BACKEND_BUILD = 'phase3-dev-2026-11-01';
+var V3_DEV_MODE = true;
+var V3_SHEET_ID = '1bxNPutXUvy62hCxBzkKBOFFQOCbEKXNtnn8WixsjWAg';
 var V3_SHEET_NAME = 'V3 Responses';
 var V3_PURCHASES_SHEET_NAME = 'Stan Purchases';
 
@@ -56,7 +57,7 @@ var V3_EXTRA_HEADERS = [
   'Purchase Order ID','Purchase Currency','Purchase Match Method','Purchase Matches Recommendation',
   'Source (Derived v2)',
   'Final Offer Option','Final Offer Product','Final Offer Route','Final Offer Price',
-  'Support Choice ID','Support Choice Answer','Final Choice Saved UTC','Result Email State'
+  'Support Choice ID','Support Choice Answer','Goal Choice ID','Goal Choice Answer','Final Choice Saved UTC','Result Email State'
 ];
 
 var V3_PURCHASE_HEADERS = [
@@ -109,6 +110,7 @@ var STAN_PAGE_PRODUCTS = {
 function doGet(e) {
   var action = e && e.parameter ? clean_(e.parameter.action) : '';
   if (action === 'sync') {
+    if (V3_DEV_MODE) return ContentService.createTextOutput('sync disabled in development').setMimeType(ContentService.MimeType.TEXT);
     var sync = syncAllV3_();
     var csv = sync.ok ? [['Last sync',sync.syncedAt],['Purchases (all)',sync.purchases],['Matched to an assessment',sync.matchedPurchases],['Unmatched',sync.unmatchedPurchases],['Backend build',V3_BACKEND_BUILD]]
       : [['Last sync','busy, will retry'],['Backend build',V3_BACKEND_BUILD]];
@@ -140,6 +142,8 @@ function doGet(e) {
       finalOfferOption:data['Final Offer Option']||'',
       finalOfferProduct:data['Final Offer Product']||'',
       supportChoiceId:data['Support Choice ID']||'',
+      goalChoiceId:data['Goal Choice ID']||'',
+      goalChoiceAnswer:data['Goal Choice Answer']||'',
       resultEmailState:data['Result Email State']||''
     });
   }
@@ -174,10 +178,9 @@ function doPost(e) {
     // straight into the 'Stan Purchases' tab by the separate 'YMS Stan Purchase Sync' script, which
     // reads Stan's own purchase confirmation emails. These two maintenance actions only recompute
     // derived columns from data already in the Sheet, so they are safe to expose.
-    if (body && body.action === 'rematchPurchases') {
-      return json_(rematchAllPurchasesV3_());
-    }
-    if (body && body.action === 'reclassifySources') {
+    if (body && (body.action === 'rematchPurchases' || body.action === 'reclassifySources')) {
+      if (V3_DEV_MODE) return json_({ok:false,code:'DEV_ACTION_DISABLED',message:'Purchase maintenance is disabled in development.'});
+      if (body.action === 'rematchPurchases') return json_(rematchAllPurchasesV3_());
       return json_(reclassifySourcesV3_());
     }
     if (body && body.action) {
@@ -351,7 +354,7 @@ function handleJourneyRequestV3_(body) {
       return json_({ok:false,status:'error',code:'MISSING_IDENTITY',message:'Missing resultToken, submissionId or journeyId'});
     }
     recordCanonicalJourneyV3_(body, list, identity);
-    if (list.some(function(ev){ return clean_(ev && ev.eventType) === 'purchase_return_view'; })) {
+    if (!V3_DEV_MODE && list.some(function(ev){ return clean_(ev && ev.eventType) === 'purchase_return_view'; })) {
       try { syncAllV3_(); } catch (syncErr) { console.error('Sync after Payhip return failed: ' + syncErr); }
     }
     var sheet = getV3Sheet_();
@@ -554,7 +557,11 @@ function supportChoiceMapV3_() {
     unsure:{answer:"I'm not sure where to start. I'd like you to recommend what would help me most.",allowed:['reality_reset','self_guided','pattern_break']}
   };
 }
+function goalChoiceMapV3_() {
+  return {self_work:{answer:'I want help understanding myself, breaking the cycle and getting my mind back.'},understand_him:{answer:'I mainly want to understand him and what his behaviour means.'},change_him:{answer:'I mainly want help getting him back or changing his behaviour.'},unsure:{answer:"I'm not sure yet."}};
+}
 function finalOfferResultV3_(row, option) {
+  if (option === 'bare_minimum') return {route:'Bare Minimum',product:'The Bare Minimum',price:PRICE_BARE_MINIMUM,category:'bare_minimum',qualifyingStages:[],scores:{quiet:Number(row['Quiet Score']||0),breakPull:Number(row['Break Score']||0),restore:Number(row['Restore Score']||0),returnSelf:Number(row['Return Score']||0)},total:Number(row['Total Score']||0),breadth:Number(row['Breadth']||0)};
   var base={route:String(row['Recommended Route']||''),product:String(row['Recommended Product']||''),
     price:Number(row['Recommended Price']||0),category:String(row['Recommendation Category']||''),
     qualifyingStages:String(row['Qualifying Stages']||'').split(',').map(function(x){return x.trim();}).filter(Boolean),
@@ -580,11 +587,15 @@ function finalizeResultV3_(body) {
       String(row['Qualifying Stages']||'').split(',').map(function(x){return x.trim();}).filter(Boolean).length>=3 &&
       totalScore>=15;
     var readiness=clean_(body.readiness);
-    if(readinessRequired&&!readiness)
-      return {ok:false,code:'READINESS_REQUIRED',message:'Please answer the readiness question before continuing.'};
-    if(readinessRequired&&["I know understanding alone isn't enough and I'm ready to start working on this.", "I'm ready for a structured process and willing to participate in it consistently.", "I know something needs to change, but I'm not sure I'm ready to actively work on it yet.", "Right now, I'm mainly looking to understand what is happening."].indexOf(readiness)===-1)
-      return {ok:false,code:'INVALID_READINESS',message:'Please choose a readiness answer from the list.'};
-    if(String(row['Recommended Route']||'')===SERIES_NAME) {
+    var goalId=clean_(body.goalChoiceId), goalAnswer=clean_(body.goalChoiceAnswer);
+    var goalMap=goalChoiceMapV3_(), goal=goalMap[goalId];
+    if(readinessRequired&&!goal) return {ok:false,code:'GOAL_CHOICE_REQUIRED',message:'Please answer the first question before continuing.'};
+    if(goal && goalAnswer!==goal.answer) return {ok:false,code:'INVALID_GOAL_CHOICE',message:'Please choose an answer from the list.'};
+    if(String(row['Recommended Route']||'')===SERIES_NAME && goal && (goalId==='understand_him'||goalId==='change_him')) {
+      if(option!=='bare_minimum'||supportId) return {ok:false,code:'INVALID_FINAL_CHOICE',message:'This answer must use the recommended starting offer.'};
+      expected={product:'The Bare Minimum',route:'Bare Minimum',price:PRICE_BARE_MINIMUM};
+      choice={option:'bare_minimum',title:expected.product,price:expected.price};
+    } else if(String(row['Recommended Route']||'')===SERIES_NAME) {
       var support=supportChoiceMapV3_()[supportId];
       choice=COMPLETE_CHOICES_V3.filter(function(x){return x.option===option;})[0];
       if(!support||!choice||support.allowed.indexOf(option)===-1)
@@ -593,8 +604,7 @@ function finalizeResultV3_(body) {
       var routeNames={self_guided:'Self-Guided',reality_reset:'Reality Reset',pattern_break:'Pattern Break Session'};
       expected={product:productNames[option],route:routeNames[option],price:choice.price};
     } else {
-      if(option!=='scored_route'||supportId)
-        return {ok:false,code:'INVALID_FINAL_CHOICE',message:'This result must use its scored recommendation.'};
+      if(option!=='scored_route'||supportId||goalId) return {ok:false,code:'INVALID_FINAL_CHOICE',message:'This result must use its scored recommendation.'};
       expected={product:String(row['Recommended Product']||''),route:String(row['Recommended Route']||''),price:Number(row['Recommended Price']||0)};
       choice={option:'scored_route',title:expected.product,price:expected.price};
     }
@@ -609,13 +619,15 @@ function finalizeResultV3_(body) {
       return {ok:true,status:'already_finalized',resultEmailSent:true,provider:clean_(row['Result Email Provider'])};
     if(state==='sending')return {ok:false,code:'SEND_IN_PROGRESS',message:'Your email is being prepared. Please wait a moment.'};
     var now=Utilities.formatDate(new Date(),'UTC',"yyyy-MM-dd'T'HH:mm:ss'Z'");
-    var supportAnswer=String(row['Recommended Route']||'')===SERIES_NAME?support.answer:'';
+    var supportAnswer=(String(row['Recommended Route']||'')===SERIES_NAME && goalId!=='understand_him' && goalId!=='change_him')?supportChoiceMapV3_()[supportId].answer:'';
     setByHeader_(sh,rowNumber,'Final Offer Option',option);
     setByHeader_(sh,rowNumber,'Final Offer Product',expected.product);
     setByHeader_(sh,rowNumber,'Final Offer Route',String(row['Recommended Route']||'')===SERIES_NAME?expected.route:expected.route);
     setByHeader_(sh,rowNumber,'Final Offer Price',expected.price);
     setByHeader_(sh,rowNumber,'Support Choice ID',supportId);
     setByHeader_(sh,rowNumber,'Support Choice Answer',supportAnswer);
+    setByHeader_(sh,rowNumber,'Goal Choice ID',goalId);
+    setByHeader_(sh,rowNumber,'Goal Choice Answer',goalAnswer);
     if(readiness){
       setByHeader_(sh,rowNumber,'Readiness',readiness);
       setByHeader_(sh,rowNumber,'Q14 Readiness Raw',readiness);
@@ -640,7 +652,9 @@ function finalizeResultV3_(body) {
   var finishLock=LockService.getScriptLock();
   if(finishLock.tryLock(10000)) {
     try {
-      if(delivery.ok) {
+      if(delivery.provider==='dev-suppressed') {
+        setByHeader_(sh,rowNumber,'Result Email State','suppressed');
+      } else if(delivery.ok) {
         setByHeader_(sh,rowNumber,'Result Email Sent',Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss'));
         setByHeader_(sh,rowNumber,'Result Email State','sent');
       } else setByHeader_(sh,rowNumber,'Result Email State','failed');
@@ -648,8 +662,10 @@ function finalizeResultV3_(body) {
       setByHeader_(sh,rowNumber,'Result Email Error',String(delivery.error||'').slice(0,1000));
     } finally { finishLock.releaseLock(); }
   }
+  var suppressed=delivery.provider==='dev-suppressed';
   return {ok:delivery.ok===true,status:delivery.ok?'finalized':'email_failed',
-    resultEmailSent:delivery.ok===true,provider:delivery.provider||'none',finalOffer:expected.product};
+    resultEmailSent:delivery.ok===true&&!suppressed,resultEmailSuppressed:suppressed,
+    provider:delivery.provider||'none',finalOffer:expected.product};
 }
 
 function productUrlV3_(result) {
@@ -1232,6 +1248,7 @@ var COMPLETE_CHOICES_V3 = [
 ];
 
 function sendResultEmailV3_(body,result,resultToken,journeyId,submissionId,finalOfferOption) {
+  if (V3_DEV_MODE) return {ok:true,provider:'dev-suppressed',error:'Email delivery disabled in development; preview only.'};
   // The Bare Minimum route is deliberately untouched: same subject, body, link and routing as before.
   if (result.route === 'Bare Minimum') {
     return sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId);
@@ -1399,6 +1416,7 @@ function previewResultEmailsV3() {
 // Run from the editor. Sends one test email per route to RESULT_EMAIL_TEST_TO_V3 through the live
 // delivery path. Writes nothing to the response sheet. Subjects are prefixed [TEST n/12].
 function sendTestResultEmailsV3() {
+  if (V3_DEV_MODE) { console.log('Email sends are disabled in development. Use previewResultEmailsV3() only.'); return ['disabled']; }
   var routes = allResultRoutesV3_(), out = [];
   routes.forEach(function(r, i){
     var tag = '[TEST ' + (i+1) + '/' + routes.length + '] ';
