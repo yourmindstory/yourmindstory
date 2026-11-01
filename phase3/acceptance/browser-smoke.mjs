@@ -104,7 +104,7 @@ async function runCase(test) {
       return response;
     };
   }, { id:test.id });
-  await page.route("**stan.store/**", async route => {
+  await page.route("**/__phase3_checkout_intercept__*", async route => {
     const url = route.request().url();
     checkoutAttempts.push(url);
     await route.abort();
@@ -159,6 +159,9 @@ async function runCase(test) {
     assert.equal(await finalLink.getAttribute("data-rec-product"), test.product, test.id + ": wrong product");
     assert.equal(Number(await finalLink.getAttribute("data-rec-price")), test.price, test.id + ": wrong price");
 
+    // Assert the real Stan URL above, then redirect this synthetic browser click to a local sentinel
+    // so acceptance checks cannot contact Stan or create a checkout session.
+    await finalLink.evaluate((link, destination) => { link.href = destination; }, BASE + "/__phase3_checkout_intercept__");
     const saved = await page.evaluate(() => JSON.parse(sessionStorage.getItem("yms_v3_last_submission") || "null"));
     assert(saved && saved.confirmed && saved.resultToken, test.id + ": saved-result token missing before checkout");
 
@@ -167,7 +170,7 @@ async function runCase(test) {
       Promise.race([finalizeEvent, delay(15000).then(() => { throw new Error("Timed out waiting for final-choice API result"); })]),
       Promise.race([checkoutInterception, delay(15000).then(() => { throw new Error("Stan checkout request was not intercepted"); })])
     ]);
-    assert(checkoutUrl.startsWith("https://stan.store/"), test.id + ": intercepted checkout destination was unexpected");
+    assert(checkoutUrl.startsWith(BASE + "/__phase3_checkout_intercept__"), test.id + ": local checkout sentinel was not intercepted");
     assert(finalize && finalize.ok, test.id + ": final choice did not save: " + JSON.stringify(finalize));
     assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
     assert.equal(finalize.finalOfferOption, test.offer, test.id + ": wrong final offer option sent");
