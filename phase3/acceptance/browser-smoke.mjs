@@ -34,6 +34,7 @@ const branchHtml = await (await import("node:fs/promises")).readFile("assessment
 execFileSync("git", ["fetch", "--depth=1", "origin", "main"], { stdio:"inherit" });
 const mainHtml = execFileSync("git", ["show", "FETCH_HEAD:assessment/start/index.html"], { encoding:"utf8" });
 assert.equal(questionBank(branchHtml), questionBank(mainHtml), "Earlier quiz question text/options/order changed from main");
+assert(branchHtml.includes(API), "Candidate assessment is not wired to the isolated development backend");
 
 const server = spawn("python3", ["-m", "http.server", "4173", "--bind", "127.0.0.1", "--directory", process.cwd()], { stdio:"ignore" });
 let browser;
@@ -110,7 +111,7 @@ async function runCase(test) {
     await page.locator("#form #next").click();
     await page.locator("#fn").fill("Phase 3 synthetic");
     await page.locator("#em").fill("phase3.synthetic+" + test.id + "@example.invalid");
-    await page.locator("#capgo").click();
+    assert.equal(await page.locator("#mc").isChecked(), false, "marketing consent must remain unchecked");
     await page.locator(".result-panel.active").waitFor({ state:"visible", timeout:20000 });
 
     while (await page.locator(".result-panel.active .result-next").count()) {
@@ -145,7 +146,7 @@ async function runCase(test) {
     assert.equal(Number(await finalLink.getAttribute("data-rec-price")), test.price, test.id + ": wrong price");
 
     await finalLink.click({ timeout:10000 }).catch(() => {});
-    await page.waitForFunction(() => (window.__phase3ApiResults || []).some(x => x.action === "finalizeResultV3"), { timeout:15000 });
+    await page.waitForFunction(() => (window.__phase3ApiResults || []).some(x => x.action === "finalizeResultV3"), null, { timeout:15000 });
     const finalize = await page.evaluate(() => window.__phase3ApiResults.filter(x => x.action === "finalizeResultV3").at(-1));
     assert(finalize && finalize.ok, test.id + ": final choice did not save");
     assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
