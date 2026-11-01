@@ -8,9 +8,9 @@
 <!--
   Your Mind Story — result-email choice redirect (Complete route).
   Path: /assessment/choice/   (index.html)
-  Used ONLY by the V3 result email's three Complete buttons:
+  Used by both V3 and V4 result-email Complete buttons, routed by journey/submission ID:
     ?o=self_guided | reality_reset | pattern_break  &jid=…&sid=…&utm_*=…
-  1. Records one first-party click event on the V3 backend (not a purchase).
+  1. Records the click with the matching assessment backend, V3 or V4 (not a purchase).
   2. Forwards immediately to the matching Stan offer (allowlist below, no open redirect).
 -->
 <style>
@@ -30,7 +30,8 @@
 </main>
 <script>
 (function () {
-  var BACKEND = 'https://script.google.com/macros/s/AKfycbzDtA92i-aQeyeuamBdA4LbxGUruh55qxSOk_nwLncBM3stllbZoaipxNzKb9xyTveLdA/exec';
+  var BACKEND_V3 = 'https://script.google.com/macros/s/AKfycbzDtA92i-aQeyeuamBdA4LbxGUruh55qxSOk_nwLncBM3stllbZoaipxNzKb9xyTveLdA/exec';
+  var BACKEND_V4 = 'https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec';
   var CHOICES = {
     self_guided:   { event: 'complete_self_guided_click', product: 'Return to Yourself — Self-Guided',           price: '117',
                      url: 'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx' },
@@ -50,6 +51,7 @@
   var destination = dest.toString();
 
   var jid = q.get('jid') || '', sid = q.get('sid') || '';
+  var BACKEND = /^YMSV4-J-/.test(jid) || /^YMSV4-S-/.test(sid) ? BACKEND_V4 : BACKEND_V3;
   if ((jid || sid) && CHOICES[q.get('o') || '']) {
     var body = JSON.stringify({
       action: 'recordJourneyEvents',
