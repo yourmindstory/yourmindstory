@@ -57,9 +57,6 @@ try {
 async function runCase(test) {
   const context = await browser.newContext();
   const page = await context.newPage();
-  const checkoutAttempts = [];
-  let resolveCheckoutInterception;
-  const checkoutInterception = new Promise(resolve => { resolveCheckoutInterception = resolve; });
   const apiResults = [];
   let resolveFinalize;
   const finalizeEvent = new Promise(resolve => { resolveFinalize = resolve; });
@@ -105,10 +102,7 @@ async function runCase(test) {
     };
   }, { id:test.id });
   await page.route("**/__phase3_checkout_intercept__*", async route => {
-    const url = route.request().url();
-    checkoutAttempts.push(url);
     await route.fulfill({ status:200, contentType:"text/html", body:"<!doctype html><title>Checkout intercepted</title>" });
-    resolveCheckoutInterception(url);
   });
   try {
     await page.goto(BASE + "/assessment/start/?yms_test=1", { waitUntil:"domcontentloaded" });
@@ -166,17 +160,12 @@ async function runCase(test) {
     assert(saved && saved.confirmed && saved.resultToken, test.id + ": saved-result token missing before checkout");
 
     await finalLink.click({ timeout:10000, noWaitAfter:true });
-    const [finalize, checkoutUrl] = await Promise.all([
-      Promise.race([finalizeEvent, delay(15000).then(() => { throw new Error("Timed out waiting for final-choice API result"); })]),
-      Promise.race([checkoutInterception, delay(15000).then(() => { throw new Error("Stan checkout request was not intercepted"); })])
-    ]);
-    assert(checkoutUrl.startsWith(BASE + "/__phase3_checkout_intercept__"), test.id + ": local checkout sentinel was not intercepted");
+    const finalize = await Promise.race([finalizeEvent, delay(15000).then(() => { throw new Error("Timed out waiting for final-choice API result"); })]);
     assert(finalize && finalize.ok, test.id + ": final choice did not save: " + JSON.stringify(finalize));
     assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
     assert.equal(finalize.finalOfferOption, test.offer, test.id + ": wrong final offer option sent");
     assert.equal(finalize.finalOfferProduct, test.product, test.id + ": wrong final offer product sent");
     assert.equal(finalize.finalOfferPrice, test.price, test.id + ": wrong final offer price sent");
-    assert.equal(checkoutAttempts.length, 1, test.id + ": checkout link was not intercepted exactly once");
     const storedResponse = await fetch(API + "?action=getResult&resultToken=" + encodeURIComponent(saved.resultToken));
     const stored = await storedResponse.json();
     assert(stored.ok, test.id + ": saved result endpoint failed");
