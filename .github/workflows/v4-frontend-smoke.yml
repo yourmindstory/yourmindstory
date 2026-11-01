@@ -66,11 +66,15 @@ jobs:
               await page.locator('#fn').fill('TEST V4 BROWSER');
               await page.locator('#em').fill('yourmindstory.co.uk@gmail.com');
               await page.locator('.consent-opt[data-consent="no"]').click();
+              const captureStarted=Date.now();
               await page.locator('#capgo').click();
               await Promise.race([
                 page.locator('.result-panel.active').waitFor({timeout:90000}),
                 page.locator('#caperr').filter({hasText:/./}).waitFor({timeout:90000}).then(async()=>{throw Error('Email capture save failed: '+await page.locator('#caperr').innerText())})
               ]);
+              const saveMs=Date.now()-captureStarted;
+              console.log('BROWSER VERIFIED SAVE LATENCY (ms):',saveMs);
+              if(saveMs>25000)throw Error('Mobile result took more than 25 seconds to appear: '+saveMs);
               const rec=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}'));
               if(!rec.confirmed||!rec.resultToken||!rec.submissionId)throw Error('Client did not retain result token');
               console.log('PHASE 4: result generated, submission id: '+rec.submissionId);
