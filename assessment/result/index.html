@@ -77,9 +77,17 @@ function showDecision(option){
   const hesitation=document.getElementById('hesitation').value.trim(),btn=document.getElementById('confirm');btn.disabled=true;
   try{
    const body={action:'finalizeResultV4',resultToken:token,finalOfferOption:option,readinessRequired:needsReady,readiness:ready,supportPreference:option?{id:option,answer:title}:null,hesitation:hesitation?{id:'other',answer:hesitation}:null};
-   const res=await fetch(api,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),referrerPolicy:'no-referrer'});
-   const result=await res.json();
-   if(!result.ok||result.status!=='choice_recorded_after_email')throw Error('The support choice could not be verified in V4. Please do not purchase until this is resolved.');
+   let result=null;
+   for(let attempt=0;attempt<6;attempt++){
+     const res=await fetch(api,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),referrerPolicy:'no-referrer'});
+     result=await res.json();
+     if(result.ok&&result.resultEmailSent&&(result.status==='choice_recorded_after_email'||result.status==='finalized'))break;
+     if(result.code!=='BUSY'&&result.code!=='SERVER_ERROR')throw Error(result.message||'The support choice could not be verified.');
+     document.getElementById('message').textContent='We are confirming your choice. Your assessment is still finishing securely.';
+     if(attempt===5)throw Error('The server is still busy. Please try confirming again.');
+     await new Promise(resolve=>setTimeout(resolve,1800+attempt*800));
+   }
+   if(!result||!result.ok||!result.resultEmailSent)throw Error('The support choice could not be verified in V4.');
    document.getElementById('message').innerHTML='Your support choice is saved. <a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a>';
    const checkoutLink=document.querySelector('#message a[href*="stan.store"]');
    if(checkoutLink)checkoutLink.addEventListener('click',()=>{
