@@ -47,3 +47,28 @@ R10. Verify all routes with controlled end-to-end tests.
 
 ## Handoff
 Work should compare the above source-derived requirements with the **live** V4 site and report PASS/FAIL/INTENTIONALLY CHANGED/NOT VERIFIED, with screenshot, URL, test journey ID and code location. Work should **not** research the original checklist again or change anything during the comparison phase. Return a precise list of missing/mismatched items for owner and assistant to approve repairs. Do not claim exact September parity where historical source provenance remains unverified.
+
+
+## 1 November 23:19 implementation verification addendum
+
+Scope: inspected `assessment/v4-preview/start/index.html` on `fix/v4-quiz-email-2026-11-01`. This is a static code review, not a successful customer-journey or backend test.
+
+### Confirmed in the candidate frontend
+- October eight scored question wording is retained; no full revert to September.
+- Progressive result panels are present for qualifying routes.
+- September readiness and barrier text is restored in the Complete route when at least three stage scores reach 3 and the total reaches 15.
+- Both selections are required to advance to the offer screen on that route.
+- A Complete offer is selected among £117, £147 and £197 and submitted via `finalizeResultV4` with `finalOfferOption` and `supportPreference`.
+- Submission sets `deferResultEmail:true`, but successful delivery and the server's actual behaviour remain unverified.
+
+### Remaining release blockers
+1. **Authoritative V4 backend**: candidate still posts to the earlier `AKfycbyHiHPdms...` Apps Script URL, not the newer deployment provided by the owner. Do not swap endpoints until the newer deployment is confirmed to support the exact V4 submission/finalize contract, stored result token, email trigger, and idempotency.
+2. **Decision logic**: the recommendation is computed from scores before readiness/barrier answers. Readiness is persisted at finalization but does not visibly alter the recommendation in the candidate frontend. This may conflict with the owner's requirement that readiness affect the offered next step. Obtain the approved branching rule, not a guessed rule.
+3. **Barrier storage**: the September barrier answer is currently packaged into the `hesitation` payload field, rather than a separately verified backend column. Confirm the intended storage and email use; do not assert parity.
+4. **Non-Complete routes**: readiness and barrier questions do not appear. This is a deliberate current conditional gate, but whether it matches every approved route remains unverified.
+5. **Email**: confirm immediate result receipt/abandonment fallback, final selected-offer message, consent behaviour, no duplicate emails, correct `v4_result_email` UTM, and return link.
+6. **Checkout**: verify actual product URLs, exact £37/£74/£117/£147/£197 choices, paid-provider reconciliation and guarantee terms (14-day versus 21-day unresolved).
+7. **Browser**: perform end-to-end mobile and desktop runs for zero/one/two/three/four affected stages, both readiness outcomes, each barrier option, each Complete support tier, both consent states, refresh/back and abandoned selection. Record screenshots and test submission IDs.
+
+### Release rule
+Do not merge or deploy until the backend contract and decision rule are proven and every route has a PASS with a real result screen, persisted data, delivered email and correct checkout. Preserve live V3 and rollback.
