@@ -105,7 +105,7 @@ function ymsTouch(){let up=new URLSearchParams(location.search),g=k=>up.get(k)||
 function consentState(){try{let v=localStorage.getItem('yms_analytics_consent');return v==='yes'?'yes':v==='no'?'no':'unset'}catch(e){return 'unset'}}
 // Send first-party journey events in serial batches so tracking never overwhelms assessment saves.
 let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false;
-function scheduleV4Flush(delay=900){
+function scheduleV4Flush(delay=60000){
  if(v4ResultAwaitingChoice)return; // Prioritise an actual support choice over nonessential tracking writes.
  if(v4EventTimer)clearTimeout(v4EventTimer);
  v4EventTimer=setTimeout(()=>{v4EventTimer=null;flushV4Events()},delay);
@@ -126,7 +126,7 @@ async function flushV4Events(){
  try{
   await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),keepalive:true});
  }catch(err){console.warn('V4 event batch could not be confirmed',err)}
- finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(300)}
+ finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(60000)}
 }
 function postJourneyEvent(eventType,values={}){postJourneyEvents([[eventType,values]])}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&v4PendingEvents.length){v4ResultAwaitingChoice=false;flushV4Events()}});
