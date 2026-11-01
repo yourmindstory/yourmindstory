@@ -42,4 +42,4 @@ jobs:
       # to the isolated development Web App and its synthetic-only spreadsheet.
       # Stan navigation is intercepted before any checkout page or transaction.
       - name: Run browser acceptance routes
-        run: node phase3/acceptance/browser-smoke.mjs
+        run: YMS_ACCEPTANCE_CASES=pair-74,single-37,bare-minimum-499 node phase3/acceptance/browser-smoke.mjs

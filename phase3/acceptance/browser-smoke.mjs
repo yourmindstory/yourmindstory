@@ -46,8 +46,11 @@ try {
   const root = await fetch(BASE);
   assert(root.ok, "Local GitHub branch preview server did not start");
   browser = await chromium.launch({ headless:true });
-  for (const test of cases) await runCase(test);
-  console.log("PASS: " + cases.length + " browser acceptance routes");
+  const requested = (process.env.YMS_ACCEPTANCE_CASES || "").split(",").map(x => x.trim()).filter(Boolean);
+  const selectedCases = requested.length ? cases.filter(test => requested.includes(test.id)) : cases;
+  assert.equal(selectedCases.length, requested.length || cases.length, "Acceptance case filter contains an unknown case");
+  for (const test of selectedCases) await runCase(test);
+  console.log("PASS: " + selectedCases.length + " browser acceptance routes");
   console.log("PASS: original question bank matches main");
 } finally {
   if (browser) await browser.close();
