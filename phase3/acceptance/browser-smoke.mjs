@@ -18,7 +18,7 @@ const cases = [
   { id:"unsure-pattern-break", scores:[3,3,3,3,3,3,3,3], goal:"unsure", support:"unsure", offer:"pattern_break", allowed:["reality_reset","self_guided","pattern_break"], product:"Return to Yourself + Pattern Break Session", price:197 },
   { id:"goal-understand-him", scores:[3,3,3,3,3,3,3,3], goal:"understand_him", offer:"bare_minimum", product:"The Bare Minimum", price:4.99 },
   { id:"goal-change-him", scores:[3,3,3,3,3,3,3,3], goal:"change_him", offer:"bare_minimum", product:"The Bare Minimum", price:4.99 },
-  { id:"pair-74", scores:[2,2,2,2,1,1,1,1], offer:"scored_route", product:"Quiet the Alarm + Break the Pull", price:74, route:"Two-Stage Pair" },
+  { id:"pair-74", scores:[2,2,2,2,1,1,1,1], offer:"scored_route", product:"Quiet the Alarm → Break the Pull", price:74, route:"Two-Stage Pair" },
   { id:"single-37", scores:[2,2,1,1,1,1,1,1], offer:"scored_route", product:"Quiet the Alarm", price:37, route:"Single Stage" },
   { id:"bare-minimum-499", scores:[1,1,1,1,1,1,1,1], offer:"scored_route", product:"The Bare Minimum", price:4.99, route:"Bare Minimum" }
 ];
