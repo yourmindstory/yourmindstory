@@ -4,7 +4,7 @@
 <script>
 (()=>{
 'use strict';
-const api='https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec';
+const api='__SET_ISOLATED_APPS_SCRIPT_DEV_URL__';
 const token=(new URLSearchParams(location.search).get('resultToken')||new URLSearchParams(location.search).get('token')||'').trim();
 const status=document.getElementById('status'),view=document.getElementById('result');
 const stages=['Quiet the Alarm','Break the Pull','Restore Self-Trust','Return to Yourself'];
@@ -38,7 +38,7 @@ const trackFirstParty=(events)=>{
 const trackAnalytics=(name,params={})=>{
  try{
   if(localStorage.getItem('yms_analytics_consent')!=='yes')return;
-  const extra=Object.assign({assessment_version:'YMS-ASSESSMENT-2026-V4',surface:'saved_result'},params);
+  const extra=Object.assign({assessment_version:'YMS-ASSESSMENT-2026-V3',surface:'saved_result'},params);
   if(window.YMSQuiz&&YMSQuiz.track)YMSQuiz.track(name,extra);
   else if(typeof window.gtag==='function')window.gtag('event',name,extra);
  }catch(e){}
@@ -54,50 +54,90 @@ fetch(api+'?action=getResult&resultToken='+encodeURIComponent(token),{credential
  const stageText=strength.length?strength.map(x=>'<p><strong>'+esc(x.label)+'</strong></p>').join(''):'<p>Your answers did not indicate a strong concentration in one specific stage.</p>';
  const isComplete=d.recommendedRoute==='Return to You Series';
  let offer='';
- if(isComplete){offer=complete.map(x=>'<div class="option"><h2>'+esc(x.title)+' · £'+x.price+'</h2><p>'+esc(x.desc)+'</p><button class="btn choose" type="button" data-id="'+x.id+'">'+(x.id==='self_guided'?'CHOOSE SELF-GUIDED':x.id==='reality_reset'?'CHOOSE REALITY RESET':'CHOOSE PATTERN BREAK')+'</button></div>').join('')}
- else {const price=d.recommendedProduct==='The Bare Minimum'?4.99:d.recommendedRoute==='Two-Stage Pair'?74:37;const url=links[d.recommendedProduct];if(url)offer='<div class="option"><h2>'+esc(d.recommendedProduct)+' · £'+price+'</h2><button type="button" class="btn choose" data-id="">CONTINUE WITH MY RECOMMENDATION</button></div>';}
+ if(isComplete){offer='<div class="option"><h2>Your support choice</h2><p>Continue to the questions that will help match the recommendation to the support you want.</p><button type="button" class="btn" id="start-choice">CONTINUE</button></div>'}
+ else {const price=d.recommendedProduct==='The Bare Minimum'?4.99:d.recommendedRoute==='Two-Stage Pair'?74:37;const url=links[d.recommendedProduct];if(url)offer='<div class="option"><h2>'+esc(d.recommendedProduct)+' · £'+price+'</h2><button type="button" class="btn" id="start-choice">CONTINUE WITH MY RECOMMENDATION</button></div>';}
  view.innerHTML='<p class="muted">For '+esc(d.firstName||'you')+'</p><div class="panel"><h2>Where this cycle may be affecting you</h2><p>Your answers point to these areas:</p>'+stageText+'<p>The next step is to practise responding differently when these feelings and habits are activated, not simply to understand his behaviour.</p></div><h2>Your recommended next step</h2><p>'+esc(d.recommendedProduct)+'</p>'+offer+'<div id="decision" hidden class="panel"></div>';
- view.hidden=false;trackFirstParty([['result_view',{entry:'result_email_saved_link'}]]);trackAnalytics('quiz_result_view',{recommendation_category:isComplete?'return_to_you_series':d.recommendedRoute});view.querySelectorAll('.choose').forEach(b=>b.onclick=()=>showDecision(b.dataset.id));
+ view.hidden=false;trackFirstParty([['result_view',{entry:'result_email_saved_link'}]]);trackAnalytics('quiz_result_view',{recommendation_category:isComplete?'return_to_you_series':d.recommendedRoute});
+ const savedOption=d.finalOfferOption||'';
+ if(savedOption&&d.resultEmailState==='sent'){showSavedCheckout(savedOption)}
+ else {document.getElementById('start-choice').onclick=()=>showDecision();if(savedOption)showDecision()}
 }).catch(err=>{status.textContent=String(err.message||err)});
-function showDecision(option){
- const d=state.data; if(!d)return;
- const dest=option?complete.find(x=>x.id===option)?.url:links[d.recommendedProduct];
- if(!dest)return;
- const scores=Object.values(d.scores||{}).map(Number);
- const needsReady=d.recommendedRoute==='Return to You Series'&&scores.filter(x=>x>=3).length>=3&&scores.reduce((a,b)=>a+b,0)>=15;
- const title=option?complete.find(x=>x.id===option).title:d.recommendedProduct;
+function showSavedCheckout(option){
+ const d=state.data;let dest='';
+ if(option==='scored_route')dest=links[d.recommendedProduct]||'';
+ else {const selected=complete.find(x=>x.id===option);dest=selected?selected.url:''}
  const box=document.getElementById('decision');box.hidden=false;
- box.innerHTML='<h2>Confirm your support choice</h2><p>'+esc(title)+'</p>'+
- (needsReady?'<label for="ready"><strong>Where are you in your readiness to work on this?</strong></label><select id="ready"><option value="">Choose one</option><option>I know understanding alone isn\'t enough and I\'m ready to start working on this.</option><option>I\'m ready for a structured process and willing to participate in it consistently.</option><option>I know something needs to change, but I\'m not sure I\'m ready to actively work on it yet.</option><option>Right now, I\'m mainly looking to understand what is happening.</option></select>':'')+
- '<label for="hesitation">What, if anything, is making you hesitate? (Optional)</label><textarea id="hesitation" maxlength="500"></textarea><p id="message" role="status"></p><button class="btn" id="confirm" type="button">CONFIRM MY CHOICE</button>';
- box.scrollIntoView({behavior:'smooth',block:'start'});
- document.getElementById('confirm').onclick=async()=>{
-  const ready=needsReady?document.getElementById('ready').value:'';
-  if(needsReady&&!ready){document.getElementById('message').textContent='Please choose your readiness answer.';return;}
-  const hesitation=document.getElementById('hesitation').value.trim(),btn=document.getElementById('confirm');btn.disabled=true;
-  try{
-   const body={action:'finalizeResultV4',resultToken:token,finalOfferOption:option,readinessRequired:needsReady,readiness:ready,supportPreference:option?{id:option,answer:title}:null,hesitation:hesitation?{id:'other',answer:hesitation}:null};
-   let result=null;
-   for(let attempt=0;attempt<6;attempt++){
-     const res=await fetch(api,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),referrerPolicy:'no-referrer'});
-     result=await res.json();
-     if(result.ok&&result.resultEmailSent&&(result.status==='choice_recorded_after_email'||result.status==='finalized'))break;
-     if(result.code!=='BUSY'&&result.code!=='SERVER_ERROR')throw Error(result.message||'The support choice could not be verified.');
-     document.getElementById('message').textContent='We are confirming your choice. Your assessment is still finishing securely.';
-     if(attempt===5)throw Error('The server is still busy. Please try confirming again.');
-     await new Promise(resolve=>setTimeout(resolve,1800+attempt*800));
-   }
-   if(!result||!result.ok||!result.resultEmailSent)throw Error('The support choice could not be verified in V4.');
-   document.getElementById('message').innerHTML='Your support choice is saved. <a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a>';
-   const checkoutLink=document.querySelector('#message a[href*="stan.store"]');
-   if(checkoutLink)checkoutLink.addEventListener('click',()=>{
-     const v={product:title,route:d.recommendedRoute,price:option?(complete.find(x=>x.id===option)?.price||0):d.recommendedPrice||'',currency:'GBP',destination:'stan.store',source:'saved_result'};
-     trackFirstParty([['primary_cta_click',v],['outbound_stan_click',v]]);
-     trackAnalytics('recommendation_click',{route:d.recommendedRoute,product_type:d.recommendedRoute==='Return to You Series'?'return_to_you_series':'stage_or_pair'});
-   });
-   btn.remove();
-  }catch(e){document.getElementById('message').textContent=String(e.message||e);btn.disabled=false}
+ box.innerHTML='<h2>Your choice is saved</h2><p>'+esc(d.finalOfferProduct||d.recommendedProduct)+'</p>'+
+  (dest?'<p><a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a></p>':'');
+}
+function showDecision(){
+ const d=state.data;if(!d)return;
+ const isComplete=d.recommendedRoute==='Return to You Series';
+ const scores=Object.values(d.scores||{}).map(Number);
+ const needsReady=isComplete&&scores.filter(x=>x>=3).length>=3&&scores.reduce((a,b)=>a+b,0)>=15;
+ const priorOption=d.finalOfferOption||'',priorSupport=d.supportChoiceId||'';
+ const box=document.getElementById('decision');box.hidden=false;
+ const readinessOptions=[
+  "I know understanding alone isn't enough and I'm ready to start working on this.",
+  "I'm ready for a structured process and willing to participate in it consistently.",
+  "I know something needs to change, but I'm not sure I'm ready to actively work on it yet.",
+  "Right now, I'm mainly looking to understand what is happening."
+ ];
+ box.innerHTML=(needsReady?'<label for="ready"><strong>Where are you in your readiness to work on this?</strong></label><select id="ready"><option value="">Choose one</option>'+readinessOptions.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>':'')+
+  (isComplete?'<h2>One more thing.</h2><p>This pattern didn&#39;t develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That&#39;s why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p><strong>Would you like more personal support than this?</strong></p><div id="support-choices"></div><div id="offer-choices"></div>':'<div id="offer-choices"></div>')+
+  '<p id="message" role="status"></p>';
+ const supportOptions=[
+  {id:'independent',label:"I'm happy to work independently"},
+  {id:'additional',label:'I want additional support'},
+  {id:'some',label:'I think some support would help me with this'},
+  {id:'unsure',label:"I'm not sure where to start. I'd like you to recommend what would help me most."}
+ ];
+ const supportEl=document.getElementById('support-choices');
+ const offersEl=document.getElementById('offer-choices');
+ let selectedSupport=priorSupport;
+ if(isComplete&&supportEl){
+  supportEl.innerHTML=supportOptions.map(x=>'<label class="option"><input type="radio" name="support-choice" value="'+x.id+'" '+(x.id===selectedSupport?'checked':'')+'> '+esc(x.label)+'</label>').join('');
+  supportEl.onchange=()=>{const input=supportEl.querySelector('input[name="support-choice"]:checked');selectedSupport=input?input.value:'';renderOffers()};
+ }
+ const routeOffers={
+  self_guided:{id:'self_guided',product:'Return to Yourself — Self-Guided',route:'Self-Guided',price:117,url:'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx',title:'Return to Yourself — Self-Guided',desc:'The complete four-stage programme, with the guided sessions and weekly check-ins.'},
+  reality_reset:{id:'reality_reset',product:'Return to Yourself + Reality Reset',route:'Reality Reset',price:147,url:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',title:'Return to Yourself + Reality Reset',desc:'Everything in the self-guided programme, plus the workbook and a private 20-minute conversation with Onye.'},
+  pattern_break:{id:'pattern_break',product:'Return to Yourself + Pattern Break Session',route:'Pattern Break Session',price:197,url:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break',title:'Return to Yourself + Pattern Break Session',desc:'Everything in the self-guided programme, plus the workbook and a private 50-minute solution-focused CBT session with Onye.'}
  };
+ function renderOffers(){
+  if(!offersEl)return;
+  let options=[];
+  if(!isComplete)options=[{id:'scored_route',product:d.recommendedProduct,route:d.recommendedRoute,price:Number(d.recommendedPrice)|| (d.recommendedProduct==='The Bare Minimum'?4.99:d.recommendedRoute==='Two-Stage Pair'?74:37),url:links[d.recommendedProduct],title:d.recommendedProduct,desc:''}];
+  else if(selectedSupport==='independent')options=[routeOffers.self_guided];
+  else if(selectedSupport==='additional'||selectedSupport==='some')options=[routeOffers.reality_reset,routeOffers.pattern_break];
+  else if(selectedSupport==='unsure')options=[routeOffers.reality_reset,routeOffers.self_guided,routeOffers.pattern_break];
+  if(priorOption)options=options.filter(x=>x.id===priorOption);
+  const primary=selectedSupport==='independent'?'self_guided':'reality_reset';
+  offersEl.innerHTML=options.map(x=>'<div class="option"><h2>'+esc(x.title)+' · £'+x.price+'</h2><p>'+esc(x.desc||'')+'</p><button type="button" class="btn finalize-choice" data-id="'+x.id+'" data-product="'+esc(x.product)+'" data-route="'+esc(x.route)+'" data-price="'+x.price+'" data-url="'+esc(x.url)+'">'+(x.id===primary?'PRIMARY RECOMMENDATION':'CHOOSE THIS OPTION')+'</button></div>').join('');
+  offersEl.querySelectorAll('.finalize-choice').forEach(b=>b.onclick=()=>finalizeChoice(b));
+ }
+ async function finalizeChoice(button){
+  const readiness=needsReady?document.getElementById('ready').value:'';
+  if(needsReady&&!readiness){document.getElementById('message').textContent='Please choose your readiness answer.';return}
+  if(isComplete&&!selectedSupport){document.getElementById('message').textContent='Please choose the support answer that fits you best.';return}
+  button.disabled=true;
+  const option=button.dataset.id,product=button.dataset.product,route=button.dataset.route,price=Number(button.dataset.price),dest=button.dataset.url;
+  try{
+   const body={action:'finalizeResultV3',resultToken:token,finalOfferOption:option,finalOfferProduct:product,finalOfferRoute:route,finalOfferPrice:price,supportPreference:selectedSupport,readiness:readiness};
+   const res=await fetch(api,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),referrerPolicy:'no-referrer'});
+   const result=await res.json();
+   if(!result||!result.ok||!result.resultEmailSent)throw Error(result&&result.message?result.message:'The final choice and matching email could not be confirmed. Please retry.');
+   d.finalOfferOption=option;d.finalOfferProduct=product;d.resultEmailState='sent';d.supportChoiceId=selectedSupport;
+   document.getElementById('message').innerHTML='Your final choice is saved and its matching result email has been accepted. <a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a>';
+   const checkout=document.querySelector('#message a.btn');
+   if(checkout)checkout.addEventListener('click',()=>{
+    const v={product:product,route:d.recommendedRoute,price:price,currency:'GBP',destination:'stan.store',source:'saved_result'};
+    trackFirstParty([['primary_cta_click',v],['outbound_stan_click',v]]);
+    trackAnalytics('recommendation_click',{route:d.recommendedRoute,product_type:isComplete?'return_to_you_series':'stage_or_pair'});
+   });
+  }catch(e){document.getElementById('message').textContent=String(e.message||e);button.disabled=false}
+ }
+ if(!isComplete||selectedSupport)renderOffers();
 }
 })();
 </script><script src="/assets/yms-consent.js?v=20261001-tracking" defer></script><script>(function(){try{if(localStorage.getItem('yms_analytics_consent')==='yes'){var s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;document.head.appendChild(s)}}catch(e){}})();</script></body></html>
