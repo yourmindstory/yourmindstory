@@ -40,7 +40,7 @@ The approved customer journey baseline is applied to the isolated candidate. No 
 
 ### Latest branch commits
 
-- Backend isolation and Q1 routing: `9ff1ec3bc12f79578080fcb05b98050e06d7c928`
+- Backend isolation and Q1 routing: `4be46e952a62161c7ec4a8b91504fda725f33514`
 - Assessment journey update: `440d487ae6c4d2f32501eefe33136f78cbf8f5ee`
 - Saved-result journey update: `0fdbe79801d44476855e3d0fe15b34a14556f6a9`
 
