@@ -58,6 +58,8 @@ async function runCase(test) {
   const context = await browser.newContext();
   const page = await context.newPage();
   const checkoutAttempts = [];
+  let resolveCheckoutInterception;
+  const checkoutInterception = new Promise(resolve => { resolveCheckoutInterception = resolve; });
   const apiResults = [];
   let resolveFinalize;
   const finalizeEvent = new Promise(resolve => { resolveFinalize = resolve; });
@@ -102,9 +104,11 @@ async function runCase(test) {
       return response;
     };
   }, { id:test.id });
-  await page.route("https://stan.store/**", async route => {
-    checkoutAttempts.push(route.request().url());
+  await page.route("**stan.store/**", async route => {
+    const url = route.request().url();
+    checkoutAttempts.push(url);
     await route.abort();
+    resolveCheckoutInterception(url);
   });
   try {
     await page.goto(BASE + "/assessment/start/?yms_test=1", { waitUntil:"domcontentloaded" });
@@ -158,12 +162,12 @@ async function runCase(test) {
     const saved = await page.evaluate(() => JSON.parse(sessionStorage.getItem("yms_v3_last_submission") || "null"));
     assert(saved && saved.confirmed && saved.resultToken, test.id + ": saved-result token missing before checkout");
 
-    const checkoutRequestPromise = page.waitForRequest(request => request.url().startsWith("https://stan.store/"), { timeout:15000 });
     await finalLink.click({ timeout:10000, noWaitAfter:true });
-    const [finalize, checkoutRequest] = await Promise.all([
+    const [finalize, checkoutUrl] = await Promise.all([
       Promise.race([finalizeEvent, delay(15000).then(() => { throw new Error("Timed out waiting for final-choice API result"); })]),
-      checkoutRequestPromise
+      Promise.race([checkoutInterception, delay(15000).then(() => { throw new Error("Stan checkout request was not intercepted"); })])
     ]);
+    assert(checkoutUrl.startsWith("https://stan.store/"), test.id + ": intercepted checkout destination was unexpected");
     assert(finalize && finalize.ok, test.id + ": final choice did not save: " + JSON.stringify(finalize));
     assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
     assert.equal(finalize.finalOfferOption, test.offer, test.id + ": wrong final offer option sent");
