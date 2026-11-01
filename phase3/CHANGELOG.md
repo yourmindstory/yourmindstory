@@ -28,7 +28,7 @@ The approved customer journey baseline is applied to the isolated candidate. No 
 ### Checks completed
 
 - JavaScript syntax checks passed for both assessment page scripts and the Apps Script source.
-- A local harness exercised the candidate Apps Script final-choice validation with synthetic in-memory rows: 15 route/validation checks passed, covering all support-answer offer permissions, both Bare Minimum branches, invalid offer rejection, Q1 answer validation, lower-score scored routes and development email suppression. Mock MailApp send count was zero.
+- A local harness exercised the candidate Apps Script final-choice validation with synthetic in-memory rows: 16 route/validation checks passed, covering all support-answer offer permissions, both Bare Minimum branches, invalid offer rejection, Q1 answer validation, lower-score scored routes and development email suppression. Mock MailApp send count was zero.
 - Checkout destination mapping was inspected in source; no checkout was opened and no transaction occurred.
 - The 14 email-template preview artifact remains available for owner review. It contains HTML and plain text previews, uses synthetic data, and no email was sent.
 
