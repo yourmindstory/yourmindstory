@@ -25,12 +25,28 @@ jobs:
             const browser = await chromium.launch({headless:true,args:['--no-sandbox']});
             const context = await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1});
             const page = await context.newPage();
-            page.setDefaultTimeout(180000);
+            page.setDefaultTimeout(30000);
+            page.on('requestfailed',req=>console.log('REQUESTFAILED '+req.url().slice(0,155)+' '+(req.failure()&&req.failure().errorText)));
+            page.on('console',msg=>{if(/V4_FETCH|CORS|Failed to fetch/.test(msg.text()))console.log('WEB '+msg.text())});
+            await page.addInitScript(() => {
+              const original=window.fetch;
+              window.fetch=async function(...args){
+                try {const res=await original.apply(this,args);
+                  if(String(args[0]).includes('script.google.com/macros')){
+                    let d={};try{d=await res.clone().json()}catch(e){};
+                    console.log('V4_FETCH '+JSON.stringify({ok:res.ok,http:res.status,code:d.code||'',status:d.status||'',error:d.message||''}));
+                  }
+                  return res;
+                }catch(e){console.log('V4_FETCH ERROR '+String(e));throw e;}
+              };
+            });
             const errs=[];
             page.on('pageerror',err=>{errs.push(err.message);console.error('BROWSER-ERROR',err.message)});
             try {
               console.log('PHASE 1: landing');
               const landing=await page.goto('https://yourmindstory.co.uk/assessment/v4-preview/?yms_test=1',{waitUntil:'domcontentloaded'});
+              const canFetch=await page.evaluate(async()=>{try{let r=await fetch('https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec');return {ok:r.ok,status:r.status}}catch(e){return {error:String(e)}}});
+              console.log('BROWSER GET V4 API:',JSON.stringify(canFetch));
               if(!landing||landing.status()!==200)throw Error('Landing HTTP '+(landing&&landing.status()));
               await page.locator('#startAssessment').click();
               await page.locator('#beginV4').click();
@@ -51,7 +67,10 @@ jobs:
               await page.locator('#em').fill('yourmindstory.co.uk@gmail.com');
               await page.locator('.consent-opt[data-consent="no"]').click();
               await page.locator('#capgo').click();
-              await page.locator('.result-panel.active').waitFor({timeout:180000});
+              await Promise.race([
+                page.locator('.result-panel.active').waitFor({timeout:90000}),
+                page.locator('#caperr').filter({hasText:/./}).waitFor({timeout:90000}).then(async()=>{throw Error('Email capture save failed: '+await page.locator('#caperr').innerText())})
+              ]);
               const rec=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}'));
               if(!rec.confirmed||!rec.resultToken||!rec.submissionId)throw Error('Client did not retain result token');
               console.log('PHASE 4: result generated, submission id: '+rec.submissionId);
