@@ -20,6 +20,7 @@ Commits:
 Completed offline review work:
 
 - Generated 14 real-template email previews: four £37 singles, six £74 Pairs, three final-choice Complete variants (£117/£147/£197), and Bare Minimum. Each has HTML and plain-text output, subject and CTA details. The MailApp send function was stubbed; no email was sent. The saved-result token is a non-working demo value. The review artifact is in ChatGPT Library as `Your Mind Story result email previews`.
+- Offline source-level assertions passed for all four support-choice allowlists, all 4 single routes, all 6 Pair routes, all 3 selected-offer email variants and saved-result links. These checks do not exercise the browser, Apps Script service, spreadsheet or email delivery.
 - JavaScript syntax checks passed for both page scripts and the Apps Script source (parsed as JavaScript).
 - Remote branch files were fetched and matched the local development copies.
 
@@ -27,7 +28,7 @@ Unresolved before acceptance:
 
 - The exact Q1 stem and all answer wording/branch mapping are not yet verified. The historic answer options appear in `assets/yms-product-routing-v2.js`, but that file does not contain the question stem or branch mapping. `quiz_2.html` contains the scored assessment and does not contain this conditional result-stage Q1. The cited restoration patch SHA `dda45d118edc715ce2e0cbb3e5044371ca99a0fa` is not available in this repository. The readiness prompt currently present in the candidate was copied from the V4 preview and is not verified as the approved September Q1. Do not treat it as locked copy or release it.
 - The Apps Script candidate still targets the existing V3 workbook ID. The frontend URLs are placeholders. No isolated endpoint or safe data target exists yet.
-- No route, consent, resume/retry, checkout, or email-delivery acceptance tests have been run.
+- No full route, consent, resume/retry, checkout or email-delivery acceptance tests have been run.
 
 Boundaries:
 
