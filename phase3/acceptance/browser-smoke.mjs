@@ -146,26 +146,24 @@ async function runCase(test) {
     assert.equal(await finalLink.getAttribute("data-rec-product"), test.product, test.id + ": wrong product");
     assert.equal(Number(await finalLink.getAttribute("data-rec-price")), test.price, test.id + ": wrong price");
 
-    await finalLink.click({ timeout:10000 }).catch(() => {});
-    await page.waitForFunction(() => (window.__phase3ApiResults || []).some(x => x.action === "finalizeResultV3"), null, { timeout:15000 }).catch(async error => {
-      const detail = await page.evaluate(() => ({
-        results: window.__phase3ApiResults || [],
-        url: location.href,
-        finalizeError: document.querySelector("#finalize-error")?.innerText || "",
-        capError: document.querySelector("#caperr")?.innerText || ""
-      }));
-      throw new Error(error.message + " | browser state: " + JSON.stringify(detail));
-    });
-    const finalize = await page.evaluate(() => window.__phase3ApiResults.filter(x => x.action === "finalizeResultV3").at(-1));
-    assert(finalize && finalize.ok, test.id + ": final choice did not save");
-    assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
-    assert.equal(finalize.finalOfferOption, test.offer, test.id + ": wrong final offer option sent");
-    assert.equal(finalize.finalOfferProduct, test.product, test.id + ": wrong final offer product sent");
-    assert.equal(finalize.finalOfferPrice, test.price, test.id + ": wrong final offer price sent");
-    assert.equal(checkoutAttempts.length, 1, test.id + ": checkout link was not intercepted exactly once");
-
     const saved = await page.evaluate(() => JSON.parse(sessionStorage.getItem("yms_v3_last_submission") || "null"));
-    assert(saved && saved.confirmed && saved.resultToken, test.id + ": saved-result token missing");
+    assert(saved && saved.confirmed && saved.resultToken, test.id + ": saved-result token missing before checkout");
+
+    const finalizeResponsePromise = page.waitForResponse(response => {
+      if (!response.url().includes(API) || response.request().method() !== "POST") return false;
+      try { return response.request().postDataJSON().action === "finalizeResultV3"; } catch { return false; }
+    }, { timeout:15000 });
+    const checkoutRequestPromise = page.waitForRequest(request => request.url().startsWith("https://stan.store/"), { timeout:15000 });
+    await finalLink.click({ timeout:10000, noWaitAfter:true });
+    const [finalizeResponse] = await Promise.all([finalizeResponsePromise, checkoutRequestPromise]);
+    const finalize = await finalizeResponse.json();
+    const finalizeRequest = finalizeResponse.request().postDataJSON();
+    assert(finalize && finalize.ok, test.id + ": final choice did not save: " + JSON.stringify(finalize));
+    assert(finalize.resultEmailSuppressed, test.id + ": development email was not suppressed");
+    assert.equal(finalizeRequest.finalOfferOption, test.offer, test.id + ": wrong final offer option sent");
+    assert.equal(finalizeRequest.finalOfferProduct, test.product, test.id + ": wrong final offer product sent");
+    assert.equal(Number(finalizeRequest.finalOfferPrice), test.price, test.id + ": wrong final offer price sent");
+    assert.equal(checkoutAttempts.length, 1, test.id + ": checkout link was not intercepted exactly once");
     const storedResponse = await fetch(API + "?action=getResult&resultToken=" + encodeURIComponent(saved.resultToken));
     const stored = await storedResponse.json();
     assert(stored.ok, test.id + ": saved result endpoint failed");
