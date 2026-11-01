@@ -59,12 +59,13 @@ fetch(api+'?action=getResult&resultToken='+encodeURIComponent(token),{credential
  view.innerHTML='<p class="muted">For '+esc(d.firstName||'you')+'</p><div class="panel"><h2>Where this cycle may be affecting you</h2><p>Your answers point to these areas:</p>'+stageText+'<p>The next step is to practise responding differently when these feelings and habits are activated, not simply to understand his behaviour.</p></div><h2>Your recommended next step</h2><p>'+esc(d.recommendedProduct)+'</p>'+offer+'<div id="decision" hidden class="panel"></div>';
  view.hidden=false;trackFirstParty([['result_view',{entry:'result_email_saved_link'}]]);trackAnalytics('quiz_result_view',{recommendation_category:isComplete?'return_to_you_series':d.recommendedRoute});
  const savedOption=d.finalOfferOption||'';
- if(savedOption&&d.resultEmailState==='sent'){showSavedCheckout(savedOption)}
+ if(savedOption&&(d.resultEmailState==='sent'||d.resultEmailState==='suppressed')){showSavedCheckout(savedOption)}
  else {document.getElementById('start-choice').onclick=()=>showDecision();if(savedOption)showDecision()}
 }).catch(err=>{status.textContent=String(err.message||err)});
 function showSavedCheckout(option){
  const d=state.data;let dest='';
  if(option==='scored_route')dest=links[d.recommendedProduct]||'';
+ else if(option==='bare_minimum')dest=links['The Bare Minimum']||'';
  else {const selected=complete.find(x=>x.id===option);dest=selected?selected.url:''}
  const box=document.getElementById('decision');box.hidden=false;
  box.innerHTML='<h2>Your choice is saved</h2><p>'+esc(d.finalOfferProduct||d.recommendedProduct)+'</p>'+
@@ -74,17 +75,18 @@ function showDecision(){
  const d=state.data;if(!d)return;
  const isComplete=d.recommendedRoute==='Return to You Series';
  const scores=Object.values(d.scores||{}).map(Number);
- const needsReady=isComplete&&scores.filter(x=>x>=3).length>=3&&scores.reduce((a,b)=>a+b,0)>=15;
+ const needsGoal=isComplete&&scores.filter(x=>x>=3).length>=3&&scores.reduce((a,b)=>a+b,0)>=15;
+ let selectedGoal=d.goalChoiceId||'',goalAnswer=d.goalChoiceAnswer||'';
  const priorOption=d.finalOfferOption||'',priorSupport=d.supportChoiceId||'';
  const box=document.getElementById('decision');box.hidden=false;
- const readinessOptions=[
-  "I know understanding alone isn't enough and I'm ready to start working on this.",
-  "I'm ready for a structured process and willing to participate in it consistently.",
-  "I know something needs to change, but I'm not sure I'm ready to actively work on it yet.",
-  "Right now, I'm mainly looking to understand what is happening."
+ const goalOptions=[
+  {id:'self_work',label:'I want help understanding myself, breaking the cycle and getting my mind back.'},
+  {id:'understand_him',label:'I mainly want to understand him and what his behaviour means.'},
+  {id:'change_him',label:'I mainly want help getting him back or changing his behaviour.'},
+  {id:'unsure',label:"I'm not sure yet."}
  ];
- box.innerHTML=(needsReady?'<label for="ready"><strong>Where are you in your readiness to work on this?</strong></label><select id="ready"><option value="">Choose one</option>'+readinessOptions.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>':'')+
-  (isComplete?'<h2>One more thing.</h2><p>This pattern didn&#39;t develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That&#39;s why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p><strong>Would you like more personal support than this?</strong></p><div id="support-choices"></div><div id="offer-choices"></div>':'<div id="offer-choices"></div>')+
+ box.innerHTML=(isComplete?(needsGoal?'<label for="goal"><strong>Which sounds most like what you want now?</strong></label><select id="goal"><option value="">Choose one</option>'+goalOptions.map(x=>'<option value="'+x.id+'" '+(x.id===selectedGoal?'selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select>':'')+
+  '<div id="support-question" '+(needsGoal&&selectedGoal!=='self_work'&&selectedGoal!=='unsure'?'hidden':'')+'><h2>One more thing.</h2><p>This pattern didn&#39;t develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That&#39;s why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p><strong>Would you like more personal support than this?</strong></p><div id="support-choices"></div></div><div id="offer-choices"></div>':'<div id="offer-choices"></div>')+
   '<p id="message" role="status"></p>';
  const supportOptions=[
   {id:'independent',label:"I'm happy to work independently"},
@@ -99,6 +101,8 @@ function showDecision(){
   supportEl.innerHTML=supportOptions.map(x=>'<label class="option"><input type="radio" name="support-choice" value="'+x.id+'" '+(x.id===selectedSupport?'checked':'')+'> '+esc(x.label)+'</label>').join('');
   supportEl.onchange=()=>{const input=supportEl.querySelector('input[name="support-choice"]:checked');selectedSupport=input?input.value:'';renderOffers()};
  }
+ const goalEl=document.getElementById('goal');
+ if(goalEl) goalEl.onchange=()=>{selectedGoal=goalEl.value;const opt=goalOptions.find(x=>x.id===selectedGoal);goalAnswer=opt?opt.label:'';document.getElementById('support-question').hidden=selectedGoal==='understand_him'||selectedGoal==='change_him';renderOffers()};
  const routeOffers={
   self_guided:{id:'self_guided',product:'Return to Yourself — Self-Guided',route:'Self-Guided',price:117,url:'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx',title:'Return to Yourself — Self-Guided',desc:'The complete four-stage programme, with the guided sessions and weekly check-ins.'},
   reality_reset:{id:'reality_reset',product:'Return to Yourself + Reality Reset',route:'Reality Reset',price:147,url:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',title:'Return to Yourself + Reality Reset',desc:'Everything in the self-guided programme, plus the workbook and a private 20-minute conversation with Onye.'},
@@ -107,28 +111,28 @@ function showDecision(){
  function renderOffers(){
   if(!offersEl)return;
   let options=[];
-  if(!isComplete)options=[{id:'scored_route',product:d.recommendedProduct,route:d.recommendedRoute,price:Number(d.recommendedPrice)|| (d.recommendedProduct==='The Bare Minimum'?4.99:d.recommendedRoute==='Two-Stage Pair'?74:37),url:links[d.recommendedProduct],title:d.recommendedProduct,desc:''}];
+  if(isComplete&&['understand_him','change_him'].includes(selectedGoal))options=[{id:'bare_minimum',product:'The Bare Minimum',route:'Bare Minimum',price:4.99,url:links['The Bare Minimum'],title:'The Bare Minimum',desc:'Five non-negotiables to help you stay healthy in love and get clear on what you need and will accept.'}];
+  else if(!isComplete)options=[{id:'scored_route',product:d.recommendedProduct,route:d.recommendedRoute,price:Number(d.recommendedPrice)|| (d.recommendedProduct==='The Bare Minimum'?4.99:d.recommendedRoute==='Two-Stage Pair'?74:37),url:links[d.recommendedProduct],title:d.recommendedProduct,desc:''}];
   else if(selectedSupport==='independent')options=[routeOffers.self_guided];
   else if(selectedSupport==='additional'||selectedSupport==='some')options=[routeOffers.reality_reset,routeOffers.pattern_break];
   else if(selectedSupport==='unsure')options=[routeOffers.reality_reset,routeOffers.self_guided,routeOffers.pattern_break];
   if(priorOption)options=options.filter(x=>x.id===priorOption);
-  const primary=selectedSupport==='independent'?'self_guided':'reality_reset';
+  const primary=['understand_him','change_him'].includes(selectedGoal)?'bare_minimum':selectedSupport==='independent'?'self_guided':'reality_reset';
   offersEl.innerHTML=options.map(x=>'<div class="option"><h2>'+esc(x.title)+' · £'+x.price+'</h2><p>'+esc(x.desc||'')+'</p><button type="button" class="btn finalize-choice" data-id="'+x.id+'" data-product="'+esc(x.product)+'" data-route="'+esc(x.route)+'" data-price="'+x.price+'" data-url="'+esc(x.url)+'">'+(x.id===primary?'PRIMARY RECOMMENDATION':'CHOOSE THIS OPTION')+'</button></div>').join('');
   offersEl.querySelectorAll('.finalize-choice').forEach(b=>b.onclick=()=>finalizeChoice(b));
  }
  async function finalizeChoice(button){
-  const readiness=needsReady?document.getElementById('ready').value:'';
-  if(needsReady&&!readiness){document.getElementById('message').textContent='Please choose your readiness answer.';return}
-  if(isComplete&&!selectedSupport){document.getElementById('message').textContent='Please choose the support answer that fits you best.';return}
+  if(needsGoal&&!selectedGoal){document.getElementById('message').textContent='Please choose the answer that fits what you want now.';return}
+  if(isComplete&&!['understand_him','change_him'].includes(selectedGoal)&&!selectedSupport){document.getElementById('message').textContent='Please choose the support answer that fits you best.';return}
   button.disabled=true;
   const option=button.dataset.id,product=button.dataset.product,route=button.dataset.route,price=Number(button.dataset.price),dest=button.dataset.url;
   try{
-   const body={action:'finalizeResultV3',resultToken:token,finalOfferOption:option,finalOfferProduct:product,finalOfferRoute:route,finalOfferPrice:price,supportPreference:selectedSupport,readiness:readiness};
+   const body={action:'finalizeResultV3',resultToken:token,finalOfferOption:option,finalOfferProduct:product,finalOfferRoute:route,finalOfferPrice:price,supportPreference:selectedSupport,goalChoiceId:selectedGoal,goalChoiceAnswer:goalAnswer};
    const res=await fetch(api,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),referrerPolicy:'no-referrer'});
    const result=await res.json();
-   if(!result||!result.ok||!result.resultEmailSent)throw Error(result&&result.message?result.message:'The final choice and matching email could not be confirmed. Please retry.');
-   d.finalOfferOption=option;d.finalOfferProduct=product;d.resultEmailState='sent';d.supportChoiceId=selectedSupport;
-   document.getElementById('message').innerHTML='Your final choice is saved and its matching result email has been accepted. <a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a>';
+   if(!result||!result.ok||(!result.resultEmailSent&&!result.resultEmailSuppressed))throw Error(result&&result.message?result.message:'The final choice and matching email could not be confirmed. Please retry.');
+   d.finalOfferOption=option;d.finalOfferProduct=product;d.resultEmailState=result.resultEmailSuppressed?'suppressed':'sent';d.supportChoiceId=selectedSupport;d.goalChoiceId=selectedGoal;d.goalChoiceAnswer=goalAnswer;
+   document.getElementById('message').innerHTML=(result.resultEmailSuppressed?'Your final choice is saved. Email delivery is suppressed in this development environment. ':'Your final choice is saved and its matching result email has been accepted. ')+'<a class="btn" href="'+esc(dest)+'" rel="noopener noreferrer">CONTINUE TO CHECKOUT</a>';
    const checkout=document.querySelector('#message a.btn');
    if(checkout)checkout.addEventListener('click',()=>{
     const v={product:product,route:d.recommendedRoute,price:price,currency:'GBP',destination:'stan.store',source:'saved_result'};
@@ -137,7 +141,7 @@ function showDecision(){
    });
   }catch(e){document.getElementById('message').textContent=String(e.message||e);button.disabled=false}
  }
- if(!isComplete||selectedSupport)renderOffers();
+ if(!isComplete||selectedSupport||(['understand_him','change_him'].includes(selectedGoal))||(!needsGoal&&isComplete))renderOffers();
 }
 })();
 </script><script src="/assets/yms-consent.js?v=20261001-tracking" defer></script><script>(function(){try{if(localStorage.getItem('yms_analytics_consent')==='yes'){var s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;document.head.appendChild(s)}}catch(e){}})();</script></body></html>
