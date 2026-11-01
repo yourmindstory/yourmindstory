@@ -104,8 +104,9 @@ function ymsTouch(){let up=new URLSearchParams(location.search),g=k=>up.get(k)||
 // Sent regardless of analytics-cookie choice; carries only assessment IDs and the step reached. GA4/Clarity stay consent-gated.
 function consentState(){try{let v=localStorage.getItem('yms_analytics_consent');return v==='yes'?'yes':v==='no'?'no':'unset'}catch(e){return 'unset'}}
 // Send first-party journey events in serial batches so tracking never overwhelms assessment saves.
-let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false;
-function scheduleV4Flush(delay=900){
+let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false;
+function scheduleV4Flush(delay=60000){
+ if(v4ResultAwaitingChoice)return; // Prioritise an actual support choice over nonessential tracking writes.
  if(v4EventTimer)clearTimeout(v4EventTimer);
  v4EventTimer=setTimeout(()=>{v4EventTimer=null;flushV4Events()},delay);
 }
@@ -115,7 +116,7 @@ function postJourneyEvents(events){
  scheduleV4Flush();
 }
 async function flushV4Events(){
- if(v4EventSending||v4SubmissionInFlight||!v4PendingEvents.length)return;
+ if(v4ResultAwaitingChoice||v4EventSending||v4SubmissionInFlight||!v4PendingEvents.length)return;
  v4EventSending=true;
  const batch=v4PendingEvents.splice(0,10),id=journeyIdentity();
  const lv=new URLSearchParams(location.search).get('landing_variant')||sessionStorage.getItem('yms_v4_landing_variant')||sessionStorage.getItem('yms_v4_preview_landing_variant')||'';
@@ -125,10 +126,10 @@ async function flushV4Events(){
  try{
   await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),keepalive:true});
  }catch(err){console.warn('V4 event batch could not be confirmed',err)}
- finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(300)}
+ finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(60000)}
 }
 function postJourneyEvent(eventType,values={}){postJourneyEvents([[eventType,values]])}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&v4PendingEvents.length)flushV4Events()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&v4PendingEvents.length){v4ResultAwaitingChoice=false;flushV4Events()}});
 
 
 function loadAnalytics(){if(!analyticsAllowed()||window.YMSQuiz||document.querySelector('script[src*="/assets/yms-quiz-shared.js"]'))return;let s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;s.onload=()=>{try{YMSQuiz.captureAttribution()}catch(e){}};document.head.appendChild(s)}
@@ -178,6 +179,7 @@ async function v4OfferDecision(link,handoff){
     await new Promise(resolve=>setTimeout(resolve,1800+attempt*800));
    }
    if(!data||!data.ok||!data.resultEmailSent)throw Error('Your support choice could not be confirmed. Please try again.');
+   v4ResultAwaitingChoice=false; scheduleV4Flush(1400); // After choice is safely saved, flush buffered events.
    overlay.querySelector('#v4DecError').textContent='';
    overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>Your personalised result email has been submitted for delivery. Check your inbox.</p><p><a id="v4Checkout" class="next" href="${link.href}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button class="back" id="v4Finish">Return to results</button></p>`;
    overlay.querySelector('#v4Checkout').addEventListener('click',()=>handoff(link));
@@ -187,6 +189,8 @@ async function v4OfferDecision(link,handoff){
 }
 
 function showResult(){
+v4ResultAwaitingChoice=true; // Defer buffered result analytics while the woman chooses her support.
+if(v4EventTimer){clearTimeout(v4EventTimer);v4EventTimer=null}
 postJourneyEvent('result_view');
 document.getElementById('form').style.display='none';document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width='100%';
 let s=[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]],total=s.reduce((x,y)=>x+y,0),affected=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),clear=s.map((x,j)=>x>=4?j:-1).filter(x=>x>=0),moderate=s.map((x,j)=>x===3?j:-1).filter(x=>x>=0),wholeJourney=affected.length>=3,qual=affected.slice();if(!wholeJourney&&qual.length>2)qual=qual.sort((x,y)=>(s[y]-s[x])||(x-y)).slice(0,2);let belief=a[8],context=a[10],recommendationCategory=qual.length===0?'bare_minimum':qual.length===1?'single_stage':qual.length===2?'two_stage_pair':'return_to_you_series';track('quiz_result_view',{recommendation_category:recommendationCategory});
