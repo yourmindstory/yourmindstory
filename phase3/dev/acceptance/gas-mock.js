@@ -13,15 +13,17 @@ const OTHER_TABS = {
 };
 
 let sheetIdSeq = 1;
+const OPS = { log: [], on: false };
+function op(k, sheet) { if (OPS.on) OPS.log.push(k + ':' + sheet); }
 class Sheet {
   constructor(name, headers) { this.name = name; this.id = sheetIdSeq++; this.rows = headers ? [headers.slice()] : []; this.maxCols = Math.max(26, headers ? headers.length : 0); this.writes = 0; }
   getName() { return this.name; } getSheetId() { return this.id; }
-  getLastRow() { return this.rows.length; }
+  getLastRow() { op('R', this.name); return this.rows.length; }
   getLastColumn() { return this.rows.reduce((m, r) => Math.max(m, r.length), 0); }
   getMaxColumns() { return this.maxCols; }
   insertColumnsAfter(after, n) { this.maxCols += n; }
   setFrozenRows() { return this; }
-  appendRow(vals) { this.writes++; this.rows.push(vals.slice()); return this; }
+  appendRow(vals) { op('W', this.name); this.writes++; this.rows.push(vals.slice()); return this; }
   cell(r, c) { const row = this.rows[r - 1]; return row && row[c - 1] !== undefined ? row[c - 1] : ''; }
   set(r, c, v) { this.writes++; while (this.rows.length < r) this.rows.push([]); const row = this.rows[r - 1]; while (row.length < c - 1) row.push(''); row[c - 1] = v; if (c > this.maxCols) this.maxCols = c; }
   getRange(r, c, nr, nc) {
@@ -33,10 +35,10 @@ class Sheet {
 }
 class Range {
   constructor(sh, r, c, nr, nc) { this.sh = sh; this.r = r; this.c = c; this.nr = nr; this.nc = nc; }
-  getValues() { const out = []; for (let i = 0; i < this.nr; i++) { const row = []; for (let j = 0; j < this.nc; j++) row.push(this.sh.cell(this.r + i, this.c + j)); out.push(row); } return out; }
-  getValue() { return this.sh.cell(this.r, this.c); }
-  setValues(v) { for (let i = 0; i < v.length; i++) for (let j = 0; j < v[i].length; j++) this.sh.set(this.r + i, this.c + j, v[i][j]); return this; }
-  setValue(v) { this.sh.set(this.r, this.c, v); return this; }
+  getValues() { op('R', this.sh.name); const out = []; for (let i = 0; i < this.nr; i++) { const row = []; for (let j = 0; j < this.nc; j++) row.push(this.sh.cell(this.r + i, this.c + j)); out.push(row); } return out; }
+  getValue() { op('R', this.sh.name); return this.sh.cell(this.r, this.c); }
+  setValues(v) { op('W', this.sh.name); for (let i = 0; i < v.length; i++) for (let j = 0; j < v[i].length; j++) this.sh.set(this.r + i, this.c + j, v[i][j]); return this; }
+  setValue(v) { op('W', this.sh.name); this.sh.set(this.r, this.c, v); return this; }
   getRow() { return this.r; } getColumn() { return this.c; }
   createTextFinder(text) {
     const self = this; let exact = false;
@@ -106,4 +108,4 @@ function createRuntime(opts = {}) {
     call,
   };
 }
-module.exports = { createRuntime, V4_RESPONSE_HEADERS };
+module.exports = { createRuntime, V4_RESPONSE_HEADERS, OPS };

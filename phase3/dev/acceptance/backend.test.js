@@ -2,7 +2,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const { createRuntime } = require('./gas-mock');
+const { createRuntime, OPS } = require('./gas-mock');
 const REPO = process.env.YMS_REPO || require('path').resolve(__dirname, '../../..');
 const SRC = path.join(REPO, 'phase3/dev/YMS_V4_FINAL_CHOICE_DEV_CANDIDATE.gs');
 const FRONT = fs.readFileSync(path.join(REPO, 'assessment/v4-preview/start/index.html'), 'utf8');
@@ -235,7 +235,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r4 build', st.env === 'DEV' && /r4/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r5 build', st.env === 'DEV' && /r5/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
 }
 
@@ -252,6 +252,19 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const b = body([5, 5, 5, 5]); r.post(b);
   const ev = r.post({ action: 'recordJourneyEvents', resultToken: b.resultToken, submissionId: b.submissionId, events: [{ eventType: 'recommendation_video_play', values: { route: 'self_guided' } }, { eventType: 'post_result_question_answered', values: { step: 'q1' } }] });
   check('G12', 'Analytics', 'Backend accepts the new first-party events (video play, question answered)', ev.ok && ev.results.every(x => x.ok), JSON.stringify(ev.results));
+}
+
+// ---------- r4: submission performance (no read after first write) ----------
+{
+  const r = rt(); r.post(body([1, 1, 1, 1])); // warm-up row
+  const b = body([5, 5, 4, 3]);
+  OPS.log = []; OPS.on = true; const res = r.post(b); OPS.on = false;
+  const firstW = OPS.log.findIndex(x => x.startsWith('W'));
+  const readsAfter = OPS.log.slice(firstW).filter(x => x.startsWith('R'));
+  const row = r.rows().find(x => x['Submission ID'] === b.submissionId);
+  const fe = r.sheet('Funnel Events').rows.slice(1).filter(x => x[6] === b.submissionId);
+  check('S1', 'Performance', 'New submission does all reads before writing: zero reads after the first write (each such read forces a full dashboard recalculation)', res.ok && firstW >= 0 && readsAfter.length === 0, 'ops=' + OPS.log.join(' '));
+  check('S2', 'Persistence', 'Submission row carries email status "pending" and furthest stage; funnel gets assessment_complete + email_captured with the right V4 row', row['Result Email Provider'] === 'pending' && row['Canonical: Furthest Stage'] === 'email_captured' && fe.length === 2 && fe.map(x => x[2]).join() === 'assessment_complete,email_captured' && fe.every(x => +x[28] === r.rows().findIndex(y => y['Submission ID'] === b.submissionId) + 2), JSON.stringify({ prov: row['Result Email Provider'], stage: row['Canonical: Furthest Stage'], fe: fe.map(x => [x[2], x[28]]) }));
 }
 
 // ---------- DEV vs PROD link/transport configuration ----------

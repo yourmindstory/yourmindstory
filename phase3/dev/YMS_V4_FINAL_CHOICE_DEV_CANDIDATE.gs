@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r4';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r5';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -309,33 +309,36 @@ function doPost(e) {
     var result = computeV3_(body);
     var now = new Date();
     var resultToken = clean_(body.resultToken) || makeResultToken_();
-    var row = buildRowV3_(sheet, body, result, journeyId, submissionId, resultToken, now);
-    sheet.appendRow(row);
-    var rowNumber = sheet.getLastRow();
-
-    // The assessment row is already saved. Email delivery must never turn a successful
-    // assessment into a failed browser submission.
-    // This candidate defers transactional email until finalizeResultV4_ saves the final offer.
-    // Abandoned choices remain saved without any offer-specific email.
+    // r4 performance: every read that follows a write makes Sheets finish recalculating the dashboard
+    // formulas first (20-50 s per submission on the V4 workbooks). So: all reads first, then writes only,
+    // and no read-back of what was just written. Same values, same columns as before.
     var deferEmail = true; // V4 always waits for a persisted final offer; client cannot bypass this gate.
+    var funnelSheet = null, funnelNextRow = 0;
+    try { funnelSheet = funnelSheetV3_(); funnelNextRow = funnelSheet.getLastRow() + 1; } catch (fsErr) { console.error('Funnel sheet unavailable: '+fsErr); }
+    var rowNumber = sheet.getLastRow() + 1; // safe: the script lock is held for the whole submission
+    var row = buildRowV3_(sheet, body, result, journeyId, submissionId, resultToken, now, {
+      'Result Email Sent':'', 'Result Email Provider':deferEmail ? 'pending' : 'none', 'Result Email Error':'',
+      'Canonical: Furthest Stage':clean_(body.email) ? 'email_captured' : 'assessment_complete'
+    });
+    sheet.appendRow(row);
     var emailDelivery = {ok:false,provider:deferEmail ? 'pending' : 'none',error:''};
-    try {
-      if (!deferEmail) emailDelivery = sendResultEmailV3_(body, result, resultToken, journeyId, submissionId, clean_(body.finalOfferOption));
-    } catch (emailErr) {
-      console.error('Result email failed after assessment save: ' + emailErr);
-      emailDelivery = {ok:false,provider:'none',error:String(emailErr)};
-    }
-    try {
-      setByHeader_(sheet, rowNumber, 'Result Email Sent',
-        emailDelivery.ok ? Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss') : '');
-      setByHeader_(sheet, rowNumber, 'Result Email Provider', emailDelivery.provider || '');
-      setByHeader_(sheet, rowNumber, 'Result Email Error', String(emailDelivery.error || '').slice(0,1000));
-    } catch (emailLogErr) {
-      console.error('Could not record email delivery status: ' + emailLogErr);
-    }
 
     // Canonical funnel events (tracking repair 22 Oct 2026): completion + email are proven server-side here.
-    try { onSubmissionSavedV3_(sheet, rowNumber, body, submissionId, journeyId); } catch (fErr) { console.error('Funnel write failed: '+fErr); }
+    // A brand-new submission ID cannot already have these events, so no duplicate lookup (a read) is needed.
+    try {
+      if (funnelSheet) {
+        var rowObj = {};
+        var hm = headerMap_(sheet);
+        Object.keys(hm).forEach(function(h){ rowObj[h] = row[hm[h]-1]; });
+        var ids = {submissionId: submissionId, journeyId: journeyId};
+        var recs = [funnelRecordV3_('assessment_complete', now, CANON_EVIDENCE_V3.assessment_complete, ids, rowObj,
+          {price: body.priceShown}, null, body.isTest === true, {v3Row: rowNumber})];
+        if (clean_(body.email)) recs.push(funnelRecordV3_('email_captured', now, CANON_EVIDENCE_V3.email_captured, ids, rowObj,
+          {}, null, body.isTest === true, {v3Row: rowNumber}));
+        var vals = recs.map(function(rec){ return FUNNEL_HEADERS_V3.map(function(h){ return rec.hasOwnProperty(h) ? rec[h] : ''; }); });
+        funnelSheet.getRange(funnelNextRow, 1, vals.length, FUNNEL_HEADERS_V3.length).setValues(vals);
+      }
+    } catch (fErr) { console.error('Funnel write failed: '+fErr); }
 
     // If she bought before taking the assessment (rare), or a purchase is already waiting, link it.
     // Purchase matching runs in the dedicated purchase-sync operation, not while
@@ -881,7 +884,7 @@ function productUrlV3_(result) {
   return '';
 }
 
-function buildRowV3_(sheet, body, r, journeyId, submissionId, resultToken, now) {
+function buildRowV3_(sheet, body, r, journeyId, submissionId, resultToken, now, extraVals) {
   var uk = Utilities.formatDate(now,'Europe/London','dd/MM/yyyy HH:mm:ss');
   var utc = Utilities.formatDate(now,'UTC',"yyyy-MM-dd'T'HH:mm:ss'Z'");
   var a = body.answers;
@@ -956,7 +959,9 @@ function buildRowV3_(sheet, body, r, journeyId, submissionId, resultToken, now) 
   vals['Experiment Version'] = clean_(body.experimentVersion) || 'V3-launch';
   vals['Submitted UTC'] = utc;
   vals['Submission Status'] = isTest ? 'complete (TEST)' : 'complete';
-  var headers = sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
+  if (extraVals) Object.keys(extraVals).forEach(function(k){ vals[k] = extraVals[k]; });
+  var hm = headerMap_(sheet), headers = [];
+  Object.keys(hm).forEach(function(h){ headers[hm[h]-1] = h; });
   return headers.map(function(h){ return Object.prototype.hasOwnProperty.call(vals,h) ? vals[h] : ''; });
 }
 
