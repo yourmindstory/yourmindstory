@@ -153,7 +153,6 @@ async function v4OfferDecision(link,handoff){
  const total=scores.reduce((x,y)=>x+y,0),needsReadiness=scores.filter(x=>x>=3).length>=3 && total>=15;
  const overlay=document.createElement('div');overlay.id='v4Decision';overlay.style.cssText='position:fixed;z-index:9999;inset:0;overflow:auto;background:rgba(15,28,24,.87);padding:20px';
  overlay.innerHTML=`<div role="dialog" aria-modal="true" aria-label="Your final support choice" style="max-width:620px;margin:25px auto;background:white;padding:25px;color:#111827;border-radius:5px"><h2 style="font-family:Fraunces,serif">Your next step</h2><p>You've selected: <strong>${label}</strong> at £${price}.</p>
- <label for="v4Hesitation" style="display:block;margin-top:18px"><strong>What, if anything, is making you hesitate about starting to work on this now?</strong> <small>(Optional)</small></label><textarea id="v4Hesitation" maxlength="500" style="width:100%;min-height:70px;padding:12px;margin:12px 0"></textarea>
  <p id="v4DecError" class="error" role="alert"></p><div class="actions"><button id="v4Cancel" class="back">Back</button><button id="v4Confirm" class="next">CONFIRM MY NEXT STEP</button></div></div>`;
  document.body.append(overlay);
  overlay.querySelector('#v4Cancel').onclick=()=>overlay.remove();
@@ -161,7 +160,7 @@ async function v4OfferDecision(link,handoff){
   const postChoice=JSON.parse(sessionStorage.getItem('yms_v4_preview_post_result_choice')||'{}');
   const readiness=postChoice.goal||'';
   const asksQ2=!['understand_him','change_him'].includes(readiness);if(needsReadiness&&(!readiness||(asksQ2&&!postChoice.support))){overlay.querySelector('#v4DecError').textContent='Please answer the post-result questions before choosing an offer.';return}
-  const hesitation=overlay.querySelector('#v4Hesitation').value.trim();
+  const hesitation=''; // No invented barrier or hesitation question in approved V4 flow.
   const barrier=sessionStorage.getItem('yms_v4_preview_existing_barrier')||'';
   const button=overlay.querySelector('#v4Confirm');button.disabled=true;button.textContent='SAVING YOUR CHOICE...';
   const payload={action:'finalizeResultV4',resultToken:r.resultToken,submissionId:r.submissionId,finalOfferOption:option,
