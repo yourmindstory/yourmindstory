@@ -43,9 +43,9 @@ function start(port, opts = {}) {
     let body = fs.readFileSync(file);
     if (p === '/assessment/v4-preview/start/index.html' && !opts.unpatched) {
       let s = body.toString('utf8');
-      const marker = "const V4_DEV_BACKEND='REPLACE_WITH_V4_DEV_WEB_APP_EXEC_URL';";
-      if (!s.includes(marker)) throw new Error('backend marker missing');
-      s = s.replace(marker, `const V4_DEV_BACKEND='http://127.0.0.1:${port}/exec';`);
+      const re = /const V4_DEV_BACKEND='[^']*';/;
+      if (!re.test(s)) throw new Error('backend marker missing');
+      s = s.replace(re, `const V4_DEV_BACKEND='http://127.0.0.1:${port}/exec';`);
       s = s.replace(/const V3_BACKEND=\/\^https[^\n]*\n/, 'const V3_BACKEND=V4_DEV_BACKEND; // TEST HARNESS ONLY\n');
       body = Buffer.from(s);
     }

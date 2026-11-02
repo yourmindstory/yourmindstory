@@ -417,19 +417,12 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await ctx.close();
   }
 
-  // ---- Fail-closed: page as committed (no DEV URL yet) never contacts any backend ----
+  // ---- Committed page: only ever the V4 DEV web app; never a live deployment ----
   {
-    const srv2 = await start(8778, { unpatched: true });
-    const ctx = await browser.createBrowserContext(); const page = await ctx.newPage();
-    const ext = []; await page.setRequestInterception(true);
-    page.on('request', r => { if (!r.url().startsWith('http://127.0.0.1:8778')) { ext.push(r.url()); r.abort(); } else r.continue(); });
-    const saveBase = base; base = 'http://127.0.0.1:8778';
-    await answerAll(page, [5, 0, 0, 0], { email: 'synthetic+failclosed@example.invalid', expectFail: true });
-    await page.waitForFunction(() => /could not be saved/.test((document.getElementById('caperr') || {}).textContent || ''), { timeout: 15000 }).catch(() => {});
-    const capErr = await page.$eval('#caperr', e => e.textContent).catch(() => '');
-    base = saveBase;
-    check('G8', 'Isolation', 'Committed page (DEV URL placeholder) sends nothing to any Apps Script endpoint and does not show an unsaved result', srv2.state.requests.length === 0 && !ext.some(u => /script\.google\.com/.test(u)) && /could not be saved/.test(capErr), JSON.stringify({ local: srv2.state.requests.length, google: ext.filter(u => /script\.google/.test(u)) }));
-    await ctx.close(); srv2.server.close();
+    const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || path.resolve(__dirname, '../../..'), 'assessment/v4-preview/start/index.html'), 'utf8');
+    const ids = [...new Set((html.match(/AKfycb[A-Za-z0-9_-]+/g) || []))];
+    const devOnly = ids.length === 3 && ids.includes('AKfycbwMVd8v5KaUM164fgW_qQzR7NsBkU7XiD63JkZGhOoerYA357ybQzz8ly1dQQiEWuF5') && /indexOf\('AKfycbyHiHPdms'\)===-1&&V4_DEV_BACKEND\.indexOf\('AKfycbzDtA92'\)===-1/.test(html);
+    check('G8', 'Isolation', 'Committed page targets only the V4 DEV web app and refuses both live deployment IDs (V3 and V4)', devOnly, ids.join(' '));
   }
   {
     const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || path.resolve(__dirname, '../../..'), 'assessment/v4-preview/start/index.html'), 'utf8');

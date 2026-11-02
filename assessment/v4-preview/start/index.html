@@ -25,7 +25,7 @@ const OMITTED_QUESTION_INDEX=13;
 const DISPLAY_QUESTION_COUNT=Q.length-1;
 // r2: this candidate must only talk to the isolated V4 DEV Apps Script deployment. Until that /exec URL is
 // pasted here it fails closed (no request is sent), so it can never write to the production workbook.
-const V4_DEV_BACKEND='REPLACE_WITH_V4_DEV_WEB_APP_EXEC_URL';
+const V4_DEV_BACKEND='https://script.google.com/macros/s/AKfycbwMVd8v5KaUM164fgW_qQzR7NsBkU7XiD63JkZGhOoerYA357ybQzz8ly1dQQiEWuF5/exec'; // V4 DEV web app (synthetic DEV workbook only)
 const V3_BACKEND=/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(V4_DEV_BACKEND)&&V4_DEV_BACKEND.indexOf('AKfycbyHiHPdms')===-1&&V4_DEV_BACKEND.indexOf('AKfycbzDtA92')===-1?V4_DEV_BACKEND:'';
 const V4_OPTION_PRICE={bare_minimum:'4.99',self_guided:'117',reality_reset:'147',pattern_break:'197'};
 let a=Array(15).fill(null),i=0,lead=null;
