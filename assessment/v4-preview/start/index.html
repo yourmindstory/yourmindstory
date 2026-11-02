@@ -396,7 +396,7 @@ const purchase=recLink?recLink[0]:'';
 let needsPostResultQuestions=false,stageDetails='',finalDetails='',proofDetails='',guarantee='';
 const v4Spec=[]; // {html,next,kind}
 const isComplete=qual.length>=3;
-guarantee='<div class="rec-guarantee"><p><strong>21-day money-back guarantee</strong></p><p>Give yourself the opportunity to feel more like yourself.</p><p>If you use the sessions as directed for 21 days and don\'t feel you\'ve received any benefit or value, you can request a refund within 21 days of purchase.*</p></div>';
+guarantee='<div class="rec-guarantee"><p><strong>21-day money-back guarantee</strong></p><p><strong>MY PROMISE TO YOU</strong></p><p>I want you to actually use what you\'ve bought.</p><p>If you genuinely follow the programme, use the sessions and complete your Progress Reviews, and feel you\'ve received no value from it, contact me.</p><p>We\'ll look at how I can support you better. And if it isn\'t right for you, I\'ll refund you.</p></div>';
 const v4Ctx={first:safeName,outcome:outcome,exactOutcome:(a[11]!==null&&a[11]!==undefined&&Q[11].o[a[11]])?Q[11].o[a[11]]:'',stages:qual.slice().sort((x,y)=>x-y),guarantee:guarantee,evidence:evidenceHtml,kimberly:kimberlyReview};
 if(qual.length===0){
  v4Spec.push({kind:'rec',html:'<div class="eyebrow">'+namedHeading+'</div>'+recognition+'<div class="rec rec-offer">'+recommendation+route+cta+'</div>'});
