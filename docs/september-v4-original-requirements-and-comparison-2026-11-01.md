@@ -121,3 +121,13 @@ Scope: updated the isolated PR #17 branch only, fix/v4-quiz-email-2026-11-01. No
 ### Required next evidence
 
 Provide or create, under the Your Mind Story Google account, an isolated V4 DEV workbook copied from the V4 schema and a separate Apps Script deployment configured only to that DEV workbook. Record its spreadsheet ID, script project ID, deployment ID and version. Until those exact identifiers are available, keep PR #17 as a draft and do not point the frontend at a backend or submit test data.
+
+
+## 2 November 2026: recommendation and Bare Minimum email clarification
+
+- The assessment scores determine the work scope. Q1 can redirect a high-scoring Complete result to The Bare Minimum because that is the goal she selected; this does not change or erase the score finding.
+- Q2 determines the support presentation. For “I’m not sure where to start. I’d like you to recommend what would help me most,” the candidate presents all three Complete options with £117 Self-Guided primary and £147 Reality Reset / £197 Pattern Break as alternatives. The £117 primary follows the score-qualified Complete base recommendation. The scores do not measure whether someone needs 1:1 support, so they do not justify elevating £147 or £197 on their own.
+- The low-score Bare Minimum email retains its approved finding. For a high-score Complete result redirected by Q1 to The Bare Minimum, the backend candidate now builds a separate finding naming the affected stages and echoing her selected goal. It no longer tells her that no stage is standing out.
+- The uploaded 15-email preview was generated before this source change and shows the two Bare Minimum variants as identical. It is evidence of the old defect, not a preview of the updated candidate. Regenerate and review that pair from an isolated V4 DEV deployment before release. Do not send either email as a test.
+- Complete email copy remains the approved template; no new Complete copy has been introduced. The higher-priority inconsistency is corrected in the source candidate, but its generated email still requires preview review.
+- Static syntax check passes. No deployment, email send, synthetic submission, checkout transaction or production workbook write was performed.
