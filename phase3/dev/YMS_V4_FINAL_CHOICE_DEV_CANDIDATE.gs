@@ -1,10 +1,11 @@
 /**
- * Your Mind Story V4 Assessment backend (UPDATED CANDIDATE: MUST BE REDEPLOYED)
+ * Your Mind Story V4 Assessment backend — DEV CANDIDATE r2 (2 Nov 2026). NOT a production build.
  * Version: YMS-ASSESSMENT-2026-V4
- * Spreadsheet: 1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM
- * NEW BASELINE: V4 Responses, V4 Journey Events and V4 Sales Events start on 1 November 2026.
- * Preserves support preference, hesitation, conditional readiness and September-style result emails.
- * v2: keeps full funnel history but removes historical event reconciliation from the locked submission path.
+ * DEV spreadsheet: 1xl41dlFS0Z0dZ3p9yXrVxu7NJHdoE6da7nckKiEB42o (synthetic only). Production workbook is refused.
+ * r2 changes: approved Phase 3 email copy restored verbatim (phase3/voc-support-choice);
+ *   final choice persisted before send with an idempotent send state; post-result Q1/Q2 validated
+ *   against approved wording and stored in their own columns; getResult returns decision state for
+ *   resume; DEV email suppression/redirect; DEV purchase sync disabled; V4 email UTM campaign.
  *
  * Deploy as a Web app:
  * Execute as: Me
@@ -24,7 +25,24 @@
  * until it is re-authorised. The Gmail-based Stan purchase sync lives in a separate project.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r2';
+
+// ---- Environment (2 Nov 2026, r2) ----
+// 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
+//          is suppressed (recorded, not sent) unless the V4_DEV_EMAIL_REDIRECT_TO script property is set,
+//          in which case every email goes ONLY to that owner test inbox, never to the submitted address.
+// 'PROD' : set ONLY at the approved production release, together with V4_SHEET_ID (see release checklist).
+var V4_ENV = 'DEV';
+var V4_PROD_SHEET_ID_ = '1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM';
+var V4_V3_HISTORY_SHEET_ID_ = '1MRK7_t-_HN8OCHpK8tm1E8QWXexo8ACLMTdsqZjaoXE'; // V3 history: never opened by this script
+var V4_DEV_SHEET_TITLE_ = 'YMS V4 DEV Assessment - Synthetic Only - 2026-11-02';
+// Saved-result link in the transactional email. The V4 page restores the progressive result
+// from ?resultToken=. Override per deployment with the V4_RESULT_PAGE_URL script property.
+var V4_RESULT_PAGE_URL_DEFAULT_ = 'https://yourmindstory.co.uk/assessment/v4-preview/start/';
+function v4IsDev_() { return V4_ENV !== 'PROD'; }
+function v4ScriptProp_(k) {
+  try { return String(PropertiesService.getScriptProperties().getProperty(k) || '').trim(); } catch (e) { return ''; }
+}
 // V4 is the ONLY writable assessment destination. The original V3 workbook is never used.
 var V4_SHEET_ID = '1xl41dlFS0Z0dZ3p9yXrVxu7NJHdoE6da7nckKiEB42o';
 var V3_SHEET_ID = V4_SHEET_ID; // Compatibility alias for existing legacy functions.
@@ -34,10 +52,14 @@ function openYMSV4Sheet_() {
     throw new Error('Set an isolated V4 DEV spreadsheet ID before use; production writes are disabled.');
   if (V3_SHEET_ID !== V4_SHEET_ID)
     throw new Error('V4 CONFIG ERROR: legacy alias and V4 DEV spreadsheet ID do not match.');
-  if (V4_SHEET_ID === '1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM')
+  if (V4_SHEET_ID === V4_V3_HISTORY_SHEET_ID_)
+    throw new Error('V4 CONFIG ERROR: the V3 historical workbook is never writable from V4.');
+  if (v4IsDev_() && V4_SHEET_ID === V4_PROD_SHEET_ID_)
     throw new Error('V4 CONFIG ERROR: the production workbook is forbidden for DEV testing.');
+  if (!v4IsDev_() && V4_SHEET_ID !== V4_PROD_SHEET_ID_)
+    throw new Error('V4 CONFIG ERROR: PROD mode must target the production V4 workbook only.');
   var ss = SpreadsheetApp.openById(V4_SHEET_ID);
-  if (ss.getName() !== 'YMS V4 DEV Assessment - Synthetic Only - 2026-11-02') {
+  if (v4IsDev_() && ss.getName() !== V4_DEV_SHEET_TITLE_) {
     throw new Error('V4 CONFIG ERROR: workbook title mismatch. Refusing to write assessment data.');
   }
   return ss;
@@ -47,8 +69,10 @@ function verifyV4Connection() {
   var ss = openYMSV4Sheet_();
   var sh = ss.getSheetByName('V4 Responses');
   if (!sh) throw new Error('V4 workbook is missing its V4 Responses tab.');
-  var info = {ok:true,assessmentVersion:V3_VERSION,backendBuild:V3_BACKEND_BUILD,
-              spreadsheetId:V4_SHEET_ID,spreadsheetTitle:ss.getName(),responseTab:sh.getName()};
+  var info = {ok:true,assessmentVersion:V3_VERSION,backendBuild:V3_BACKEND_BUILD,env:V4_ENV,
+              spreadsheetId:V4_SHEET_ID,spreadsheetTitle:ss.getName(),responseTab:sh.getName(),
+              responseRows:Math.max(0,sh.getLastRow()-1),
+              emailMode:v4EmailMode_(),resultPageUrl:v4ResultPageUrl_()};
   console.log(JSON.stringify(info));
   return info;
 }
@@ -151,6 +175,8 @@ var STAN_PAGE_PRODUCTS = {
 function doGet(e) {
   var action = e && e.parameter ? clean_(e.parameter.action) : '';
   if (action === 'sync') {
+    // DEV must never import production Payhip/Stan purchase rows (real customer data) into the synthetic workbook.
+    if (v4IsDev_()) return ContentService.createTextOutput('sync disabled in development').setMimeType(ContentService.MimeType.TEXT);
     var sync = syncAllV3_();
     var csv = sync.ok ? [['Last sync',sync.syncedAt],['Purchases (all)',sync.purchases],['Matched to an assessment',sync.matchedPurchases],['Unmatched',sync.unmatchedPurchases],['Backend build',V3_BACKEND_BUILD]]
       : [['Last sync','busy, will retry'],['Backend build',V3_BACKEND_BUILD]];
@@ -185,11 +211,14 @@ function doGet(e) {
       // already uses from its live in-memory answers, instead of a reduced/different version.
       beliefPosition:data['Q9 Belief Position']||'',
       relationshipContext:data['Q11 Relationship Context']||'',
-      desiredOutcome:data['Q12 Desired Outcome']||''
+      desiredOutcome:data['Q12 Desired Outcome']||'',
+      // r2: decision state so a returning visitor resumes, or sees, her saved final choice.
+      // Option IDs only; no email address or free-text answers are returned.
+      decision:v4DecisionState_(data)
     });
   }
   return json_({
-    ok:true,status:'ok',assessmentVersion:V3_VERSION,backendBuild:V3_BACKEND_BUILD,
+    ok:true,status:'ok',assessmentVersion:V3_VERSION,backendBuild:V3_BACKEND_BUILD,env:V4_ENV,
     message:'Your Mind Story V4 assessment backend is running.',spreadsheetTarget:'V4 only'
   });
 }
@@ -235,6 +264,9 @@ function doPost(e) {
     // straight into the 'Stan Purchases' tab by the separate 'YMS Stan Purchase Sync' script, which
     // reads Stan's own purchase confirmation emails. These two maintenance actions only recompute
     // derived columns from data already in the Sheet, so they are safe to expose.
+    if (body && v4IsDev_() && (body.action === 'rematchPurchases' || body.action === 'reclassifySources')) {
+      return json_({ok:false,code:'DEV_ACTION_DISABLED',message:'Purchase maintenance is disabled in development.'});
+    }
     if (body && body.action === 'rematchPurchases') {
       return json_(rematchAllPurchasesV3_());
     }
@@ -330,10 +362,38 @@ function doPost(e) {
 
 
 /* ============================== V4 FINAL DECISION ============================== */
-// Existing V3 tab names remain stable. Never interpret a support preference as a
-// diagnosis or automatically substitute a more expensive offer for the scored route.
+// r2 (2 Nov 2026). The final offer is persisted BEFORE any transactional email is built or sent.
+// Abandoned choices never send an offer-specific email. Delivery is idempotent: once the email
+// is recorded as sent (or DEV-suppressed), repeating the same choice returns the saved result and
+// never sends again; a different choice after the email is refused with the saved choice returned.
+// Q1, Q2 and any existing barrier answer are stored in their own columns. None of them alters scores.
+
+// Approved post-result wording (owner baseline, 1 Nov 2026). Stored answers use this canonical text.
+var V4_GOAL_CHOICES_ = {
+  self_work:'I want help understanding myself, breaking the cycle and getting my mind back.',
+  understand_him:'I mainly want to understand him and what his behaviour means.',
+  change_him:'I mainly want help getting him back or changing his behaviour.',
+  unsure:"I'm not sure yet."
+};
+// "recommend" primary: taken from the existing Phase 3 implementation (phase3/voc-support-choice,
+// assessment/start/index.html: primary = independent ? self_guided : reality_reset). The owner has
+// not separately documented an assessment-based rule; see remaining issues. Change in ONE place.
+var V4_RECOMMEND_PRIMARY_ = 'reality_reset';
+var V4_SUPPORT_CHOICES_ = {
+  independent:{answer:"I'm happy to work independently",allowed:['self_guided'],primary:'self_guided'},
+  additional:{answer:'I want additional support',allowed:['reality_reset','pattern_break'],primary:'reality_reset'},
+  some_support:{answer:'I think some support would help me with this',allowed:['reality_reset','pattern_break'],primary:'reality_reset'},
+  recommend:{answer:"I'm not sure where to start. I'd like you to recommend what would help me most.",
+    allowed:['reality_reset','self_guided','pattern_break'],primary:V4_RECOMMEND_PRIMARY_}
+};
+var V4_COMPLETE_OPTIONS_ = ['self_guided','reality_reset','pattern_break'];
+var V4_SEND_STALE_MS_ = 10 * 60 * 1000;
+
+function v4NormText_(s) {
+  return String(s == null ? '' : s).replace(/[‘’]/g,"'").replace(/\s+/g,' ').trim();
+}
 function validFinalOfferV4_(option) {
-  return ['self_guided','reality_reset','pattern_break','bare_minimum'].indexOf(clean_(option)) !== -1;
+  return ['self_guided','reality_reset','pattern_break','bare_minimum','scored_route'].indexOf(clean_(option)) !== -1;
 }
 function choiceIdV4_(obj, explicit) {
   if (explicit) return clean_(explicit);
@@ -342,7 +402,7 @@ function choiceIdV4_(obj, explicit) {
 }
 function finalOfferTitleV4_(result, option) {
   if (option === 'bare_minimum') return 'The Bare Minimum — £4.99';
-  if (result.route === SERIES_NAME && validFinalOfferV4_(option)) {
+  if (result.route === SERIES_NAME && V4_COMPLETE_OPTIONS_.indexOf(option) !== -1) {
     var c = COMPLETE_CHOICES_V3.filter(function(x){ return x.option === option; })[0];
     if (c) return c.title;
   }
@@ -354,6 +414,24 @@ function storedResultV4_(d) {
     qualifyingStages:String(d['Qualifying Stages']||'').split(',').map(function(s){return s.trim();}).filter(Boolean)};
 }
 function utcV4_() { return Utilities.formatDate(new Date(),'UTC',"yyyy-MM-dd'T'HH:mm:ss'Z'"); }
+function v4QuestionsRequired_(d) {
+  var qualifyingCount = String(d['Qualifying Stages']||'').split(',').map(function(x){return x.trim();}).filter(Boolean).length;
+  return String(d['Recommended Route']||'') === SERIES_NAME && qualifyingCount >= 3 && Number(d['Total Score']||0) >= 15;
+}
+function v4DecisionState_(d) {
+  var saved = !!clean_(d['V4 Decision Saved UTC']);
+  var provider = clean_(d['Result Email Provider']);
+  return {
+    saved:saved,
+    finalOfferOption:saved ? clean_(d['V4 Result Email Route']) : '',
+    finalOffer:saved ? clean_(d['V4 Final Offer Shown']) : '',
+    question1OptionId:clean_(d['V4 Post-Result Question 1 Option ID']),
+    question2OptionId:clean_(d['V4 Post-Result Question 2 Option ID']),
+    questionsRequired:v4QuestionsRequired_(d),
+    resultEmailSent:!!clean_(d['Result Email Sent']) && provider !== 'dev-suppressed',
+    resultEmailSuppressed:!!clean_(d['Result Email Sent']) && provider === 'dev-suppressed'
+  };
+}
 
 // One bounded read/write for the adjacent V4 decision fields instead of a separate
 // spreadsheet RPC for every field. Never includes unrelated columns or formula cells.
@@ -366,6 +444,50 @@ function saveV4DecisionBlock_(sh,rowNumber,fields){
   range.setValues([cells]);
 }
 
+// Validates the request against the SAVED row (never the client's idea of the route).
+// Returns {ok:true, option, q1Id, q1Answer, q2Id, q2Answer} or an error object.
+function validateV4Decision_(d, body) {
+  var route = String(d['Recommended Route']||'');
+  var option = clean_(body.finalOfferOption);
+  var question1 = body.question1 || null, question2 = body.question2 || null;
+  var q1Id = choiceIdV4_(question1, question1 && question1.optionId);
+  var q2Id = choiceIdV4_(question2, question2 && question2.optionId);
+  var required = v4QuestionsRequired_(d);
+  if (route === SERIES_NAME && required) {
+    if (!Object.prototype.hasOwnProperty.call(V4_GOAL_CHOICES_, q1Id))
+      return {ok:false,code:'QUESTION_1_REQUIRED',message:'Please answer the first post-result question.'};
+    if (v4NormText_(answerText_(question1)) !== v4NormText_(V4_GOAL_CHOICES_[q1Id]))
+      return {ok:false,code:'INVALID_QUESTION_1',message:'Please choose an answer from the list.'};
+    var bareRoute = q1Id === 'understand_him' || q1Id === 'change_him';
+    if (bareRoute) {
+      if (q2Id) return {ok:false,code:'INVALID_QUESTION_2',message:'The support question does not apply to this answer.'};
+      if (option !== 'bare_minimum') return {ok:false,code:'OFFER_MISMATCH',message:'This answer must use The Bare Minimum route.'};
+      return {ok:true,option:option,q1Id:q1Id,q1Answer:V4_GOAL_CHOICES_[q1Id],q2Id:'',q2Answer:''};
+    }
+    var support = V4_SUPPORT_CHOICES_[q2Id];
+    if (!support) return {ok:false,code:'QUESTION_2_REQUIRED',message:'Please answer the support question.'};
+    if (v4NormText_(answerText_(question2)) !== v4NormText_(support.answer))
+      return {ok:false,code:'INVALID_QUESTION_2',message:'Please choose an answer from the list.'};
+    if (support.allowed.indexOf(option) === -1)
+      return {ok:false,code:'OFFER_MISMATCH',message:'Please select an offer available for your answer.'};
+    return {ok:true,option:option,q1Id:q1Id,q1Answer:V4_GOAL_CHOICES_[q1Id],q2Id:q2Id,q2Answer:support.answer};
+  }
+  // Every other route: the post-result questions are never asked, so they must not be stored.
+  if (q1Id || q2Id) return {ok:false,code:'QUESTIONS_NOT_APPLICABLE',message:'These questions do not apply to this result.'};
+  if (route === SERIES_NAME) {
+    if (V4_COMPLETE_OPTIONS_.indexOf(option) === -1)
+      return {ok:false,code:'OFFER_MISMATCH',message:'Choose one of the Complete support options.'};
+  } else if (route === 'Bare Minimum') {
+    if (option !== 'bare_minimum') return {ok:false,code:'OFFER_MISMATCH',message:'This result must use The Bare Minimum.'};
+  } else if (route === 'Single Stage' || route === 'Two-Stage Pair') {
+    if (option && option !== 'scored_route') return {ok:false,code:'OFFER_MISMATCH',message:'This result must use its scored recommendation.'};
+    option = 'scored_route';
+  } else {
+    return {ok:false,code:'UNKNOWN_ROUTE',message:'Saved result route is not recognised.'};
+  }
+  return {ok:true,option:option,q1Id:'',q1Answer:'',q2Id:'',q2Answer:''};
+}
+
 function finalizeResultV4_(body) {
   var token = clean_(body.resultToken);
   if (!token) return {ok:false,code:'MISSING_RESULT_TOKEN',message:'Saved result token is required'};
@@ -373,98 +495,79 @@ function finalizeResultV4_(body) {
   if (!rowNumber) return {ok:false,code:'NOT_FOUND',message:'Saved assessment not found'};
   var d = rowObject_(sh,rowNumber);
   if (body.submissionId && clean_(body.submissionId) !== clean_(d['Submission ID']))
-    return {ok:false,code:'SUBMISSION_MISMATCH'};
-  var r = storedResultV4_(d);
-  var option = clean_(body.finalOfferOption);
-  var question1 = body.question1 || null, question2 = body.question2 || null;
-  var barrier = body.barrierAnswer || null;
-  var q1Id = choiceIdV4_(question1, question1 && question1.optionId);
-  var q2Id = choiceIdV4_(question2, question2 && question2.optionId);
-  var q1Answer = clean_(answerText_(question1));
-  var q2Answer = clean_(answerText_(question2));
-  var total = Number(d['Total Score']||0);
-  var qualifyingCount = String(d['Qualifying Stages']||'').split(',').map(function(x){return x.trim();}).filter(Boolean).length;
-  var questionsRequired = r.route === SERIES_NAME && qualifyingCount >= 3 && total >= 15;
-  var validGoals = ['self_work','understand_him','change_him','unsure'];
-  var validSupports = ['independent','additional','some_support','recommend'];
-  if (questionsRequired) {
-    if (validGoals.indexOf(q1Id) === -1 || !q1Answer)
-      return {ok:false,code:'QUESTION_1_REQUIRED',message:'Please answer the first post-result question'};
-    var bareRoute = q1Id === 'understand_him' || q1Id === 'change_him';
-    if (!bareRoute && (validSupports.indexOf(q2Id) === -1 || !q2Answer))
-      return {ok:false,code:'QUESTION_2_REQUIRED',message:'Please answer the support question'};
-    if (bareRoute && option !== 'bare_minimum')
-      return {ok:false,code:'OFFER_MISMATCH',message:'This answer must use The Bare Minimum route'};
-    if (!bareRoute) {
-      if (q2Id === 'independent' && option !== 'self_guided')
-        return {ok:false,code:'OFFER_MISMATCH',message:'The independent route must use Self-Guided'};
-      if (['additional','some_support'].indexOf(q2Id) !== -1 && ['reality_reset','pattern_break'].indexOf(option) === -1)
-        return {ok:false,code:'OFFER_MISMATCH',message:'Choose Reality Reset or Pattern Break for this support route'};
-      if (q2Id === 'recommend' && ['self_guided','reality_reset','pattern_break'].indexOf(option) === -1)
-        return {ok:false,code:'OFFER_MISMATCH',message:'Choose one of the Complete support options'};
-    }
-  }
-  if (option && !validFinalOfferV4_(option))
-    return {ok:false,code:'INVALID_OFFER',message:'Final offer must match an available choice'};
-  if (option === 'bare_minimum' && r.route !== SERIES_NAME && r.route !== 'Bare Minimum')
-    return {ok:false,code:'INVALID_OFFER',message:'The Bare Minimum route is not available for this result'};
-  if (option && option !== 'bare_minimum' && r.route !== SERIES_NAME)
-    return {ok:false,code:'INVALID_OFFER',message:'Complete offers are not available for this result'};
-  if (!option && questionsRequired)
-    return {ok:false,code:'FINAL_OFFER_REQUIRED',message:'A final offer choice is required'};
-
+    return {ok:false,code:'SUBMISSION_MISMATCH',message:'Saved result does not match this assessment.'};
+  var v = validateV4Decision_(d, body);
+  if (!v.ok) return v;
+  var option = v.option, r = storedResultV4_(d);
   var finalTitle = finalOfferTitleV4_(r,option);
-  var oldTitle = clean_(d['V4 Final Offer Shown']);
-  if (clean_(d['Result Email Sent'])) {
-    if (oldTitle && oldTitle === finalTitle) {
-      return {ok:true,status:'finalized',resultEmailSent:true,
-        provider:clean_(d['Result Email Provider'])||'',finalOffer:finalTitle,idempotent:true};
+  var state = v4DecisionState_(d);
+  var emailRecorded = !!clean_(d['Result Email Sent']);
+
+  if (emailRecorded) {
+    if (state.saved && state.finalOfferOption === option) {
+      return {ok:true,status:'finalized',idempotent:true,finalOfferOption:option,finalOffer:finalTitle,
+        resultEmailSent:state.resultEmailSent,resultEmailSuppressed:state.resultEmailSuppressed,
+        provider:clean_(d['Result Email Provider'])||''};
     }
     return {ok:false,status:'choice_locked_after_email',code:'EMAIL_ALREADY_SENT',
-      message:'The result email was already sent before this final choice could be saved.'};
+      savedFinalOfferOption:state.finalOfferOption,savedFinalOffer:state.finalOffer,
+      message:'Your result email has already been sent for the choice you saved.'};
   }
-  if (oldTitle && oldTitle !== finalTitle)
-    return {ok:false,status:'choice_locked',code:'CHOICE_MISMATCH',message:'A different final offer is already saved. Please resume that choice.'};
+  if (clean_(d['Result Email Provider']) === 'sending') {
+    var since = Date.parse(String(d['Result Email Error']||'').replace(/^sending since /,''));
+    if (!isNaN(since) && Date.now() - since < V4_SEND_STALE_MS_)
+      return {ok:false,code:'SEND_IN_PROGRESS',message:'Your email is being prepared. Please wait a moment.'};
+  }
 
-  var timestamp = utcV4_();
+  // 1) Persist the final choice. A previously saved, UNSENT choice may be replaced (for example after a
+  //    failed delivery), because nothing customer-facing has been sent for it.
   var preference = body.supportPreference || null;
-  var hesitation = body.hesitation || null;
   var decisionFields={
     'V4 Final Offer Shown':finalTitle,
-    'V4 Result Email Route':option||r.route,
-    'V4 Decision Saved UTC':timestamp,
+    'V4 Result Email Route':option,
+    'V4 Decision Saved UTC':utcV4_(),
     'V4 Assessment Build':V3_BACKEND_BUILD,
-    'V4 Post-Result Question 1 Option ID':q1Id,
-    'V4 Post-Result Question 1 Answer':q1Answer,
-    'V4 Post-Result Question 2 Option ID':q2Id,
-    'V4 Post-Result Question 2 Answer':q2Answer,
-    'V4 Existing Barrier Answer':clean_(answerText_(barrier))
+    'V4 Post-Result Question 1 Option ID':v.q1Id,
+    'V4 Post-Result Question 1 Answer':v.q1Answer,
+    'V4 Post-Result Question 2 Option ID':v.q2Id,
+    'V4 Post-Result Question 2 Answer':v.q2Answer,
+    'V4 Existing Barrier Answer':clean_(answerText_(body.barrierAnswer || null))
   };
-  if(preference){
-    decisionFields['V4 Support Preference Question']=clean_(body.supportPreferenceQuestion||'What level of support would you prefer?');
-    decisionFields['V4 Support Preference Option ID']=choiceIdV4_(preference,body.supportPreferenceOptionId);
-    decisionFields['V4 Support Preference Answer']=clean_(answerText_(preference));
-  }
-  if(hesitation){
-    decisionFields['V4 Hesitation Question']=clean_(body.hesitationQuestion||'What, if anything, is making you hesitate about starting to work on this now?');
-    decisionFields['V4 Hesitation Option ID']=choiceIdV4_(hesitation,body.hesitationOptionId);
-    decisionFields['V4 Hesitation Answer']=clean_(answerText_(hesitation));
+  if (preference && V4_COMPLETE_OPTIONS_.indexOf(option) !== -1) {
+    decisionFields['V4 Support Preference Question']='Final Complete support choice';
+    decisionFields['V4 Support Preference Option ID']=option;
+    decisionFields['V4 Support Preference Answer']=finalTitle;
   }
   saveV4DecisionBlock_(sh,rowNumber,decisionFields);
+  setByHeader_(sh,rowNumber,'Result Email Provider','sending');
+  setByHeader_(sh,rowNumber,'Result Email Error','sending since '+new Date().toISOString());
+  try { SpreadsheetApp.flush(); } catch (flushErr) {}
 
+  // 2) Build and send exactly the email for the SAVED choice.
   var emailResult = r;
   if (option === 'bare_minimum') {
     emailResult = {route:'Bare Minimum',product:'The Bare Minimum',price:PRICE_BARE_MINIMUM,
       category:'bare_minimum',qualifyingStages:[]};
   }
   var customer = {email:String(d['Email']||''),firstName:String(d['First Name']||'')};
-  var delivery = sendResultEmailV3_(customer,emailResult,token,String(d['Journey ID']||''),String(d['Submission ID']||''),option);
-  setByHeader_(sh,rowNumber,'Result Email Provider',delivery.provider || 'none');
+  var delivery;
+  try {
+    delivery = sendResultEmailV3_(customer,emailResult,token,String(d['Journey ID']||''),String(d['Submission ID']||''),
+      V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 ? option : '');
+  } catch (sendErr) {
+    delivery = {ok:false,provider:'none',error:String(sendErr)};
+  }
+  setByHeader_(sh,rowNumber,'Result Email Provider',delivery.ok ? (delivery.provider||'mailapp') : 'none');
   setByHeader_(sh,rowNumber,'Result Email Error',String(delivery.error||'').slice(0,1000));
   if (delivery.ok) setByHeader_(sh,rowNumber,'Result Email Sent',Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss'));
+  try { SpreadsheetApp.flush(); } catch (flushErr2) {}
+  var suppressed = delivery.ok && delivery.provider === 'dev-suppressed';
   return {ok:delivery.ok === true,status:delivery.ok ? 'finalized' : 'email_failed',
-    resultEmailSent:delivery.ok === true,provider:delivery.provider||'none',
-    finalOffer:finalTitle};
+    code:delivery.ok ? undefined : 'EMAIL_FAILED',
+    message:delivery.ok ? undefined : 'Your choice is saved but the email could not be sent. Please try again.',
+    finalOfferOption:option,finalOffer:finalTitle,
+    resultEmailSent:delivery.ok === true && !suppressed,resultEmailSuppressed:suppressed,
+    provider:delivery.provider||'none'};
 }
 function sendPendingV4ResultEmails() {
   // Deliberate no-op: an abandoned choice must never trigger an offer email.
@@ -566,7 +669,7 @@ function handleJourneyRequestV3_(body) {
       return json_({ok:false,status:'error',code:'MISSING_IDENTITY',message:'Missing resultToken, submissionId or journeyId'});
     }
     recordCanonicalJourneyV3_(body, list, identity);
-    if (list.some(function(ev){ return clean_(ev && ev.eventType) === 'purchase_return_view'; })) {
+    if (!v4IsDev_() && list.some(function(ev){ return clean_(ev && ev.eventType) === 'purchase_return_view'; })) {
       try { syncAllV3_(); } catch (syncErr) { console.error('Sync after Payhip return failed: ' + syncErr); }
     }
     var sheet = getV3Sheet_();
@@ -1141,10 +1244,11 @@ function withTrackingV3_(url, result, journeyId, submissionId) {
   if (!url) return url;
   var sep = url.indexOf('?') === -1 ? '?' : '&';
   var params = {
-    utm_source:'yms_assessment', utm_medium:'email', utm_campaign:'v3_result_email',
+    utm_source:'yms_assessment', utm_medium:'email', utm_campaign:'v4_result_email',
     utm_content:result.category || ''
   };
-  if (url.indexOf('yourmindstory.co.uk') !== -1) { params.jid = journeyId || ''; params.sid = submissionId || ''; }
+  // DEV: no jid/sid, so the live /assessment/choice/ redirect never logs a DEV click into the production V4 workbook.
+  if (!v4IsDev_() && url.indexOf('yourmindstory.co.uk') !== -1) { params.jid = journeyId || ''; params.sid = submissionId || ''; }
   return url + sep + Object.keys(params).filter(function(k){return params[k];}).map(function(k){ return k+'='+encodeURIComponent(params[k]); }).join('&');
 }
 
@@ -1158,6 +1262,7 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
     var buttonUrl=withTrackingV3_(content.buttonUrl, result, journeyId, submissionId);
     // Secondary, visually smaller option (Return to You Series emails only, added 2026-10-09).
     var secondaryUrl=content.secondaryButtonUrl ? withTrackingV3_(content.secondaryButtonUrl, {category:'return_to_you_series_start_single'}, journeyId, submissionId) : '';
+    var resultLink=savedResultLinkV3_(resultToken,result,journeyId,submissionId);
     var subject='Your Mind Story: your assessment result is ready';
     var plainBody=
       'Hi '+firstName+',\n\n'+
@@ -1168,6 +1273,7 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
       content.buttonLabel+'\n'+
       buttonUrl+'\n\n'+
       (secondaryUrl ? content.secondaryText+'\n\n'+content.secondaryButtonLabel+'\n'+secondaryUrl+'\n\n' : '')+
+      (resultLink ? 'Your personalised result: '+resultLink+'\n\n' : '')+
       'With care,\nOnye';
     var htmlBody=
       '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#111827;font-size:16px;line-height:1.65;">'+
@@ -1179,218 +1285,155 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
       '<p style="margin:32px 0;"><a href="'+escapeHtmlV3_(buttonUrl)+'" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:15px 22px;font-weight:700;border-radius:2px;">'+escapeHtmlV3_(content.buttonLabel)+'</a></p>'+
       (secondaryUrl ? '<div style="border-top:1px solid #e5e7eb;margin:0 0 32px;padding-top:24px;font-size:15px;line-height:1.6;color:#374151;">'+content.secondaryHtml+
         '<p style="margin:20px 0 0;"><a href="'+escapeHtmlV3_(secondaryUrl)+'" style="display:inline-block;background:#ffffff;color:#111827;text-decoration:none;padding:10px 16px;font-size:14px;font-weight:700;border:1px solid #111827;border-radius:2px;">'+escapeHtmlV3_(content.secondaryButtonLabel)+'</a></p></div>' : '')+
+      (resultLink ? '<p style="margin:10px 0 24px;"><a href="'+escapeHtmlV3_(resultLink)+'">VIEW MY PERSONALISED RESULTS</a></p>' : '')+
       '<p>With care,<br>Onye</p>'+
       '</div>';
-    try {
-      if (MailApp.getRemainingDailyQuota()<1) throw new Error('MailApp daily recipient quota is exhausted.');
-      MailApp.sendEmail({to:email,subject:subject,body:plainBody,htmlBody:htmlBody,name:'Onye'});
-      return {ok:true,provider:'mailapp',error:errors.join(' | ')};
-    } catch(mailErr) {
-      errors.push('MailApp error: '+String(mailErr));
-    }
+    var sent=deliverResultEmailV3_(email,firstName,subject,htmlBody,plainBody);
+    if (!sent.ok) throw new Error(sent.error);
+    return sent;
   } catch(err) {
     errors.push('Email build/send error: '+String(err));
   }
   return {ok:false,provider:'none',error:errors.join(' | ')};
 }
 
-/* ============================== RESULT EMAIL — approved shorter email (31 Oct 2026) ============================== */
-// Every route (4 singles, 6 pairs, Complete, Bare Minimum) now goes through buildResultLetterV3_.
+/* ============================== RESULT EMAIL — "I’ve looked at your answers" (approved 2026-10-28) ============================== */
+// Stage routes (4 singles, 6 pairs, Complete) get this email. The Bare Minimum route keeps its own
+// email, unchanged, via sendResultEmailLegacyV3_.
 // Customer-facing copy below is approved verbatim. Do not reword it without Onye's approval.
 // Scoring, routing, saved prices and the single/pair Stan mappings are NOT defined here.
 
 var RESULT_EMAIL_PREVIEW_V3 = 'Here’s where I recommend you start.';
 var RESULT_EMAIL_TEST_TO_V3 = 'yourmindstory.co.uk@gmail.com';
-// 31 Oct 2026: updated to the subject line fixed in the "APPROVED FINAL EMAIL COPY" section of
-// docs/assessment-email-conversion-templates-2026-10-31.md. The Bare Minimum route's own subject
-// is untouched.
-function resultEmailSubjectV3_() { return 'Your Mind Story: your results are ready'; }
+function resultEmailSubjectV3_(firstName) { return firstName + ', I’ve looked at your answers'; }
 
 // Customer-facing stage names. Routing/product keys (STAGES, SINGLE_URLS, PAIR_URLS) are unchanged.
 var STAGE_DISPLAY_V3 = {'Return to Yourself':'Return to You'};
 function stageDisplayV3_(s) { return STAGE_DISPLAY_V3[s] || s; }
 
-// Shared "belief shift" middle of every stage email, shortened 31 Oct 2026 per Onye's approved
-// "shorter results email" (replaces the longer APPROVED FINAL EMAIL COPY middle section). Every
-// hypnotherapy route (single/pair/complete) uses this. The Bare Minimum route uses the separate
-// "ebook-only belief shift" below instead - see docs/assessment-email-conversion-templates-
-// 2026-10-31.md, "FINAL OFFER DESCRIPTIONS — APPROVED 31 OCTOBER 2026".
+// Shared middle of every stage email (between the result block and the recommendation block).
 var RESULT_EMAIL_MIDDLE_V3 = [
-  'You might already understand his behaviour. But knowing what to do and being able to do it are two different things.',
-  'You can’t change him. But you can work on what his pattern has done to you.'
+  'And there’s a reason I asked you about those things.',
+  'More than 1,800 women have now taken the Your Mind Story assessment. And although every relationship is different, the same four areas keep showing up in what women tell me this pattern has done to them:',
+  'the alarm, the pull, losing trust in themselves and losing themselves in what’s happening with him.',
+  'That’s why those are the four areas I work on.',
+  'You might already understand why he behaves the way he does. You might even know exactly what you should do.',
+  'But knowing something consciously doesn’t automatically change the pattern that’s been created in you.',
+  'You don’t decide to feel anxious when he goes quiet. You don’t decide to wake up thinking about him, feel the urge to check your phone or suddenly want to reach out after promising yourself you wouldn’t.',
+  'Those responses can happen automatically.',
+  'That’s why knowing what to do and being able to do it are two different things.',
+  'You can’t always think your way out of a response you didn’t consciously choose.',
+  'That’s the part we work on with Cognitive Behavioral Hypnotherapy.',
+  'Rather than giving you more information about him, we’re working on the responses that are now happening in you.'
 ];
-// "Ebook-only belief shift" - literal text from the doc, used only for the Bare Minimum route.
-var RESULT_EMAIL_MIDDLE_EBOOK_V3 =
-  'Understanding what healthy love looks like is a starting point. Recognising what you’re willing to accept is where your choices begin.';
 
-// "What you want" outcome phrases for the new approved "And what you want is {{selected_outcome}}."
-// sentence (Single/Pair routes only - see buildResultLetterV3_). Adapted to second person from the
-// doc's "Stage-specific transformation language" bank (originally third person, e.g. "...need not
-// send her into hours of anxiety"); wording is otherwise that bank's, not newly written.
-var RESULT_EMAIL_OUTCOME_V3 = {
-  'Quiet the Alarm': 'to stop a thought, memory or his silence from being able to send you into hours of anxiety',
-  'Break the Pull': 'less automatic checking, chasing, replaying or reaching out',
-  'Restore Self-Trust': 'to stand by your decisions and boundaries instead of repeatedly questioning yourself',
-  'Return to Yourself': 'to reclaim your attention and energy for your own day and life'
-};
-// Returns '' for the Complete/Series route: that route keeps its own existing approved result/rec
-// text (RESULT_EMAIL_COMPLETE_V3) untouched rather than forcing it into this single/pair-shaped
-// sentence, since the approved doc does not provide a four-stage version of this line.
-function resultEmailOutcomeV3_(route, product) {
-  if (route === 'Single Stage') return RESULT_EMAIL_OUTCOME_V3[product] || '';
-  if (route === 'Two-Stage Pair') {
-    var stages = product.split(' → ');
-    var a = RESULT_EMAIL_OUTCOME_V3[stages[0]], b = RESULT_EMAIL_OUTCOME_V3[stages[1]];
-    return (a && b) ? (a + ', and ' + b) : '';
-  }
-  return '';
-}
-
-// Fills the "[specific trigger]" slot in the approved Single-stage offer description ("...helping
-// you practise responding differently when [specific trigger] comes up..."). Not in the approved
-// doc verbatim - these are the same already-approved per-stage phrases used elsewhere (the
-// existing RESULT_EMAIL_SINGLE_V3 "rec" text and the outcome bank above), reused here rather than
-// newly written, since the doc's offer description leaves this one slot open.
-// Each phrase must be a noun phrase, not a clause with its own verb - the template reads
-// "when [X] comes up", so "you're tempted to..." would double up on verbs ("...to do comes up").
-var RESULT_EMAIL_TRIGGER_V3 = {
-  'Quiet the Alarm': 'a thought, memory or his silence',
-  'Break the Pull': 'the urge to check, reach out, replay things or look for reassurance',
-  'Restore Self-Trust': 'a decision or boundary you want to stick to',
-  'Return to Yourself': 'something happening with him'
-};
-
-// Jan's quotes themselves (both confirmed by Onye, 31 Oct 2026, against her Google Form response
-// dated 17 October 2026) now live only on success-stories.html's id="jan" section - not inline in
-// this email, per the shorter approved copy (see successStoryLinkV3_ below).
-
-// Tracked link back to the saved, personalised result (resultToken), now that
-// assessment/start/index.html can resume and render a saved result (result.html fix, 31 Oct 2026).
-var RESULT_PAGE_URL_V3 = 'https://yourmindstory.co.uk/assessment/result/';
-function savedResultLinkV3_(resultToken, result, journeyId, submissionId) {
-  if (!resultToken) return '';
-  var base = withTrackingV3_(RESULT_PAGE_URL_V3, result, journeyId, submissionId);
-  var sep = base.indexOf('?') === -1 ? '?' : '&';
-  return base + sep + 'resultToken=' + encodeURIComponent(resultToken);
-}
-
-// Tracked link to Jan's story on the (already live) success stories page, per Onye's 31 Oct 2026
-// instruction. Hypnotherapy routes only (single/pair/complete) - never Bare Minimum, since Jan's
-// result was from guided hypnotherapy, a different product (see buildResultLetterV3_). The '#jan'
-// fragment must be appended AFTER the tracking query string, not passed into withTrackingV3_ (which
-// just appends params to whatever string it's given), or the fragment would swallow the params.
-var SUCCESS_STORIES_URL_V3 = 'https://yourmindstory.co.uk/success-stories.html';
-function successStoryLinkV3_(result, journeyId, submissionId) {
-  return withTrackingV3_(SUCCESS_STORIES_URL_V3, result, journeyId, submissionId) + '#jan';
-}
-
-// "rec" fields below hold the approved offer-specific inclusion description (31 Oct 2026, "FINAL
-// OFFER DESCRIPTIONS — APPROVED 31 OCTOBER 2026" in the templates doc). Per Onye's explicit rule,
-// Single/Pair use ONLY that description's second paragraph (the first paragraph re-states the
-// assessment finding, which the email already opens with, so it's dropped here to avoid repeating
-// it). [stage name] / [specific trigger] are filled per stage from STAGE_DISPLAY_V3 /
-// RESULT_EMAIL_TRIGGER_V3 - not newly written text, just the approved template's two open slots.
 var RESULT_EMAIL_SINGLE_V3 = {
   'Quiet the Alarm': {
     result: ['Your answers show that the area affecting you most right now is the anxiety and alarm that gets triggered by what’s happening with him.'],
+    rec: ['That’s why I recommend starting with Quiet the Alarm.',
+          'This is where we work on the response that gets triggered when something happens with him, so you can start feeling calmer rather than being pulled straight into the anxiety.'],
     priceLine: 'Quiet the Alarm — £37',
     button: 'START WITH QUIET THE ALARM'
   },
   'Break the Pull': {
     result: ['Your answers show that the area affecting you most right now is the pull back towards him: checking, reaching out, replaying things or looking for reassurance.'],
+    rec: ['That’s why I recommend starting with Break the Pull.',
+          'This is where we work on those automatic urges that keep pulling your attention back to him, even when part of you has already decided you don’t want to keep doing it.'],
     priceLine: 'Break the Pull — £37',
     button: 'START WITH BREAK THE PULL'
   },
   'Restore Self-Trust': {
     result: ['Your answers show that the area affecting you most right now is trusting yourself and standing by the decisions and boundaries you make for yourself.'],
+    rec: ['That’s why I recommend starting with Restore Self-Trust.',
+          'This is where we work on being able to trust your own decisions again, rather than repeatedly finding yourself going against what you said you were going to do.'],
     priceLine: 'Restore Self-Trust — £37',
     button: 'START WITH RESTORE SELF-TRUST'
   },
   'Return to Yourself': {
     result: ['Your answers show that the area affecting you most right now is how much of your attention, energy and life has become caught up in what’s happening with him.'],
+    rec: ['That’s why I recommend starting with Return to You.',
+          'This is where we work on bringing your attention back to you and your own life, so everything doesn’t keep revolving around what he is or isn’t doing.'],
     priceLine: 'Return to You — £37',
     button: 'START WITH RETURN TO YOU'
   }
 };
-// Builds the approved Single-stage offer description (second paragraph only), per stage.
-function singleInclusionV3_(product) {
-  var trigger = RESULT_EMAIL_TRIGGER_V3[product] || 'this comes up';
-  return 'You’ll receive guided Cognitive Behavioural Hypnotherapy audio sessions for '+stageDisplayV3_(product)+
-    '. Over 21 days, you can practise responding differently when '+trigger+' comes up, so it doesn’t keep taking over your thoughts and your day.';
-}
 
-// Keys are the existing pair product keys (PAIR_URLS). Price line uses the £74 pair price. The
-// approved Two-stage offer description (second paragraph only) is fixed text with no per-pair
-// substitution, so it's a single constant (PAIR_INCLUSION_V3) rather than one per product.
+// Keys are the existing pair product keys (PAIR_URLS). Price line uses the £74 pair price.
 var RESULT_EMAIL_PAIR_V3 = {
   'Quiet the Alarm → Break the Pull': {
-    result: ['Your answers show that two areas are affecting you more strongly: the anxiety and alarm, and the pull to check, reach out, replay things or look for reassurance.']
+    result: ['Your answers show that two areas are affecting you more strongly: the anxiety and alarm, and the pull to check, reach out, replay things or look for reassurance.'],
+    rec: ['That’s why I recommend Quiet the Alarm followed by Break the Pull. We work on the alarm first, then the responses it can pull you into.']
   },
   'Quiet the Alarm → Restore Self-Trust': {
-    result: ['Your answers show that two areas are affecting you more strongly: the anxiety and alarm, and how difficult it can be to trust and stand by your own decisions.']
+    result: ['Your answers show that two areas are affecting you more strongly: the anxiety and alarm, and how difficult it can be to trust and stand by your own decisions.'],
+    rec: ['That’s why I recommend Quiet the Alarm followed by Restore Self-Trust. We work on settling that alarm and then on being able to trust yourself and the decisions you make.']
   },
   'Quiet the Alarm → Return to Yourself': {
-    result: ['Your answers show that two areas are affecting you more strongly: the anxiety and alarm, and how much of your attention and energy is being pulled away from you and back onto him.']
+    result: ['Your answers show that two areas are affecting you more strongly: the anxiety and alarm, and how much of your attention and energy is being pulled away from you and back onto him.'],
+    rec: ['That’s why I recommend Quiet the Alarm followed by Return to You. We work on the alarm first, then on bringing more of your attention and energy back to you and your own life.']
   },
   'Break the Pull → Restore Self-Trust': {
-    result: ['Your answers show that two areas are affecting you more strongly: the pull to check, reach out or look for reassurance, and how difficult it can be to trust and stand by your own decisions.']
+    result: ['Your answers show that two areas are affecting you more strongly: the pull to check, reach out or look for reassurance, and how difficult it can be to trust and stand by your own decisions.'],
+    rec: ['That’s why I recommend Break the Pull followed by Restore Self-Trust. We work on the responses that keep pulling you back in, then on rebuilding trust in your own decisions.']
   },
   'Break the Pull → Return to Yourself': {
-    result: ['Your answers show that two areas are affecting you more strongly: the pull back towards him, and how much of your attention and energy has become caught up in what he’s doing.']
+    result: ['Your answers show that two areas are affecting you more strongly: the pull back towards him, and how much of your attention and energy has become caught up in what he’s doing.'],
+    rec: ['That’s why I recommend Break the Pull followed by Return to You. We work on the responses that keep pulling you back towards him, then on bringing more of your attention back to you.']
   },
   'Restore Self-Trust → Return to Yourself': {
-    result: ['Your answers show that two areas are affecting you more strongly: trusting and standing by your own decisions, and how much of your attention and energy has become caught up in what’s happening with him.']
+    result: ['Your answers show that two areas are affecting you more strongly: trusting and standing by your own decisions, and how much of your attention and energy has become caught up in what’s happening with him.'],
+    rec: ['That’s why I recommend Restore Self-Trust followed by Return to You. We work on rebuilding trust in yourself and then on bringing more of your attention and energy back to your own life.']
   }
 };
 var RESULT_EMAIL_PAIR_BUTTON_V3 = 'START WITH THESE TWO';
-var PAIR_INCLUSION_V3 = 'You’ll receive guided Cognitive Behavioural Hypnotherapy audio sessions for both stages, with 21 days of practice for each stage. You can work on both responses instead of trying to change one while the other keeps pulling you back.';
+
+var RESULT_PAGE_URL_V3 = 'https://yourmindstory.co.uk/assessment/result/';
+function savedResultLinkV3_(resultToken,result,journeyId,submissionId) {
+  if (!resultToken) return '';
+  var base=withTrackingV3_(v4ResultPageUrl_(),result,journeyId,submissionId);
+  return base+(base.indexOf('?')===-1?'?':'&')+'resultToken='+encodeURIComponent(resultToken);
+}
 
 var RESULT_EMAIL_COMPLETE_V3 = {
   result: ['Your answers show that this isn’t affecting just one part of your life.',
-           'They’re showing that several of these areas are being affected more than moderately.']
+           'They’re showing that several of these areas are being affected more than moderately.'],
+  rec: ['That’s why I recommend working through the complete Return to Yourself programme.',
+        'We work through the four areas in order:',
+        'Quiet the Alarm → Break the Pull → Restore Self-Trust → Return to You.',
+        'Your answers are showing me that the pattern is affecting you across these areas, so that’s where I’d recommend we work.'],
+  choiceHeading: 'How would you like to work on this?'
 };
 
 // The three Complete choices. Each button goes to the YMS redirect page, which records the click
 // (complete_self_guided_click / reality_reset_click / pattern_break_click) and forwards immediately
-// to the matching Stan offer. The Stan destinations are held in that page's allowlist. "desc" is
-// the approved offer description (31 Oct 2026) - full text for these three (the "single/pair only"
-// second-paragraph rule doesn't apply here, since none of them restate the assessment finding).
+// to the matching Stan offer. The Stan destinations are held in that page's allowlist.
 var RESULT_CHOICE_REDIRECT_URL_V3 = 'https://yourmindstory.co.uk/assessment/choice/';
 var COMPLETE_CHOICES_V3 = [
   { option:'self_guided', event:'complete_self_guided_click', price:117,
     stan:'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx',
     quote:'“I want to work through it myself.”',
     title:'Return to Yourself — Self-Guided | £117',
-    desc:'You’ll receive all four stages of Return to Yourself as guided Cognitive Behavioural Hypnotherapy audio sessions. Each stage includes 21 days of practice to help you quieten anxiety, break the pull to check or chase, rebuild trust in your decisions and boundaries, and bring your attention back to your own life. You can work through the sessions at your own pace.',
+    desc:'The complete four-stage programme, Emergency Reset and weekly check-ins.',
     button:'I WANT TO WORK THROUGH IT MYSELF' },
   { option:'reality_reset', event:'reality_reset_click', price:147,
     stan:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',
     quote:'“I just need to speak to somebody who understands what I’m going through.”',
     title:'Return to Yourself + Reality Reset | £147',
-    desc:'You’ll receive all four stages of guided Cognitive Behavioural Hypnotherapy audio sessions, a reflection workbook and a private 20-minute Reality Reset session with me. You can work through the audio sessions at your own pace and use our private session to talk through where you’re getting stuck, ask questions and get focused guidance on what to practise next.',
+    desc:'Everything in the self-guided programme, plus the workbook and a private 20-minute conversation with me to talk about what’s happening, ask the questions going around in your head and get some clarity.',
     button:'I WANT TO SPEAK TO ONYE' },
   { option:'pattern_break', event:'pattern_break_click', price:197,
     stan:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break',
     quote:'“I want to talk through what’s happening with me.”',
     title:'Return to Yourself + Pattern Break Session | £197',
-    desc:'You’ll receive all four stages of guided Cognitive Behavioural Hypnotherapy audio sessions, a reflection workbook and a private 50-minute CBT session with me. We’ll have time to explore the pattern that’s keeping you stuck, identify the responses you want to change and work on practical ways to respond differently in your own circumstances.',
+    desc:'Everything in the self-guided programme, plus the workbook and a private 50-minute solution-focused CBT session with me to properly talk through what’s been happening, the patterns you keep getting pulled into and what you need to work on.',
     button:'I WANT THE PATTERN BREAK SESSION' }
 ];
 
-// Bare Minimum (£4.99 ebook route) - approved offer description, finding text (reused verbatim
-// from the pre-existing legacy email, buildV3EmailContent_'s 'Bare Minimum' branch, per Onye's
-// "keep the existing personalised findings" instruction), and the Stan URL already used elsewhere.
-var BARE_MINIMUM_INCLUSION_V3 = 'You’ll receive The Bare Minimum, an ebook covering five non-negotiables for healthy love. It’s a starting point for recognising what you need from a relationship, identifying what you’ve been accepting that doesn’t meet those needs and becoming clearer about the boundaries you want to hold.';
-var BARE_MINIMUM_FINDING_V3 = 'Based on your answers, one part of the cycle isn’t standing out strongly enough for me to recommend one of the four stage sessions as your first step.';
-
-// 31 Oct 2026: Bare Minimum now goes through the same unified buildResultLetterV3_ as every other
-// route (previously it kept its own separate, unchanged legacy email). Per the templates doc's
-// "Short email order" line, it gets the ebook-only belief shift and its own offer description, and
-// - because the Jan's-story link is explicitly scoped "(hypnotherapy offers only)" - no testimonial
-// link at all, since Jan's result was from guided hypnotherapy, a different product. The old
-// sendResultEmailLegacyV3_/buildV3EmailContent_ functions are left in place, unused, rather than
-// deleted, in case anything else still references them.
 function sendResultEmailV3_(body,result,resultToken,journeyId,submissionId,finalOfferOption) {
+  // The Bare Minimum route is deliberately untouched: same subject, body, link and routing as before.
+  if (result.route === 'Bare Minimum') {
+    return sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId);
+  }
   var errors=[];
   try {
     var firstName=clean_(body.firstName);
@@ -1403,14 +1446,39 @@ function sendResultEmailV3_(body,result,resultToken,journeyId,submissionId,final
   return {ok:false,provider:'none',error:errors.join(' | ')};
 }
 
-// Owner-approved transactional delivery for this candidate uses Google MailApp only.
-// Marketing consent is handled separately.
+// V4 transactional delivery: Google MailApp only (no Brevo). Marketing consent is NOT consulted here:
+// the result email is transactional. In DEV the gate below suppresses or redirects every send.
+function v4ResultPageUrl_() { return v4ScriptProp_('V4_RESULT_PAGE_URL') || V4_RESULT_PAGE_URL_DEFAULT_; }
+function v4EmailMode_() {
+  if (!v4IsDev_()) return 'send';
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v4ScriptProp_('V4_DEV_EMAIL_REDIRECT_TO')) ? 'redirect' : 'suppress';
+}
+function v4LogDevEmail_(mode,intendedTo,actualTo,subject,plainBody,htmlBody,outcome) {
+  try {
+    var ss = openYMSV4Sheet_(), name = 'V4 DEV Email Log', sh = ss.getSheetByName(name);
+    if (!sh) {
+      sh = ss.insertSheet(name);
+      sh.getRange(1,1,1,8).setValues([['Logged UTC','Mode','Intended Recipient','Actual Recipient','Subject','Outcome','Plain Text','HTML']]);
+      sh.setFrozenRows(1);
+    }
+    sh.appendRow([utcV4_(),mode,intendedTo,actualTo||'',subject,outcome,String(plainBody).slice(0,45000),String(htmlBody).slice(0,45000)]);
+  } catch (logErr) { console.error('DEV email log failed: '+logErr); }
+}
 function deliverResultEmailV3_(email,firstName,subject,htmlBody,plainBody) {
+  var mode = v4EmailMode_();
+  if (mode === 'suppress') {
+    v4LogDevEmail_(mode,email,'',subject,plainBody,htmlBody,'suppressed (not sent)');
+    return {ok:true,provider:'dev-suppressed',error:''};
+  }
+  var to = mode === 'redirect' ? v4ScriptProp_('V4_DEV_EMAIL_REDIRECT_TO') : email;
+  var subj = mode === 'redirect' ? '[V4 DEV for '+email+'] '+subject : subject;
   try {
     if (MailApp.getRemainingDailyQuota()<1) throw new Error('MailApp daily recipient quota is exhausted.');
-    MailApp.sendEmail({to:email,subject:subject,body:plainBody,htmlBody:htmlBody,name:'Onye'});
-    return {ok:true,provider:'mailapp',error:''};
+    MailApp.sendEmail({to:to,subject:subj,body:plainBody,htmlBody:htmlBody,name:'Onye'});
+    if (mode === 'redirect') v4LogDevEmail_(mode,email,to,subj,plainBody,htmlBody,'sent to owner test inbox');
+    return {ok:true,provider:mode === 'redirect' ? 'mailapp-dev-redirect' : 'mailapp',error:''};
   } catch(mailErr) {
+    if (mode === 'redirect') v4LogDevEmail_(mode,email,to,subj,plainBody,htmlBody,'FAILED: '+mailErr);
     return {ok:false,provider:'none',error:'MailApp error: '+String(mailErr)};
   }
 }
@@ -1421,6 +1489,7 @@ function resultLetterPlanV3_(result) {
     return {
       kind:'complete',
       result: RESULT_EMAIL_COMPLETE_V3.result,
+      rec: RESULT_EMAIL_COMPLETE_V3.rec,
       choices: COMPLETE_CHOICES_V3
     };
   }
@@ -1429,7 +1498,7 @@ function resultLetterPlanV3_(result) {
     if (!purl || !pc) throw new Error('Unknown V3 two-stage product: '+product);
     var stages = product.split(' → ');
     return {
-      kind:'pair', url:purl, result:pc.result, rec:[PAIR_INCLUSION_V3],
+      kind:'pair', url:purl, result:pc.result, rec:pc.rec,
       priceLine: stageDisplayV3_(stages[0])+' + '+stageDisplayV3_(stages[1])+' — £'+PRICE_PAIR,
       button: RESULT_EMAIL_PAIR_BUTTON_V3
     };
@@ -1437,13 +1506,7 @@ function resultLetterPlanV3_(result) {
   if (route === 'Single Stage') {
     var surl = SINGLE_URLS[product], sc = RESULT_EMAIL_SINGLE_V3[product];
     if (!surl || !sc) throw new Error('Unknown V3 single-stage product: '+product);
-    return { kind:'single', url:surl, result:sc.result, rec:[singleInclusionV3_(product)], priceLine:sc.priceLine, button:sc.button };
-  }
-  if (route === 'Bare Minimum') {
-    return {
-      kind:'bare', url: BARE_MINIMUM_URL, result: [BARE_MINIMUM_FINDING_V3], rec:[BARE_MINIMUM_INCLUSION_V3],
-      priceLine: 'The Bare Minimum — £4.99', button: 'START WITH THE BARE MINIMUM'
-    };
+    return { kind:'single', url:surl, result:sc.result, rec:sc.rec, priceLine:sc.priceLine, button:sc.button };
   }
   throw new Error('No result letter configured for route: '+route+' / product: '+product);
 }
@@ -1454,198 +1517,77 @@ function completeChoiceLinkV3_(choice, result, journeyId, submissionId) {
   return withTrackingV3_(RESULT_CHOICE_REDIRECT_URL_V3 + '?o=' + encodeURIComponent(choice.option), result, journeyId, submissionId);
 }
 
-
-/* V4 CUSTOMER EMAIL COPY: editable in the V4 workbook (tab: V4 Email Copy, column B).
-   Copy has a 60-second cache. If the tab cannot be read, approved fallback strings in
-   this source preserve email delivery. The key column and product/price/URLs are NOT editable. */
-var V4_EMAIL_COPY_TAB_ = 'V4 Email Copy';
-function readEditableEmailCopyV4_() {
-  var cacheKey='YMS_V4_EMAIL_COPY_V1';
-  try {
-    var cached=CacheService.getScriptCache().get(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch(cacheErr) {}
-  var copy={};
-  try {
-    var sh=openYMSV4Sheet_().getSheetByName(V4_EMAIL_COPY_TAB_);
-    if (sh && sh.getLastRow()>1) {
-      var vals=sh.getRange(2,1,sh.getLastRow()-1,2).getValues();
-      vals.forEach(function(r){
-        var k=String(r[0]||'').trim(), val=String(r[1]||'');
-        if(k && val.trim()) copy[k]=val;
-      });
-    }
-    try{CacheService.getScriptCache().put(cacheKey,JSON.stringify(copy),60);}catch(cacheErr2){}
-  } catch(err) {
-    // A temporary email-copy Sheet problem must not prevent transactional emails.
-    console.error('V4 Email Copy read failed, using source fallback: '+err);
-  }
-  return copy;
-}
-function emailCopyTextV4_(values,key,fallback){
-  return Object.prototype.hasOwnProperty.call(values,key)?values[key]:fallback;
-}
-function emailCopyRouteKeyV4_(result){
-  return String(result.route||'')+'::'+String(result.product||'');
-}
-
-// Rewritten 31 Oct 2026 (second revision) to Onye's approved SHORTER results email: personalised
-// finding, desired outcome, "Here's where I recommend you start.", offer name/price, the approved
-// offer-specific description, ONE "START MY RECOMMENDED PROGRAMME" CTA (no repeat), a short belief
-// shift (ebook-only variant for Bare Minimum), "Will this work for me?" + a link to Jan's story on
-// the (already live) success-stories.html page - hypnotherapy routes only, never Bare Minimum -
-// then the saved-personalised-result link, then sign-off. Replaces the previous, longer revision
-// (inline Jan quotes, two headings, a repeated CTA) per docs/assessment-email-conversion-
-// templates-2026-10-31.md's "FINAL OFFER DESCRIPTIONS — APPROVED 31 OCTOBER 2026" section. Still
-// recommends ONE offer (self-guided) for the 'complete' route with Reality Reset / Pattern Break
-// as optional add-ons shown lower - that structural mechanic, and its timing (email always sent at
-// submission, before any on-page readiness/choice interaction), are unchanged.
 function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToken,finalOfferOption) {
   var plan = resultLetterPlanV3_(result);
-  var copy = {}; // Use the owner-approved Phase 3 source constants only. The V4 Email Copy tab is not approved.
-  var routeKey = emailCopyRouteKeyV4_(result);
-  var personalFinding = emailCopyTextV4_(copy,'finding::'+routeKey,'');
-  if (personalFinding.trim()) plan.result=personalFinding.split(/\n\s*\n/).filter(function(x){return x.trim();});
-  if (plan.kind==='complete') {
-    plan.choices=plan.choices.map(function(c){
-      var dkey='desc_'+c.option;
-      var ckey='cta_'+c.option;
-      var newC=Object.assign({},c);
-      newC.desc=emailCopyTextV4_(copy,dkey,c.desc);
-      newC.button=emailCopyTextV4_(copy,ckey,c.button);
-      return newC;
-    });
-  } else if (plan.kind==='pair') {
-    plan.rec=[emailCopyTextV4_(copy,'desc_pair',plan.rec.join('\n\n'))];
-  } else if (plan.kind==='single') {
-    plan.rec=[emailCopyTextV4_(copy,'desc_single::'+result.product,plan.rec.join('\n\n'))];
-  } else if (plan.kind==='bare') {
-    plan.rec=[emailCopyTextV4_(copy,'desc_ebook',plan.rec.join('\n\n'))];
-  }
   var e = escapeHtmlV3_;
   var P = '<p style="margin:0 0 18px;">';
-  var CTA_LABEL = plan.kind === 'bare' ? emailCopyTextV4_(copy,'primary_cta_ebook','READ THE EBOOK') :
-    emailCopyTextV4_(copy,'primary_cta_audio','START MY SESSIONS');
-  var isEbook = plan.kind === 'bare';
-  var emailPreheader=emailCopyTextV4_(copy,'preheader',RESULT_EMAIL_PREVIEW_V3);
-  var savedBtn=emailCopyTextV4_(copy,'saved_results_button','VIEW MY PERSONALISED RESULTS');
-  var storyBtn=emailCopyTextV4_(copy,'testimonial_button','READ JAN’S STORY AND OTHER WOMEN’S EXPERIENCES');
-  var storyQuestion=emailCopyTextV4_(copy,'testimonial_question','Will this work for me?');
-  var upgradesHeading=emailCopyTextV4_(copy,'upgrades_heading','Want more support alongside it?');
-  var upgradesIntro=emailCopyTextV4_(copy,'upgrades_intro','These are optional — add either one if you know you’d like more support than the self-guided programme alone.');
-  var outcomePrefix=emailCopyTextV4_(copy,'outcome_prefix','And what you want is ');
-  var ending=emailCopyTextV4_(copy,'signoff','Onye\nYour Mind Story');
-  var beliefAudio=[emailCopyTextV4_(copy,'belief_audio_1',RESULT_EMAIL_MIDDLE_V3[0]),
-    emailCopyTextV4_(copy,'belief_audio_2',RESULT_EMAIL_MIDDLE_V3[1])];
-  var beliefEbook=emailCopyTextV4_(copy,'belief_ebook',RESULT_EMAIL_MIDDLE_EBOOK_V3);
   function paras(list) { return list.map(function(t){ return P+e(t)+'</p>'; }).join(''); }
   function btn(label, href, margin) {
     return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:'+(margin||'22px 0 30px')+';"><tr><td style="background:#111827;border-radius:2px;">'+
       '<a href="'+e(href)+'" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;line-height:1.3;">'+e(label)+'</a>'+
       '</td></tr></table>';
   }
-  function smallBtn(label, href) {
-    return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0 4px;"><tr><td style="background:#ffffff;border:1px solid #111827;border-radius:2px;">'+
-      '<a href="'+e(href)+'" style="display:inline-block;padding:10px 16px;color:#111827;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:0.3px;line-height:1.3;">'+e(label)+'</a>'+
-      '</td></tr></table>';
-  }
   var preheader = '<div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">'+
-    e(emailPreheader)+new Array(60).join('&#8204;&nbsp;')+'</div>';
+    e(RESULT_EMAIL_PREVIEW_V3)+new Array(60).join('&#8204;&nbsp;')+'</div>';
 
   var links = [];
-  var primaryUrl, primaryTitle, explainHtml, explainText, secondaryHtml = '', secondaryText = '';
-  var outcomeSentence=emailCopyTextV4_(copy,'outcome::'+routeKey,resultEmailOutcomeV3_(result.route,result.product));
-
+  var recHtml, recText;
   if (plan.kind === 'complete') {
-    // Quiz answers alone only ever justify the base self-guided programme. Reality Reset and
-    // Pattern Break are presented below as optional add-ons a woman can choose for herself —
-    // never as if her answers already pointed to one of them.
-    var primary = plan.choices.filter(function(c){ return c.option === finalOfferOption; })[0] || plan.choices[0];
-    // Once a woman chose Reality Reset or Pattern Break, don't misleadingly display
-    // self-guided as an 'upgrade' or try to sell her another consultation tier.
-    var upgrades = primary.option === 'self_guided' ? plan.choices.slice(1) : [];
-    primaryUrl = completeChoiceLinkV3_(primary, result, journeyId, submissionId);
-    primaryTitle = primary.title;
-    links.push({label:CTA_LABEL, url:primaryUrl, option:primary.option, event:primary.event});
-
-    explainHtml = P + e(primary.desc) + '</p>';
-    explainText = primary.desc + '\n\n';
-
-    var upgradeHtml = '<p style="font-weight:700;color:#111827;margin:26px 0 6px;">'+e(upgradesHeading)+'</p>'+
-      '<p style="margin:0 0 14px;color:#374151;">'+e(upgradesIntro)+'</p>';
-    var upgradeText=upgradesHeading+'\n\n'+upgradesIntro+'\n\n';
-    upgrades.forEach(function(c){
+    var choiceHtml = '', choiceText = '';
+    var choices = finalOfferOption ? plan.choices.filter(function(c){ return c.option === finalOfferOption; }) : plan.choices;
+    if (!choices.length) throw new Error('Unknown final Complete offer: '+finalOfferOption);
+    choices.forEach(function(c){
       var href = completeChoiceLinkV3_(c, result, journeyId, submissionId);
       links.push({label:c.button, url:href, option:c.option, event:c.event});
-      upgradeHtml +=
-        '<div style="border-top:1px solid #e5e7eb;padding-top:16px;margin-top:10px;">'+
-        '<p style="margin:0 0 6px;font-weight:700;">'+e(c.title)+'</p>'+
-        '<p style="margin:0 0 4px;color:#374151;">'+e(c.desc)+'</p>'+
-        smallBtn(c.button, href)+
+      choiceHtml +=
+        '<div style="border-top:1px solid #e5e7eb;padding-top:22px;margin-top:6px;">'+
+        '<p style="margin:0 0 8px;font-style:italic;">'+e(c.quote)+'</p>'+
+        '<p style="font-family:Georgia,serif;font-size:19px;font-weight:700;line-height:1.35;margin:0 0 10px;">'+e(c.title)+'</p>'+
+        P+e(c.desc)+'</p>'+
+        btn(c.button, href, '18px 0 26px')+
         '</div>';
-      upgradeText += c.title+'\n'+c.desc+'\n'+c.button+'\n'+href+'\n\n';
+      choiceText += c.quote+'\n\n'+c.title+'\n\n'+c.desc+'\n\n'+c.button+'\n'+href+'\n\n';
     });
-    secondaryHtml = upgrades.length ? upgradeHtml : '';
-    secondaryText = upgrades.length ? upgradeText : '';
+    recHtml = paras(plan.rec)+
+      (finalOfferOption ? '' : '<p style="font-family:Georgia,serif;font-size:21px;font-weight:700;color:#111827;margin:30px 0 16px;">'+e(RESULT_EMAIL_COMPLETE_V3.choiceHeading)+'</p>')+
+      choiceHtml;
+    recText = plan.rec.join('\n\n')+'\n\n'+(finalOfferOption?'':RESULT_EMAIL_COMPLETE_V3.choiceHeading+'\n\n')+choiceText;
   } else {
     var link = withTrackingV3_(plan.url, result, journeyId, submissionId);
-    links.push({label:CTA_LABEL, url:link});
-    primaryUrl = link;
-    primaryTitle = plan.priceLine;
-    explainHtml = paras(plan.rec);
-    explainText = plan.rec.join('\n\n') + '\n\n';
+    links.push({label:plan.button, url:link});
+    recHtml = paras(plan.rec)+
+      '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(plan.priceLine)+'</p>'+
+      btn(plan.button, link);
+    recText = plan.rec.join('\n\n')+'\n\n'+plan.priceLine+'\n\n'+plan.button+'\n'+link+'\n\n';
   }
 
-  var resultLink = savedResultLinkV3_(resultToken, result, journeyId, submissionId);
-  if (resultLink) links.push({label:savedBtn, url:resultLink});
-
-  // Jan's story link: hypnotherapy routes only (single/pair/complete), never Bare Minimum - her
-  // result was from guided hypnotherapy, a different product, per the templates doc's explicit
-  // "(hypnotherapy offers only)" scoping and "Do not use Jan's hypnotherapy story as proof for the
-  // ebook." The quotes themselves now live only on success-stories.html, not inline in the email.
-  var janLink = '', janHtml = '', janText = '';
-  if (!isEbook) {
-    janLink = successStoryLinkV3_(result, journeyId, submissionId);
-    links.push({label:storyBtn, url:janLink});
-    janHtml=P+e(storyQuestion)+'</p>'+smallBtn(storyBtn,janLink);
-    janText=storyQuestion+'\n'+storyBtn+'\n'+janLink+'\n\n';
-  }
-
-  var beliefHtml=isEbook?P+e(beliefEbook)+'</p>':paras(beliefAudio);
-  var beliefText=(isEbook?beliefEbook:beliefAudio.join('\n\n'))+'\n\n';
-
+  var resultLink=savedResultLinkV3_(resultToken,result,journeyId,submissionId);
+  if (resultLink) links.push({label:'VIEW MY PERSONALISED RESULTS',url:resultLink});
+  var savedResultHtml=resultLink?btn('VIEW MY PERSONALISED RESULTS',resultLink,'10px 0 18px'):'';
+  var savedResultText=resultLink?'Your personalised result: '+resultLink+'\n\n':'';
   var html =
     preheader+
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+
     P+'Hi '+e(firstName)+',</p>'+
+    P+'I’ve looked at your answers.</p>'+
     paras(plan.result)+
-    (outcomeSentence ? P+e(outcomePrefix)+e(outcomeSentence)+'.</p>' : '')+
-    P+e(emailPreheader)+'</p>'+
-    '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(primaryTitle)+'</p>'+
-    explainHtml+
-    btn(CTA_LABEL, primaryUrl)+
-    beliefHtml+
-    janHtml+
-    (resultLink?smallBtn(savedBtn,resultLink):'')+
-    secondaryHtml+
-    '<p style="margin:26px 0 0;">'+e(ending).replace(/\n/g,'<br>')+'</p>'+
+    paras(RESULT_EMAIL_MIDDLE_V3)+
+    recHtml+
+    savedResultHtml+
+    P+'With care,</p>'+
+    '<p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p>'+
     '</div>';
 
   var text =
     'Hi '+firstName+',\n\n'+
+    'I’ve looked at your answers.\n\n'+
     plan.result.join('\n\n')+'\n\n'+
-    (outcomeSentence?outcomePrefix+outcomeSentence+'.\n\n':'')+
-    emailPreheader+'\n\n'+
-    primaryTitle+'\n\n'+
-    explainText+
-    CTA_LABEL+'\n'+primaryUrl+'\n\n'+
-    beliefText+
-    janText+
-    (resultLink?savedBtn+'\n'+resultLink+'\n\n':'')+
-    secondaryText+
-    ending;
+    RESULT_EMAIL_MIDDLE_V3.join('\n\n')+'\n\n'+
+    recText+
+    savedResultText+
+    'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
 
-  return {subject:emailCopyTextV4_(copy,'subject',resultEmailSubjectV3_()),html:html,text:text,link:links[0].url,links:links,plan:plan};
+  return {subject:resultEmailSubjectV3_(firstName), html:html, text:text, link:links[0].url, links:links, plan:plan};
 }
 
 // Every route the assessment can produce, for testing without touching the response sheet.
@@ -1659,15 +1601,22 @@ function allResultRoutesV3_() {
 }
 
 // Run from the editor. Builds every route and logs subject + links. Sends nothing, writes nothing.
-// 31 Oct 2026: Bare Minimum now goes through buildResultLetterV3_ like every other route (see
-// sendResultEmailV3_'s comment), so it's no longer special-cased here either.
 function previewResultEmailsV3() {
   allResultRoutesV3_().forEach(function(r){
-    // Dummy token: shows the saved-result link's shape (domain, param, UTMs) in the preview. It
-    // will not resolve to a real result unless a sheet row with that exact token exists - true
-    // end-to-end resolution can only be checked after a real controlled test submission.
-    var l = buildResultLetterV3_('Test', r, 'TEST-J', 'TEST-S', 'PREVIEW-TOKEN');
-    console.log(r.product + ' | ' + l.subject + ' | ' + l.links.map(function(x){ return x.label + ' → ' + x.url; }).join(' | '));
+    if (r.route === 'Bare Minimum') {
+      var c = buildV3EmailContent_(r);
+      console.log('Bare Minimum (unchanged legacy email) → ' + withTrackingV3_(c.buttonUrl, r, 'TEST-J', 'TEST-S'));
+      return;
+    }
+    if (r.route === SERIES_NAME) {
+      COMPLETE_CHOICES_V3.forEach(function(choice){
+        var finalLetter = buildResultLetterV3_('Test',r,'TEST-J','TEST-S','TEST-RESULT',choice.option);
+        console.log(r.product+' | final choice '+choice.option+' | '+finalLetter.subject+' | '+finalLetter.links.map(function(x){return x.label+' → '+x.url;}).join(' | '));
+      });
+    } else {
+      var l = buildResultLetterV3_('Test', r, 'TEST-J', 'TEST-S', 'TEST-RESULT');
+      console.log(r.product + ' | ' + l.subject + ' | ' + l.links.map(function(x){ return x.label + ' → ' + x.url; }).join(' | '));
+    }
   });
 }
 
@@ -1677,8 +1626,14 @@ function sendTestResultEmailsV3() {
   var routes = allResultRoutesV3_(), out = [];
   routes.forEach(function(r, i){
     var tag = '[TEST ' + (i+1) + '/' + routes.length + '] ';
-    var l = buildResultLetterV3_('Test', r, 'TEST-J', 'TEST-S', 'PREVIEW-TOKEN');
-    var res = deliverResultEmailV3_(RESULT_EMAIL_TEST_TO_V3, 'Test', tag + l.subject, l.html, l.text);
+    var res;
+    if (r.route === 'Bare Minimum') {
+      // Exactly the live Bare Minimum email, sent through its own unchanged function.
+      res = sendResultEmailLegacyV3_({firstName:'Test', email:RESULT_EMAIL_TEST_TO_V3}, r, '', 'TEST-J', 'TEST-S');
+    } else {
+      var l = buildResultLetterV3_('Test', r, 'TEST-J', 'TEST-S');
+      res = deliverResultEmailV3_(RESULT_EMAIL_TEST_TO_V3, 'Test', tag + l.subject, l.html, l.text);
+    }
     out.push(tag + r.product + ' → ' + JSON.stringify(res));
   });
   console.log(out.join('\n'));
@@ -2427,6 +2382,7 @@ function propagateTestFlagsV3_() {
 // Public, idempotent maintenance: pulls Payhip webhook rows from the Sales Log, rematches, propagates test flags.
 // Called hourly by the IMPORTDATA cell on the Funnel Report tab, and after Payhip returns. Reads/writes only this Sheet.
 function syncAllV3_() {
+  if (v4IsDev_()) return {ok:false, code:'DISABLED_IN_DEV'};
   var lock = LockService.getScriptLock();
   var held = lock.hasLock();
   if (!held && !lock.tryLock(25000)) return {ok:false, code:'BUSY'};

@@ -23,7 +23,11 @@ const Q=[
 ];
 const OMITTED_QUESTION_INDEX=13;
 const DISPLAY_QUESTION_COUNT=Q.length-1;
-const V3_BACKEND='https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec';
+// r2: this candidate must only talk to the isolated V4 DEV Apps Script deployment. Until that /exec URL is
+// pasted here it fails closed (no request is sent), so it can never write to the production workbook.
+const V4_DEV_BACKEND='REPLACE_WITH_V4_DEV_WEB_APP_EXEC_URL';
+const V3_BACKEND=/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(V4_DEV_BACKEND)&&V4_DEV_BACKEND.indexOf('AKfycbyHiHPdms')===-1&&V4_DEV_BACKEND.indexOf('AKfycbzDtA92')===-1?V4_DEV_BACKEND:'';
+const V4_OPTION_PRICE={bare_minimum:'4.99',self_guided:'117',reality_reset:'147',pattern_break:'197'};
 let a=Array(15).fill(null),i=0,lead=null;
 try{if(window.YMSQuiz&&YMSQuiz.captureAttribution)YMSQuiz.captureAttribution()}catch(e){}
 (function(){try{if(localStorage.getItem('yms_analytics_consent')!=='yes')return;let p=new URLSearchParams(location.search),keys=['utm_source','utm_medium','utm_campaign','utm_id','utm_term','utm_content','landing_variant'];if(!sessionStorage.getItem('yms_v4_preview_landing_url')){sessionStorage.setItem('yms_v4_preview_landing_url',location.href);sessionStorage.setItem('yms_v4_preview_referrer',document.referrer||'')}keys.forEach(k=>{if(p.get(k))sessionStorage.setItem('yms_v4_preview_'+k,p.get(k))})}catch(e){}})();
@@ -34,7 +38,7 @@ function sourceLabel(attr){let s=(attr.utm_source||'').toLowerCase(),r=(attr.ref
 function getGaIds(){let cid='',sid='';try{let m=document.cookie.match(/(?:^|; )_ga=GA\d\.\d\.(\d+\.\d+)/);if(m)cid=m[1];let g=document.cookie.match(/(?:^|; )_ga_[^=]+=GS\d\.\d\.s?(\d+)/);if(g)sid=g[1]}catch(e){}return{cid,sid}}
 function clarityRef(){if(!analyticsAllowed())return '';try{const g=n=>{let m=document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]+)'));return m?decodeURIComponent(m[1]).split(/[|^]/)[0]:''};let s=g('_clsk'),u=g('_clck');return (s?'session:'+s:'')+(s&&u?' | ':'')+(u?'user:'+u:'')}catch(e){return ''}}
 function tagClarity(sid,jid){if(!analyticsAllowed())return;try{if(window.clarity){window.clarity('set','yms_submission_id',sid);window.clarity('set','yms_journey_id',jid)}}catch(e){}}
-async function submitV3(){v4SubmissionInFlight=true;let attr={};try{attr=(window.YMSQuiz&&YMSQuiz.getAttribution)?YMSQuiz.getAttribution():{}}catch(e){};if(!attr.landingUrl){attr={landingUrl:sessionStorage.getItem('yms_v4_preview_landing_url')||location.href,referrer:sessionStorage.getItem('yms_v4_preview_referrer')||'',utm_source:sessionStorage.getItem('yms_v4_preview_utm_source')||'',utm_medium:sessionStorage.getItem('yms_v4_preview_utm_medium')||'',utm_campaign:sessionStorage.getItem('yms_v4_preview_utm_campaign')||'',utm_term:sessionStorage.getItem('yms_v4_preview_utm_term')||'',utm_content:sessionStorage.getItem('yms_v4_preview_utm_content')||''}}let up=new URLSearchParams(location.search),ids=getGaIds(),sid=submissionId(),answers={};for(let n=0;n<15;n++)answers['q'+(n+1)]=answerObj(n);let payload={submissionId:sid,journeyId:journeyId(),firstName:lead.firstName,email:lead.email,marketingConsent:lead.marketingConsent,answers:answers,sourceJourney:sourceLabel(attr),gaClientId:analyticsAllowed()?ids.cid:'',gaSessionId:analyticsAllowed()?ids.sid:'',firstTouchSource:attr.utm_source||up.get('utm_source')||'',firstTouchMedium:attr.utm_medium||up.get('utm_medium')||'',firstTouchCampaign:attr.utm_campaign||up.get('utm_campaign')||'',assessmentTouchSource:new URLSearchParams(location.search).get('utm_source')||'',assessmentTouchMedium:new URLSearchParams(location.search).get('utm_medium')||'',assessmentTouchCampaign:new URLSearchParams(location.search).get('utm_campaign')||'',utmContent:attr.utm_content||up.get('utm_content')||'',utmTerm:attr.utm_term||up.get('utm_term')||'',landingVariant:up.get('landing_variant')||sessionStorage.getItem('yms_v4_preview_landing_variant')||'',referrer:attr.referrer||(up.get('yms_ref')?'https://'+up.get('yms_ref')+'/':'')||document.referrer||'',landingUrl:attr.landingUrl||location.href,submissionUrl:location.href,userAgent:navigator.userAgent,clarityReference:clarityRef(),experimentVersion:'V4-november-september-flow',landingVariant:up.get('landing_variant')||sessionStorage.getItem('yms_v4_preview_landing_variant')||'',isTest:ymsIsTest(),deferResultEmail:true,readinessRequired:false};// Give this attempt an unguessable token before POST so a saved result can be verified with GET.
+async function submitV3(){if(!V3_BACKEND)throw new Error('V4 DEV backend is not configured');v4SubmissionInFlight=true;let attr={};try{attr=(window.YMSQuiz&&YMSQuiz.getAttribution)?YMSQuiz.getAttribution():{}}catch(e){};if(!attr.landingUrl){attr={landingUrl:sessionStorage.getItem('yms_v4_preview_landing_url')||location.href,referrer:sessionStorage.getItem('yms_v4_preview_referrer')||'',utm_source:sessionStorage.getItem('yms_v4_preview_utm_source')||'',utm_medium:sessionStorage.getItem('yms_v4_preview_utm_medium')||'',utm_campaign:sessionStorage.getItem('yms_v4_preview_utm_campaign')||'',utm_term:sessionStorage.getItem('yms_v4_preview_utm_term')||'',utm_content:sessionStorage.getItem('yms_v4_preview_utm_content')||''}}let up=new URLSearchParams(location.search),ids=getGaIds(),sid=submissionId(),answers={};for(let n=0;n<15;n++)answers['q'+(n+1)]=answerObj(n);let payload={submissionId:sid,journeyId:journeyId(),firstName:lead.firstName,email:lead.email,marketingConsent:lead.marketingConsent,answers:answers,sourceJourney:sourceLabel(attr),gaClientId:analyticsAllowed()?ids.cid:'',gaSessionId:analyticsAllowed()?ids.sid:'',firstTouchSource:attr.utm_source||up.get('utm_source')||'',firstTouchMedium:attr.utm_medium||up.get('utm_medium')||'',firstTouchCampaign:attr.utm_campaign||up.get('utm_campaign')||'',assessmentTouchSource:new URLSearchParams(location.search).get('utm_source')||'',assessmentTouchMedium:new URLSearchParams(location.search).get('utm_medium')||'',assessmentTouchCampaign:new URLSearchParams(location.search).get('utm_campaign')||'',utmContent:attr.utm_content||up.get('utm_content')||'',utmTerm:attr.utm_term||up.get('utm_term')||'',landingVariant:up.get('landing_variant')||sessionStorage.getItem('yms_v4_preview_landing_variant')||'',referrer:attr.referrer||(up.get('yms_ref')?'https://'+up.get('yms_ref')+'/':'')||document.referrer||'',landingUrl:attr.landingUrl||location.href,submissionUrl:location.href,userAgent:navigator.userAgent,clarityReference:clarityRef(),experimentVersion:'V4-november-september-flow',landingVariant:up.get('landing_variant')||sessionStorage.getItem('yms_v4_preview_landing_variant')||'',isTest:ymsIsTest(),deferResultEmail:true,readinessRequired:false};// Give this attempt an unguessable token before POST so a saved result can be verified with GET.
 const tokenKey='yms_v4_preview_result_token_'+sid;
 let token=sessionStorage.getItem(tokenKey);
 if(!token){let bytes=new Uint8Array(24);crypto.getRandomValues(bytes);token=Array.from(bytes,v=>v.toString(16).padStart(2,'0')).join('');sessionStorage.setItem(tokenKey,token)}
@@ -64,7 +68,7 @@ try{
  const data=await Promise.any([posted,polled]);
  if(!(data&&data.ok===true&&data.resultToken===token))throw new Error('V4 save was not verified');
  sessionStorage.setItem('yms_v4_preview_last_submission',JSON.stringify({submissionId:sid,journeyId:payload.journeyId,resultToken:data.resultToken||'',confirmed:true}));tagClarity(sid,payload.journeyId);sessionStorage.setItem('yms_v4_preview_result_state',JSON.stringify({answers:a,lead:lead,submitted:true}));let pending=[];try{pending=JSON.parse(localStorage.getItem('yms_v4_preview_pending_submissions')||'[]')}catch(e){}if(Array.isArray(pending)){pending=pending.filter(x=>x&&x.payload&&x.payload.submissionId!==sid);if(pending.length)localStorage.setItem('yms_v4_preview_pending_submissions',JSON.stringify(pending.slice(-3)));else localStorage.removeItem('yms_v4_preview_pending_submissions')}return payload}catch(err){let pending=[];try{pending=JSON.parse(localStorage.getItem('yms_v4_preview_pending_submissions')||'[]')}catch(e){}if(!Array.isArray(pending))pending=[];pending=pending.filter(x=>x&&x.payload&&x.payload.submissionId!==sid);pending.push({payload:payload,attempts:0,createdAt:Date.now()});localStorage.setItem('yms_v4_preview_pending_submissions',JSON.stringify(pending.slice(-3)));throw err}finally{v4SubmissionInFlight=false;scheduleV4Flush()}}
-async function retryPendingV3(){let pending=[];try{pending=JSON.parse(localStorage.getItem('yms_v4_preview_pending_submissions')||'[]')}catch(e){return}if(!Array.isArray(pending)||!pending.length)return;let keep=[];for(const item of pending){if(!item||!item.payload||!item.payload.submissionId)continue;if((item.attempts||0)>=3)continue;try{let r=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(item.payload),keepalive:true});if(!r.ok)throw new Error('retry failed');let data=await r.json();if(data&&(data.ok===true||data.status==='ok'||data.status==='duplicate'))continue;throw new Error('retry unconfirmed')}catch(e){keep.push(Object.assign({},item,{attempts:(item.attempts||0)+1}))}}if(keep.length)localStorage.setItem('yms_v4_preview_pending_submissions',JSON.stringify(keep.slice(-3)));else localStorage.removeItem('yms_v4_preview_pending_submissions')}
+async function retryPendingV3(){if(!V3_BACKEND)return;let pending=[];try{pending=JSON.parse(localStorage.getItem('yms_v4_preview_pending_submissions')||'[]')}catch(e){return}if(!Array.isArray(pending)||!pending.length)return;let keep=[];for(const item of pending){if(!item||!item.payload||!item.payload.submissionId)continue;if((item.attempts||0)>=3)continue;try{let r=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(item.payload),keepalive:true});if(!r.ok)throw new Error('retry failed');let data=await r.json();if(data&&(data.ok===true||data.status==='ok'||data.status==='duplicate'))continue;throw new Error('retry unconfirmed')}catch(e){keep.push(Object.assign({},item,{attempts:(item.attempts||0)+1}))}}if(keep.length)localStorage.setItem('yms_v4_preview_pending_submissions',JSON.stringify(keep.slice(-3)));else localStorage.removeItem('yms_v4_preview_pending_submissions')}
 retryPendingV3();
 
 function showCapture(){
@@ -116,7 +120,7 @@ function postJourneyEvents(events){
  scheduleV4Flush();
 }
 async function flushV4Events(){
- if(v4ResultAwaitingChoice||v4EventSending||v4SubmissionInFlight||!v4PendingEvents.length)return;
+ if(!V3_BACKEND||v4ResultAwaitingChoice||v4EventSending||v4SubmissionInFlight||!v4PendingEvents.length)return;
  v4EventSending=true;
  const batch=v4PendingEvents.splice(0,10),id=journeyIdentity();
  const lv=new URLSearchParams(location.search).get('landing_variant')||sessionStorage.getItem('yms_v4_landing_variant')||sessionStorage.getItem('yms_v4_preview_landing_variant')||'';
@@ -137,66 +141,77 @@ loadAnalytics();
 function render(trackView=true){if(i===OMITTED_QUESTION_INDEX)i++;if(trackView){postJourneyEvent('assessment_question_view',{step:i+1});track('quiz_progress',{step:i+1,step_number:i+1,step_id:'q'+(i+1),step_name:'Question '+(i+1),total_steps:Q.length});track('yms_question_'+(i+1)+'_view',{question_number:i+1});}const displayStep=i>OMITTED_QUESTION_INDEX?i:i+1;document.getElementById('count').textContent=String(displayStep).padStart(2,'0')+' / '+DISPLAY_QUESTION_COUNT;document.getElementById('fill').style.width=((displayStep-1)/DISPLAY_QUESTION_COUNT*100)+'%';const q=Q[i];let body='<section class="step active"><div class="eyebrow">Question '+displayStep+' of '+DISPLAY_QUESTION_COUNT+'</div><div class="q">'+q.p+'</div>'+(q.sub?'<div class="sub">'+q.sub+'</div>':'');
 if(q.text){body+='<div class="field"><textarea id="txt" maxlength="1500">'+(a[i]||'')+'</textarea></div>'}else{body+='<div class="options">'+q.o.map((x,j)=>'<button type="button" class="opt '+((q.multi&&Array.isArray(a[i])&&a[i].includes(j))||a[i]===j?'sel':'')+'" data-v="'+j+'">'+x+'</button>').join('')+'</div>'}
 body+='<div class="actions"><button type="button" class="back" id="back">'+(i?'Back':'')+'</button>'+(q.multi||q.text?'<button type="button" class="next" id="next">'+(i===14?'SEE MY RESULT':'Continue')+'</button>':'')+'</div></section>';document.getElementById('form').innerHTML=body;
-document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{let v=+b.dataset.v;postJourneyEvent('assessment_option_click',{step:i+1,option_index:v});track('assessment_option_click',{question_number:i+1,step_id:'q'+(i+1),option_index:v});if(q.multi){let ar=Array.isArray(a[i])?[...a[i]]:[];if(v===8){ar=ar.includes(8)?[]:[8]}else{ar=ar.filter(x=>x!==8);ar.includes(v)?ar=ar.filter(x=>x!==v):ar.push(v)}a[i]=ar;render(false);return;}a[i]=v;track('assessment_question_complete',{question_number:i+1,step_number:i+1,step_id:'q'+(i+1),step_name:'Question '+(i+1),total_steps:Q.length});if(i<14){i++;render();}else{render();}});
+document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{let v=+b.dataset.v;postJourneyEvent('assessment_option_click',{step:i+1,option_index:v});track('assessment_option_click',{question_number:i+1,step_id:'q'+(i+1)});if(q.multi){let ar=Array.isArray(a[i])?[...a[i]]:[];if(v===8){ar=ar.includes(8)?[]:[8]}else{ar=ar.filter(x=>x!==8);ar.includes(v)?ar=ar.filter(x=>x!==v):ar.push(v)}a[i]=ar;render(false);return;}a[i]=v;track('assessment_question_complete',{question_number:i+1,step_number:i+1,step_id:'q'+(i+1),step_name:'Question '+(i+1),total_steps:Q.length});if(i<14){i++;render();}else{render();}});
 document.getElementById('back').onclick=()=>{if(i){postJourneyEvent('assessment_back_click',{step:i+1});track('assessment_back_click',{question_number:i+1,step_id:'q'+(i+1)});i--;if(i===OMITTED_QUESTION_INDEX)i--;render()}};const nb=document.getElementById('next');if(nb)nb.onclick=()=>{postJourneyEvent('assessment_continue_click',{step:i+1});track('assessment_continue_click',{question_number:i+1,step_id:'q'+(i+1)});if(q.text){a[i]=document.getElementById('txt').value.trim();if(!a[i]){let msg=document.querySelector('.question-error');if(!msg){msg=document.createElement('p');msg.className='question-error error';document.querySelector('.actions').before(msg)}msg.textContent='Please share a sentence or two before continuing.';return;}}if(!q.text&&(a[i]===null||(q.multi&&a[i].length===0)))return;track('assessment_question_complete',{question_number:i+1,step_number:i+1,step_id:'q'+(i+1),step_name:'Question '+(i+1),total_steps:Q.length});if(i<14){i++;render()}else showCapture()}}
 
+function v4Esc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function v4PostChoice(){let c={};try{c=JSON.parse(sessionStorage.getItem('yms_v4_preview_post_result_choice')||'{}')}catch(e){}const r=journeyIdentity();if(c.resultToken&&r.resultToken&&c.resultToken!==r.resultToken)return {};return c||{}}
+function v4OptionFor(link){const price=Number(link.dataset.recPrice||0);return price===147?'reality_reset':price===197?'pattern_break':price===117?'self_guided':price===4.99?'bare_minimum':'scored_route'}
+function v4ShowTakenStep(overlay,link,handoff,msg){const price=link.dataset.recPrice;overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>${msg}</p><p><a id="v4Checkout" class="next" href="${link.href}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button type="button" class="back" id="v4Finish">Return to results</button></p>`;overlay.querySelector('#v4Checkout').addEventListener('click',()=>handoff(link));overlay.querySelector('#v4Finish').onclick=()=>overlay.remove();overlay.querySelector('#v4Checkout').focus()}
+function v4Overlay(label){const previous=document.getElementById('v4Decision');if(previous)previous.remove();const overlay=document.createElement('div');overlay.id='v4Decision';overlay.style.cssText='position:fixed;z-index:9999;inset:0;overflow:auto;background:rgba(15,28,24,.87);padding:20px';overlay.innerHTML=`<div role="dialog" aria-modal="true" aria-label="${label}" style="max-width:620px;margin:25px auto;background:white;padding:25px;color:#111827;border-radius:5px"></div>`;overlay.addEventListener('keydown',e=>{if(e.key==='Escape')overlay.remove()});document.body.append(overlay);return overlay}
 async function v4OfferDecision(link,handoff){
- const previous=document.getElementById('v4Decision');
- if(previous){previous.remove()}
- const r=JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}');
+ let r={};try{r=JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}')}catch(e){}
  if(!r.resultToken){alert('We could not find your saved result. Please refresh and contact us if this continues.');return}
  const price=Number(link.dataset.recPrice||0);
  const complete=[117,147,197].includes(price);
- const option=price===147?'reality_reset':price===197?'pattern_break':price===117?'self_guided':price===4.99?'bare_minimum':'';
+ const option=v4OptionFor(link);
  const label=option==='reality_reset'?'A private 20-minute Reality Reset session':option==='pattern_break'?'A private 50-minute Pattern Break session':option==='self_guided'?'The self-guided four-stage journey':link.dataset.recProduct;
- const scores=[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]];
+ const scores=v4StageScores();
  const total=scores.reduce((x,y)=>x+y,0),needsReadiness=scores.filter(x=>x>=3).length>=3 && total>=15;
- const overlay=document.createElement('div');overlay.id='v4Decision';overlay.style.cssText='position:fixed;z-index:9999;inset:0;overflow:auto;background:rgba(15,28,24,.87);padding:20px';
- overlay.innerHTML=`<div role="dialog" aria-modal="true" aria-label="Your final support choice" style="max-width:620px;margin:25px auto;background:white;padding:25px;color:#111827;border-radius:5px"><h2 style="font-family:Fraunces,serif">Your next step</h2><p>You've selected: <strong>${label}</strong> at £${price}.</p>
- <p id="v4DecError" class="error" role="alert"></p><div class="actions"><button id="v4Cancel" class="back">Back</button><button id="v4Confirm" class="next">CONFIRM MY NEXT STEP</button></div></div>`;
- document.body.append(overlay);
+ const overlay=v4Overlay('Your final support choice');
+ overlay.querySelector('div[role=dialog]').innerHTML=`<h2 style="font-family:Fraunces,serif">Your next step</h2><p>You've selected: <strong>${label}</strong> at £${link.dataset.recPrice}.</p>
+ <p id="v4DecError" class="error" role="alert"></p><div class="actions"><button type="button" id="v4Cancel" class="back">Back</button><button type="button" id="v4Confirm" class="next">CONFIRM MY NEXT STEP</button></div>`;
  overlay.querySelector('#v4Cancel').onclick=()=>overlay.remove();
+ overlay.querySelector('#v4Confirm').focus();
  overlay.querySelector('#v4Confirm').onclick=async()=>{
-  const postChoice=JSON.parse(sessionStorage.getItem('yms_v4_preview_post_result_choice')||'{}');
-  const readiness=postChoice.goal||'';
-  const asksQ2=!['understand_him','change_him'].includes(readiness);if(needsReadiness&&(!readiness||(asksQ2&&!postChoice.support))){overlay.querySelector('#v4DecError').textContent='Please answer the post-result questions before choosing an offer.';return}
-  const hesitation=''; // No invented barrier or hesitation question in approved V4 flow.
+  const postChoice=v4PostChoice();
+  const goal=needsReadiness?(postChoice.goal||''):'';
+  const asksQ2=needsReadiness&&!['understand_him','change_him'].includes(goal);
+  if(needsReadiness&&(!goal||(asksQ2&&!postChoice.support))){overlay.querySelector('#v4DecError').textContent='Please answer the post-result questions before choosing an offer.';return}
   const barrier=sessionStorage.getItem('yms_v4_preview_existing_barrier')||'';
   const button=overlay.querySelector('#v4Confirm');button.disabled=true;button.textContent='SAVING YOUR CHOICE...';
-  const payload={action:'finalizeResultV4',resultToken:r.resultToken,submissionId:r.submissionId,finalOfferOption:option,
+  const payload={action:'finalizeResultV4',resultToken:r.resultToken,submissionId:r.submissionId||'',finalOfferOption:option,
     readinessRequired:false,
-    question1:postChoice.goal?{id:'post_result_goal',optionId:postChoice.goal,answer:postChoice.goalAnswer||postChoice.goal}:null,
-    question2:postChoice.support?{id:'support_level',optionId:postChoice.support,answer:postChoice.supportAnswer||postChoice.support}:null,
+    question1:goal?{id:'post_result_goal',optionId:goal,answer:postChoice.goalAnswer||''}:null,
+    question2:(asksQ2&&postChoice.support)?{id:'support_level',optionId:postChoice.support,answer:postChoice.supportAnswer||''}:null,
     barrierAnswer:barrier||null,
     supportPreference:complete?{id:option,answer:label}:null,
-    hesitation:hesitation?{id:'other',answer:hesitation}:null};
+    hesitation:null};
   try{
    let data=null;
    for(let attempt=0;attempt<6;attempt++){
     const resp=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     data=await resp.json();
-    if(data.ok&&data.status==='finalized'&&data.resultEmailSent)break;
-    if(data.code!=='BUSY'&&data.code!=='SERVER_ERROR')throw Error(data.message||'Your choice could not be saved. Please try again.');
+    if(data.ok&&data.status==='finalized'&&(data.resultEmailSent||data.resultEmailSuppressed))break;
+    if(data.code==='EMAIL_ALREADY_SENT'){
+     // Her email already went out for an earlier saved choice: show that choice, never a contradictory one.
+     const savedPrice=V4_OPTION_PRICE[data.savedFinalOfferOption];
+     const savedLink=savedPrice?document.querySelector('#result a[data-rec-price="'+savedPrice+'"]'):document.querySelector('#result .rec-offer a[data-rec-product]');
+     if(savedLink){v4ShowTakenStep(overlay,savedLink,handoff,'You already chose <strong>'+v4Esc(data.savedFinalOffer||savedLink.dataset.recProduct)+'</strong> and your result email has been sent. Check your inbox.');return}
+     throw Error(data.message||'Your choice is already saved.');
+    }
+    if(data.code!=='BUSY'&&data.code!=='SERVER_ERROR'&&data.code!=='SEND_IN_PROGRESS')throw Error(data.message||'Your choice could not be saved. Please try again.');
     overlay.querySelector('#v4DecError').textContent='Your assessment is still finishing securely. We are confirming your choice.';
     if(attempt===5)throw Error('The server is still busy. Please try your choice again.');
     await new Promise(resolve=>setTimeout(resolve,1800+attempt*800));
    }
-   if(!data||!data.ok||data.status!=='finalized'||!data.resultEmailSent)throw Error('Your final choice and matching email could not both be verified. Please try again or contact support.');
+   if(!data||!data.ok||data.status!=='finalized'||!(data.resultEmailSent||data.resultEmailSuppressed))throw Error('Your final choice and matching email could not both be verified. Please try again or contact support.');
+   try{sessionStorage.setItem('yms_v4_preview_final_choice',JSON.stringify({resultToken:r.resultToken,option:option}))}catch(e){}
    v4ResultAwaitingChoice=false; scheduleV4Flush(1400); // After choice is safely saved, flush buffered events.
-   overlay.querySelector('#v4DecError').textContent='';
-   overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>Your personalised result email has been submitted for delivery. Check your inbox.</p><p><a id="v4Checkout" class="next" href="${link.href}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button class="back" id="v4Finish">Return to results</button></p>`;
-   overlay.querySelector('#v4Checkout').addEventListener('click',()=>handoff(link));
-   overlay.querySelector('#v4Finish').onclick=()=>overlay.remove();
+   v4ShowTakenStep(overlay,link,handoff,'Your personalised result email has been submitted for delivery. Check your inbox.');
   }catch(err){overlay.querySelector('#v4DecError').textContent=String(err.message||err);button.disabled=false;button.textContent='TRY AGAIN'}
  }
 }
+// Stage scores: from live answers, or from the saved result when she returns through her result link.
+let v4RestoredScores=null;
+function v4StageScores(){return v4RestoredScores?v4RestoredScores.slice():[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]]}
 
 function showResult(){
 v4ResultAwaitingChoice=true; // Defer buffered result analytics while the woman chooses her support.
 if(v4EventTimer){clearTimeout(v4EventTimer);v4EventTimer=null}
 postJourneyEvent('result_view');
 document.getElementById('form').style.display='none';document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width='100%';
-let s=[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]],total=s.reduce((x,y)=>x+y,0),affected=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),clear=s.map((x,j)=>x>=4?j:-1).filter(x=>x>=0),moderate=s.map((x,j)=>x===3?j:-1).filter(x=>x>=0),wholeJourney=affected.length>=3,qual=affected.slice();if(!wholeJourney&&qual.length>2)qual=qual.sort((x,y)=>(s[y]-s[x])||(x-y)).slice(0,2);let belief=a[8],context=a[10],recommendationCategory=qual.length===0?'bare_minimum':qual.length===1?'single_stage':qual.length===2?'two_stage_pair':'return_to_you_series';track('quiz_result_view',{recommendation_category:recommendationCategory});
+let s=v4StageScores(),total=s.reduce((x,y)=>x+y,0),affected=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),clear=s.map((x,j)=>x>=4?j:-1).filter(x=>x>=0),moderate=s.map((x,j)=>x===3?j:-1).filter(x=>x>=0),wholeJourney=affected.length>=3,qual=affected.slice();if(!wholeJourney&&qual.length>2)qual=qual.sort((x,y)=>(s[y]-s[x])||(x-y)).slice(0,2);let belief=a[8],context=a[10],recommendationCategory=qual.length===0?'bare_minimum':qual.length===1?'single_stage':qual.length===2?'two_stage_pair':'return_to_you_series';track('quiz_result_view',{recommendation_category:recommendationCategory});
 const outcome=[
  'get your peace back',
  'trust yourself and your decisions again',
@@ -213,10 +228,10 @@ const stageCopy=[
  {name:'Return to Yourself',story:'While he has been thinking about himself and you have been thinking about him, who has been thinking about you? So much of your attention can go towards him, what happened, what it meant and what might happen next, while your own life gets less of you. Your peace. Your sleep. Your plans. Your attention. Your energy. Sometimes just the ability to enjoy a normal day without him somehow ending up in the middle of it.',work:'The outcome is not detachment for the sake of detachment. It is taking your life back and feeling like yourself again.'}
 ];
 const links={
- 'Quiet the Alarm':'https://stan.store/YourMindStory/p/quiet-the-alarm',
- 'Break the Pull':'https://stan.store/YourMindStory/p/break-the-pull',
- 'Restore Self-Trust':'https://stan.store/YourMindStory/p/restore-self-trust',
- 'Return to Yourself':'https://stan.store/YourMindStory/p/return-to-yourself-7jc9h8lg'
+ 'Quiet the Alarm':'https://stan.store/Yourmindstory/p/quiet-the-alarm',
+ 'Break the Pull':'https://stan.store/Yourmindstory/p/break-the-pull',
+ 'Restore Self-Trust':'https://stan.store/Yourmindstory/p/restore-self-trust',
+ 'Return to Yourself':'https://stan.store/Yourmindstory/p/return-to-yourself-7jc9h8lg'
 };
 const pairLinks={
  '0|1':'https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull',
@@ -306,6 +321,7 @@ const safeName=(lead&&lead.firstName?lead.firstName:'').replace(/[&<>"']/g,ch=>(
 const namedHeading='YOUR PERSONALISED RESULTS'+(safeName?', '+safeName:'');
 const recLink=cta.match(/<a\b[^>]*data-rec-product[^>]*>[\s\S]*?<\/a>/);
 const purchase=recLink?recLink[0]:'';
+let needsPostResultQuestions=false,stageDetails='',finalDetails='',proofDetails='',guarantee=''; // r2: used by the post-result handlers below (were block-scoped, causing ReferenceError)
 if(qual.length===0){
  panels.push('<div class="eyebrow">'+namedHeading+'</div>'+recognition+'<div class="rec rec-offer">'+recommendation+route+cta+'</div>');
 }else{
@@ -313,21 +329,21 @@ if(qual.length===0){
  const proofStart=recommendation.indexOf('<div class="checkin-proof">',supportStart);
  const testimonialStart=recommendation.indexOf('<h3>What women are experiencing',proofStart);
  const finalStart=recommendation.indexOf('<h2>I want this for you.',testimonialStart);
- const stageDetails=recommendation.slice(0,supportStart);
+ stageDetails=recommendation.slice(0,supportStart);
  const supportDetails=recommendation.slice(supportStart,testimonialStart);
- const proofDetails=recommendation.slice(testimonialStart,finalStart);
- const finalDetails=recommendation.slice(finalStart);
+ proofDetails=recommendation.slice(testimonialStart,finalStart);
+ finalDetails=recommendation.slice(finalStart);
  const priceLine='<p class="rec-price"><strong>'+name+' · £'+price+'</strong></p>';
- const guarantee='<div class="rec-guarantee"><p><strong>21-day money-back guarantee</strong></p><p>Give yourself the opportunity to feel more like yourself.</p><p>If you use the sessions as directed for 21 days and don\'t feel you\'ve received any benefit or value, you can request a refund within 21 days of purchase.*</p></div>';
+ guarantee='<div class="rec-guarantee"><p><strong>21-day money-back guarantee</strong></p><p>Give yourself the opportunity to feel more like yourself.</p><p>If you use the sessions as directed for 21 days and don\'t feel you\'ve received any benefit or value, you can request a refund within 21 days of purchase.*</p></div>';
  // Recognition first, explanation and conditional readiness second, offer last.
  panels.push('<div class="eyebrow">'+namedHeading+'</div>'+recognition);
- const needsPostResultQuestions=qual.length>=3&&total>=15;
- const readinessPrompt=needsPostResultQuestions?`<div class="field"><div class="eyebrow">YOUR NEXT STEP</div><label for="v4GoalChoice"><strong>Which sounds most like what you want now?</strong></label><select id="v4GoalChoice" required style="width:100%;padding:14px;margin:12px 0"><option value="">Choose one</option><option value="self_work">I want help understanding myself, breaking the cycle and getting my mind back.</option><option value="understand_him">I mainly want to understand him and what his behaviour means.</option><option value="change_him">I mainly want help getting him back or changing his behaviour.</option><option value="unsure">I'm not sure yet.</option></select><p id="v4ReadinessError" class="error" role="alert"></p></div><div class="field" id="v4SupportDecision" hidden><div class="eyebrow">One more thing.</div><p>This pattern didn't develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That's why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p><strong>Would you like more personal support than this?</strong></p><select id="v4SupportLevel" style="width:100%;padding:14px;margin:12px 0"><option value="">Choose one</option><option value="independent">I’m happy to work independently</option><option value="additional">I want additional support</option><option value="some_support">I think some support would help me with this</option><option value="recommend">I’m not sure where to start. I’d like you to recommend what would help me most.</option></select></div>`:'';
+ needsPostResultQuestions=qual.length>=3&&total>=15;
+ const readinessPrompt=needsPostResultQuestions?`<div class="field"><div class="eyebrow">YOUR NEXT STEP</div><label for="v4GoalChoice"><strong>Which sounds most like what you want now?</strong></label><select id="v4GoalChoice" required style="width:100%;padding:14px;margin:12px 0"><option value="">Choose one</option><option value="self_work">I want help understanding myself, breaking the cycle and getting my mind back.</option><option value="understand_him">I mainly want to understand him and what his behaviour means.</option><option value="change_him">I mainly want help getting him back or changing his behaviour.</option><option value="unsure">I'm not sure yet.</option></select><p id="v4ReadinessError" class="error" role="alert"></p></div><div class="field" id="v4SupportDecision" hidden><div class="eyebrow">One more thing.</div><p>This pattern didn't develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That's why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p><label for="v4SupportLevel"><strong>Would you like more personal support than this?</strong></label></p><select id="v4SupportLevel" style="width:100%;padding:14px;margin:12px 0"><option value="">Choose one</option><option value="independent">I'm happy to work independently</option><option value="additional">I want additional support</option><option value="some_support">I think some support would help me with this</option><option value="recommend">I'm not sure where to start. I'd like you to recommend what would help me most.</option></select></div>`:'';
  panels.push(outcomeSummary+'<div class="rec rec-offer">'+supportDetails+'</div>'+readinessPrompt);
  panels.push('<div class="rec rec-offer" id="v4FinalRecommendation"><div class="eyebrow">Your personalised recommendation'+(safeName?', '+safeName:'')+'</div>'+stageDetails+priceLine+guarantee+'<div class="actions">'+purchase+'</div>'+proofDetails+finalDetails+cta+'</div>');
 }
 const nextLabels=qual.length===0?[]:["UNDERSTAND MY NEXT STEP","SEE MY RECOMMENDATION"];
-el.innerHTML=panels.map((html,n)=>'<section class="result-panel'+(n===0?' active':'')+'" data-result-step="'+n+'>'+html+(n<panels.length-1?'<div class="actions">'+(n>0?'<button type="button" class="back result-back">Back</button>':'<span></span>')+'<button type="button" class="next result-next">'+nextLabels[n]+'</button></div>':(n>0?'<div class="actions"><button type="button" class="back result-back">Back</button><span></span></div>':''))+'</section>').join('');
+el.innerHTML=panels.map((html,n)=>'<section class="result-panel'+(n===0?' active':'')+'" data-result-step="'+n+'">'+html+(n<panels.length-1?'<div class="actions">'+(n>0?'<button type="button" class="back result-back">Back</button>':'<span></span>')+'<button type="button" class="next result-next">'+nextLabels[n]+'</button></div>':(n>0?'<div class="actions"><button type="button" class="back result-back">Back</button><span></span></div>':''))+'</section>').join('');
 // Record the first rendered result screen independently of later navigation setup.
 // This ensures the initial recommendation impression is not lost if subsequent UI code fails.
 const firstResultPanel=el.querySelector('.result-panel.active');
@@ -344,7 +360,7 @@ if(firstResultPanel){
 }
 
 function recommendationHandoff(link){let last=journeyIdentity(),route=link.dataset.recRoute||'',productType=route==='Single Stage'?'single_stage':route==='Two-Stage Pair'?'two_stage_pair':route==='Bare Minimum'?'bare_minimum':'return_to_you_series';let p={product:link.dataset.recProduct||'',route:route,recommendation_category:recommendationCategory,product_type:productType,submission_id:last.submissionId||'',journey_id:last.journeyId||'',destination:(link.hostname||location.hostname||'').toLowerCase()};let external=link.origin&&link.origin!==location.origin;let jv={product:p.product,route:p.route,recommendation_category:p.recommendation_category,cta:p.product,destination:p.destination,product_clicked:p.product,price:link.dataset.recPrice||'',currency:'GBP',destination_url:(link.href||'').slice(0,200)};postJourneyEvents(external?[['primary_cta_click',jv],[p.destination.includes('stan.store')?'outbound_stan_click':'outbound_payhip_click',jv]]:[['primary_cta_click',jv]]);let analyticsParams={product:p.product,route:p.route,recommendation_category:p.recommendation_category,product_type:p.product_type,destination:p.destination,transport_type:'beacon'};track('recommendation_click',analyticsParams);track('primary_cta_click',analyticsParams);if(external){track('checkout_click',analyticsParams);try{sessionStorage.setItem('yms_v4_preview_last_checkout',JSON.stringify(Object.assign({clickedAt:new Date().toISOString()},p)))}catch(e){}}}
-el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link){e.preventDefault();v4OfferDecision(link,recommendationHandoff)}});
+recommendationHandoffGlobal=recommendationHandoff;el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link){e.preventDefault();v4OfferDecision(link,recommendationHandoff)}});
 let rp=-1,navLocked=false;const showPanel=(n,historyMode)=>{rp=n;el.querySelectorAll('.result-panel').forEach((p,j)=>p.classList.toggle('active',j===n));document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width=((n+1)/panels.length*100)+'%';if(historyMode==='push')history.pushState({ymsResult:true,resultStep:n},'',location.href);else if(historyMode==='replace')history.replaceState({ymsResult:true,resultStep:n},'',location.href);window.scrollTo({top:0,behavior:'smooth'});let panel=el.querySelectorAll('.result-panel')[n],batch=[];if(panel&&panel.querySelector('.rec-offer a[data-rec-product]')){let link=panel.querySelector('.rec-offer a[data-rec-product]'),vals={product:link?link.dataset.recProduct:'',route:link?link.dataset.recRoute:'',recommendation_category:recommendationCategory,price:link?link.dataset.recPrice||'':'',currency:'GBP'};if(!panel.dataset.offerTracked){panel.dataset.offerTracked='1';batch.push(['recommendation_shown',vals],['final_route_shown',vals]);track('recommendation_shown',vals)}}if(panel&&!panel.dataset.journeyViewTracked){panel.dataset.journeyViewTracked='1';batch.push(['result_step_view',{step:n+1,total_steps:panels.length}])}batch.forEach(e=>postJourneyEvent(e[0],e[1]));track('result_step_view',{step:n+1,step_number:n+1,step_id:'result_'+(n+1),step_name:'Result step '+(n+1),total_steps:panels.length});track('yms_result_screen_'+(n+1)+'_view',{step_number:n+1})};
 const applyPostResultOffer=(goal,support)=>{
  if(!needsPostResultQuestions)return;
@@ -355,7 +371,7 @@ const applyPostResultOffer=(goal,support)=>{
  }
  const temp=document.createElement('div');temp.innerHTML=cta;const choice=temp.querySelector('.support-choice');if(!choice)return;
  const segments=choice.innerHTML.split(/<hr\s*\/?>/i);
- const prices=support==='independent'?[117]:['additional','some_support'].includes(support)?[147,197]:[117,147,197];
+ const prices=support==='independent'?[117]:['additional','some_support'].includes(support)?[147,197]:[147,117,197]; // recommend: primary per Phase 3 rule (V4_RECOMMEND_PRIMARY_ in backend)
  const selected=prices.map(price=>segments.find(part=>new RegExp('data-rec-price="'+price+'"').test(part))).filter(Boolean);
  if(!selected.length)return;
  const revised=choice.cloneNode(true);
@@ -369,12 +385,42 @@ const applyPostResultOffer=(goal,support)=>{
  target.innerHTML=stageDetails+finalPriceLine+guarantee+(primaryLink?'<div class="actions">'+primaryLink+'</div>':'')+proofDetails+adjustedFinalDetails+revised.outerHTML+suffix;
 };
 el.addEventListener('change',e=>{if(e.target&&e.target.id==='v4GoalChoice'){const show=!['understand_him','change_him'].includes(e.target.value);const support=document.getElementById('v4SupportDecision');if(support)support.hidden=!show;const err=document.getElementById('v4ReadinessError');if(err)err.textContent='';}});
-el.addEventListener('click',e=>{if(navLocked)return;let next=e.target.closest('.result-next'),back=e.target.closest('.result-back');if(!next&&!back)return;navLocked=true;if(next){if(rp===1&&needsPostResultQuestions){const goal=document.getElementById('v4GoalChoice').value;const support=document.getElementById('v4SupportLevel').value;const asksQ2=!['understand_him','change_him'].includes(goal);if(!goal||(asksQ2&&!support)){document.getElementById('v4ReadinessError').textContent='Please answer both questions before continuing.';navLocked=false;return}const goalAnswer=document.querySelector('#v4GoalChoice option:checked').textContent;const supportAnswer=asksQ2?document.querySelector('#v4SupportLevel option:checked').textContent:'';sessionStorage.setItem('yms_v4_preview_post_result_choice',JSON.stringify({goal,goalAnswer,support,supportAnswer,submissionId:journeyIdentity().submissionId||''}));applyPostResultOffer(goal,support)}track('result_next_click',{from_step:rp+1,to_step:rp+2});let np=el.querySelectorAll('.result-panel')[rp+1];if(np&&np.querySelector('.rec'))postJourneyEvent('recommendation_reveal_click',{step:rp+2,total_steps:panels.length});showPanel(Math.min(rp+1,panels.length-1),'push')}else{postJourneyEvent('result_back_click',{step:rp+1});track('result_back_click',{from_step:rp+1,to_step:Math.max(1,rp)});history.back()}setTimeout(()=>navLocked=false,350)});
+el.addEventListener('click',e=>{if(navLocked)return;let next=e.target.closest('.result-next'),back=e.target.closest('.result-back');if(!next&&!back)return;navLocked=true;{const cur=[...el.querySelectorAll('.result-panel')].findIndex(p=>p.classList.contains('active'));if(cur>=0)rp=cur} // r2: stay in sync after browser Back/Forward
+if(next){if(rp===1&&needsPostResultQuestions){const goal=document.getElementById('v4GoalChoice').value;const support=document.getElementById('v4SupportLevel').value;const asksQ2=!['understand_him','change_him'].includes(goal);if(!goal||(asksQ2&&!support)){document.getElementById('v4ReadinessError').textContent='Please answer both questions before continuing.';navLocked=false;return}const goalAnswer=document.querySelector('#v4GoalChoice option:checked').textContent;const supportAnswer=asksQ2?document.querySelector('#v4SupportLevel option:checked').textContent:'';sessionStorage.setItem('yms_v4_preview_post_result_choice',JSON.stringify({goal,goalAnswer,support:asksQ2?support:'',supportAnswer,submissionId:journeyIdentity().submissionId||'',resultToken:journeyIdentity().resultToken||''}));applyPostResultOffer(goal,asksQ2?support:'')}track('result_next_click',{from_step:rp+1,to_step:rp+2});let np=el.querySelectorAll('.result-panel')[rp+1];if(np&&np.querySelector('.rec'))postJourneyEvent('recommendation_reveal_click',{step:rp+2,total_steps:panels.length});showPanel(Math.min(rp+1,panels.length-1),'push')}else{postJourneyEvent('result_back_click',{step:rp+1});track('result_back_click',{from_step:rp+1,to_step:Math.max(1,rp)});history.back()}setTimeout(()=>navLocked=false,350)});
 showPanel(0,'replace');
+if(needsPostResultQuestions){const pc=v4PostChoice(),g=document.getElementById('v4GoalChoice'),sp=document.getElementById('v4SupportLevel');if(pc.goal&&g&&[...g.options].some(o=>o.value===pc.goal)){g.value=pc.goal;const asks=!['understand_him','change_him'].includes(pc.goal);document.getElementById('v4SupportDecision').hidden=!asks;if(asks&&pc.support&&sp&&[...sp.options].some(o=>o.value===pc.support))sp.value=pc.support;if(!asks||sp.value)applyPostResultOffer(pc.goal,asks?sp.value:'')}}
+window.v4ResultReady=true;
 track('assessment_complete',{recommendation_category:recommendationCategory});
 }
 function recommendationCopy(q,r){if(q.length===0)return 'Your scored answers do not show a strong enough concentration in one of the four stages for me to push you into a larger programme. Start with the smallest sensible next step.';if(q.length===1)return 'One stage is clearly asking for attention first. I would begin there rather than giving you more than your answers suggest you need.';if(q.length===2)return 'Two stages are showing up strongly. I would work through those in sequence so the support matches the pattern your answers actually show.';return 'Your answers show a broad pattern across at least three stages, so the Return to You Series is the relevant next step. It lets you work through every area in sequence, in your own time.'}
 window.addEventListener('popstate',e=>{if(!document.getElementById('result').classList.contains('active'))return;let panels=[...document.querySelectorAll('.result-panel')];if(!panels.length)return;let step=e.state&&e.state.ymsResult&&Number.isInteger(e.state.resultStep)?e.state.resultStep:null;if(step!==null&&step>=0&&step<panels.length){let cur=panels.findIndex(p=>p.classList.contains('active'));if(cur!==step){panels.forEach((p,j)=>p.classList.toggle('active',j===step));document.getElementById('count').textContent='YOUR RESULT · '+(step+1)+' / '+panels.length;document.getElementById('fill').style.width=((step+1)/panels.length*100)+'%';window.scrollTo({top:0,behavior:'smooth'});postJourneyEvent('result_step_view',{step:step+1,total_steps:panels.length,navigation:'browser_back'});track('result_step_view',{step:step+1,step_number:step+1,step_id:'result_'+(step+1),navigation:'browser_back'})}}});
 
-try{let saved=JSON.parse(sessionStorage.getItem('yms_v4_preview_result_state')||'null');if(saved&&saved.submitted&&Array.isArray(saved.answers)){a=saved.answers;lead=saved.lead||{};showResult()}else{postJourneyEvent('assessment_start',{step:1});track('assessment_landing_view');showV4Intro()}}catch(e){postJourneyEvent('assessment_start',{step:1});track('assessment_landing_view');showV4Intro()}
+async function v4RestoreFromToken(token){
+ document.getElementById('count').textContent='YOUR RESULT';
+ document.getElementById('form').innerHTML='<section class="step active capture"><div class="eyebrow">Your Mind Story</div><h1>Loading your saved result…</h1><p id="v4RestoreMsg" role="status"></p></section>';
+ try{
+  if(!V3_BACKEND)throw new Error('This result link cannot be opened here.');
+  const r=await fetch(V3_BACKEND+'?action=getResult&resultToken='+encodeURIComponent(token),{credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer'});
+  const d=await r.json();
+  if(!d||d.ok!==true||d.resultToken!==token||d.assessmentVersion!=='YMS-ASSESSMENT-2026-V4')throw new Error('This result could not be found. Please use the link in your result email or contact Your Mind Story.');
+  const sc=d.scores||{};v4RestoredScores=[sc.quiet,sc.breakPull,sc.restore,sc.returnSelf].map(x=>Number(x)||0);
+  const idx=(qn,text)=>{const k=Q[qn].o.indexOf(String(text||''));return k>=0?k:null};
+  a=Array(15).fill(null);a[8]=idx(8,d.beliefPosition);a[10]=idx(10,d.relationshipContext);a[11]=idx(11,d.desiredOutcome);
+  lead={firstName:d.firstName||''};
+  const dec=d.decision||{};
+  sessionStorage.setItem('yms_v4_preview_last_submission',JSON.stringify({submissionId:'',journeyId:journeyId(),resultToken:token,confirmed:true,restored:true}));
+  if(dec.question1OptionId){const gs={self_work:'I want help understanding myself, breaking the cycle and getting my mind back.',understand_him:'I mainly want to understand him and what his behaviour means.',change_him:'I mainly want help getting him back or changing his behaviour.',unsure:"I'm not sure yet."},ss={independent:"I'm happy to work independently",additional:'I want additional support',some_support:'I think some support would help me with this',recommend:"I'm not sure where to start. I'd like you to recommend what would help me most."};sessionStorage.setItem('yms_v4_preview_post_result_choice',JSON.stringify({goal:dec.question1OptionId,goalAnswer:gs[dec.question1OptionId]||'',support:dec.question2OptionId||'',supportAnswer:ss[dec.question2OptionId]||'',resultToken:token}))}
+  showResult();
+  if(dec.saved&&(dec.resultEmailSent||dec.resultEmailSuppressed)){
+   const price=V4_OPTION_PRICE[dec.finalOfferOption];
+   const link=price?document.querySelector('#result a[data-rec-price="'+price+'"]'):document.querySelector('#result a[data-rec-product]');
+   if(link){const panels=document.querySelectorAll('.result-panel');panels.forEach((p,j)=>p.classList.toggle('active',j===panels.length-1));const ov=v4Overlay('Your saved choice');v4ShowTakenStep(ov,link,recommendationHandoffGlobal,'You chose <strong>'+v4Esc(dec.finalOffer||link.dataset.recProduct)+'</strong>. Your result email has been sent.')}
+  }
+ }catch(err){const m=document.getElementById('v4RestoreMsg');if(m)m.textContent=String(err.message||err)}
+}
+let recommendationHandoffGlobal=()=>{};
+(function(){const up=new URLSearchParams(location.search),tok=(up.get('resultToken')||'').trim();
+ if(tok&&/^[A-Za-z0-9_-]{20,128}$/.test(tok)){postJourneyEvent('result_view',{entry:'result_email_saved_link'});v4RestoreFromToken(tok);return}
+ try{let saved=JSON.parse(sessionStorage.getItem('yms_v4_preview_result_state')||'null');if(saved&&saved.submitted&&Array.isArray(saved.answers)){a=saved.answers;lead=saved.lead||{};showResult()}else{postJourneyEvent('assessment_start',{step:1});track('assessment_landing_view');showV4Intro()}}catch(e){postJourneyEvent('assessment_start',{step:1});track('assessment_landing_view');showV4Intro()}
+})();
 </script><script src="/assets/yms-consent.js?v=20261001-tracking" defer></script></body></html>
