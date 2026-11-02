@@ -25,7 +25,7 @@
  * until it is re-authorised. The Gmail-based Stan purchase sync lives in a separate project.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r3';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r4';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -1277,7 +1277,7 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
       content.buttonLabel+'\n'+
       buttonUrl+'\n\n'+
       (secondaryUrl ? content.secondaryText+'\n\n'+content.secondaryButtonLabel+'\n'+secondaryUrl+'\n\n' : '')+
-      (resultLink ? 'Your personalised result: '+resultLink+'\n\n' : '')+
+      (resultLink ? 'VIEW MY PERSONALISED RESULTS\n'+resultLink+'\n\n' : '')+
       'With care,\nOnye';
     var htmlBody=
       '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#111827;font-size:16px;line-height:1.65;">'+
@@ -1561,7 +1561,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
   var resultLink=savedResultLinkV3_(resultToken,result,journeyId,submissionId);
   if (resultLink) links.push({label:'VIEW MY PERSONALISED RESULTS',url:resultLink});
   var savedResultHtml=resultLink?btn('VIEW MY PERSONALISED RESULTS',resultLink,'10px 0 18px'):'';
-  var savedResultText=resultLink?'Your personalised result: '+resultLink+'\n\n':'';
+  var savedResultText=resultLink?'VIEW MY PERSONALISED RESULTS\n'+resultLink+'\n\n':''; // same label as the HTML button
   var html =
     preheader+
     '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+
