@@ -1130,40 +1130,6 @@ function makeResultToken_() {
   return Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().replace(/-/g,'').slice(0,8);
 }
 
-function sendResultEmailViaBrevoV3_(toEmail,toFirstName,subject,htmlBody,textBody) {
-  // Returns {ok, error}. Logs the Brevo status code and body so failures are diagnosable.
-  try {
-    var props = PropertiesService.getScriptProperties();
-    var apiKey = props.getProperty('BREVO_API_KEY');
-    var senderEmail = props.getProperty('BREVO_SENDER_EMAIL');
-    if (!apiKey || !senderEmail) return {ok:false,error:'Brevo not configured (BREVO_API_KEY / BREVO_SENDER_EMAIL script properties missing)'};
-    var senderName = props.getProperty('BREVO_SENDER_NAME') || 'Onye';
-    var payload = {
-      sender:{email:senderEmail,name:senderName},
-      to:[{email:toEmail,name:toFirstName||undefined}],
-      subject:subject,
-      htmlContent:htmlBody,
-      textContent:textBody,
-      tags:['yms-v3-result']
-    };
-    var response = UrlFetchApp.fetch('https://api.brevo.com/v3/smtp/email',{
-      method:'post',
-      contentType:'application/json',
-      headers:{'api-key':apiKey,'accept':'application/json'},
-      payload:JSON.stringify(payload),
-      muteHttpExceptions:true
-    });
-    var code=response.getResponseCode();
-    if (code>=200 && code<300) return {ok:true,error:''};
-    var text = String(response.getContentText()||'').slice(0,300);
-    console.error('Brevo send failed, status '+code+': '+text);
-    return {ok:false,error:'Brevo HTTP '+code+': '+text};
-  } catch(err) {
-    console.error('sendResultEmailViaBrevoV3_ failed: '+err);
-    return {ok:false,error:'Brevo exception: '+String(err)};
-  }
-}
-
 function escapeHtmlV3_(v) {
   return String(v==null?'':v)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -1215,9 +1181,6 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
         '<p style="margin:20px 0 0;"><a href="'+escapeHtmlV3_(secondaryUrl)+'" style="display:inline-block;background:#ffffff;color:#111827;text-decoration:none;padding:10px 16px;font-size:14px;font-weight:700;border:1px solid #111827;border-radius:2px;">'+escapeHtmlV3_(content.secondaryButtonLabel)+'</a></p></div>' : '')+
       '<p>With care,<br>Onye</p>'+
       '</div>';
-    var brevo = sendResultEmailViaBrevoV3_(email,firstName,subject,htmlBody,plainBody);
-    if (brevo.ok) return {ok:true,provider:'brevo',error:''};
-    errors.push(brevo.error || 'Brevo did not accept the send.');
     try {
       if (MailApp.getRemainingDailyQuota()<1) throw new Error('MailApp daily recipient quota is exhausted.');
       MailApp.sendEmail({to:email,subject:subject,body:plainBody,htmlBody:htmlBody,name:'Onye'});
