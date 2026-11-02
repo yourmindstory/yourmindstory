@@ -22,9 +22,9 @@
  *
  * This script uses ONLY the Spreadsheet, Mail, Lock, Cache and Properties services.
  * Do not add the Gmail or Script services here: a new OAuth scope would stop the live web app
- * (Apps Script scope detection also reads comments, so service names are not written out here).
- * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  * until it is re-authorised. The Stan purchase sync (which reads email) lives in a separate project.
+ * Apps Script scope detection also reads comments, so service names are not written out here.
+ * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
 var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r4';
