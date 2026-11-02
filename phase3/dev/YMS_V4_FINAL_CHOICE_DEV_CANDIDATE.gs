@@ -283,7 +283,7 @@ function doPost(e) {
     // assessment into a failed browser submission.
     // This candidate defers transactional email until finalizeResultV4_ saves the final offer.
     // Abandoned choices remain saved without any offer-specific email.
-    var deferEmail = body.deferResultEmail === true;
+    var deferEmail = true; // V4 always waits for a persisted final offer; client cannot bypass this gate.
     var emailDelivery = {ok:false,provider:deferEmail ? 'pending' : 'none',error:''};
     try {
       if (!deferEmail) emailDelivery = sendResultEmailV3_(body, result, resultToken, journeyId, submissionId, clean_(body.finalOfferOption));
