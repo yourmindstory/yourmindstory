@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r5';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r6';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -1284,6 +1284,7 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
       content.buttonLabel+'\n'+
       buttonUrl+'\n\n'+
       (secondaryUrl ? content.secondaryText+'\n\n'+content.secondaryButtonLabel+'\n'+secondaryUrl+'\n\n' : '')+
+      RESULT_EMAIL_SOCIAL_PROOF_1900_V3+'\n\n'+
       (resultLink ? 'VIEW MY PERSONALISED RESULTS\n'+resultLink+'\n\n' : '')+
       'With care,\nOnye';
     var htmlBody=
@@ -1296,6 +1297,7 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
       '<p style="margin:32px 0;"><a href="'+escapeHtmlV3_(buttonUrl)+'" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:15px 22px;font-weight:700;border-radius:2px;">'+escapeHtmlV3_(content.buttonLabel)+'</a></p>'+
       (secondaryUrl ? '<div style="border-top:1px solid #e5e7eb;margin:0 0 32px;padding-top:24px;font-size:15px;line-height:1.6;color:#374151;">'+content.secondaryHtml+
         '<p style="margin:20px 0 0;"><a href="'+escapeHtmlV3_(secondaryUrl)+'" style="display:inline-block;background:#ffffff;color:#111827;text-decoration:none;padding:10px 16px;font-size:14px;font-weight:700;border:1px solid #111827;border-radius:2px;">'+escapeHtmlV3_(content.secondaryButtonLabel)+'</a></p></div>' : '')+
+      '<p>'+escapeHtmlV3_(RESULT_EMAIL_SOCIAL_PROOF_1900_V3)+'</p>'+
       (resultLink ? '<p style="margin:10px 0 24px;"><a href="'+escapeHtmlV3_(resultLink)+'">VIEW MY PERSONALISED RESULTS</a></p>' : '')+
       '<p>With care,<br>Onye</p>'+
       '</div>';
@@ -1329,6 +1331,12 @@ var RESULT_EMAIL_MIDDLE_V3 = [
   'Understanding what’s happening is one thing. Being able to respond differently is another.',
   'That’s where my work begins.'
 ];
+
+// r6 (owner decision 2 Nov 2026): approved positioning line, hypnotherapy routes only (never the ebook).
+var RESULT_EMAIL_POSITIONING_V3 = 'Feel like yourself again, whether he’s in your life or not.';
+// r6: Bare Minimum (ebook) email gets its price and the verified 1,900-women statement. No hypnotherapy wording.
+var BARE_MINIMUM_PRICE_LINE_V3 = 'The Bare Minimum · £4.99';
+var RESULT_EMAIL_SOCIAL_PROOF_1900_V3 = RESULT_EMAIL_MIDDLE_V3[1];
 
 var RESULT_EMAIL_SINGLE_V3 = {
   'Quiet the Alarm': {
@@ -1542,7 +1550,9 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     'Because when so much of your time, energy and attention has been consumed by him, the goal isn’t simply to stop thinking about him.',
     'It’s to feel connected to yourself again and move forward with your life.'
   ];
+  var posHtml = '<p style="margin:0 0 18px;font-weight:700;">'+e(RESULT_EMAIL_POSITIONING_V3)+'</p>', posText = RESULT_EMAIL_POSITIONING_V3+'\n\n';
   if (plan.kind === 'complete') {
+    recHtml += posHtml; recText += posText;
     var choices = finalOfferOption ? plan.choices.filter(function(c){return c.option === finalOfferOption;}) : plan.choices;
     if (!choices.length) throw new Error('Unknown final Complete offer: '+finalOfferOption);
     choices.forEach(function(c) {
@@ -1559,10 +1569,10 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     var link = withTrackingV3_(plan.url,result,journeyId,submissionId);
     var label = 'START MY SESSIONS';
     links.push({label:label,url:link});
-    recHtml = paras(plan.rec)+
+    recHtml = paras(plan.rec)+posHtml+
       '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(plan.priceLine)+'</p>'+
       btn(label,link,'14px 0 20px');
-    recText = plan.rec.join('\n\n')+'\n\n'+plan.priceLine+'\n\n'+label+'\n'+link+'\n\n';
+    recText = plan.rec.join('\n\n')+'\n\n'+posText+plan.priceLine+'\n\n'+label+'\n'+link+'\n\n';
   }
 
   var resultLink=savedResultLinkV3_(resultToken,result,journeyId,submissionId);
@@ -1718,14 +1728,14 @@ function buildV3EmailContent_(result) {
   if (route==='Bare Minimum') {
     // r3: on the Q1 goal-mismatch route the approved "isn't standing out" finding is omitted (it would be untrue). No new copy.
     if (result.goalMismatch) return {resultText:'',resultHtml:'',
-      recommendationText:'Based on your answers, this is where I recommend you start:\n\nThe Bare Minimum',
-      recommendationHtml:'<p>Based on your answers, this is where I recommend you start:</p><h2 style="font-family:Georgia,serif;font-size:26px;">The Bare Minimum</h2>',
+      recommendationText:'Based on your answers, this is where I recommend you start:\n\nThe Bare Minimum\n\n'+BARE_MINIMUM_PRICE_LINE_V3,
+      recommendationHtml:'<p>Based on your answers, this is where I recommend you start:</p><h2 style="font-family:Georgia,serif;font-size:26px;">The Bare Minimum</h2><p style="font-family:Georgia,serif;font-size:20px;font-weight:700;">'+escapeHtmlV3_(BARE_MINIMUM_PRICE_LINE_V3)+'</p>',
       buttonLabel:'START WITH THE BARE MINIMUM',buttonUrl:BARE_MINIMUM_URL};
     return {
       resultText:"Based on your answers, one part of the cycle isn't standing out strongly enough for me to recommend one of the four stage sessions as your first step.",
       resultHtml:"<p>Based on your answers, one part of the cycle isn't standing out strongly enough for me to recommend one of the four stage sessions as your first step.</p>",
-      recommendationText:'Based on your answers, this is where I recommend you start:\n\nThe Bare Minimum',
-      recommendationHtml:'<p>Based on your answers, this is where I recommend you start:</p><h2 style="font-family:Georgia,serif;font-size:26px;">The Bare Minimum</h2>',
+      recommendationText:'Based on your answers, this is where I recommend you start:\n\nThe Bare Minimum\n\n'+BARE_MINIMUM_PRICE_LINE_V3,
+      recommendationHtml:'<p>Based on your answers, this is where I recommend you start:</p><h2 style="font-family:Georgia,serif;font-size:26px;">The Bare Minimum</h2><p style="font-family:Georgia,serif;font-size:20px;font-weight:700;">'+escapeHtmlV3_(BARE_MINIMUM_PRICE_LINE_V3)+'</p>',
       buttonLabel:'START WITH THE BARE MINIMUM',
       buttonUrl:BARE_MINIMUM_URL
     };

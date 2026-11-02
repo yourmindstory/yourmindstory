@@ -3,12 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 const { createRuntime, OPS } = require('./gas-mock');
-const REPO = process.env.YMS_REPO || require('path').resolve(__dirname, '../../..');
+const REPO = '/home/claude/yourmindstory';
 const SRC = path.join(REPO, 'phase3/dev/YMS_V4_FINAL_CHOICE_DEV_CANDIDATE.gs');
 const FRONT = fs.readFileSync(path.join(REPO, 'assessment/v4-preview/start/index.html'), 'utf8');
 const Q = eval(FRONT.match(/const Q=(\[[\s\S]*?\n\]);/)[1]);
 
-fs.mkdirSync(path.join(__dirname, 'out'), { recursive: true });
 const results = [];
 function check(id, area, desc, cond, evidence) { results.push({ id, area, desc, pass: !!cond, evidence: evidence === undefined ? '' : String(evidence).slice(0, 300) }); }
 
@@ -235,7 +234,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r5 build', st.env === 'DEV' && /r5/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r6 build', st.env === 'DEV' && /r6/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
 }
 

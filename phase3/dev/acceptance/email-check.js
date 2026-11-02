@@ -6,7 +6,7 @@ const P = JSON.parse(fs.readFileSync(__dirname + '/out/email-previews.json', 'ut
 const EXP = [
   ['£37', 'stan.store/Yourmindstory/p/quiet-the-alarm?'], ['£37', 'stan.store/Yourmindstory/p/break-the-pull?'], ['£37', 'stan.store/Yourmindstory/p/restore-self-trust?'], ['£37', 'stan.store/Yourmindstory/p/return-to-yourself-7jc9h8lg?'],
   ['£74', 'quiet-the-alarm--break-the-pull?'], ['£74', 'quiet-the-alarm--restore-selftrust?'], ['£74', 'quiet-the-alarm--return-to-yourself?'], ['£74', 'break-the-pull--restore-selftrust?'], ['£74', 'break-the-pull--return-to-yourself?'], ['£74', 'restore-selftrust--return-to-yourself?'],
-  ['', 'stan.store/Yourmindstory/p/the-bare-minimum?'], ['', 'stan.store/Yourmindstory/p/the-bare-minimum?'],
+  ['£4.99', 'stan.store/Yourmindstory/p/the-bare-minimum?'], ['£4.99', 'stan.store/Yourmindstory/p/the-bare-minimum?'],
   ['£117', 'assessment/choice/?o=self_guided'], ['£147', 'assessment/choice/?o=reality_reset'], ['£197', 'assessment/choice/?o=pattern_break'],
 ];
 const OTHER_PRICES = ['£37', '£74', '£117', '£147', '£197', '£4.99'];
@@ -25,7 +25,7 @@ const rows = P.map((p, i) => {
     offer: (price ? t.includes(price) && OTHER_PRICES.filter(x => x !== price).every(x => !t.includes(x)) : !OTHER_PRICES.some(x => t.includes(x))) && t.includes(link),
     newerCopy: !t.includes('1,800') && !t.includes('And there’s a reason I asked you about those things.'),
     personalised: /Your answers show|Based on your answers/.test(t) && t.includes('Hi Synthia'),
-    positioning: /whether he[’']s in your life or not/i.test(t),
+    positioning: isBare ? !/whether he[’']s in your life or not/i.test(t) || null : /whether he[’']s in your life or not/i.test(t),
     proof1900: proof >= 0,
     ctaBeforeProof: proof >= 0 ? firstCta < proof : null,
     savedLink: t.includes('resultToken=' + p.token),
