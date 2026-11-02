@@ -1546,7 +1546,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
       recHtml += '<div style="border-top:1px solid #e5e7eb;padding-top:16px;">'+
         '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;margin:0 0 8px;">'+e(c.title)+'</p>'+
         paras(copy)+btn(label,href,'14px 0 20px')+'</div>';
-      recText += c.title+'\\n\\n'+copy.join('\\n\\n')+'\\n\\n'+label+'\\n'+href+'\\n\\n';
+      recText += c.title+'\n\n'+copy.join('\n\n')+'\n\n'+label+'\n'+href+'\n\n';
     });
   } else {
     var link = withTrackingV3_(plan.url,result,journeyId,submissionId);
@@ -1555,7 +1555,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     recHtml = paras(plan.rec)+
       '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(plan.priceLine)+'</p>'+
       btn(label,link,'14px 0 20px');
-    recText = plan.rec.join('\\n\\n')+'\\n\\n'+plan.priceLine+'\\n\\n'+label+'\\n'+link+'\\n\\n';
+    recText = plan.rec.join('\n\n')+'\n\n'+plan.priceLine+'\n\n'+label+'\n'+link+'\n\n';
   }
 
   var resultLink=savedResultLinkV3_(resultToken,result,journeyId,submissionId);
