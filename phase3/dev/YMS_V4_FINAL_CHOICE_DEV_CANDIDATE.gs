@@ -24,7 +24,7 @@
  * until it is re-authorised. The Gmail-based Stan purchase sync lives in a separate project.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-01-v4-editable-email-fast-choice-v2';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate';
 // V4 is the ONLY writable assessment destination. The original V3 workbook is never used.
 var V4_SHEET_ID = 'REPLACE_WITH_APPROVED_ISOLATED_V4_DEV_SPREADSHEET_ID';
 var V3_SHEET_ID = V4_SHEET_ID; // Compatibility alias for existing legacy functions.
