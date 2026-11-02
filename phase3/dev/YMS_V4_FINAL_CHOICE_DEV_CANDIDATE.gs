@@ -29,10 +29,13 @@ var V3_BACKEND_BUILD = '2026-11-01-v4-editable-email-fast-choice-v2';
 var V4_SHEET_ID = 'REPLACE_WITH_APPROVED_ISOLATED_V4_DEV_SPREADSHEET_ID';
 var V3_SHEET_ID = V4_SHEET_ID; // Compatibility alias for existing legacy functions.
 function openYMSV4Sheet_() {
-  // Defend against accidentally deploying an old or incorrectly edited ID.
-  if (V3_SHEET_ID !== V4_SHEET_ID || V4_SHEET_ID !== '1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM') {
-    throw new Error('V4 CONFIG ERROR: spreadsheet ID does not match the approved V4 workbook.');
-  }
+  // This candidate is deliberately unable to write until an isolated V4 DEV copy is configured.
+  if (!V4_SHEET_ID || V4_SHEET_ID.indexOf('REPLACE_WITH_') === 0)
+    throw new Error('Set an isolated V4 DEV spreadsheet ID before use; production writes are disabled.');
+  if (V3_SHEET_ID !== V4_SHEET_ID)
+    throw new Error('V4 CONFIG ERROR: legacy alias and V4 DEV spreadsheet ID do not match.');
+  if (V4_SHEET_ID === '1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM')
+    throw new Error('V4 CONFIG ERROR: the production workbook is forbidden for DEV testing.');
   var ss = SpreadsheetApp.openById(V4_SHEET_ID);
   if (ss.getName() !== 'Your Mind Story V4 Assessment & Funnel Tracking') {
     throw new Error('V4 CONFIG ERROR: workbook title mismatch. Refusing to write assessment data.');
