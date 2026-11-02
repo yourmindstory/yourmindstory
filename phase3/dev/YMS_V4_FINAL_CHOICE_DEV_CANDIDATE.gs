@@ -1550,7 +1550,7 @@ function emailCopyRouteKeyV4_(result){
 // is saved; the original low-score Bare Minimum finding is kept for score-derived Bare Minimum routes.
 function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToken,finalOfferOption) {
   var plan = resultLetterPlanV3_(result);
-  var copy = readEditableEmailCopyV4_();
+  var copy = {}; // Locked approved source copy; no workbook overrides.
   var routeKey = emailCopyRouteKeyV4_(result);
   var personalFinding = emailCopyTextV4_(copy,'finding::'+routeKey,'');
   if (personalFinding.trim()) plan.result=personalFinding.split(/\n\s*\n/).filter(function(x){return x.trim();});
@@ -1558,9 +1558,17 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     var affected=result.qualifyingStages||[];
     var affectedText=affected.length>1?affected.slice(0,-1).join(', ')+' and '+affected[affected.length-1]:affected[0]||'several areas';
     plan.result=[
-      'Your assessment shows that the pattern is affecting you across '+affectedText+'.',
-      'You also told me: “'+String(result.q1Answer||'')+'”'
+      'Your answers show that this pattern is affecting you across '+affectedText+'.',
+      'You also told me: “'+String(result.q1Answer||'')+'”',
+      'That is why I recommend starting with The Bare Minimum. It helps you look at what you are experiencing through your own needs, standards and boundaries.'
     ];
+  }
+  if (plan.kind==='complete') {
+    var affectedComplete=(result.qualifyingStages||[]).filter(Boolean);
+    if (affectedComplete.length) {
+      var namedComplete=affectedComplete.length>1 ? affectedComplete.slice(0,-1).join(', ')+' and '+affectedComplete[affectedComplete.length-1] : affectedComplete[0];
+      plan.result=['Your answers show that this pattern is affecting you across '+namedComplete+'.'].concat(plan.result.slice(1));
+    }
   }
   if (plan.kind==='complete') {
     plan.choices=plan.choices.map(function(c){
