@@ -138,3 +138,24 @@ function v4ReportingRemoveFromDevData() {
   console.log('Removed from DEV data workbook: ' + JSON.stringify(removed));
   return removed;
 }
+
+// 4b) Read-after-write probe: submit, then a journey event and a getResult on the same row (the steps that wait
+// for dashboard recalculation). No email is involved.
+function v4ReportingReadAfterWriteProbe() {
+  var t = [];
+  for (var i = 0; i < 3; i++) {
+    var tok = Utilities.getUuid().replace(/-/g,'');
+    var answers = {}; for (var q = 1; q <= 15; q++) answers['q'+q] = q <= 8 ? {answer:'SYNTHETIC', value:3, score:3} : {answer:'SYNTHETIC', value:0, score:null};
+    var sid = 'YMSV4-S-TIMING-'+tok.slice(0,10), jid = 'YMSV4-J-TIMING-'+tok.slice(0,10);
+    doPost({postData:{contents:JSON.stringify({submissionId:sid, journeyId:jid, firstName:'Synthia', email:'synthetic+timing@example.invalid',
+      answers:answers, resultToken:tok, isTest:true, deferResultEmail:true, readinessRequired:false, experimentVersion:'V4-DEV-timing-probe'})}});
+    var t0 = Date.now();
+    doPost({postData:{contents:JSON.stringify({action:'recordJourneyEvents', resultToken:tok, submissionId:sid, journeyId:jid, page:'results',
+      analyticsConsent:'no', events:[{eventType:'result_view', values:{}}]})}});
+    var t1 = Date.now();
+    doGet({parameter:{action:'getResult', resultToken:tok}});
+    t.push([t1 - t0, Date.now() - t1]);
+  }
+  console.log('event ms / getResult ms: ' + JSON.stringify(t));
+  return t;
+}
