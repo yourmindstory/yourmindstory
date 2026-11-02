@@ -1317,18 +1317,10 @@ function stageDisplayV3_(s) { return STAGE_DISPLAY_V3[s] || s; }
 
 // Shared middle of every stage email (between the result block and the recommendation block).
 var RESULT_EMAIL_MIDDLE_V3 = [
-  'And there’s a reason I asked you about those things.',
-  'More than 1,800 women have now taken the Your Mind Story assessment. And although every relationship is different, the same four areas keep showing up in what women tell me this pattern has done to them:',
-  'the alarm, the pull, losing trust in themselves and losing themselves in what’s happening with him.',
-  'That’s why those are the four areas I work on.',
-  'You might already understand why he behaves the way he does. You might even know exactly what you should do.',
-  'But knowing something consciously doesn’t automatically change the pattern that’s been created in you.',
-  'You don’t decide to feel anxious when he goes quiet. You don’t decide to wake up thinking about him, feel the urge to check your phone or suddenly want to reach out after promising yourself you wouldn’t.',
-  'Those responses can happen automatically.',
-  'That’s why knowing what to do and being able to do it are two different things.',
-  'You can’t always think your way out of a response you didn’t consciously choose.',
-  'That’s the part we work on with Cognitive Behavioral Hypnotherapy.',
-  'Rather than giving you more information about him, we’re working on the responses that are now happening in you.'
+  'There’s a reason I focus on these four areas.',
+  'More than 1,900 women have now taken the Your Mind Story assessment. Although their circumstances differ, the same difficulties keep appearing: the alarm, the pull, losing self-trust and losing themselves in the relationship.',
+  'Understanding what’s happening is one thing. Being able to respond differently is another.',
+  'That’s where my work begins.'
 ];
 
 var RESULT_EMAIL_SINGLE_V3 = {
@@ -1548,11 +1540,18 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
         '<p style="margin:0 0 8px;font-style:italic;">'+e(c.quote)+'</p>'+
         '<p style="font-family:Georgia,serif;font-size:19px;font-weight:700;line-height:1.35;margin:0 0 10px;">'+e(c.title)+'</p>'+
         P+e(c.desc)+'</p>'+
-        btn(c.button, href, '18px 0 26px')+
+        btn(c.option === 'self_guided' ? 'START MY SESSIONS' : c.button, href, '18px 0 26px')+
         '</div>';
-      choiceText += c.quote+'\n\n'+c.title+'\n\n'+c.desc+'\n\n'+c.button+'\n'+href+'\n\n';
+      choiceText += c.quote+'\n\n'+c.title+'\n\n'+c.desc+'\n\n'+(c.option === 'self_guided' ? 'START MY SESSIONS' : c.button)+'\n'+href+'\n\n';
     });
-    recHtml = paras(plan.rec)+
+    recHtml = (finalOfferOption === 'self_guided'
+      ? '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;">Return to Yourself</p>'+
+        P+'The complete four-stage Cognitive Behavioural Hypnotherapy sessions.</p>'+
+        P+'Designed to help you calm anxiety and regulate your nervous system, break the automatic urge to check, chase, overthink or search for more answers about him.</p>'+
+        P+'Through guided practice, you’ll work on trusting your intuition, standing by your decisions and boundaries, and bringing your attention back to your own life.</p>'+
+        P+'Because when so much of your time, energy and attention has been consumed by him, the goal isn’t simply to stop thinking about him.</p>'+
+        P+'It’s to feel connected to yourself again and move forward with your life.</p>'
+      : paras(plan.rec))+
       (finalOfferOption ? '' : '<p style="font-family:Georgia,serif;font-size:21px;font-weight:700;color:#111827;margin:30px 0 16px;">'+e(RESULT_EMAIL_COMPLETE_V3.choiceHeading)+'</p>')+
       choiceHtml;
     recText = plan.rec.join('\n\n')+'\n\n'+(finalOfferOption?'':RESULT_EMAIL_COMPLETE_V3.choiceHeading+'\n\n')+choiceText;
@@ -1575,8 +1574,8 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     P+'Hi '+e(firstName)+',</p>'+
     P+'I’ve looked at your answers.</p>'+
     paras(plan.result)+
-    paras(RESULT_EMAIL_MIDDLE_V3)+
     recHtml+
+    paras(RESULT_EMAIL_MIDDLE_V3)+
     savedResultHtml+
     P+'With care,</p>'+
     '<p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p>'+
@@ -1586,8 +1585,8 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     'Hi '+firstName+',\n\n'+
     'I’ve looked at your answers.\n\n'+
     plan.result.join('\n\n')+'\n\n'+
-    RESULT_EMAIL_MIDDLE_V3.join('\n\n')+'\n\n'+
     recText+
+    RESULT_EMAIL_MIDDLE_V3.join('\n\n')+'\n\n'+
     savedResultText+
     'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
 
