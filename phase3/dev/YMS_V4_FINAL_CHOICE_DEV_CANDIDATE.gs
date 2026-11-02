@@ -1527,41 +1527,35 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     e(RESULT_EMAIL_PREVIEW_V3)+new Array(60).join('&#8204;&nbsp;')+'</div>';
 
   var links = [];
-  var recHtml, recText;
+  var recHtml = '', recText = '';
+  var selfGuidedCopy = [
+    'The complete four-stage Cognitive Behavioural Hypnotherapy sessions.',
+    'Designed to help you calm anxiety and regulate your nervous system, break the automatic urge to check, chase, overthink or search for more answers about him.',
+    'Through guided practice, you’ll work on trusting your intuition, standing by your decisions and boundaries, and bringing your attention back to your own life.',
+    'Because when so much of your time, energy and attention has been consumed by him, the goal isn’t simply to stop thinking about him.',
+    'It’s to feel connected to yourself again and move forward with your life.'
+  ];
   if (plan.kind === 'complete') {
-    var choiceHtml = '', choiceText = '';
-    var choices = finalOfferOption ? plan.choices.filter(function(c){ return c.option === finalOfferOption; }) : plan.choices;
+    var choices = finalOfferOption ? plan.choices.filter(function(c){return c.option === finalOfferOption;}) : plan.choices;
     if (!choices.length) throw new Error('Unknown final Complete offer: '+finalOfferOption);
-    choices.forEach(function(c){
-      var href = completeChoiceLinkV3_(c, result, journeyId, submissionId);
-      links.push({label:c.button, url:href, option:c.option, event:c.event});
-      choiceHtml +=
-        '<div style="border-top:1px solid #e5e7eb;padding-top:22px;margin-top:6px;">'+
-        '<p style="margin:0 0 8px;font-style:italic;">'+e(c.quote)+'</p>'+
-        '<p style="font-family:Georgia,serif;font-size:19px;font-weight:700;line-height:1.35;margin:0 0 10px;">'+e(c.title)+'</p>'+
-        P+e(c.desc)+'</p>'+
-        btn(c.option === 'self_guided' ? 'START MY SESSIONS' : c.button, href, '18px 0 26px')+
-        '</div>';
-      choiceText += c.quote+'\n\n'+c.title+'\n\n'+c.desc+'\n\n'+(c.option === 'self_guided' ? 'START MY SESSIONS' : c.button)+'\n'+href+'\n\n';
+    choices.forEach(function(c) {
+      var href = completeChoiceLinkV3_(c,result,journeyId,submissionId);
+      var label = 'START MY SESSIONS';
+      var copy = c.option === 'self_guided' ? selfGuidedCopy : [c.desc];
+      links.push({label:label,url:href,option:c.option,event:c.event});
+      recHtml += '<div style="border-top:1px solid #e5e7eb;padding-top:16px;">'+
+        '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;margin:0 0 8px;">'+e(c.title)+'</p>'+
+        paras(copy)+btn(label,href,'14px 0 20px')+'</div>';
+      recText += c.title+'\\n\\n'+copy.join('\\n\\n')+'\\n\\n'+label+'\\n'+href+'\\n\\n';
     });
-    recHtml = (finalOfferOption === 'self_guided'
-      ? '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;">Return to Yourself</p>'+
-        P+'The complete four-stage Cognitive Behavioural Hypnotherapy sessions.</p>'+
-        P+'Designed to help you calm anxiety and regulate your nervous system, break the automatic urge to check, chase, overthink or search for more answers about him.</p>'+
-        P+'Through guided practice, you’ll work on trusting your intuition, standing by your decisions and boundaries, and bringing your attention back to your own life.</p>'+
-        P+'Because when so much of your time, energy and attention has been consumed by him, the goal isn’t simply to stop thinking about him.</p>'+
-        P+'It’s to feel connected to yourself again and move forward with your life.</p>'
-      : paras(plan.rec))+
-      (finalOfferOption ? '' : '<p style="font-family:Georgia,serif;font-size:21px;font-weight:700;color:#111827;margin:30px 0 16px;">'+e(RESULT_EMAIL_COMPLETE_V3.choiceHeading)+'</p>')+
-      choiceHtml;
-    recText = plan.rec.join('\n\n')+'\n\n'+(finalOfferOption?'':RESULT_EMAIL_COMPLETE_V3.choiceHeading+'\n\n')+choiceText;
   } else {
-    var link = withTrackingV3_(plan.url, result, journeyId, submissionId);
-    links.push({label:plan.button, url:link});
+    var link = withTrackingV3_(plan.url,result,journeyId,submissionId);
+    var label = 'START MY SESSIONS';
+    links.push({label:label,url:link});
     recHtml = paras(plan.rec)+
       '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(plan.priceLine)+'</p>'+
-      btn(plan.button, link);
-    recText = plan.rec.join('\n\n')+'\n\n'+plan.priceLine+'\n\n'+plan.button+'\n'+link+'\n\n';
+      btn(label,link,'14px 0 20px');
+    recText = plan.rec.join('\\n\\n')+'\\n\\n'+plan.priceLine+'\\n\\n'+label+'\\n'+link+'\\n\\n';
   }
 
   var resultLink=savedResultLinkV3_(resultToken,result,journeyId,submissionId);
