@@ -20,9 +20,11 @@
  * "Return to Yourself" is ONLY Stage 4. "Return to You Series" is the complete four-stage offer.
  * Bootcamp is closed and is never recommended. "Complete Self-Guided Journey" is retired.
  *
- * This script uses ONLY Spreadsheet, MailApp, UrlFetch and Properties services.
- * Do not add GmailApp / ScriptApp here: a new OAuth scope would stop the live web app
- * until it is re-authorised. The Gmail-based Stan purchase sync lives in a separate project.
+ * This script uses ONLY the Spreadsheet, Mail, Lock, Cache and Properties services.
+ * Do not add the Gmail or Script services here: a new OAuth scope would stop the live web app
+ * (Apps Script scope detection also reads comments, so service names are not written out here).
+ * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
+ * until it is re-authorised. The Stan purchase sync (which reads email) lives in a separate project.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
 var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r4';
