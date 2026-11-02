@@ -234,7 +234,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r6 build', st.env === 'DEV' && /r6/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r6b build', st.env === 'DEV' && /r6b/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
 }
 
@@ -278,6 +278,23 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   check('G10', 'Release config', 'In-memory rehearsal of the PROD configuration: email goes via MailApp to the customer address, with jid/sid tracking, exactly once; DEV log not used', f.ok && f.resultEmailSent && r.mail.sent.length === 1 && m.to === b.email && /[?&]sid=YMSV4-S-SYN/.test(m.body) && !r.sheet('V4 DEV Email Log'), JSON.stringify({ to: m.to, subject: m.subject }));
   let e = ''; try { createRuntime({ source: SRC, patch: s => s.replace("var V4_ENV = 'DEV';", "var V4_ENV = 'PROD';") }).call('verifyV4Connection'); } catch (x) { e = x.message; }
   check('G11', 'Release config', 'PROD mode refuses to run against any workbook other than the production V4 workbook', /PROD mode must target/.test(e), e);
+
+  // Stage 2 guard (V4_STAGE2_TEST_ONLY=yes): only the owner's +v4test inbox, never another row.
+  const s2 = createRuntime({ source: SRC, sheetId: PROD, title: 'Your Mind Story V4 Assessment & Funnel Tracking', props: { V4_STAGE2_TEST_ONLY: 'yes' }, patch: s => s.replace("var V4_ENV = 'DEV';", "var V4_ENV = 'PROD';").replace("var V4_SHEET_ID = '1xl41dlFS0Z0dZ3p9yXrVxu7NJHdoE6da7nckKiEB42o'", "var V4_SHEET_ID = '" + PROD + "'") });
+  const cust = body([5, 5, 5, 5]); // a non-test address (stands in for a real customer row written by the live version)
+  const s2off = createRuntime({ source: SRC }); // (unused helper runtime keeps signatures identical)
+  const rCust = s2.post(cust);
+  check('G13', 'Stage 2 guard', 'With the Stage 2 guard on, a submission from any address other than the +v4test inbox is refused and writes nothing', rCust.code === 'STAGE2_TEST_ONLY' && !(s2.sheet('V4 Responses') || { rows: [] }).rows.some(x => JSON.stringify(x).includes(cust.submissionId)), rCust.code);
+  const tb = body([5, 5, 5, 5]); tb.email = 'yourmindstory.co.uk+v4test1@gmail.com';
+  const rt = s2.post(tb); const ft = s2.post(fin(tb.resultToken, tb.submissionId, 'pattern_break', 'self_work', 'additional'));
+  const mt = s2.mail.sent[s2.mail.sent.length - 1] || {};
+  check('G14', 'Stage 2 guard', 'With the guard on, a +v4test journey saves, finalises and emails only the +v4test inbox, with live tracking IDs', rt.ok && ft.ok && ft.resultEmailSent && s2.mail.sent.length === 1 && mt.to === tb.email, JSON.stringify({ rt: rt.code, ft: ft.status, to: mt.to }));
+  // Simulate a pre-existing customer row (as the live version would have written) and try to touch it.
+  s2.props.V4_STAGE2_TEST_ONLY = ''; const cust2 = body([5, 5, 5, 5]); s2.post(cust2); s2.props.V4_STAGE2_TEST_ONLY = 'yes';
+  const fc = s2.post(fin(cust2.resultToken, cust2.submissionId, 'self_guided', 'self_work', 'independent'));
+  const ev = s2.post({ action: 'recordJourneyEvent', eventType: 'result_view', resultToken: cust2.resultToken, submissionId: cust2.submissionId });
+  check('G15', 'Stage 2 guard', 'With the guard on, finalise and journey events against a non-test row are refused; no email to that address', fc.code === 'STAGE2_TEST_ONLY' && ev.code === 'STAGE2_TEST_ONLY' && !s2.mail.sent.some(x => x.to === cust2.email), JSON.stringify({ fc: fc.code, ev: ev.code }));
+  void s2off;
 }
 
 fs.writeFileSync(path.join(__dirname, 'out/backend-results.json'), JSON.stringify(results, null, 1));

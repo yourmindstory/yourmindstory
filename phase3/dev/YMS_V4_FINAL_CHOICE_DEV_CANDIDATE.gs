@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r6';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r6b';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -179,6 +179,7 @@ function doGet(e) {
   if (action === 'sync') {
     // DEV must never import production Payhip/Stan purchase rows (real customer data) into the synthetic workbook.
     if (v4IsDev_()) return ContentService.createTextOutput('sync disabled in development').setMimeType(ContentService.MimeType.TEXT);
+    if (v4Stage2Active_()) return ContentService.createTextOutput('sync disabled during the Stage 2 test').setMimeType(ContentService.MimeType.TEXT);
     var sync = syncAllV3_();
     var csv = sync.ok ? [['Last sync',sync.syncedAt],['Purchases (all)',sync.purchases],['Matched to an assessment',sync.matchedPurchases],['Unmatched',sync.unmatchedPurchases],['Backend build',V3_BACKEND_BUILD]]
       : [['Last sync','busy, will retry'],['Backend build',V3_BACKEND_BUILD]];
@@ -235,6 +236,10 @@ function doPost(e) {
   // Operational funnel events update the woman's EXISTING row. They never create a second journey row,
   // never recalculate her assessment, and never queue behind the 30-second submission lock
   // (that queue is what made bursts of events time out and disappear).
+  // Stage 2 (controlled real-system test): while the V4_STAGE2_TEST_ONLY script property is 'yes', a PROD
+  // deployment only accepts the owner's +v4test inbox and only touches rows that belong to it. Remove at release.
+  var stage2Refusal = v4Stage2Refusal_(body);
+  if (stage2Refusal) return json_({ok:false,status:'error',code:'STAGE2_TEST_ONLY',message:stage2Refusal});
   if (body && (body.action === 'recordJourneyEvent' || body.action === 'recordJourneyEvents')) {
     return handleJourneyRequestV3_(body);
   }
@@ -1459,6 +1464,20 @@ function sendResultEmailV3_(body,result,resultToken,journeyId,submissionId,final
 
 // V4 transactional delivery: Google MailApp only (no Brevo). Marketing consent is NOT consulted here:
 // the result email is transactional. In DEV the gate below suppresses or redirects every send.
+var V4_STAGE2_TEST_EMAIL_RE_ = /^yourmindstory\.co\.uk\+v4test[a-z0-9._-]*@gmail\.com$/i;
+function v4Stage2Active_() { return !v4IsDev_() && v4ScriptProp_('V4_STAGE2_TEST_ONLY') === 'yes'; }
+function v4Stage2Refusal_(body) {
+  if (!v4Stage2Active_()) return '';
+  body = body || {};
+  if (body.email !== undefined && !V4_STAGE2_TEST_EMAIL_RE_.test(clean_(body.email))) return 'Stage 2 accepts the owner test inbox only.';
+  var ids = {resultToken:clean_(body.resultToken), submissionId:clean_(body.submissionId), journeyId:clean_(body.journeyId)};
+  var isSubmission = !body.action && body.answers;
+  if (isSubmission) return V4_STAGE2_TEST_EMAIL_RE_.test(clean_(body.email)) ? '' : 'Stage 2 accepts the owner test inbox only.';
+  if (!ids.resultToken && !ids.submissionId && !ids.journeyId) return body.action ? 'Stage 2 refuses actions without a test row identity.' : '';
+  var sheet = getV3Sheet_(), row = findRowNumber_(sheet, ids);
+  if (!row) return '';  // nothing to touch; the normal handler returns its own not-found error
+  return V4_STAGE2_TEST_EMAIL_RE_.test(clean_(getByHeaderV3_(sheet,row,'Email'))) ? '' : 'Stage 2 never touches rows outside the test inbox.';
+}
 function v4ResultPageUrl_() { return v4ScriptProp_('V4_RESULT_PAGE_URL') || V4_RESULT_PAGE_URL_DEFAULT_; }
 function v4EmailMode_() {
   if (!v4IsDev_()) return 'send';
@@ -1482,6 +1501,7 @@ function deliverResultEmailV3_(email,firstName,subject,htmlBody,plainBody) {
     return {ok:true,provider:'dev-suppressed',error:''};
   }
   var to = mode === 'redirect' ? v4ScriptProp_('V4_DEV_EMAIL_REDIRECT_TO') : email;
+  if (v4Stage2Active_() && !V4_STAGE2_TEST_EMAIL_RE_.test(to)) return {ok:false,provider:'none',error:'Stage 2: recipient outside the test inbox refused.'};
   var subj = mode === 'redirect' ? '[V4 DEV for '+email+'] '+subject : subject;
   try {
     if (MailApp.getRemainingDailyQuota()<1) throw new Error('MailApp daily recipient quota is exhausted.');
