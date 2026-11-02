@@ -235,8 +235,23 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r2 build', st.env === 'DEV' && /r2/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r3 build', st.env === 'DEV' && /r3/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
+}
+
+// ---------- r3: final Q2 rule, goal-mismatch email, new journey events ----------
+{
+  const r = rt();
+  check('B6', 'Routing', 'Backend support map follows the final owner rule (recommend → £117 primary; additional/some → £147 primary + £197; independent → £117 only)',
+    r.ctx.V4_RECOMMEND_PRIMARY_ === 'self_guided' && r.ctx.V4_SUPPORT_CHOICES_.recommend.primary === 'self_guided' && r.ctx.V4_SUPPORT_CHOICES_.additional.primary === 'reality_reset' && r.ctx.V4_SUPPORT_CHOICES_.some_support.primary === 'reality_reset' && JSON.stringify(r.ctx.V4_SUPPORT_CHOICES_.independent.allowed) === '["self_guided"]',
+    JSON.stringify(Object.fromEntries(Object.entries(r.ctx.V4_SUPPORT_CHOICES_).map(([k, v]) => [k, v.primary]))));
+  const scoredBare = previews[10].text, goalBare = previews[11].text;
+  const finding = "isn't standing out strongly enough";
+  check('D18', 'Email', 'Q1 "understand/change him" email omits the "isn\'t standing out" low-score finding (locked rule); scored Bare Minimum email keeps it unchanged',
+    !goalBare.includes(finding) && scoredBare.includes(finding) && goalBare.includes('Based on your answers, this is where I recommend you start:') && goalBare.includes('START WITH THE BARE MINIMUM') && !/\n\n\n/.test(goalBare), goalBare.slice(0, 240));
+  const b = body([5, 5, 5, 5]); r.post(b);
+  const ev = r.post({ action: 'recordJourneyEvents', resultToken: b.resultToken, submissionId: b.submissionId, events: [{ eventType: 'recommendation_video_play', values: { route: 'self_guided' } }, { eventType: 'post_result_question_answered', values: { step: 'q1' } }] });
+  check('G12', 'Analytics', 'Backend accepts the new first-party events (video play, question answered)', ev.ok && ev.results.every(x => x.ok), JSON.stringify(ev.results));
 }
 
 // ---------- DEV vs PROD link/transport configuration ----------

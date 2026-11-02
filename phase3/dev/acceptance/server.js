@@ -6,7 +6,7 @@ const path = require('path');
 const { createRuntime } = require('./gas-mock');
 const REPO = process.env.YMS_REPO || require('path').resolve(__dirname, '../../..');
 const SRC = path.join(REPO, 'phase3/dev/YMS_V4_FINAL_CHOICE_DEV_CANDIDATE.gs');
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
+const TYPES = { '.mp4': 'video/mp4', '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
 
 function start(port, opts = {}) {
   const state = { rt: createRuntime({ source: SRC, props: opts.props }), requests: [], down: false, delayMs: 0 };
@@ -32,6 +32,14 @@ function start(port, opts = {}) {
     if (p.endsWith('/')) p += 'index.html';
     const file = path.join(REPO, p);
     if (!file.startsWith(REPO) || !fs.existsSync(file)) { res.writeHead(404); return res.end('nf'); }
+    if (path.extname(file) === '.mp4') {
+      state.videoRequests = (state.videoRequests || 0) + 1;
+      const size = fs.statSync(file).size; const m = /bytes=(\d*)-(\d*)/.exec(req.headers.range || '');
+      if (m) { const a = m[1] ? +m[1] : 0, b = m[2] ? Math.min(+m[2], size - 1) : size - 1;
+        res.writeHead(206, { 'Content-Type': 'video/mp4', 'Accept-Ranges': 'bytes', 'Content-Range': `bytes ${a}-${b}/${size}`, 'Content-Length': b - a + 1 });
+        return fs.createReadStream(file, { start: a, end: b }).pipe(res); }
+      res.writeHead(200, { 'Content-Type': 'video/mp4', 'Accept-Ranges': 'bytes', 'Content-Length': size }); return fs.createReadStream(file).pipe(res);
+    }
     let body = fs.readFileSync(file);
     if (p === '/assessment/v4-preview/start/index.html' && !opts.unpatched) {
       let s = body.toString('utf8');

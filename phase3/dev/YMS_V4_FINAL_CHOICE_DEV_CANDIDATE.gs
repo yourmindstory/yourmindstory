@@ -25,7 +25,7 @@
  * until it is re-authorised. The Gmail-based Stan purchase sync lives in a separate project.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r2';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r3';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -375,10 +375,8 @@ var V4_GOAL_CHOICES_ = {
   change_him:'I mainly want help getting him back or changing his behaviour.',
   unsure:"I'm not sure yet."
 };
-// "recommend" primary: taken from the existing Phase 3 implementation (phase3/voc-support-choice,
-// assessment/start/index.html: primary = independent ? self_guided : reality_reset). The owner has
-// not separately documented an assessment-based rule; see remaining issues. Change in ONE place.
-var V4_RECOMMEND_PRIMARY_ = 'reality_reset';
+// Owner decision, 2 Nov 2026 (final): "recommend" -> £117 Self-Guided primary, £147 and £197 as alternatives.
+var V4_RECOMMEND_PRIMARY_ = 'self_guided';
 var V4_SUPPORT_CHOICES_ = {
   independent:{answer:"I'm happy to work independently",allowed:['self_guided'],primary:'self_guided'},
   additional:{answer:'I want additional support',allowed:['reality_reset','pattern_break'],primary:'reality_reset'},
@@ -547,7 +545,10 @@ function finalizeResultV4_(body) {
   var emailResult = r;
   if (option === 'bare_minimum') {
     emailResult = {route:'Bare Minimum',product:'The Bare Minimum',price:PRICE_BARE_MINIMUM,
-      category:'bare_minimum',qualifyingStages:[]};
+      category:'bare_minimum',qualifyingStages:[],
+      // Q1 "understand him / change him" on a Complete result: locked rule (2 Nov 2026) is
+      // "Do not change her assessment findings or claim her scores are low".
+      goalMismatch:r.route === SERIES_NAME};
   }
   var customer = {email:String(d['Email']||''),firstName:String(d['First Name']||'')};
   var delivery;
@@ -599,7 +600,10 @@ var V3_JOURNEY_EVENTS = [
   // Result-email Complete choices (via yourmindstory.co.uk/assessment/choice/). Clicks only, never purchases.
   'complete_self_guided_click',
   'reality_reset_click',
-  'pattern_break_click'
+  'pattern_break_click',
+  // r3: optional recommendation video and post-result question progress (no answer text, no personal data).
+  'recommendation_video_play',
+  'post_result_question_answered'
 ];
 
 // Every journey event (accepted or rejected) is written to this log, one row per event, so failures are visible.
@@ -1268,7 +1272,7 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
       'Hi '+firstName+',\n\n'+
       'Thank you for taking the Your Mind Story assessment.\n\n'+
       'YOUR RESULT\n\n'+
-      content.resultText+'\n\n'+
+      (content.resultText ? content.resultText+'\n\n' : '')+
       content.recommendationText+'\n\n'+
       content.buttonLabel+'\n'+
       buttonUrl+'\n\n'+
@@ -1712,6 +1716,11 @@ function buildV3EmailContent_(result) {
     };
   }
   if (route==='Bare Minimum') {
+    // r3: on the Q1 goal-mismatch route the approved "isn't standing out" finding is omitted (it would be untrue). No new copy.
+    if (result.goalMismatch) return {resultText:'',resultHtml:'',
+      recommendationText:'Based on your answers, this is where I recommend you start:\n\nThe Bare Minimum',
+      recommendationHtml:'<p>Based on your answers, this is where I recommend you start:</p><h2 style="font-family:Georgia,serif;font-size:26px;">The Bare Minimum</h2>',
+      buttonLabel:'START WITH THE BARE MINIMUM',buttonUrl:BARE_MINIMUM_URL};
     return {
       resultText:"Based on your answers, one part of the cycle isn't standing out strongly enough for me to recommend one of the four stage sessions as your first step.",
       resultHtml:"<p>Based on your answers, one part of the cycle isn't standing out strongly enough for me to recommend one of the four stage sessions as your first step.</p>",
