@@ -26,7 +26,7 @@
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
 var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate';
 // V4 is the ONLY writable assessment destination. The original V3 workbook is never used.
-var V4_SHEET_ID = 'REPLACE_WITH_APPROVED_ISOLATED_V4_DEV_SPREADSHEET_ID';
+var V4_SHEET_ID = '1xl41dlFS0Z0dZ3p9yXrVxu7NJHdoE6da7nckKiEB42o';
 var V3_SHEET_ID = V4_SHEET_ID; // Compatibility alias for existing legacy functions.
 function openYMSV4Sheet_() {
   // This candidate is deliberately unable to write until an isolated V4 DEV copy is configured.
@@ -37,7 +37,7 @@ function openYMSV4Sheet_() {
   if (V4_SHEET_ID === '1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM')
     throw new Error('V4 CONFIG ERROR: the production workbook is forbidden for DEV testing.');
   var ss = SpreadsheetApp.openById(V4_SHEET_ID);
-  if (ss.getName() !== 'Your Mind Story V4 Assessment & Funnel Tracking') {
+  if (ss.getName() !== 'YMS V4 DEV Assessment - Synthetic Only - 2026-11-02') {
     throw new Error('V4 CONFIG ERROR: workbook title mismatch. Refusing to write assessment data.');
   }
   return ss;
