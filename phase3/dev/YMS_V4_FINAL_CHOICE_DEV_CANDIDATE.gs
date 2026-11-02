@@ -1502,7 +1502,7 @@ function emailCopyRouteKeyV4_(result){
 // submission, before any on-page readiness/choice interaction), are unchanged.
 function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToken,finalOfferOption) {
   var plan = resultLetterPlanV3_(result);
-  var copy = readEditableEmailCopyV4_();
+  var copy = {}; // Use the owner-approved Phase 3 source constants only. The V4 Email Copy tab is not approved.
   var routeKey = emailCopyRouteKeyV4_(result);
   var personalFinding = emailCopyTextV4_(copy,'finding::'+routeKey,'');
   if (personalFinding.trim()) plan.result=personalFinding.split(/\n\s*\n/).filter(function(x){return x.trim();});
