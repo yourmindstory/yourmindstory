@@ -96,3 +96,28 @@ The user has identified V4 workbook `1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoG
 - Synthetic-only test sheet identity not established, and no email HTML/plain previews have yet been generated.
 - The correct checkout URLs must be verified, not inferred from the historical Stan catalog (the owner also previously used Payhip).
 - Do not merge, deploy, send customer email or make a purchase. Obtain separate release approval after evidence, backups and rollback.
+
+
+## 2 November 2026: bounded offer-routing and backend candidate update
+
+Scope: updated the isolated PR #17 branch only, fix/v4-quiz-email-2026-11-01. No production site, Apps Script deployment or workbook was changed. The frontend route was reviewed statically; no customer submissions, checkout transactions or emails were sent.
+
+### Implemented in the candidate
+
+- Post-result Q1/Q2 appear only on the qualifying Complete route: at least three stage scores of 3+ and total score at least 15. Scored-question logic and £37 Single / £74 Pair routing are unchanged.
+- Q1 understand-him and change-him answers route to The Bare Minimum (£4.99). Self-work and unsure continue to Q2.
+- Q2 independent shows £117 Self-Guided only. Additional support and some support show £147 Reality Reset as primary and £197 Pattern Break as the alternative. Unsure shows all three Complete choices, with the score-derived £117 Self-Guided recommendation primary.
+- The final offer determines the selected checkout link and is sent with distinct Q1, Q2 and existing-barrier payload fields. The generic hesitation field remains separate.
+- Added phase3/dev/YMS_V4_FINAL_CHOICE_DEV_CANDIDATE.gs as a fail-closed source candidate. It has a placeholder for the V4 DEV spreadsheet ID and refuses to open a workbook until that placeholder is replaced. Its finalization logic stores Q1, Q2 and barrier answers in separate appended columns; emails only after the final offer is saved; disables the abandonment email fallback; rejects post-email offer changes; and uses MailApp for the active transactional delivery path.
+
+### Still blocked; not verified
+
+- The active V4 Apps Script deployment and the code version behind the frontend's current endpoint remain unverified. The candidate frontend endpoint has not been changed or exercised.
+- There is no confirmed isolated V4 DEV workbook ID or deployment URL. The identified V4 workbook is the forward production workbook and must not receive synthetic submissions.
+- The backend source candidate has only passed a syntax check; it has not been deployed or exercised against a DEV sheet. The V4 Sheets headers, saved-result retrieval, email timing/idempotency and field persistence remain unverified at runtime.
+- All-route browser acceptance checks, actual email previews, saved-result resume, consent variations and checkout destination/price checks remain outstanding. No such checks were represented as passed.
+- The MailApp copy is still drawn from the existing approved result-email templates; render-only previews must be inspected before release. No email was sent.
+
+### Required next evidence
+
+Provide or create, under the Your Mind Story Google account, an isolated V4 DEV workbook copied from the V4 schema and a separate Apps Script deployment configured only to that DEV workbook. Record its spreadsheet ID, script project ID, deployment ID and version. Until those exact identifiers are available, keep PR #17 as a draft and do not point the frontend at a backend or submit test data.
