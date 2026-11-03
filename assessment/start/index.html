@@ -108,7 +108,7 @@ function ymsTouch(){let up=new URLSearchParams(location.search),g=k=>up.get(k)||
 // Sent regardless of analytics-cookie choice; carries only assessment IDs and the step reached. GA4/Clarity stay consent-gated.
 function consentState(){try{let v=localStorage.getItem('yms_analytics_consent');return v==='yes'?'yes':v==='no'?'no':'unset'}catch(e){return 'unset'}}
 // Send first-party journey events in serial batches so tracking never overwhelms assessment saves.
-let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false,v4FinalizeInFlight=false;
+let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false,v4FinalizeInFlight=false,v4Leaving=false;
 // r7 (3 Nov 2026, live-funnel repair): events used to wait up to 60 s, were held for the whole results stage and
 // only 10 were sent when the page was hidden, so most results-stage events were lost. Now: sent within ~1.5 s,
 // paused only while her assessment or her final choice is being saved, and everything left is sent with
@@ -137,11 +137,12 @@ async function flushV4Events(){
  try{
   const r=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(v4EventPayload(batch)),keepalive:true});
   if(!r.ok)throw new Error('HTTP '+r.status);
- }catch(err){console.warn('V4 event batch could not be confirmed',err);if(batch.length&&!batch[0][3]){batch.forEach(e=>e[3]=1);v4PendingEvents.unshift(...batch)}}
+ }catch(err){console.warn('V4 event batch could not be confirmed',err);/* r7.1: when the page is leaving, an in-flight keepalive request still reaches the server; re-sending it duplicated events */if(!v4Leaving&&document.visibilityState!=='hidden'&&batch.length&&!batch[0][3]){batch.forEach(e=>e[3]=1);v4PendingEvents.unshift(...batch)}}
  finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(600)}
 }
 // Page hidden or closing (app switch, tab close, link to the sales page): send everything that is left.
 function beaconV4Events(){
+ v4Leaving=true;
  if(!V3_BACKEND)return;
  while(v4PendingEvents.length){
   const body=JSON.stringify(v4EventPayload(v4PendingEvents.splice(0,10)));
@@ -151,7 +152,9 @@ function beaconV4Events(){
  }
 }
 function postJourneyEvent(eventType,values={}){postJourneyEvents([[eventType,values]])}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&v4PendingEvents.length)beaconV4Events()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){if(v4PendingEvents.length)beaconV4Events()}else v4Leaving=false});
+window.addEventListener('pageshow',()=>{v4Leaving=false});
+window.addEventListener('beforeunload',()=>{v4Leaving=true});
 window.addEventListener('pagehide',()=>{if(v4PendingEvents.length)beaconV4Events()});
 
 
