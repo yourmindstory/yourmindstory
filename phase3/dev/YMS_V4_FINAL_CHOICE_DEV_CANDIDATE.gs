@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r7b';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r7c';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -247,6 +247,7 @@ function doPost(e) {
   // This only updates the existing V4 response row, not email, purchases or other rows.
   // The normal lock below still protects unfinished submissions and any outstanding
   // email sending. The token is always checked again by finalizeResultV4_.
+  if (body && (body.action === 'finalizeResultV4' || !body.action)) { V4_TIMING_ = []; V4_TIMING_.t0 = Date.now(); }
   if (body && body.action === 'finalizeResultV4') {
     try {
       var fastToken = clean_(body.resultToken);
@@ -261,11 +262,14 @@ function doPost(e) {
       // Use the existing locked path for any temporary lookup failure.
       console.error('V4 fast-choice precheck failed, using safe lock: '+fastErr);
     }
+    v4Mark_('precheck');
   }
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) {
+    v4Mark_('lockTimeout'); v4TimingLog_(body && body.action || 'submit');
     return json_({ok:false,status:'error',code:'BUSY',message:'Busy, please retry.'});
   }
+  v4Mark_('lockAcquired');
   try {
     // Purchases are NOT accepted over this public endpoint (they could be faked). They are written
     // straight into the 'Stan Purchases' tab by the separate 'YMS Stan Purchase Sync' script, which
@@ -283,7 +287,7 @@ function doPost(e) {
     // After post-result choices are complete, save the final offer and send the matching email once.
     // Requires the secret saved-result token, not merely the public journey/submission ID.
     if (body && body.action === 'finalizeResultV4') {
-      return json_(finalizeResultV4_(body));
+      var finOut = finalizeResultV4_(body); v4TimingLog_('finalize'); return json_(finOut);
     }
     if (body && body.action) {
       return json_({ok:false,status:'error',code:'UNKNOWN_ACTION',message:'Unknown action'});
@@ -367,6 +371,8 @@ function doPost(e) {
     return json_({ok:false,status:'error',code:'SERVER_ERROR',message:'Submission could not be recorded.'});
   } finally {
     lock.releaseLock();
+    if (V4_TIMING_ && !(body && body.action)) { v4Mark_('done'); v4TimingLog_('submit'); }
+    V4_TIMING_ = null;
   }
 }
 
@@ -512,12 +518,18 @@ function v4SaveAnsweredQuestion_(sh, rowNumber, step, optionId) {
   }
 }
 
+// r7c (3 Nov 2026): phase timings for the choice save, written to the Apps Script execution log only
+// (no customer data: phase names and milliseconds). Used to find where the choice-saving time goes.
+var V4_TIMING_ = null;
+function v4Mark_(name) { if (V4_TIMING_) V4_TIMING_.push(name + '=' + (Date.now() - V4_TIMING_.t0)); }
+function v4TimingLog_(label) { if (V4_TIMING_) { try { console.log('V4_TIMING ' + label + ' ' + V4_TIMING_.join(' ')); } catch (e) {} } }
 function finalizeResultV4_(body) {
   var token = clean_(body.resultToken);
   if (!token) return {ok:false,code:'MISSING_RESULT_TOKEN',message:'Saved result token is required'};
   var sh = getV3Sheet_(), rowNumber = findRowNumber_(sh,{resultToken:token});
   if (!rowNumber) return {ok:false,code:'NOT_FOUND',message:'Saved assessment not found'};
   var d = rowObject_(sh,rowNumber);
+  v4Mark_('lookup');
   if (body.submissionId && clean_(body.submissionId) !== clean_(d['Submission ID']))
     return {ok:false,code:'SUBMISSION_MISMATCH',message:'Saved result does not match this assessment.'};
   var v = validateV4Decision_(d, body);
@@ -568,6 +580,7 @@ function finalizeResultV4_(body) {
   setByHeader_(sh,rowNumber,'Result Email Provider','sending');
   setByHeader_(sh,rowNumber,'Result Email Error','sending since '+new Date().toISOString());
   try { SpreadsheetApp.flush(); } catch (flushErr) {}
+  v4Mark_('choiceSaved');
 
   // 2) Build and send exactly the email for the SAVED choice.
   var emailResult = r;
@@ -586,10 +599,12 @@ function finalizeResultV4_(body) {
   } catch (sendErr) {
     delivery = {ok:false,provider:'none',error:String(sendErr)};
   }
+  v4Mark_('emailSent');
   setByHeader_(sh,rowNumber,'Result Email Provider',delivery.ok ? (delivery.provider||'mailapp') : 'none');
   setByHeader_(sh,rowNumber,'Result Email Error',String(delivery.error||'').slice(0,1000));
   if (delivery.ok) setByHeader_(sh,rowNumber,'Result Email Sent',Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss'));
   try { SpreadsheetApp.flush(); } catch (flushErr2) {}
+  v4Mark_('emailRecorded');
   var suppressed = delivery.ok && delivery.provider === 'dev-suppressed';
   return {ok:delivery.ok === true,status:delivery.ok ? 'finalized' : 'email_failed',
     code:delivery.ok ? undefined : 'EMAIL_FAILED',
