@@ -26,7 +26,7 @@
   const fin = (b, option, goal, support) => ({ action: 'finalizeResultV4', resultToken: b.resultToken, submissionId: b.submissionId, finalOfferOption: option, question1: goal ? { id: 'post_result_goal', optionId: goal, answer: GOAL[goal] } : null, question2: support ? { id: 'support_level', optionId: support, answer: SUP[support] } : null, barrierAnswer: null, supportPreference: ['self_guided', 'reality_reset', 'pattern_break'].includes(option) ? { id: option, answer: option } : null, hesitation: null });
 
   const status = await get({});
-  check('L0', 'DEV web app answers over HTTPS with env DEV and the r7 build', status.ok && status.env === 'DEV' && /r7/.test(status.backendBuild), status);
+  check('L0', 'DEV web app answers over HTTPS with env DEV and the r7b build', status.ok && status.env === 'DEV' && /r7b/.test(status.backendBuild), status);
 
   const variants = [
     ['Single — Quiet the Alarm', [5, 0, 0, 0], 'scored_route'], ['Single — Break the Pull', [0, 5, 0, 0], 'scored_route'], ['Single — Restore Self-Trust', [0, 0, 5, 0], 'scored_route'], ['Single — Return to You', [0, 0, 0, 5], 'scored_route'],

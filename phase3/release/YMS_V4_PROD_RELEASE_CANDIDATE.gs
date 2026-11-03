@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7b';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -746,16 +746,31 @@ function getJourneyLogSheetV3_() {
   return sh;
 }
 
+// r7b (3 Nov 2026, speed): inside one journey request the log rows are collected and written in ONE call
+// (previously one appendRow per event, about half of the time a 10-event batch held the script lock).
+var V4_JLOG_BUFFER_ = null;
+function v4FlushJourneyLog_() {
+  var rows = V4_JLOG_BUFFER_; V4_JLOG_BUFFER_ = null;
+  if (!rows || !rows.length) return;
+  try {
+    var sh = getJourneyLogSheetV3_();
+    sh.getRange(sh.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
+  } catch (err) {
+    console.error('Journey log batch write failed, writing one by one: ' + err);
+    rows.forEach(function(r){ try { getJourneyLogSheetV3_().appendRow(r); } catch (e2) { console.error('Journey log write failed: ' + e2); } });
+  }
+}
 function logJourneyV3_(stamp, eventType, page, status, identity, rowNumber, values, consent) {
   try {
     values = values || {};
-    getJourneyLogSheetV3_().appendRow([
+    var logRow = [
       stamp, eventType || '', page || '', status, identity.submissionId || '', identity.journeyId || '',
       identity.resultToken || '', rowNumber || '',
       clean_(values.step || values.screen || '') + (clean_(values.option_id) ? ' = ' + clean_(values.option_id) : ''),
       clean_(values.product), clean_(values.route), clean_(values.cta), clean_(values.entry),
       consent || '', clean_(values.clientTime)
-    ]);
+    ];
+    if (V4_JLOG_BUFFER_) V4_JLOG_BUFFER_.push(logRow); else getJourneyLogSheetV3_().appendRow(logRow);
   } catch (err) {
     console.error('Journey log write failed: ' + err);
   }
@@ -767,6 +782,8 @@ function handleJourneyRequestV3_(body) {
   var lock = LockService.getScriptLock();
   var locked = false;
   try { locked = lock.tryLock(8000); } catch (lockErr) { locked = false; }
+  // Batch the log only while holding the lock (a concurrent batch write could otherwise overwrite rows).
+  V4_JLOG_BUFFER_ = locked ? [] : null;
   try {
     var list;
     if (body.action === 'recordJourneyEvents' && Array.isArray(body.events)) {
@@ -845,6 +862,7 @@ function handleJourneyRequestV3_(body) {
       eventType: single ? single.eventType : undefined, rowNumber: rowNumber, results: results
     });
   } finally {
+    v4FlushJourneyLog_();
     if (locked) { try { lock.releaseLock(); } catch (relErr) {} }
   }
 }
