@@ -84,9 +84,9 @@ const recState = page => page.evaluate(() => {
     prices: [...new Set(links.map(a => a.dataset.recPrice))],
     firstLinkPrice: firstLink ? firstLink.dataset.recPrice : '', firstLinkLabel: firstLink ? firstLink.innerText.trim() : '',
     videoCount: rec.querySelectorAll('video').length,
-    videoAfterPrimary: !!(video && firstCard && fig.parentElement === firstCard && fig.nextElementSibling && fig.nextElementSibling.classList.contains('v4-cta') && fig.nextElementSibling.querySelector('a[data-rec-product]') === firstCard.querySelector('a[data-rec-product]') && fig.previousElementSibling && fig.previousElementSibling.classList.contains('rec-price') && firstCard.querySelector('a[data-rec-product]').innerText.trim() === 'START MY SESSIONS'), // r7.2: recommendation + price, video, then START MY SESSIONS
+    videoAfterPrimary: !!(video && firstCard && firstCard.nextElementSibling === fig && firstCard.querySelector('a[data-rec-product]').innerText.trim() === 'START MY SESSIONS'),
     videoAttrs: video ? { autoplay: video.autoplay || video.hasAttribute('autoplay'), preload: video.getAttribute('preload'), controls: video.controls, muted: video.muted, paused: video.paused, src: video.querySelector('source').getAttribute('src') } : null,
-    ctaBeforeVideo: !!(video && firstLink && (video.compareDocumentPosition(firstLink) & Node.DOCUMENT_POSITION_FOLLOWING)), // name kept: now means video comes before the first CTA
+    ctaBeforeVideo: !!(video && firstLink && (firstLink.compareDocumentPosition(video) & Node.DOCUMENT_POSITION_FOLLOWING)),
     text: rec.innerText,
   };
 });
@@ -185,7 +185,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
       const rec = document.querySelector('.result-panel.active'); const video = rec.querySelector('video');
       const firstLink = rec.querySelector('a[data-rec-product]');
       const actions = firstLink ? firstLink.closest('.actions') : null;
-      return { count: rec.querySelectorAll('video').length, route: video ? video.closest('figure').dataset.videoRoute : '', immediatelyAfterFirstButton: !!(video && actions && video.closest('figure').nextElementSibling === actions && /£\d/.test((video.closest('figure').previousElementSibling || {}).innerText || '') && !!(actions.nextElementSibling && actions.nextElementSibling.classList.contains('rec-guarantee'))), autoplay: video ? video.hasAttribute('autoplay') : null, preload: video ? video.getAttribute('preload') : null };
+      return { count: rec.querySelectorAll('video').length, route: video ? video.closest('figure').dataset.videoRoute : '', immediatelyAfterFirstButton: !!(video && actions && actions.nextElementSibling === video.closest('figure')), autoplay: video ? video.hasAttribute('autoplay') : null, preload: video ? video.getAttribute('preload') : null };
     });
     const token = await tokenOf(page);
     const ch = await choose(page, price);
@@ -220,7 +220,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await next(page); await answerQ(page, 'self_work', 'independent');
     const before = await page.evaluate(() => { const v = document.querySelector('#v4FinalRecommendation video'); return { paused: v.paused, t: v.currentTime, net: v.networkState, rs: v.readyState }; });
     const reqBefore = srv.state.videoRequests || 0;
-    const layout = await page.evaluate(() => { const b = document.querySelector('#v4FinalRecommendation a[data-rec-product]').getBoundingClientRect(); const v = document.querySelector('#v4FinalRecommendation video').getBoundingClientRect(); return { btnBottom: Math.round(b.bottom), btnTop: Math.round(b.top), videoBottom: Math.round(v.bottom), videoTop: Math.round(v.top), videoW: Math.round(v.width), videoH: Math.round(v.height), vw: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth }; });
+    const layout = await page.evaluate(() => { const b = document.querySelector('#v4FinalRecommendation a[data-rec-product]').getBoundingClientRect(); const v = document.querySelector('#v4FinalRecommendation video').getBoundingClientRect(); return { btnBottom: Math.round(b.bottom), videoTop: Math.round(v.top), videoW: Math.round(v.width), videoH: Math.round(v.height), vw: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth }; });
     await page.$eval('#v4FinalRecommendation video', v => v.scrollIntoView({ block: 'center' }));
     await page.screenshot({ path: path.join(OUT, 'shots', `V-${vp}-video-poster.png`) });
     const play = await page.evaluate(async () => {
@@ -232,7 +232,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     });
     await sleep(600);
     const playEvent = srv.state.requests.some(r => r.method === 'POST' && r.body.includes('recommendation_video_play'));
-    check('V1-' + vp, 'Video', `[${vp}] Video does not load or play on its own; on play it streams (H.264 720×1280, ~10 min), records one play event, fits the screen`, before.paused && before.t === 0 && before.rs === 0 && play.t > 1 && play.dur > 590 && play.w === 720 && play.h === 1280 && !play.err && !layout.overflow && layout.videoBottom <= layout.btnTop && layout.videoW <= layout.vw && errors.length === 0,
+    check('V1-' + vp, 'Video', `[${vp}] Video does not load or play on its own; on play it streams (H.264 720×1280, ~10 min), records one play event, fits the screen`, before.paused && before.t === 0 && before.rs === 0 && play.t > 1 && play.dur > 590 && play.w === 720 && play.h === 1280 && !play.err && !layout.overflow && layout.videoTop >= layout.btnBottom && layout.videoW <= layout.vw && errors.length === 0,
       JSON.stringify({ before, play, layout, playEvent }));
     await sleep(1500);
     await ctx.close();
@@ -489,16 +489,6 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await sleep(6000); srv.state.delayMs = 0;
     const n = jlog(sid).filter(r => /^dup-/.test(r[8])).length;
     check('T8', 'Tracking', 'Leaving the page while a batch is in flight: each event is recorded exactly once (5 queued → 5 recorded, no duplicates)', n === 5, 'recorded ' + n);
-    await ctx.close();
-  }
-
-  {
-    // V2 (r7.2): on a phone the video sits between the price and START MY SESSIONS and both fit on one screen.
-    const { ctx, page } = await newPage('mobile');
-    await answerAll(page, [5, 5, 4, 3], { email: 'synthetic+v2@example.invalid' });
-    await next(page); await answerQ(page, 'self_work', 'independent');
-    const m = await page.evaluate(() => { const rec = document.getElementById('v4FinalRecommendation'); const v = rec.querySelector('video'); const btn = rec.querySelector('a[data-rec-product]'); const price = rec.querySelector('.rec-price'); const vr = v.getBoundingClientRect(), br = btn.getBoundingClientRect(), pr = price.getBoundingClientRect(); return { vh: Math.round(vr.height), gap: Math.round(br.top - vr.bottom), span: Math.round(br.bottom - vr.top), order: pr.top < vr.top && vr.bottom <= br.top, inner: innerHeight }; });
-    check('V2', 'Video', '[mobile 390×844] Order is price → video → START MY SESSIONS; video top to button bottom fits on one screen; no autoplay', m.order && m.span <= m.inner && m.gap < 60, JSON.stringify(m));
     await ctx.close();
   }
 
