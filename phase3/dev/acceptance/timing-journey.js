@@ -17,7 +17,7 @@
     type(await wait('#txt'), 'SYNTHETIC timing test - please ignore'); await click('#next', 1500);
     type(await wait('#fn'), 'Synthia'); type(await wait('#em'), cfg.email || 'synthetic+timing@example.invalid');
     await click('.consent-opt[data-consent="no"]', 400);
-    out.inFlightAtSubmit = !!window.v4EventSending;
+    out.inFlightAtSubmit = (typeof v4EventSending !== 'undefined' && v4EventSending);
     const t0 = performance.now(); (await wait('#capgo')).click();
     while (window.v4ResultReady !== true) { if (performance.now() - t0 > 60000) throw new Error('results not ready'); await sleep(50); }
     out.resultsMs = Math.round(performance.now() - t0);
@@ -25,7 +25,7 @@
     await click('.result-panel.active .v4-choice[data-group="v4Goal"][data-value="self_work"]', 400); await click('.result-panel.active .result-next', 1500);
     await click('.result-panel.active .v4-choice[data-group="v4Support"][data-value="some_support"]', 400); await click('.result-panel.active .result-next', 3000);
     await click('.result-panel.active a[data-rec-price="147"]', 2000);
-    out.inFlightAtConfirm = !!window.v4EventSending;
+    out.inFlightAtConfirm = (typeof v4EventSending !== 'undefined' && v4EventSending);
     const t1 = performance.now(); (await wait('#v4Confirm')).click();
     while (!document.querySelector('#v4Checkout')) { const e = document.querySelector('#v4DecError'); if (e && e.textContent.trim() && !document.querySelector('#v4Confirm').disabled) throw new Error('decision error: ' + e.textContent); if (performance.now() - t1 > 60000) throw new Error('no checkout'); await sleep(50); }
     out.confirmMs = Math.round(performance.now() - t1);
