@@ -159,3 +159,23 @@ function v4ReportingReadAfterWriteProbe() {
   console.log('event ms / getResult ms: ' + JSON.stringify(t));
   return t;
 }
+
+// 3b) Repair: put back any plain (non-formula) cell the spill-clearing step removed, then compare again.
+function v4ReportingRepairDev() {
+  var src = rsOpenDevData_();
+  var dst = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('V4_DEV_REPORTING_ID'));
+  var fixed = [];
+  dst.getSheets().forEach(function(d){
+    if (RS_DATA_TABS_.indexOf(d.getName()) !== -1) return;
+    var s = src.getSheetByName(d.getName()); if (!s) return;
+    var lr = s.getLastRow(), lc = s.getLastColumn();
+    var f = s.getRange(1,1,lr,lc).getFormulas(), v = s.getRange(1,1,lr,lc).getValues();
+    var a = s.getRange(1,1,lr,lc).getDisplayValues(), b = d.getRange(1,1,lr,lc).getDisplayValues();
+    for (var r = 0; r < lr; r++) for (var c = 0; c < lc; c++)
+      if (!f[r][c] && a[r][c] !== b[r][c] && b[r][c] === '') { d.getRange(r+1,c+1).setValue(v[r][c]); fixed.push(d.getName()+'!'+d.getRange(r+1,c+1).getA1Notation()); }
+  });
+  // Mirror tabs stay hidden.
+  dst.getSheets().forEach(function(d){ if (RS_DATA_TABS_.indexOf(d.getName()) !== -1 && !d.isSheetHidden()) d.hideSheet(); });
+  console.log('Restored plain cells: ' + JSON.stringify(fixed));
+  return v4ReportingCompareDev();
+}
