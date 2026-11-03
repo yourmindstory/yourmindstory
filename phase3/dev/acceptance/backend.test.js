@@ -234,7 +234,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r7d build', st.env === 'DEV' && /r7d/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r7e build', st.env === 'DEV' && /r7e/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
 }
 
@@ -343,6 +343,51 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const r3 = createRuntime({ source: SRC, props: on }); const t3 = body([5, 5, 5, 5]); r3.post(t3); age(r3, t3.submissionId, 45); r3.mail.failAll = true;
   const o7b = r3.call('sendPendingV4ResultEmails'); const row7 = r3.rows()[0];
   check('F7', 'Email fallback', 'TEST rows are skipped unless included; a MailApp failure leaves the row pending with the error recorded, so the next run retries', o7.sent === 0 && o7b.failed === 1 && row7['Result Email Provider'] === 'pending' && /results fallback failed/.test(row7['Result Email Error']), JSON.stringify({ o7, o7b }));
+}
+
+// ---------- r7e: journey batches read her row once; choice fast path via cache ----------
+{
+  const evs = [
+    { eventType: 'result_view', values: {} }, { eventType: 'result_view', values: {} },
+    { eventType: 'recommendation_shown', values: { route: 'Return to Yourself', product: 'Return to Yourself' } },
+    { eventType: 'post_result_question_answered', values: { step: 'q1', option_id: 'self_work' } },
+    { eventType: 'post_result_question_answered', values: { step: 'q2', option_id: 'some_support' } },
+    { eventType: 'checkout_click', values: { screen: 1, product: 'Return to Yourself' } },
+    { eventType: 'checkout_click', values: { screen: 2, product: 'Return to Yourself' } },
+    { eventType: 'offer_select_click', values: { option: 'reality_reset' } },
+    { eventType: 'video_start', values: { route: 'complete' } },
+    { eventType: 'result_step_view', values: { step: 3, total_steps: 4 } }];
+  const b = body([5, 5, 5, 5]);
+  const run = (patch) => {
+    const r = patch ? createRuntime({ source: SRC, patch }) : rt(); r.post(b);
+    r.post({ action: 'recordJourneyEvents', resultToken: b.resultToken, submissionId: b.submissionId, journeyId: b.journeyId, page: 'results', events: [{ eventType: 'result_view', values: {} }] });
+    OPS.log = []; OPS.on = true;
+    const res = r.post({ action: 'recordJourneyEvents', resultToken: b.resultToken, submissionId: b.submissionId, journeyId: b.journeyId, page: 'results', analyticsConsent: 'granted', events: evs });
+    OPS.on = false;
+    const fw = OPS.log.findIndex(x => x === 'W:V4 Responses');
+    const reads = OPS.log.slice(Math.max(0, fw)).filter(x => x.startsWith('R:')).length;
+    const row = r.rows().find(x => x['Submission ID'] === b.submissionId);
+    row.__funnel = r.sheet('Funnel Events').rows.slice(1).filter(x => x[6] === b.submissionId).map(x => x.slice(0, 28));
+    if (process.env.DBG && !patch) console.log(OPS.log.join(' '));
+    return { res, reads, row };
+  };
+  const norm = o => JSON.stringify(o).replace(/\d\d\/\d\d\/\d{4} \d\d:\d\d:\d\d/g, 'T').replace(/\d{4}-\d\d-\d\dT[\d:.]+Z/g, 'T');
+  const buf = run(null), old = run(s => s.replace('if (locked) v4RowBufStart_(sheet, rowNumber);', ''));
+  check('S3', 'Performance', 'A locked batch of 10 events no longer reads between writes to her row (each such read is a separate round trip to Google Sheets): reads after the first row write, buffered vs old', buf.res.ok && buf.reads < old.reads && buf.reads <= 3, 'buffered=' + buf.reads + ' old=' + old.reads);
+  check('S4', 'Persistence', 'The buffered batch leaves her row and her Funnel Events exactly as the old event-by-event code does (first-wins stamps, Q1/Q2 IDs, checkout history with both screens, last event, no duplicate funnel rows)', norm(buf.row) === norm(old.row) && buf.row['V4 Post-Result Question 1 Option ID'] === 'self_work' && buf.row['V4 Post-Result Question 2 Option ID'] === 'some_support' && /1 @ .*2 @ /s.test(String(buf.row['Checkout Screen History'])) && buf.row['Last Journey Event'] === 'result_step_view' && buf.row.__funnel.length >= 2, JSON.stringify({ funnel: buf.row.__funnel.map(x => x[2]), hist: buf.row['Checkout Screen History'], last: buf.row['Last Journey Event'], same: norm(buf.row) === norm(old.row) }));
+}
+{
+  const r = createRuntime({ source: SRC, props: { V4_DEV_EMAIL_REDIRECT_TO: 'owner-test@example.invalid' } }); const b = body([5, 5, 5, 5]); r.post(b);
+  const f = fin(b.resultToken, b.submissionId, 'reality_reset', 'self_work', 'some_support');
+  const first = r.post(f);
+  const again = r.post(f);
+  const other = r.post(fin(b.resultToken, b.submissionId, 'pattern_break', 'self_work', 'some_support'));
+  const cached = r.ctx.CacheService.getScriptCache().get('v4fin:' + b.resultToken);
+  check('G16', 'Choice', 'After her choice email is sent the token is marked in the script cache; repeating the same choice returns idempotent, a different choice is still refused, and only one email is sent', first.ok && cached === 'reality_reset' && again.ok && again.idempotent === true && other.code === 'EMAIL_ALREADY_SENT' && r.mail.sent.length === 1, JSON.stringify({ cached, again: again.status, other: other.code, mails: r.mail.sent.length }));
+  const b2 = body([5, 5, 5, 5]); r.post(b2);
+  const before = r.mail.sent.length;
+  const ff = r.post(fin(b2.resultToken, b2.submissionId, 'self_guided', 'self_work', 'independent'));
+  check('G17', 'Choice', 'A first choice (nothing cached) takes the locked path and is saved and emailed once', ff.ok && ff.status === 'finalized' && r.mail.sent.length === before + 1, JSON.stringify({ st: ff.status, mails: r.mail.sent.length - before }));
 }
 
 fs.writeFileSync(path.join(__dirname, 'out/backend-results.json'), JSON.stringify(results, null, 1));

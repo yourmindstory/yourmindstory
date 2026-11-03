@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7b';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7e';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -247,25 +247,28 @@ function doPost(e) {
   // This only updates the existing V4 response row, not email, purchases or other rows.
   // The normal lock below still protects unfinished submissions and any outstanding
   // email sending. The token is always checked again by finalizeResultV4_.
+  if (body && (body.action === 'finalizeResultV4' || !body.action)) { V4_TIMING_ = []; V4_TIMING_.t0 = Date.now(); }
   if (body && body.action === 'finalizeResultV4') {
     try {
+      // r7e: the fast path is only for a choice whose email THIS code already sent (marked in the script cache),
+      // so a first choice no longer pays for a sheet lookup before it queues for the lock. Anything else,
+      // including results-fallback rows, takes the locked path, where finalizeResultV4_ checks the row itself.
       var fastToken = clean_(body.resultToken);
-      if (fastToken) {
-        var fastSheet = getV3Sheet_();
-        var fastRow = findRowNumber_(fastSheet, {resultToken:fastToken});
-        if (fastRow && clean_(getByHeaderV3_(fastSheet,fastRow,'Result Email Sent'))) {
-          return json_(finalizeResultV4_(body));
-        }
+      if (fastToken && CacheService.getScriptCache().get('v4fin:' + fastToken)) {
+        return json_(finalizeResultV4_(body));
       }
     } catch(fastErr) {
       // Use the existing locked path for any temporary lookup failure.
       console.error('V4 fast-choice precheck failed, using safe lock: '+fastErr);
     }
+    v4Mark_('precheck');
   }
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) {
+    v4Mark_('lockTimeout'); v4TimingLog_(body && body.action || 'submit');
     return json_({ok:false,status:'error',code:'BUSY',message:'Busy, please retry.'});
   }
+  v4Mark_('lockAcquired');
   try {
     // Purchases are NOT accepted over this public endpoint (they could be faked). They are written
     // straight into the 'Stan Purchases' tab by the separate 'YMS Stan Purchase Sync' script, which
@@ -283,7 +286,7 @@ function doPost(e) {
     // After post-result choices are complete, save the final offer and send the matching email once.
     // Requires the secret saved-result token, not merely the public journey/submission ID.
     if (body && body.action === 'finalizeResultV4') {
-      return json_(finalizeResultV4_(body));
+      var finOut = finalizeResultV4_(body); v4TimingLog_('finalize'); if (v4IsDev_() && V4_TIMING_) finOut._timing = V4_TIMING_.join(' '); return json_(finOut);
     }
     if (body && body.action) {
       return json_({ok:false,status:'error',code:'UNKNOWN_ACTION',message:'Unknown action'});
@@ -349,7 +352,9 @@ function doPost(e) {
     // Purchase matching runs in the dedicated purchase-sync operation, not while
     // the customer is waiting for a result. This avoids holding the script lock.
 
+    v4Mark_('saved');
     return json_({
+      _timing: (v4IsDev_() && V4_TIMING_) ? V4_TIMING_.join(' ') : undefined,
       ok:true,status:'ok',code:'RECORDED',
       submissionId:submissionId,journeyId:journeyId,resultToken:resultToken,
       assessmentVersion:V3_VERSION,backendBuild:V3_BACKEND_BUILD,
@@ -367,6 +372,8 @@ function doPost(e) {
     return json_({ok:false,status:'error',code:'SERVER_ERROR',message:'Submission could not be recorded.'});
   } finally {
     lock.releaseLock();
+    if (V4_TIMING_ && !(body && body.action)) { v4Mark_('done'); v4TimingLog_('submit'); }
+    V4_TIMING_ = null;
   }
 }
 
@@ -447,9 +454,11 @@ function saveV4DecisionBlock_(sh,rowNumber,fields){
   var map=headerMap_(sh), keys=Object.keys(fields).filter(function(k){return !!map[k];});
   if(!keys.length)return;
   var indexes=keys.map(function(k){return map[k];}),first=Math.min.apply(null,indexes),last=Math.max.apply(null,indexes);
-  var range=sh.getRange(rowNumber,first,1,last-first+1),cells=range.getValues()[0];
+  var range=sh.getRange(rowNumber,first,1,last-first+1),b=v4RowBuf_(sh,rowNumber,last);
+  var cells=b?b.vals.slice(first-1,last):range.getValues()[0];
   keys.forEach(function(k){cells[map[k]-first]=fields[k];});
   range.setValues([cells]);
+  if(b)cells.forEach(function(v,i){b.vals[first-1+i]=v;});
 }
 
 // Validates the request against the SAVED row (never the client's idea of the route).
@@ -512,12 +521,18 @@ function v4SaveAnsweredQuestion_(sh, rowNumber, step, optionId) {
   }
 }
 
+// r7c (3 Nov 2026): phase timings for the choice save, written to the Apps Script execution log only
+// (no customer data: phase names and milliseconds). Used to find where the choice-saving time goes.
+var V4_TIMING_ = null;
+function v4Mark_(name) { if (V4_TIMING_) V4_TIMING_.push(name + '=' + (Date.now() - V4_TIMING_.t0)); }
+function v4TimingLog_(label) { if (V4_TIMING_) { try { console.log('V4_TIMING ' + label + ' ' + V4_TIMING_.join(' ')); } catch (e) {} } }
 function finalizeResultV4_(body) {
   var token = clean_(body.resultToken);
   if (!token) return {ok:false,code:'MISSING_RESULT_TOKEN',message:'Saved result token is required'};
   var sh = getV3Sheet_(), rowNumber = findRowNumber_(sh,{resultToken:token});
   if (!rowNumber) return {ok:false,code:'NOT_FOUND',message:'Saved assessment not found'};
   var d = rowObject_(sh,rowNumber);
+  v4Mark_('lookup');
   if (body.submissionId && clean_(body.submissionId) !== clean_(d['Submission ID']))
     return {ok:false,code:'SUBMISSION_MISMATCH',message:'Saved result does not match this assessment.'};
   var v = validateV4Decision_(d, body);
@@ -568,6 +583,7 @@ function finalizeResultV4_(body) {
   setByHeader_(sh,rowNumber,'Result Email Provider','sending');
   setByHeader_(sh,rowNumber,'Result Email Error','sending since '+new Date().toISOString());
   try { SpreadsheetApp.flush(); } catch (flushErr) {}
+  v4Mark_('choiceSaved');
 
   // 2) Build and send exactly the email for the SAVED choice.
   var emailResult = r;
@@ -586,10 +602,13 @@ function finalizeResultV4_(body) {
   } catch (sendErr) {
     delivery = {ok:false,provider:'none',error:String(sendErr)};
   }
+  v4Mark_('emailSent');
   setByHeader_(sh,rowNumber,'Result Email Provider',delivery.ok ? (delivery.provider||'mailapp') : 'none');
   setByHeader_(sh,rowNumber,'Result Email Error',String(delivery.error||'').slice(0,1000));
   if (delivery.ok) setByHeader_(sh,rowNumber,'Result Email Sent',Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss'));
   try { SpreadsheetApp.flush(); } catch (flushErr2) {}
+  if (delivery.ok) { try { CacheService.getScriptCache().put('v4fin:' + token, option, 21600); } catch (cacheErr) {} }
+  v4Mark_('emailRecorded');
   var suppressed = delivery.ok && delivery.provider === 'dev-suppressed';
   return {ok:delivery.ok === true,status:delivery.ok ? 'finalized' : 'email_failed',
     code:delivery.ok ? undefined : 'EMAIL_FAILED',
@@ -813,12 +832,13 @@ function handleJourneyRequestV3_(body) {
       list.forEach(function(ev){ logJourneyV3_(stamp, clean_(ev && ev.eventType), page, 'MISSING_IDENTITY', identity, '', vals_(ev), consent); });
       return json_({ok:false,status:'error',code:'MISSING_IDENTITY',message:'Missing resultToken, submissionId or journeyId'});
     }
+    // r7e: find her row before anything is written (a read after a write costs a separate round trip).
+    var sheet = getV3Sheet_();
+    var rowNumber = findRowNumber_(sheet, identity);
     recordCanonicalJourneyV3_(body, list, identity);
     if (!v4IsDev_() && list.some(function(ev){ return clean_(ev && ev.eventType) === 'purchase_return_view'; })) {
       try { syncAllV3_(); } catch (syncErr) { console.error('Sync after Payhip return failed: ' + syncErr); }
     }
-    var sheet = getV3Sheet_();
-    var rowNumber = findRowNumber_(sheet, identity);
     if (!rowNumber) {
       // Before the assessment is submitted there is no row yet: that is expected, not an error.
       var preSub = list.every(function(ev){ return /^assessment_/.test(clean_(ev && ev.eventType)); });
@@ -826,6 +846,7 @@ function handleJourneyRequestV3_(body) {
       return json_({ok:false,status:'error',code:'ROW_NOT_FOUND',message:'Existing assessment row not found'});
     }
     var results = [], lastOk = '';
+    if (locked) v4RowBufStart_(sheet, rowNumber);
     list.forEach(function(ev){
       var eventType = clean_(ev && ev.eventType);
       var values = vals_(ev);
@@ -862,6 +883,7 @@ function handleJourneyRequestV3_(body) {
       eventType: single ? single.eventType : undefined, rowNumber: rowNumber, results: results
     });
   } finally {
+    v4RowBufEnd_();
     v4FlushJourneyLog_();
     if (locked) { try { lock.releaseLock(); } catch (relErr) {} }
   }
@@ -1152,6 +1174,23 @@ function findSubmission_(sheet, submissionId) {
 // Header row is read once per sheet per request (it was re-read on every single cell write,
 // which made each event slow enough for bursts to pile up behind the lock).
 var HEADER_CACHE_V3_ = {};
+// r7e (3 Nov 2026): while a LOCKED journey batch updates one woman's row, her row is read ONCE and every
+// read in the batch comes from that copy. Writes still go to the sheet cell by cell (nothing else in the row is
+// rewritten), but with no reads in between, Apps Script sends them together instead of one round trip per
+// event. This is what made a batch hold the lock for 5-15 s and delay the save of her assessment or choice.
+var V4_ROWBUF_ = null;
+function v4RowBufStart_(sheet, rowNumber) {
+  V4_ROWBUF_ = null;
+  try {
+    V4_ROWBUF_ = {sid: sheet.getSheetId(), row: rowNumber,
+      vals: sheet.getRange(rowNumber, 1, 1, sheet.getLastColumn()).getValues()[0]};
+  } catch (e) { V4_ROWBUF_ = null; }
+}
+function v4RowBufEnd_() { V4_ROWBUF_ = null; }
+function v4RowBuf_(sheet, rowNumber, col) {
+  var b = V4_ROWBUF_;
+  return (b && b.row === rowNumber && col >= 1 && col <= b.vals.length && b.sid === sheet.getSheetId()) ? b : null;
+}
 function clearHeaderCache_() { HEADER_CACHE_V3_ = {}; }
 function headerMap_(sheet) {
   var key = sheet.getSheetId();
@@ -1168,6 +1207,7 @@ function setByHeader_(sheet,rowNumber,headerName,value) {
   var col = map[headerName];
   if (!col) return false;
   sheet.getRange(rowNumber,col).setValue(value);
+  var b = v4RowBuf_(sheet,rowNumber,col); if (b) b.vals[col-1] = value;
   return true;
 }
 
@@ -1175,8 +1215,8 @@ function setFirstByHeader_(sheet,rowNumber,headerName,value) {
   var map = headerMap_(sheet);
   var col = map[headerName];
   if (!col) return false;
-  var cell = sheet.getRange(rowNumber,col);
-  if (!String(cell.getValue()||'').trim()) cell.setValue(value);
+  var cell = sheet.getRange(rowNumber,col), b = v4RowBuf_(sheet,rowNumber,col);
+  if (!String((b ? b.vals[col-1] : cell.getValue())||'').trim()) { cell.setValue(value); if (b) b.vals[col-1] = value; }
   return true;
 }
 
@@ -1943,7 +1983,9 @@ function ensureHeaderV3_(sheet, name) {
 
 function getByHeaderV3_(sheet, rowNumber, name) {
   var col = headerMap_(sheet)[name];
-  return col ? sheet.getRange(rowNumber, col).getValue() : '';
+  if (!col) return '';
+  var b = v4RowBuf_(sheet, rowNumber, col);
+  return b ? b.vals[col-1] : sheet.getRange(rowNumber, col).getValue();
 }
 
 function getSalesEventsSheetV3_() {
@@ -2210,6 +2252,7 @@ function recordCanonicalJourneyV3_(body, list, identity) {
     var ids = { submissionId: identity.submissionId || (row ? String(row['Submission ID']) : ''), journeyId: identity.journeyId || (row ? String(row['Journey ID']) : '') };
     var touch = body.touch && typeof body.touch === 'object' ? body.touch : {};
     var now = new Date();
+    var pending = [];
     list.forEach(function(ev){
       var canon = CANON_MAP_V3[clean_(ev && ev.eventType)];
       if (!canon) return;
@@ -2219,8 +2262,35 @@ function recordCanonicalJourneyV3_(body, list, identity) {
       if (clean_(ev.eventType) === 'checkout_click') evidence = 'legacy checkout_click: outbound click only';
       var rec = funnelRecordV3_(canon, now, evidence, ids, row, values, touch, body.isTest === true,
         { experiment: clean_(body.experimentVersion), v3Row: rowNumber || '' });
-      var res = writeFunnelEventV3_(rec, false);
-      if (row && res === 'recorded') stampCanonicalOnRowV3_(sheet, rowNumber, canon, now, values);
+      pending.push({rec: rec, canon: canon, values: values});
+    });
+    if (!pending.length) return;
+    if (V4_JLOG_BUFFER_) {
+      // r7e, locked batch: read the dedupe keys once, append every new funnel row in one write, then stamp her row
+      // from one read of it. Same rows and same first-wins stamps as the event-by-event path below.
+      var fsh = funnelSheetV3_(), fmap = headerMap_(fsh), flast = fsh.getLastRow(), seen = {};
+      if (flast >= 2) fsh.getRange(2, fmap['Dedupe Key'], flast - 1, 1).getValues().forEach(function(x){ seen[String(x[0])] = true; });
+      var fresh = pending.filter(function(p){
+        var rec = p.rec;
+        if (!rec['Attempt Key'] && rec['Event'] !== 'purchase' && rec['Event'] !== 'refund') return false;
+        var k = String(rec['Dedupe Key']);
+        if (seen[k]) return false;
+        seen[k] = true; return true;
+      });
+      if (fresh.length) {
+        fsh.getRange(flast + 1, 1, fresh.length, FUNNEL_HEADERS_V3.length)
+          .setValues(fresh.map(function(p){ return FUNNEL_HEADERS_V3.map(function(h){ return p.rec.hasOwnProperty(h) ? p.rec[h] : ''; }); }));
+        if (row) {
+          v4RowBufStart_(sheet, rowNumber);
+          try { fresh.forEach(function(p){ stampCanonicalOnRowV3_(sheet, rowNumber, p.canon, now, p.values); }); }
+          finally { v4RowBufEnd_(); }
+        }
+      }
+      return;
+    }
+    pending.forEach(function(p){
+      var res = writeFunnelEventV3_(p.rec, false);
+      if (row && res === 'recorded') stampCanonicalOnRowV3_(sheet, rowNumber, p.canon, now, p.values);
     });
   } catch (err) {
     console.error('recordCanonicalJourneyV3_ failed: ' + err);
