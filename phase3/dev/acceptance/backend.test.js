@@ -234,7 +234,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r6b build', st.env === 'DEV' && /r6b/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r7 build', st.env === 'DEV' && /r7/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
 }
 
@@ -295,6 +295,54 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const ev = s2.post({ action: 'recordJourneyEvent', eventType: 'result_view', resultToken: cust2.resultToken, submissionId: cust2.submissionId });
   check('G15', 'Stage 2 guard', 'With the guard on, finalise and journey events against a non-test row are refused; no email to that address', fc.code === 'STAGE2_TEST_ONLY' && ev.code === 'STAGE2_TEST_ONLY' && !s2.mail.sent.some(x => x.to === cust2.email), JSON.stringify({ fc: fc.code, ev: ev.code }));
   void s2off;
+}
+
+// ---------- F. r7 results-email fallback (OFF by default; owner decision) ----------
+{
+  const age = (r, sid, minutes) => { const sh = r.sheet('V4 Responses'); const h = sh.rows[0]; const i = h.indexOf('Submitted UTC'); sh.rows.find(x => x[h.indexOf('Submission ID')] === sid)[i] = new Date(Date.now() - minutes * 60000).toISOString(); };
+  const props = { V4_DEV_EMAIL_REDIRECT_TO: 'owner-test@example.invalid' };
+  // F1: default (no property) -> nothing is sent, behaviour unchanged.
+  { const r = createRuntime({ source: SRC, props: Object.assign({}, props) }); const b = body([5, 5, 5, 5]); r.post(b); age(r, b.submissionId, 120);
+    const out = r.call('sendPendingV4ResultEmails'); check('F1', 'Email fallback', 'Fallback is OFF by default: an abandoned result gets no email and the row stays pending', out.sent === 0 && r.mail.sent.length === 0 && r.rows()[0]['Result Email Provider'] === 'pending', JSON.stringify(out)); }
+  // F2..F6: ON
+  const on = Object.assign({}, props, { V4_PENDING_FALLBACK: 'on', V4_PENDING_FALLBACK_SINCE: new Date(Date.now() - 6 * 3600e3).toISOString(), V4_PENDING_FALLBACK_MINUTES: '30', V4_PENDING_FALLBACK_INCLUDE_TEST: 'yes' });
+  const r = createRuntime({ source: SRC, props: on });
+  const old = body([5, 5, 5, 5]); r.post(old); age(r, old.submissionId, 8 * 60);          // before SINCE: never emailed automatically
+  const fresh = body([5, 5, 5, 5]); r.post(fresh); age(r, fresh.submissionId, 10);         // too recent: she may still be choosing
+  const due = body([5, 5, 5, 5]); r.post(due); age(r, due.submissionId, 45);               // abandoned Complete result
+  const single = body([5, 0, 0, 0]); r.post(single); age(r, single.submissionId, 45);      // abandoned £37 result
+  const chose = body([5, 5, 5, 5]); r.post(chose); r.post(fin(chose.resultToken, chose.submissionId, 'reality_reset', 'self_work', 'some_support')); age(r, chose.submissionId, 45);
+  const sentBefore = r.mail.sent.length;
+  const o1 = r.call('sendPendingV4ResultEmails');
+  const byTok = t => r.rows().find(x => x['Result Token'] === t);
+  const m = r.mail.sent.slice(sentBefore);
+  const dueMail = m.find(x => /\[V4 DEV for synthetic\+\d+@example\.invalid\]/.test(x.subject) && x.body.includes(due.resultToken));
+  check('F2', 'Email fallback', 'ON: only results older than 30 min, after the start date, with no choice and no email are sent (here: the abandoned £117 and £37 results); the too-recent, the pre-start and the already-chosen are left alone', o1.sent === 2 && m.length === 2 && byTok(due.resultToken)['V4 Result Email Route'] === 'results_fallback' && byTok(single.resultToken)['V4 Result Email Route'] === 'results_fallback' && byTok(fresh.resultToken)['Result Email Provider'] === 'pending' && byTok(old.resultToken)['Result Email Provider'] === 'pending', JSON.stringify(o1));
+  const cBody = dueMail ? dueMail.body : '';
+  check('F3', 'Email fallback', 'The fallback for a Complete result is the existing approved Complete email listing all three options (£117, £147, £197) with her saved-results link; no new copy', /£117/.test(cBody) && /£147/.test(cBody) && /£197/.test(cBody) && cBody.includes('resultToken=' + due.resultToken) && cBody.includes('whether he’s in your life or not'), cBody.slice(0, 160));
+  const o2 = r.call('sendPendingV4ResultEmails');
+  check('F4', 'Email fallback', 'Running again never sends a second fallback email', o2.sent === 0 && r.mail.sent.length === sentBefore + 2, JSON.stringify(o2));
+  // F5: she comes back later and confirms £147: choice saved, no extra email by default.
+  const before5 = r.mail.sent.length;
+  const f5 = r.post(fin(due.resultToken, due.submissionId, 'reality_reset', 'self_work', 'some_support'));
+  const row5 = byTok(due.resultToken);
+  check('F5', 'Email fallback', 'After a fallback email she can still confirm an offer: choice saved and finalised (frontend proceeds to checkout); no second email unless the owner turns it on', f5.ok && f5.status === 'finalized' && f5.afterResultsEmail && row5['V4 Result Email Route'] === 'reality_reset' && row5['V4 Decision Saved UTC'] && r.mail.sent.length === before5, JSON.stringify(f5));
+  // F6: with V4_CHOICE_EMAIL_AFTER_RESULTS=yes, the offer-specific email follows.
+  r.props.V4_CHOICE_EMAIL_AFTER_RESULTS = 'yes';
+  const before6 = r.mail.sent.length;
+  const f6 = r.post(fin(single.resultToken, single.submissionId, 'scored_route')); const extraSingle = r.mail.sent.length - before6;
+  const due2 = body([5, 5, 5, 5]); r.post(due2); age(r, due2.submissionId, 45); const o6 = r.call('sendPendingV4ResultEmails');
+  const before6b = r.mail.sent.length;
+  const f6b = r.post(fin(due2.resultToken, due2.submissionId, 'pattern_break', 'self_work', 'additional'));
+  const last = r.mail.sent[r.mail.sent.length - 1] || {};
+  check('F6', 'Email fallback', 'Optional second email: a Single/Pair choice sends nothing extra (same email); a Complete choice sends only the chosen offer (£197) when V4_CHOICE_EMAIL_AFTER_RESULTS=yes', f6.ok && extraSingle === 0 && f6b.ok && f6b.choiceEmailSent && r.mail.sent.length === before6b + 1 && /£197/.test(last.body) && !/£147/.test(last.body), JSON.stringify({ o6, route2: byTok(due2.resultToken)['V4 Result Email Route'], f6: f6.status, extraSingle, f6b, last: (last.body||'').slice(0,80) }));
+  // F7: TEST rows skipped unless included; MailApp failure leaves the row pending with the error.
+  const r2 = createRuntime({ source: SRC, props: Object.assign({}, on, { V4_PENDING_FALLBACK_INCLUDE_TEST: '' }) });
+  const t = body([5, 5, 5, 5]); r2.post(t); age(r2, t.submissionId, 45);
+  const o7 = r2.call('sendPendingV4ResultEmails');
+  const r3 = createRuntime({ source: SRC, props: on }); const t3 = body([5, 5, 5, 5]); r3.post(t3); age(r3, t3.submissionId, 45); r3.mail.failAll = true;
+  const o7b = r3.call('sendPendingV4ResultEmails'); const row7 = r3.rows()[0];
+  check('F7', 'Email fallback', 'TEST rows are skipped unless included; a MailApp failure leaves the row pending with the error recorded, so the next run retries', o7.sent === 0 && o7b.failed === 1 && row7['Result Email Provider'] === 'pending' && /results fallback failed/.test(row7['Result Email Error']), JSON.stringify({ o7, o7b }));
 }
 
 fs.writeFileSync(path.join(__dirname, 'out/backend-results.json'), JSON.stringify(results, null, 1));

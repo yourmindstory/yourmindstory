@@ -108,32 +108,51 @@ function ymsTouch(){let up=new URLSearchParams(location.search),g=k=>up.get(k)||
 // Sent regardless of analytics-cookie choice; carries only assessment IDs and the step reached. GA4/Clarity stay consent-gated.
 function consentState(){try{let v=localStorage.getItem('yms_analytics_consent');return v==='yes'?'yes':v==='no'?'no':'unset'}catch(e){return 'unset'}}
 // Send first-party journey events in serial batches so tracking never overwhelms assessment saves.
-let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false;
-function scheduleV4Flush(delay=60000){
- if(v4ResultAwaitingChoice)return; // Prioritise an actual support choice over nonessential tracking writes.
- if(v4EventTimer)clearTimeout(v4EventTimer);
+let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false,v4FinalizeInFlight=false;
+// r7 (3 Nov 2026, live-funnel repair): events used to wait up to 60 s, were held for the whole results stage and
+// only 10 were sent when the page was hidden, so most results-stage events were lost. Now: sent within ~1.5 s,
+// paused only while her assessment or her final choice is being saved, and everything left is sent with
+// sendBeacon when the page is hidden or closed.
+function scheduleV4Flush(delay=1500){
+ if(v4EventTimer)return;
  v4EventTimer=setTimeout(()=>{v4EventTimer=null;flushV4Events()},delay);
 }
 function postJourneyEvents(events){
  if(!Array.isArray(events)||!events.length)return;
- events.forEach(e=>{if(Array.isArray(e)&&e[0])v4PendingEvents.push([e[0],e[1]||{}])});
+ events.forEach(e=>{if(Array.isArray(e)&&e[0])v4PendingEvents.push([e[0],e[1]||{},new Date().toISOString()])});
  scheduleV4Flush();
 }
-async function flushV4Events(){
- if(!V3_BACKEND||v4ResultAwaitingChoice||v4EventSending||v4SubmissionInFlight||!v4PendingEvents.length)return;
- v4EventSending=true;
- const batch=v4PendingEvents.splice(0,10),id=journeyIdentity();
+function v4EventPayload(batch){
+ const id=journeyIdentity();
  const lv=new URLSearchParams(location.search).get('landing_variant')||sessionStorage.getItem('yms_v4_landing_variant')||sessionStorage.getItem('yms_v4_preview_landing_variant')||'';
- const payload={action:'recordJourneyEvents',submissionId:id.submissionId,journeyId:id.journeyId,resultToken:id.resultToken,
+ return {action:'recordJourneyEvents',submissionId:id.submissionId,journeyId:id.journeyId,resultToken:id.resultToken,
    analyticsConsent:consentState(),page:'results',isTest:ymsIsTest(),experimentVersion:'V4-november-september-flow',
-   landingVariant:lv,touch:ymsTouch(),events:batch.map(e=>({eventType:e[0],values:e[1],clientTime:new Date().toISOString()}))};
+   landingVariant:lv,touch:ymsTouch(),events:batch.map(e=>({eventType:e[0],values:e[1],clientTime:e[2]||new Date().toISOString()}))};
+}
+async function flushV4Events(){
+ if(!V3_BACKEND||v4EventSending||!v4PendingEvents.length)return;
+ if(v4SubmissionInFlight||v4FinalizeInFlight){scheduleV4Flush(1500);return}
+ v4EventSending=true;
+ const batch=v4PendingEvents.splice(0,10);
  try{
-  await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),keepalive:true});
- }catch(err){console.warn('V4 event batch could not be confirmed',err)}
- finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(60000)}
+  const r=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(v4EventPayload(batch)),keepalive:true});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+ }catch(err){console.warn('V4 event batch could not be confirmed',err);if(batch.length&&!batch[0][3]){batch.forEach(e=>e[3]=1);v4PendingEvents.unshift(...batch)}}
+ finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(600)}
+}
+// Page hidden or closing (app switch, tab close, link to the sales page): send everything that is left.
+function beaconV4Events(){
+ if(!V3_BACKEND)return;
+ while(v4PendingEvents.length){
+  const body=JSON.stringify(v4EventPayload(v4PendingEvents.splice(0,10)));
+  let ok=false;
+  try{ok=!!(navigator.sendBeacon&&navigator.sendBeacon(V3_BACKEND,new Blob([body],{type:'text/plain;charset=utf-8'})))}catch(e){}
+  if(!ok){try{fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body,keepalive:true})}catch(e){}}
+ }
 }
 function postJourneyEvent(eventType,values={}){postJourneyEvents([[eventType,values]])}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&v4PendingEvents.length){v4ResultAwaitingChoice=false;flushV4Events()}});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&v4PendingEvents.length)beaconV4Events()});
+window.addEventListener('pagehide',()=>{if(v4PendingEvents.length)beaconV4Events()});
 
 
 function loadAnalytics(){if(!analyticsAllowed()||window.YMSQuiz||document.querySelector('script[src*="/assets/yms-quiz-shared.js"]'))return;let s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;s.onload=()=>{try{YMSQuiz.captureAttribution()}catch(e){}};document.head.appendChild(s)}
@@ -147,7 +166,9 @@ document.getElementById('back').onclick=()=>{if(i){postJourneyEvent('assessment_
 function v4Esc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function v4PostChoice(){let c={};try{c=JSON.parse(sessionStorage.getItem('yms_v4_preview_post_result_choice')||'{}')}catch(e){}const r=journeyIdentity();if(c.resultToken&&r.resultToken&&c.resultToken!==r.resultToken)return {};return c||{}}
 function v4OptionFor(link){const price=Number(link.dataset.recPrice||0);return price===147?'reality_reset':price===197?'pattern_break':price===117?'self_guided':price===4.99?'bare_minimum':'scored_route'}
-function v4ShowTakenStep(overlay,link,handoff,msg){const price=link.dataset.recPrice;overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>${msg}</p><p><a id="v4Checkout" class="next" href="${link.href}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button type="button" class="back" id="v4Finish">Return to results</button></p>`;overlay.querySelector('#v4Checkout').addEventListener('click',()=>handoff(link));overlay.querySelector('#v4Finish').onclick=()=>overlay.remove();overlay.querySelector('#v4Checkout').focus()}
+function v4ShowTakenStep(overlay,link,handoff,msg){const price=link.dataset.recPrice;overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>${msg}</p><p><a id="v4Checkout" class="next" href="${v4WithUtm(link.href)}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button type="button" class="back" id="v4Finish">Return to results</button></p>`;overlay.querySelector('#v4Checkout').addEventListener('click',()=>handoff(link));overlay.querySelector('#v4Finish').onclick=()=>overlay.remove();overlay.querySelector('#v4Checkout').focus()}
+// r7: Stan only sees where a visitor came from through UTM tags. IDs only, never personal data.
+function v4WithUtm(url){try{const u=new URL(url);if(!/stan\.store$/.test(u.hostname)||u.searchParams.has('utm_source'))return url;u.searchParams.set('utm_source','yms_assessment');u.searchParams.set('utm_medium','website');u.searchParams.set('utm_campaign','v4_results');return u.toString()}catch(e){return url}}
 function v4Overlay(label){const previous=document.getElementById('v4Decision');if(previous)previous.remove();const overlay=document.createElement('div');overlay.id='v4Decision';overlay.style.cssText='position:fixed;z-index:9999;inset:0;overflow:auto;background:rgba(15,28,24,.87);padding:20px';overlay.innerHTML=`<div role="dialog" aria-modal="true" aria-label="${label}" style="max-width:620px;margin:25px auto;background:white;padding:25px;color:#111827;border-radius:5px"></div>`;overlay.addEventListener('keydown',e=>{if(e.key==='Escape')overlay.remove()});document.body.append(overlay);return overlay}
 async function v4OfferDecision(link,handoff){
  let r={};try{r=JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}')}catch(e){}
@@ -161,7 +182,8 @@ async function v4OfferDecision(link,handoff){
  const overlay=v4Overlay('Your final support choice');
  overlay.querySelector('div[role=dialog]').innerHTML=`<h2 style="font-family:Fraunces,serif">Your next step</h2><p>You've selected: <strong>${label}</strong> at £${link.dataset.recPrice}.</p>
  <p id="v4DecError" class="error" role="alert"></p><div class="actions"><button type="button" id="v4Cancel" class="back">Back</button><button type="button" id="v4Confirm" class="next">CONFIRM MY NEXT STEP</button></div>`;
- overlay.querySelector('#v4Cancel').onclick=()=>overlay.remove();
+ postJourneyEvent('offer_select_click',{step:option,product:link.dataset.recProduct||'',route:link.dataset.recRoute||'',price:link.dataset.recPrice||''});track('offer_select_click',{option:option,price:link.dataset.recPrice||'',currency:'GBP'});
+ overlay.querySelector('#v4Cancel').onclick=()=>{postJourneyEvent('offer_confirm_cancel',{step:option,price:link.dataset.recPrice||''});track('offer_confirm_cancel',{option:option});overlay.remove()};
  overlay.querySelector('#v4Confirm').focus();
  overlay.querySelector('#v4Confirm').onclick=async()=>{
   const postChoice=v4PostChoice();
@@ -170,6 +192,7 @@ async function v4OfferDecision(link,handoff){
   if(needsReadiness&&(!goal||(asksQ2&&!postChoice.support))){overlay.querySelector('#v4DecError').textContent='Please answer the post-result questions before choosing an offer.';return}
   const barrier=sessionStorage.getItem('yms_v4_preview_existing_barrier')||'';
   const button=overlay.querySelector('#v4Confirm');button.disabled=true;button.textContent='SAVING YOUR CHOICE...';
+  postJourneyEvent('offer_confirm_click',{step:option,product:link.dataset.recProduct||'',route:link.dataset.recRoute||'',price:link.dataset.recPrice||''});track('offer_confirm_click',{option:option,price:link.dataset.recPrice||'',currency:'GBP'});
   const payload={action:'finalizeResultV4',resultToken:r.resultToken,submissionId:r.submissionId||'',finalOfferOption:option,
     readinessRequired:false,
     question1:goal?{id:'post_result_goal',optionId:goal,answer:postChoice.goalAnswer||''}:null,
@@ -177,6 +200,7 @@ async function v4OfferDecision(link,handoff){
     barrierAnswer:barrier||null,
     supportPreference:complete?{id:option,answer:label}:null,
     hesitation:null};
+  v4FinalizeInFlight=true;
   try{
    let data=null;
    for(let attempt=0;attempt<6;attempt++){
@@ -199,7 +223,8 @@ async function v4OfferDecision(link,handoff){
    try{sessionStorage.setItem('yms_v4_preview_final_choice',JSON.stringify({resultToken:r.resultToken,option:option}))}catch(e){}
    v4ResultAwaitingChoice=false; scheduleV4Flush(1400); // After choice is safely saved, flush buffered events.
    v4ShowTakenStep(overlay,link,handoff,'Your personalised result email has been submitted for delivery. Check your inbox.');
-  }catch(err){overlay.querySelector('#v4DecError').textContent=String(err.message||err);button.disabled=false;button.textContent='TRY AGAIN'}
+  }catch(err){overlay.querySelector('#v4DecError').textContent=String(err.message||err);button.disabled=false;button.textContent='TRY AGAIN';postJourneyEvent('offer_confirm_error',{step:option})}
+  finally{v4FinalizeInFlight=false;scheduleV4Flush(800)}
  }
 }
 // Stage scores: from live answers, or from the saved result when she returns through her result link.
@@ -278,8 +303,7 @@ function v4Q1Screen(sel){return '<div class="eyebrow">YOUR NEXT STEP</div><h2 cl
 function v4Q2Screen(sel){return '<h2 class="q">One more thing.</h2><p>This pattern didn\'t develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That\'s why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p class="v4-ask" id="v4SupportLabel"><strong>Would you like more personal support than this?</strong></p>'+v4OptionButtons('v4Support',V4_SUPPORTS,sel)+'<p class="error v4-choice-error" role="alert"></p>'}
 
 function showResult(){
-v4ResultAwaitingChoice=true; // Defer buffered result analytics while the woman chooses her support.
-if(v4EventTimer){clearTimeout(v4EventTimer);v4EventTimer=null}
+v4ResultAwaitingChoice=true; // r7: kept for compatibility only; results-stage events are no longer held.
 postJourneyEvent('result_view');
 document.getElementById('form').style.display='none';document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width='100%';
 let s=v4StageScores(),total=s.reduce((x,y)=>x+y,0),affected=s.map((x,j)=>x>=3?j:-1).filter(x=>x>=0),clear=s.map((x,j)=>x>=4?j:-1).filter(x=>x>=0),moderate=s.map((x,j)=>x===3?j:-1).filter(x=>x>=0),wholeJourney=affected.length>=3,qual=affected.slice();if(!wholeJourney&&qual.length>2)qual=qual.sort((x,y)=>(s[y]-s[x])||(x-y)).slice(0,2);let belief=a[8],context=a[10],recommendationCategory=qual.length===0?'bare_minimum':qual.length===1?'single_stage':qual.length===2?'two_stage_pair':'return_to_you_series';track('quiz_result_view',{recommendation_category:recommendationCategory});
@@ -441,7 +465,7 @@ if(firstResultPanel){
  }
 }
 
-function recommendationHandoff(link){let last=journeyIdentity(),route=link.dataset.recRoute||'',productType=route==='Single Stage'?'single_stage':route==='Two-Stage Pair'?'two_stage_pair':route==='Bare Minimum'?'bare_minimum':'return_to_you_series';let p={product:link.dataset.recProduct||'',route:route,recommendation_category:recommendationCategory,product_type:productType,submission_id:last.submissionId||'',journey_id:last.journeyId||'',destination:(link.hostname||location.hostname||'').toLowerCase()};let external=link.origin&&link.origin!==location.origin;let jv={product:p.product,route:p.route,recommendation_category:p.recommendation_category,cta:p.product,destination:p.destination,product_clicked:p.product,price:link.dataset.recPrice||'',currency:'GBP',destination_url:(link.href||'').slice(0,200)};postJourneyEvents(external?[['primary_cta_click',jv],[p.destination.includes('stan.store')?'outbound_stan_click':'outbound_payhip_click',jv]]:[['primary_cta_click',jv]]);let analyticsParams={product:p.product,route:p.route,recommendation_category:p.recommendation_category,product_type:p.product_type,destination:p.destination,transport_type:'beacon'};track('recommendation_click',analyticsParams);track('primary_cta_click',analyticsParams);if(external){track('checkout_click',analyticsParams);try{sessionStorage.setItem('yms_v4_preview_last_checkout',JSON.stringify(Object.assign({clickedAt:new Date().toISOString()},p)))}catch(e){}}}
+function recommendationHandoff(link){let last=journeyIdentity(),route=link.dataset.recRoute||'',productType=route==='Single Stage'?'single_stage':route==='Two-Stage Pair'?'two_stage_pair':route==='Bare Minimum'?'bare_minimum':'return_to_you_series';let p={product:link.dataset.recProduct||'',route:route,recommendation_category:recommendationCategory,product_type:productType,submission_id:last.submissionId||'',journey_id:last.journeyId||'',destination:(link.hostname||location.hostname||'').toLowerCase()};let external=link.origin&&link.origin!==location.origin;let jv={product:p.product,route:p.route,recommendation_category:p.recommendation_category,cta:p.product,destination:p.destination,product_clicked:p.product,price:link.dataset.recPrice||'',currency:'GBP',destination_url:(link.href||'').slice(0,200)};postJourneyEvents(external?[['primary_cta_click',jv],[p.destination.includes('stan.store')?'outbound_stan_click':'outbound_payhip_click',jv]]:[['primary_cta_click',jv]]);if(external)beaconV4Events();let analyticsParams={product:p.product,route:p.route,recommendation_category:p.recommendation_category,product_type:p.product_type,destination:p.destination,transport_type:'beacon'};track('recommendation_click',analyticsParams);track('primary_cta_click',analyticsParams);if(external){track('checkout_click',analyticsParams);try{sessionStorage.setItem('yms_v4_preview_last_checkout',JSON.stringify(Object.assign({clickedAt:new Date().toISOString()},p)))}catch(e){}}}
 recommendationHandoffGlobal=recommendationHandoff;el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link){e.preventDefault();v4OfferDecision(link,recommendationHandoff)}});
 let rp=-1,navLocked=false;const showPanel=(n,historyMode)=>{rp=n;el.querySelectorAll('.result-panel').forEach((p,j)=>p.classList.toggle('active',j===n));document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width=((n+1)/panels.length*100)+'%';if(historyMode==='push')history.pushState({ymsResult:true,resultStep:n},'',location.href);else if(historyMode==='replace')history.replaceState({ymsResult:true,resultStep:n},'',location.href);window.scrollTo({top:0,behavior:'smooth'});let panel=el.querySelectorAll('.result-panel')[n],batch=[];if(panel&&panel.querySelector('.rec-offer a[data-rec-product]')){let link=panel.querySelector('.rec-offer a[data-rec-product]'),vals={product:link?link.dataset.recProduct:'',route:link?link.dataset.recRoute:'',recommendation_category:recommendationCategory,price:link?link.dataset.recPrice||'':'',currency:'GBP'};if(!panel.dataset.offerTracked){panel.dataset.offerTracked='1';batch.push(['recommendation_shown',vals],['final_route_shown',vals]);track('recommendation_shown',vals)}}if(panel&&!panel.dataset.journeyViewTracked){panel.dataset.journeyViewTracked='1';batch.push(['result_step_view',{step:n+1,total_steps:panels.length}])}batch.forEach(e=>postJourneyEvent(e[0],e[1]));track('result_step_view',{step:n+1,step_number:n+1,step_id:'result_'+(n+1),step_name:'Result step '+(n+1),total_steps:panels.length});track('yms_result_screen_'+(n+1)+'_view',{step_number:n+1})};
 const panelIndex=kind=>v4Spec.findIndex(x=>x.kind===kind);
@@ -464,12 +488,20 @@ if(next){let to=rp+1;const kind=v4Spec[rp]&&v4Spec[rp].kind;
  if(kind==='q1'||kind==='q2'){const goal=v4Selected('v4Goal'),support=v4Selected('v4Support');const val=kind==='q1'?goal:support;
   if(!val){const err=el.querySelectorAll('.result-panel')[rp].querySelector('.v4-choice-error');if(err)err.textContent='Please choose an answer before continuing.';navLocked=false;return}
   const bare=['understand_him','change_him'].includes(goal);
-  if(kind==='q1'){postJourneyEvent('post_result_question_answered',{step:'q1'});if(bare){v4SaveChoice(goal,'');applyPostResultOffer(goal,'');to=panelIndex('rec')}}
-  else{postJourneyEvent('post_result_question_answered',{step:'q2'});v4SaveChoice(goal,support);applyPostResultOffer(goal,support)}}
+  if(kind==='q1'){postJourneyEvent('post_result_question_answered',{step:'q1',option_id:goal});if(bare){v4SaveChoice(goal,'');applyPostResultOffer(goal,'');to=panelIndex('rec')}}
+  else{postJourneyEvent('post_result_question_answered',{step:'q2',option_id:support});v4SaveChoice(goal,support);applyPostResultOffer(goal,support)}}
  track('result_next_click',{from_step:rp+1,to_step:to+1});let np=el.querySelectorAll('.result-panel')[to];if(np&&np.dataset.kind==='rec')postJourneyEvent('recommendation_reveal_click',{step:to+1,total_steps:v4Spec.length});showPanel(Math.min(to,v4Spec.length-1),'push')}
 else{postJourneyEvent('result_back_click',{step:rp+1});track('result_back_click',{from_step:rp+1,to_step:Math.max(1,rp)});history.back()}setTimeout(()=>navLocked=false,350)});
 // Optional video: never autoplays; record a play only (no personal data), consent-gated for GA4.
-el.addEventListener('play',e=>{const v=e.target;if(!(v instanceof HTMLVideoElement)||v.dataset.played)return;v.dataset.played='1';const r=(v.closest('[data-video-route]')||{}).dataset;const routeKey=r?r.videoRoute:'';postJourneyEvent('recommendation_video_play',{route:routeKey});track('recommendation_video_play',{route:routeKey})},true);
+const v4VideoRoute=v=>{const f=v.closest('[data-video-route]');return f?f.dataset.videoRoute:''};
+const v4VideoEvent=(v,name,extra)=>{const vals=Object.assign({route:v4VideoRoute(v)},extra||{});postJourneyEvent(name,Object.assign({step:extra&&extra.percent?String(extra.percent):''},vals));track(name,Object.assign({video_title:'Recommendation video',video_provider:'self_hosted'},vals))};
+el.addEventListener('play',e=>{const v=e.target;if(!(v instanceof HTMLVideoElement)||v.dataset.played)return;v.dataset.played='1';const routeKey=v4VideoRoute(v);postJourneyEvent('recommendation_video_play',{route:routeKey});track('recommendation_video_play',{route:routeKey});v4VideoEvent(v,'video_start',{percent:0})},true);
+el.addEventListener('timeupdate',e=>{const v=e.target;if(!(v instanceof HTMLVideoElement)||!v.duration||!isFinite(v.duration))return;const pct=v.currentTime/v.duration*100;[25,50,75].forEach(m=>{if(pct>=m&&!v.dataset['q'+m]){v.dataset['q'+m]='1';v4VideoEvent(v,'video_progress_'+m,{percent:m})}})},true);
+el.addEventListener('ended',e=>{const v=e.target;if(!(v instanceof HTMLVideoElement)||v.dataset.completed)return;v.dataset.completed='1';v4VideoEvent(v,'video_complete',{percent:100})},true);
+// Impression = at least half of the video visible on screen for the first time (hidden panels never count).
+const v4VideoSeen=('IntersectionObserver' in window)?new IntersectionObserver(entries=>entries.forEach(en=>{const v=en.target;if(en.isIntersecting&&en.intersectionRatio>=0.5&&!v.dataset.impression){v.dataset.impression='1';v4VideoEvent(v,'video_impression');v4VideoSeen.unobserve(v)}}),{threshold:[0.5]}):null;
+const v4WatchVideos=()=>{if(!v4VideoSeen)return;el.querySelectorAll('figure.v4-video video').forEach(v=>{if(!v.dataset.watched){v.dataset.watched='1';v4VideoSeen.observe(v)}})};
+v4WatchVideos();new MutationObserver(v4WatchVideos).observe(el,{childList:true,subtree:true});
 showPanel(0,'replace');
 if(needsPostResultQuestions){const pc=v4PostChoice();if(pc.goal){const bare=['understand_him','change_him'].includes(pc.goal);if(bare||pc.support)applyPostResultOffer(pc.goal,bare?'':pc.support)}}
 window.v4ResultReady=true;
