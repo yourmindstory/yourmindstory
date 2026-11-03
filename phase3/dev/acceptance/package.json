@@ -1,0 +1,11 @@
+{
+  "name": "yms-v4-dev-acceptance",
+  "private": true,
+  "description": "Simulated acceptance tests for the V4 DEV candidate: real backend .gs in an in-memory DEV workbook + real page in headless Chrome. Synthetic data only; no network.",
+  "scripts": {
+    "test:backend": "mkdir -p out && node backend.test.js",
+    "test:browser": "mkdir -p out/shots && node browser.test.js",
+    "previews": "node build-previews.js"
+  },
+  "dependencies": { "puppeteer-core": "^23.0.0" }
+}
