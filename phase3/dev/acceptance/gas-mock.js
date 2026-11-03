@@ -90,7 +90,7 @@ function createRuntime(opts = {}) {
       sendEmail(m) { if (mail.failAll || mail.failNext > 0) { mail.failNext = Math.max(0, mail.failNext - 1); throw new Error('Simulated MailApp failure'); } mail.sent.push(m); }
     },
     PropertiesService: { getScriptProperties() { return { getProperty: k => props[k] == null ? null : props[k], setProperty: (k, v) => { props[k] = v; } }; } },
-    CacheService: { getScriptCache() { return { get() { return null; }, put() {} }; } },
+    CacheService: (() => { const m = new Map(); return { getScriptCache() { return { get(k) { return m.has(k) ? m.get(k) : null; }, put(k, v) { m.set(k, String(v)); }, remove(k) { m.delete(k); } }; } }; })(),
     UrlFetchApp: { fetch() { throw new Error('MOCK: UrlFetchApp must not be called in DEV'); } },
     Session: { getActiveUser() { return { getEmail() { return ''; } }; } },
     Date, JSON, Math, Object, Array, String, Number, RegExp, Error, isNaN, parseInt, parseFloat, encodeURIComponent, decodeURIComponent,
