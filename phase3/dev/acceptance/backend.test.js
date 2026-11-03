@@ -393,6 +393,31 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   check('E1', 'Analytics', 'The four email-screen events are accepted before a submission exists (logged as pre-submission, not UNKNOWN_EVENT), with only a fixed reason code', log.length === 4 && log.every(x => /PRE_SUBMISSION/.test(x[3])) && log[1][8] === 'invalid_email', JSON.stringify(log.map(x => [x[1], x[3], x[8]])));
 }
 
+// ---------- One-time recovery (3 Nov 2026): results email for rows saved before r8 ----------
+{
+  const REC = fs.readFileSync(path.join(__dirname, 'RecoveryOneTime_2026_11_03.gs'), 'utf8');
+  const r = createRuntime({ source: SRC, props: { V4_DEV_EMAIL_REDIRECT_TO: 'owner-test@example.invalid' }, patch: x => x + '\n' + REC });
+  const sh = r.sheet('V4 Responses');
+  const legacy = (b, extra) => { r.post(b); const H = sh.rows[0]; const i = sh.rows.findIndex(x => x[H.indexOf('Submission ID')] === b.submissionId) + 1;
+    const set = (h, v) => sh.set(i, H.indexOf(h) + 1, v);
+    set('V4 Email Flow', ''); set('Result Email Provider', 'pending'); set('Result Email Sent', ''); set('Result Email Error', ''); set('Test Record', ''); set('V4 Result Email Route', 'pending final choice');
+    (extra || []).forEach(([h, v]) => set(h, v)); };
+  const bc = body([6, 5, 6, 6]), bs = body([2, 3, 2, 0]), bt = body([5, 5, 5, 5]), bd = body([5, 5, 5, 5]), bx = body([5, 5, 5, 5]);
+  legacy(bc); legacy(bs); legacy(bt, [['Test Record', 'TEST']]); legacy(bd, [['V4 Decision Saved UTC', '2026-11-03T10:00:00Z']]); legacy(bx, [['Recommended Route', 'Single Stage']]);
+  r.ctx.V4_RECOVERY_3NOV_ = [bc.submissionId, bs.submissionId, bt.submissionId, bd.submissionId, bx.submissionId, 'YMSV4-S-missing'];
+  const n0 = r.mail.sent.length;
+  const prev = r.call('previewV4Recovery3Nov');
+  const n1 = r.mail.sent.length;
+  const sent = r.call('sendV4Recovery3Nov');
+  const again = r.call('sendV4Recovery3Nov');
+  const m = r.mail.sent.slice(n1);
+  const row = sid => r.rows().find(x => x['Submission ID'] === sid);
+  const outc = sent.map(x => x.outcome).join(',');
+  check('REC1', 'Recovery', 'Preview sends nothing; send emails only the eligible pre-r8 customers once (Complete: approved all-options email with saved-results link; Single: its approved email), skipping TEST, confirmed-offer, inconsistent and missing rows; rows recorded as sent; a second run sends nothing', n1 === n0 && prev.filter(x => x.outcome === 'would send').length === 2 && outc === 'sent,sent,skipped,skipped,skipped,skipped' && m.length === 2 && /£117/.test(m[0].body) && /£147/.test(m[0].body) && /£197/.test(m[0].body) && m[0].body.includes('resultToken=' + bc.resultToken) && /£37/.test(m[1].body) && m[1].body.includes('resultToken=' + bs.resultToken) && row(bc.submissionId)['Result Email Provider'] === 'mailapp-dev-redirect' && row(bc.submissionId)['Result Email Sent'] && row(bc.submissionId)['V4 Email Flow'] === 'immediate' && row(bc.submissionId)['V4 Result Email Route'] === 'pending final choice' && again.every(x => x.outcome === 'skipped') && r.mail.sent.length === n1 + 2, JSON.stringify({ prev: prev.map(x => x.outcome + ':' + (x.reason || '')), sent: sent.map(x => x.outcome + ':' + (x.reason || '')), again: again.map(x => x.reason) }));
+  const ch = r.post(fin(bc.resultToken, bc.submissionId, 'self_guided', 'self_work', 'independent'));
+  check('REC2', 'Recovery', 'After recovery she can still confirm an offer later and gets the short choice email once', ch.ok && ch.choiceEmailSent && r.mail.sent.length === n1 + 3 && r.mail.sent[r.mail.sent.length - 1].subject.includes('Your next step towards feeling like yourself again'), JSON.stringify({ st: ch.status, code: ch.code }));
+}
+
 fs.writeFileSync(path.join(__dirname, 'out/backend-results.json'), JSON.stringify(results, null, 1));
 const failed = results.filter(x => !x.pass);
 results.forEach(x => console.log((x.pass ? 'PASS ' : 'FAIL ') + x.id + ' ' + x.desc + (x.pass ? '' : '  <<< ' + x.evidence)));
