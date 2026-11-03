@@ -11,7 +11,7 @@
   // DEV backends return phase timings (_timing); collect them, plus every backend request's duration and action.
   out.server = []; const of = window.fetch;
   window.fetch = async function (u, o) {
-    const t = performance.now(); let act = ''; try { act = JSON.parse(o && o.body || '{}').action || 'submit'; } catch (e) {}
+    const t = performance.now(); let act = ''; try { act = (o && o.body) ? (JSON.parse(o.body).action || 'submit') : 'get'; } catch (e) {}
     const res = await of.apply(this, arguments);
     if (/script\.google/.test(String(u))) res.clone().json().then(j => out.server.push({ act, ms: Math.round(performance.now() - t), at: Math.round(t), timing: j && j._timing })).catch(() => {});
     return res;
