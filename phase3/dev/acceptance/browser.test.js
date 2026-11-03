@@ -9,7 +9,7 @@ const OUT = path.join(__dirname, 'out'); fs.mkdirSync(path.join(OUT, 'shots'), {
 const results = [];
 function check(id, area, desc, cond, evidence) { results.push({ id, area, desc, pass: !!cond, evidence: evidence === undefined ? '' : String(evidence).slice(0, 500) }); console.log((cond ? 'PASS ' : 'FAIL ') + id + ' ' + desc + (cond ? '' : '  <<< ' + String(evidence).slice(0, 400))); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const PAGE = '/assessment/v4-preview/start/';
+const PAGE = process.env.YMS_PAGE || '/assessment/v4-preview/start/';
 const VIEWPORTS = { desktop: { width: 1280, height: 900 }, mobile: { width: 390, height: 844, isMobile: true, hasTouch: true, deviceScaleFactor: 2 } };
 const STAN = {
   117: 'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx',
@@ -419,13 +419,19 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
 
   // ---- Committed page: only ever the V4 DEV web app; never a live deployment ----
   {
-    const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || path.resolve(__dirname, '../../..'), 'assessment/v4-preview/start/index.html'), 'utf8');
+    const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || '/home/claude/yourmindstory', 'assessment/v4-preview/start/index.html'), 'utf8');
     const ids = [...new Set((html.match(/AKfycb[A-Za-z0-9_-]+/g) || []))];
     const devOnly = ids.length === 3 && ids.includes('AKfycbwMVd8v5KaUM164fgW_qQzR7NsBkU7XiD63JkZGhOoerYA357ybQzz8ly1dQQiEWuF5') && /indexOf\('AKfycbyHiHPdms'\)===-1&&V4_DEV_BACKEND\.indexOf\('AKfycbzDtA92'\)===-1/.test(html);
     check('G8', 'Isolation', 'Committed page targets only the V4 DEV web app and refuses both live deployment IDs (V3 and V4)', devOnly, ids.join(' '));
   }
+  if (PAGE === '/assessment/start/') {
+    const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || '/home/claude/yourmindstory', 'assessment/start/index.html'), 'utf8');
+    const ids = [...new Set((html.match(/AKfycb[A-Za-z0-9_-]+/g) || []))];
+    const prodOnly = /const V4_BACKEND='https:\/\/script\.google\.com\/macros\/s\/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w\/exec'/.test(html) && !html.includes('AKfycbwMVd8v5') && /<title>Your Assessment \| Your Mind Story<\/title>/.test(html) && !/Preview|Test Only/.test(html.slice(0, 600));
+    check('R1', 'Release', 'Public /assessment/start/ page targets only the live V4 web app (never DEV, never V3) with the public title', prodOnly, ids.join(' '));
+  }
   {
-    const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || path.resolve(__dirname, '../../..'), 'assessment/v4-preview/start/index.html'), 'utf8');
+    const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || '/home/claude/yourmindstory', 'assessment/v4-preview/start/index.html'), 'utf8');
     check('H2', 'Checkout', 'No Bootcamp link or copy in the V4 page', !/bootcamp/i.test(html), 'grep bootcamp = 0');
   }
 

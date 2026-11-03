@@ -4,7 +4,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { createRuntime } = require('./gas-mock');
-const REPO = process.env.YMS_REPO || require('path').resolve(__dirname, '../../..');
+const REPO = '/home/claude/yourmindstory';
 const SRC = path.join(REPO, 'phase3/dev/YMS_V4_FINAL_CHOICE_DEV_CANDIDATE.gs');
 const TYPES = { '.mp4': 'video/mp4', '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
 
@@ -41,12 +41,12 @@ function start(port, opts = {}) {
       res.writeHead(200, { 'Content-Type': 'video/mp4', 'Accept-Ranges': 'bytes', 'Content-Length': size }); return fs.createReadStream(file).pipe(res);
     }
     let body = fs.readFileSync(file);
-    if (p === '/assessment/v4-preview/start/index.html' && !opts.unpatched) {
+    if ((p === '/assessment/v4-preview/start/index.html' || p === '/assessment/start/index.html') && !opts.unpatched) {
       let s = body.toString('utf8');
-      const re = /const V4_DEV_BACKEND='[^']*';/;
+      const re = /const V4_(?:DEV_)?BACKEND='[^']*';/;
       if (!re.test(s)) throw new Error('backend marker missing');
-      s = s.replace(re, `const V4_DEV_BACKEND='http://127.0.0.1:${port}/exec';`);
-      s = s.replace(/const V3_BACKEND=\/\^https[^\n]*\n/, 'const V3_BACKEND=V4_DEV_BACKEND; // TEST HARNESS ONLY\n');
+      s = s.replace(re, m => m.replace(/'[^']*'/, `'http://127.0.0.1:${port}/exec'`));
+      s = s.replace(/const V3_BACKEND=\/\^https[^\n]*\n/, m => 'const V3_BACKEND=' + (/V4_DEV_BACKEND/.test(s) ? 'V4_DEV_BACKEND' : 'V4_BACKEND') + '; // TEST HARNESS ONLY\n');
       body = Buffer.from(s);
     }
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream' });
