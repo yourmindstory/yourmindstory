@@ -234,7 +234,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r7f build', st.env === 'DEV' && /r7f/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r7g build', st.env === 'DEV' && /r7g/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
 }
 
@@ -345,7 +345,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   check('F7', 'Email fallback', 'TEST rows are skipped unless included; a MailApp failure leaves the row pending with the error recorded, so the next run retries', o7.sent === 0 && o7b.failed === 1 && row7['Result Email Provider'] === 'pending' && /results fallback failed/.test(row7['Result Email Error']), JSON.stringify({ o7, o7b }));
 }
 
-// ---------- r7f: journey batches read her row once; choice fast path via cache ----------
+// ---------- r7g: journey batches read her row once; choice fast path via cache ----------
 {
   const evs = [
     { eventType: 'result_view', values: {} }, { eventType: 'result_view', values: {} },

@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7e';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7g';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -800,7 +800,9 @@ function logJourneyV3_(stamp, eventType, page, status, identity, rowNumber, valu
 function handleJourneyRequestV3_(body) {
   var lock = LockService.getScriptLock();
   var locked = false;
+  V4_TIMING_ = []; V4_TIMING_.t0 = Date.now();
   try { locked = lock.tryLock(8000); } catch (lockErr) { locked = false; }
+  v4Mark_(locked ? 'lock' : 'nolock');
   // Batch the log only while holding the lock (a concurrent batch write could otherwise overwrite rows).
   V4_JLOG_BUFFER_ = locked ? [] : null;
   try {
@@ -835,7 +837,9 @@ function handleJourneyRequestV3_(body) {
     // r7e: find her row before anything is written (a read after a write costs a separate round trip).
     var sheet = getV3Sheet_();
     var rowNumber = findRowNumber_(sheet, identity);
+    v4Mark_('row');
     recordCanonicalJourneyV3_(body, list, identity);
+    v4Mark_('funnel');
     if (!v4IsDev_() && list.some(function(ev){ return clean_(ev && ev.eventType) === 'purchase_return_view'; })) {
       try { syncAllV3_(); } catch (syncErr) { console.error('Sync after Payhip return failed: ' + syncErr); }
     }
@@ -843,10 +847,11 @@ function handleJourneyRequestV3_(body) {
       // Before the assessment is submitted there is no row yet: that is expected, not an error.
       var preSub = list.every(function(ev){ return /^assessment_/.test(clean_(ev && ev.eventType)); });
       list.forEach(function(ev){ logJourneyV3_(stamp, clean_(ev && ev.eventType), page, preSub ? 'PRE_SUBMISSION (no row yet)' : 'ROW_NOT_FOUND', identity, '', vals_(ev), consent); });
-      return json_({ok:false,status:'error',code:'ROW_NOT_FOUND',message:'Existing assessment row not found'});
+      v4Mark_('preSub'); return json_({_timing: v4IsDev_() ? V4_TIMING_.join(' ') + ' n=' + list.length : undefined, ok:false,status:'error',code:'ROW_NOT_FOUND',message:'Existing assessment row not found'});
     }
     var results = [], lastOk = '';
     if (locked) v4RowBufStart_(sheet, rowNumber);
+    v4Mark_('rowRead');
     list.forEach(function(ev){
       var eventType = clean_(ev && ev.eventType);
       var values = vals_(ev);
@@ -878,13 +883,16 @@ function handleJourneyRequestV3_(body) {
       console.error('Journey summary write failed: ' + sumErr);
     }
     var single = list.length === 1 ? results[0] : null;
+    v4Mark_('rowWrites');
     return json_({
+      _timing: v4IsDev_() ? V4_TIMING_.join(' ') + ' n=' + list.length : undefined,
       ok: results.some(function(r){ return r.ok; }), status: 'ok', action: body.action,
       eventType: single ? single.eventType : undefined, rowNumber: rowNumber, results: results
     });
   } finally {
     v4RowBufEnd_();
     v4FlushJourneyLog_();
+    v4Mark_('log'); v4TimingLog_('events'); V4_TIMING_ = null;
     if (locked) { try { lock.releaseLock(); } catch (relErr) {} }
   }
 }
@@ -1138,6 +1146,10 @@ function getV3Sheet_() {
     if (headers.indexOf(h) === -1) throw new Error('Missing required header: '+h);
   });
   var missing = V3_EXTRA_HEADERS.filter(function(h){ return headers.indexOf(h) === -1; });
+  if (!missing.length && !HEADER_CACHE_V3_[sheet.getSheetId()]) {
+    // r7e: reuse this header read for headerMap_ instead of reading row 1 again.
+    var hm = {}; headers.forEach(function(h,i){ hm[String(h)] = i+1; }); HEADER_CACHE_V3_[sheet.getSheetId()] = hm;
+  }
   if (missing.length) {
     var need = headers.length + missing.length;
     if (sheet.getMaxColumns() < need) sheet.insertColumnsAfter(sheet.getMaxColumns(), need - sheet.getMaxColumns());
@@ -2268,14 +2280,17 @@ function recordCanonicalJourneyV3_(body, list, identity) {
     if (V4_JLOG_BUFFER_) {
       // r7e, locked batch: read the dedupe keys once, append every new funnel row in one write, then stamp her row
       // from one read of it. Same rows and same first-wins stamps as the event-by-event path below.
+      // Dedupe keys are looked up one by one (TextFinder, as before) but all BEFORE anything is written, so the
+      // lookups do not force the queued writes out one round trip at a time. Scales like the old code as the tab grows.
       var fsh = funnelSheetV3_(), fmap = headerMap_(fsh), flast = fsh.getLastRow(), seen = {};
-      if (flast >= 2) fsh.getRange(2, fmap['Dedupe Key'], flast - 1, 1).getValues().forEach(function(x){ seen[String(x[0])] = true; });
       var fresh = pending.filter(function(p){
         var rec = p.rec;
         if (!rec['Attempt Key'] && rec['Event'] !== 'purchase' && rec['Event'] !== 'refund') return false;
         var k = String(rec['Dedupe Key']);
         if (seen[k]) return false;
-        seen[k] = true; return true;
+        seen[k] = true;
+        if (flast >= 2 && fsh.getRange(2, fmap['Dedupe Key'], flast - 1, 1).createTextFinder(k).matchEntireCell(true).findNext()) return false;
+        return true;
       });
       if (fresh.length) {
         fsh.getRange(flast + 1, 1, fresh.length, FUNNEL_HEADERS_V3.length)
