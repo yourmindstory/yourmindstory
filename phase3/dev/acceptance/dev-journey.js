@@ -29,7 +29,7 @@
     while (window.v4ResultReady !== true) { if (performance.now() - t0 > 60000) throw new Error('results not ready'); await sleep(50); }
     out.resultsMs = Math.round(performance.now() - t0);
     out.token = JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission') || '{}').resultToken || '';
-    if (!cfg.price) { await sleep(6000); return; }
+    if (!cfg.price) { await sleep(8000); return; }
     await sleep(1500);
     // Walk the results panels to the recommendation, answering Q1/Q2 where they appear.
     for (let k = 0; k < 8 && !document.querySelector(`.result-panel.active a[data-rec-price="${cfg.price}"]`); k++) {
@@ -43,6 +43,5 @@
     out.confirmMs = Math.round(performance.now() - t1);
     out.confirmText = document.querySelector('#v4Decision').innerText.replace(/\s+/g, ' ').trim();
     out.checkout = document.querySelector('#v4Checkout').href;
-  } catch (e) { out.err = String(e); }
-  window.__jout = out;
+  } catch (e) { out.err = String(e); } finally { window.__jout = out; }
 })();
