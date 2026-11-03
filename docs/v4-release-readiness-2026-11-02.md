@@ -1,5 +1,7 @@
 # V4 release readiness, 2 November 2026 (evening)
 
+> **Superseded 3 Nov 00:15:** see `v4-stage2-report-2026-11-03.md`. Owner decisions applied, Stage 2 passed on the real system, and the reporting split was rehearsed in DEV. Status: ready for the owner's release approval.
+
 **Decision: NOT READY TO DEPLOY.** Stage 1 (deployed DEV) passed. Stage 2 (controlled test on the real V4 system) has not run and waits for the owner's go-ahead. Five owner decisions are open (section 6).
 
 Branch `fix/v4-quiz-email-2026-11-01` (draft PR #17), head after this report. Nothing merged. The live website, the live V4 web app (Version 5) and the V3 system were not changed.
