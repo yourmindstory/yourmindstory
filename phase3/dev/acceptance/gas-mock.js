@@ -22,6 +22,7 @@ class Sheet {
   getLastColumn() { return this.rows.reduce((m, r) => Math.max(m, r.length), 0); }
   getMaxColumns() { return this.maxCols; }
   insertColumnsAfter(after, n) { this.maxCols += n; }
+  insertColumnAfter(after) { this.maxCols += 1; }
   setFrozenRows() { return this; }
   appendRow(vals) { op('W', this.name); this.writes++; this.rows.push(vals.slice()); return this; }
   cell(r, c) { const row = this.rows[r - 1]; return row && row[c - 1] !== undefined ? row[c - 1] : ''; }

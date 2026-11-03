@@ -96,11 +96,14 @@ async function choose(page, price, shotName) {
   if (shotName) await page.screenshot({ path: path.join(OUT, 'shots', shotName + '-confirm.png') });
   await clickSel(page, '#v4Confirm');
   await page.waitForFunction(() => document.querySelector('#v4Checkout') || (document.querySelector('#v4DecError') && document.querySelector('#v4DecError').textContent && document.querySelector('#v4Confirm') && !document.querySelector('#v4Confirm').disabled), { timeout: 30000 });
-  return page.evaluate(() => ({ checkout: document.querySelector('#v4Checkout') ? document.querySelector('#v4Checkout').href : '', error: (document.querySelector('#v4DecError') || {}).textContent || '' }));
+  const res = await page.evaluate(() => ({ checkoutRaw: document.querySelector('#v4Checkout') ? document.querySelector('#v4Checkout').href : '', error: (document.querySelector('#v4DecError') || {}).textContent || '' }));
+  res.checkout = noUtm(res.checkoutRaw); res.utm = res.checkoutRaw.endsWith(UTM); return res;
 }
 const rowFor = token => srv.state.rt.rows().find(r => r['Result Token'] === token);
 const emailsFor = email => { const sh = srv.state.rt.sheet('V4 DEV Email Log'); return sh ? sh.rows.slice(1).filter(r => r[2] === email) : []; };
 const tokenOf = page => page.evaluate(() => JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission') || '{}').resultToken);
+const UTM = '?utm_source=yms_assessment&utm_medium=website&utm_campaign=v4_results';
+const noUtm = u => String(u || '').endsWith(UTM) ? String(u).slice(0, -UTM.length) : String(u || '');
 const missing = (text, list) => list.filter(t => !text.includes(t));
 
 async function completeScenario(id, vp, stages, goal, support, expect, choosePrice) {
@@ -279,7 +282,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     const nav = [];
     page.on('request', r => { if (r.isNavigationRequest()) nav.push(r.url()); });
     await page.click('#v4Checkout').catch(() => {}); await sleep(800);
-    check('H1', 'Checkout', 'Checkout button navigates to the saved offer\'s Stan URL (request intercepted, no purchase)', nav.some(u => u === STAN[117]), nav.join(' '));
+    check('H1', 'Checkout', 'Checkout button navigates to the saved offer\'s Stan URL (request intercepted, no purchase)', nav.some(u => noUtm(u) === STAN[117] && u.endsWith(UTM)), nav.join(' '));
     check('F8', 'UX', 'No JavaScript errors across validation/back/refresh/confirm', errors.length === 0, errors.join(' | '));
     await ctx.close();
   }
@@ -291,7 +294,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await page.waitForSelector('#v4Checkout', { timeout: 20000 });
     const v = await page.evaluate(() => ({ text: document.querySelector('#v4Decision').innerText, href: document.querySelector('#v4Checkout').href, goal: (document.querySelector('.v4-choice[data-group="v4Goal"][aria-checked="true"]') || {}).dataset?.value, kind: document.querySelector('.result-panel.active').dataset.kind }));
     await page.screenshot({ path: path.join(OUT, 'shots', 'R1-saved-link-finalized.png') });
-    check('R1', 'Resume', 'Saved-result link for a finalised journey reopens on the recommendation with the saved choice + checkout (no new email)', /The Bare Minimum/.test(v.text) && v.href === STAN['4.99'] && v.goal === 'change_him' && v.kind === 'rec' && emailsFor(e7.email).length === 1 && errors.length === 0, JSON.stringify(v));
+    check('R1', 'Resume', 'Saved-result link for a finalised journey reopens on the recommendation with the saved choice + checkout (no new email)', /The Bare Minimum/.test(v.text) && noUtm(v.href) === STAN['4.99'] && v.goal === 'change_him' && v.kind === 'rec' && emailsFor(e7.email).length === 1 && errors.length === 0, JSON.stringify(v));
     await ctx.close();
   }
   {
@@ -316,7 +319,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await clickSel(b.page, '#v4Confirm');
     await b.page.waitForSelector('#v4Checkout', { timeout: 20000 });
     const lock = await b.page.evaluate(() => ({ t: document.querySelector('#v4Decision').innerText, href: document.querySelector('#v4Checkout').href }));
-    check('R3', 'Resume', 'Choosing a different offer after the email shows her saved £147 choice and checkout, sends nothing new', /already chose/i.test(lock.t) && lock.href === STAN[147] && emailsFor(email).length === 1, JSON.stringify(lock));
+    check('R3', 'Resume', 'Choosing a different offer after the email shows her saved £147 choice and checkout, sends nothing new', /already chose/i.test(lock.t) && noUtm(lock.href) === STAN[147] && emailsFor(email).length === 1, JSON.stringify(lock));
     await b.ctx.close();
   }
   {
@@ -417,6 +420,62 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await ctx.close();
   }
 
+  // ---- r7 live-funnel repairs: results-stage tracking is delivered, not lost ----
+  const jlog = sid => { const sh = srv.state.rt.sheet('V4 Journey Events'); return sh ? sh.rows.slice(1).filter(r => r[4] === sid) : []; };
+  const sidOf = page => page.evaluate(() => JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission') || '{}').submissionId);
+  {
+    // T1: Michelle's pattern: answers Q1/Q2, reaches the recommendation and stays on the page without choosing.
+    const { ctx, page, errors } = await newPage('mobile');
+    const email = 'synthetic+t1@example.invalid';
+    await answerAll(page, [6, 5, 6, 6], { email });
+    const sid = await sidOf(page), token = await tokenOf(page);
+    await next(page); await answerQ(page, 'self_work', 'independent');
+    await sleep(4500);
+    const ev = jlog(sid).map(r => r[1] + (r[3] === 'OK' ? '' : ':' + r[3]));
+    const row = rowFor(token);
+    const need = ['result_view', 'result_step_view', 'post_result_question_answered', 'recommendation_reveal_click', 'recommendation_shown', 'final_route_shown'];
+    const qlog = jlog(sid).filter(r => r[1] === 'post_result_question_answered').map(r => r[8]);
+    check('T1', 'Tracking', '[mobile] Without any final choice, results-stage events reach the Sheet within seconds (none held back), all accepted', need.every(n => ev.includes(n)) && ev.every(x => !x.includes(':')), ev.join(','));
+    check('T2', 'Tracking', 'Her Q1/Q2 answers are kept on her row as soon as she answers (fixed option IDs only), with no decision or email', row['V4 Post-Result Question 1 Option ID'] === 'self_work' && row['V4 Post-Result Question 2 Option ID'] === 'independent' && !row['V4 Decision Saved UTC'] && emailsFor(email).length === 0 && qlog.includes('q1 = self_work') && qlog.includes('q2 = independent'), JSON.stringify({ q1: row['V4 Post-Result Question 1 Option ID'], q2: row['V4 Post-Result Question 2 Option ID'], qlog }));
+    // T3: video engagement events.
+    await page.evaluate(() => { const v = document.querySelector('#v4FinalRecommendation video'); v.scrollIntoView({ block: 'center' }); });
+    await sleep(800);
+    await page.evaluate(async () => { const v = document.querySelector('#v4FinalRecommendation video'); v.muted = true; v.preload = 'auto'; await v.play().catch(() => {}); });
+    await page.waitForFunction(() => { const v = document.querySelector('#v4FinalRecommendation video'); return v && v.duration > 0 && isFinite(v.duration); }, { timeout: 20000 });
+    for (const f of [0.3, 0.55, 0.8]) { await page.evaluate(f => { const v = document.querySelector('#v4FinalRecommendation video'); v.currentTime = v.duration * f; }, f); await sleep(700); }
+    await page.evaluate(() => { const v = document.querySelector('#v4FinalRecommendation video'); v.pause(); v.dispatchEvent(new Event('ended')); });
+    await sleep(3500);
+    const vev = jlog(sid).filter(r => /video/.test(r[1])).map(r => r[1] + '/' + r[3]);
+    const wantV = ['video_impression', 'recommendation_video_play', 'video_start', 'video_progress_25', 'video_progress_50', 'video_progress_75', 'video_complete'];
+    check('T3', 'Video', 'Video impression, start, 25/50/75 % and complete are each recorded once (route only, no personal data)', wantV.every(n => vev.filter(x => x === n + '/OK').length === 1), vev.join(','));
+    // T4: START MY SESSIONS → Back is now visible; result back navigation is accepted.
+    await clickSel(page, '.result-panel.active a[data-rec-price="117"]');
+    await page.waitForSelector('#v4Cancel', { visible: true });
+    await page.click('#v4Cancel'); await sleep(300);
+    await clickSel(page, '.result-panel.active .result-back'); await sleep(2500);
+    const sev = jlog(sid).map(r => r[1] + '/' + r[3]);
+    check('T4', 'Tracking', 'START MY SESSIONS (offer_select_click), Back in the confirm step (offer_confirm_cancel) and result Back (result_back_click) are recorded and accepted', ['offer_select_click/OK', 'offer_confirm_cancel/OK', 'result_back_click/OK'].every(x => sev.includes(x)), sev.filter(x => /offer|back/.test(x)).join(','));
+    // T5: page hidden (app switch / tab close): everything still queued is sent by beacon.
+    await page.evaluate(() => { for (let i = 0; i < 23; i++) postJourneyEvent('result_step_view', { step: 'beacon-' + i }); Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true }); document.dispatchEvent(new Event('visibilitychange')); });
+    await sleep(3500);
+    const beacons = jlog(sid).filter(r => /^beacon-/.test(r[8])).length;
+    check('T5', 'Tracking', 'On page hide, every queued event is sent (23 queued → 23 recorded; previously only the first 10)', beacons === 23, 'recorded ' + beacons);
+    check('T6', 'Tracking', 'No page errors during the tracking scenario', errors.length === 0, errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    // T7: confirm + checkout: confirm step and outbound click recorded before the browser leaves for Stan; Stan link carries UTM.
+    const { ctx, page } = await newPage('desktop');
+    await answerAll(page, [5, 5, 4, 3], { email: 'synthetic+t7@example.invalid' });
+    const sid = await sidOf(page);
+    await next(page); await answerQ(page, 'self_work', 'some_support');
+    const ch = await choose(page, '147');
+    await page.evaluate(() => document.querySelector('#v4Checkout').click()); await sleep(3000);
+    const ev = jlog(sid).map(r => r[1] + '/' + r[3]);
+    check('T7', 'Checkout', 'Confirm click, primary CTA and outbound Stan click are recorded; Stan checkout link carries utm_source=yms_assessment (sales-page arrival measurable in Stan)', ['offer_select_click/OK', 'offer_confirm_click/OK', 'primary_cta_click/OK', 'outbound_stan_click/OK'].every(x => ev.includes(x)) && ch.utm && ch.checkout === STAN[147], JSON.stringify({ ev: ev.filter(x => /offer|cta|outbound/.test(x)), utm: ch.utm }));
+    await ctx.close();
+  }
+
   // ---- Committed page: only ever the V4 DEV web app; never a live deployment ----
   {
     const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || '/home/claude/yourmindstory', 'assessment/v4-preview/start/index.html'), 'utf8');
@@ -428,7 +487,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || '/home/claude/yourmindstory', 'assessment/start/index.html'), 'utf8');
     const ids = [...new Set((html.match(/AKfycb[A-Za-z0-9_-]+/g) || []))];
     const prodOnly = /const V4_BACKEND='https:\/\/script\.google\.com\/macros\/s\/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w\/exec'/.test(html) && !html.includes('AKfycbwMVd8v5') && /<title>Your Assessment \| Your Mind Story<\/title>/.test(html) && !/Preview|Test Only/.test(html.slice(0, 600));
-    check('R1', 'Release', 'Public /assessment/start/ page targets only the live V4 web app (never DEV, never V3) with the public title', prodOnly, ids.join(' '));
+    check('P1', 'Release', 'Public /assessment/start/ page targets only the live V4 web app (never DEV, never V3) with the public title', prodOnly, ids.join(' '));
   }
   {
     const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || '/home/claude/yourmindstory', 'assessment/v4-preview/start/index.html'), 'utf8');

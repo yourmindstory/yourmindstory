@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r6b';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -496,6 +496,22 @@ function validateV4Decision_(d, body) {
   return {ok:true,option:option,q1Id:'',q1Answer:'',q2Id:'',q2Answer:''};
 }
 
+// r7: keep her Q1/Q2 answers even if she leaves before confirming an offer. Only IDs from the fixed answer lists are
+// accepted; nothing is overwritten once her final decision is saved (the decision block is the source of truth).
+function v4SaveAnsweredQuestion_(sh, rowNumber, step, optionId) {
+  if (!optionId || (step !== 'q1' && step !== 'q2')) return;
+  if (clean_(getByHeaderV3_(sh, rowNumber, 'V4 Decision Saved UTC'))) return;
+  if (step === 'q1') {
+    if (!Object.prototype.hasOwnProperty.call(V4_GOAL_CHOICES_, optionId)) return;
+    saveV4DecisionBlock_(sh, rowNumber, {'V4 Post-Result Question 1 Option ID':optionId,
+      'V4 Post-Result Question 1 Answer':V4_GOAL_CHOICES_[optionId]});
+  } else {
+    var sup = V4_SUPPORT_CHOICES_[optionId]; if (!sup) return;
+    saveV4DecisionBlock_(sh, rowNumber, {'V4 Post-Result Question 2 Option ID':optionId,
+      'V4 Post-Result Question 2 Answer':sup.answer});
+  }
+}
+
 function finalizeResultV4_(body) {
   var token = clean_(body.resultToken);
   if (!token) return {ok:false,code:'MISSING_RESULT_TOKEN',message:'Saved result token is required'};
@@ -511,6 +527,8 @@ function finalizeResultV4_(body) {
   var state = v4DecisionState_(d);
   var emailRecorded = !!clean_(d['Result Email Sent']);
 
+  var afterResultsEmail = emailRecorded && !state.saved && clean_(d['V4 Result Email Route']) === V4_RESULTS_FALLBACK_ROUTE_;
+  if (afterResultsEmail) return v4SaveChoiceAfterResultsEmail_(sh, rowNumber, d, body, v, r, finalTitle, token);
   if (emailRecorded) {
     if (state.saved && state.finalOfferOption === option) {
       return {ok:true,status:'finalized',idempotent:true,finalOfferOption:option,finalOffer:finalTitle,
@@ -580,10 +598,100 @@ function finalizeResultV4_(body) {
     resultEmailSent:delivery.ok === true && !suppressed,resultEmailSuppressed:suppressed,
     provider:delivery.provider||'none'};
 }
+// ---- r7 (3 Nov 2026): results-email fallback for women who leave before confirming an offer ----
+// OFF unless the owner turns it on (script property V4_PENDING_FALLBACK = 'on'). Run by a time-driven trigger.
+// Sends her personalised results email using the EXISTING approved copy for her scored route (for the Complete
+// route: the approved email listing all three options). No new copy. Never sends twice, never to rows saved
+// before V4_PENDING_FALLBACK_SINCE (so past customers are only emailed with explicit approval), skips TEST rows
+// unless V4_PENDING_FALLBACK_INCLUDE_TEST = 'yes'.
+var V4_RESULTS_FALLBACK_ROUTE_ = 'results_fallback';
 function sendPendingV4ResultEmails() {
-  // Deliberate no-op: an abandoned choice must never trigger an offer email.
-  // Email delivery occurs only inside finalizeResultV4_ after the offer choice is saved.
-  return {ok:true,sent:0,failed:0,scanned:0,reason:'awaiting final offer choice'};
+  var props = PropertiesService.getScriptProperties();
+  if (String(props.getProperty('V4_PENDING_FALLBACK') || '') !== 'on')
+    return {ok:true,sent:0,failed:0,scanned:0,reason:'fallback is off'};
+  var since = Date.parse(String(props.getProperty('V4_PENDING_FALLBACK_SINCE') || ''));
+  if (isNaN(since)) return {ok:false,sent:0,failed:0,scanned:0,reason:'V4_PENDING_FALLBACK_SINCE is not set'};
+  var minAgeMs = Math.max(5, Number(props.getProperty('V4_PENDING_FALLBACK_MINUTES') || 30)) * 60000;
+  var includeTest = String(props.getProperty('V4_PENDING_FALLBACK_INCLUDE_TEST') || '') === 'yes';
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return {ok:false,sent:0,failed:0,scanned:0,reason:'busy'};
+  var out = {ok:true,sent:0,failed:0,scanned:0,skipped:0,rows:[]};
+  try {
+    var sh = getV3Sheet_(), last = sh.getLastRow();
+    if (last < 2) return out;
+    var map = headerMap_(sh), data = sh.getRange(2,1,last-1,sh.getLastColumn()).getValues();
+    var col = function(row,h){ return map[h] ? row[map[h]-1] : ''; };
+    for (var i = 0; i < data.length && out.sent + out.failed < 20; i++) {
+      var row = data[i], rowNumber = i + 2;
+      if (clean_(col(row,'Result Email Provider')) !== 'pending' || clean_(col(row,'Result Email Sent'))) continue;
+      if (clean_(col(row,'V4 Decision Saved UTC'))) continue;
+      out.scanned++;
+      var submitted = Date.parse(String(col(row,'Submitted UTC') || ''));
+      if (isNaN(submitted) || submitted < since || Date.now() - submitted < minAgeMs) { out.skipped++; continue; }
+      if (!includeTest && String(col(row,'Test Record')) === 'TEST') { out.skipped++; continue; }
+      var email = clean_(col(row,'Email')).toLowerCase(), token = clean_(col(row,'Result Token'));
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !token) { out.skipped++; continue; }
+      setByHeader_(sh,rowNumber,'Result Email Provider','sending');
+      setByHeader_(sh,rowNumber,'Result Email Error','sending since '+new Date().toISOString()+' (results fallback)');
+      try { SpreadsheetApp.flush(); } catch (fe) {}
+      var d = {}; Object.keys(map).forEach(function(h){ d[h] = row[map[h]-1]; });
+      var delivery;
+      try {
+        delivery = sendResultEmailV3_({email:email,firstName:String(d['First Name']||'')}, storedResultV4_(d), token,
+          String(d['Journey ID']||''), String(d['Submission ID']||''), '');
+      } catch (sendErr) { delivery = {ok:false,provider:'none',error:String(sendErr)}; }
+      setByHeader_(sh,rowNumber,'Result Email Provider',delivery.ok ? (delivery.provider||'mailapp') : 'pending');
+      setByHeader_(sh,rowNumber,'Result Email Error',delivery.ok ? '' : ('results fallback failed: '+String(delivery.error||'')).slice(0,1000));
+      if (delivery.ok) {
+        setByHeader_(sh,rowNumber,'Result Email Sent',Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss'));
+        setByHeader_(sh,rowNumber,'V4 Result Email Route',V4_RESULTS_FALLBACK_ROUTE_);
+        out.sent++;
+      } else out.failed++;
+      out.rows.push({row:rowNumber, ok:delivery.ok === true, provider:delivery.provider||'none'});
+      try { SpreadsheetApp.flush(); } catch (fe2) {}
+    }
+  } finally { lock.releaseLock(); }
+  console.log(JSON.stringify(out));
+  return out;
+}
+
+// She already has her results email (fallback) and now confirms an offer: save the choice. Optionally send the
+// offer-specific email too (V4_CHOICE_EMAIL_AFTER_RESULTS = 'yes'; owner decision, default off).
+function v4SaveChoiceAfterResultsEmail_(sh, rowNumber, d, body, v, r, finalTitle, token) {
+  var option = v.option;
+  var fields = {
+    'V4 Final Offer Shown':finalTitle, 'V4 Result Email Route':option, 'V4 Decision Saved UTC':utcV4_(),
+    'V4 Assessment Build':V3_BACKEND_BUILD,
+    'V4 Post-Result Question 1 Option ID':v.q1Id, 'V4 Post-Result Question 1 Answer':v.q1Answer,
+    'V4 Post-Result Question 2 Option ID':v.q2Id, 'V4 Post-Result Question 2 Answer':v.q2Answer,
+    'V4 Existing Barrier Answer':clean_(answerText_(body.barrierAnswer || null))
+  };
+  if (body.supportPreference && V4_COMPLETE_OPTIONS_.indexOf(option) !== -1) {
+    fields['V4 Support Preference Question']='Final Complete support choice';
+    fields['V4 Support Preference Option ID']=option;
+    fields['V4 Support Preference Answer']=finalTitle;
+  }
+  saveV4DecisionBlock_(sh,rowNumber,fields);
+  var second = null;
+  var wantSecond = v4ScriptProp_('V4_CHOICE_EMAIL_AFTER_RESULTS') === 'yes' &&
+    (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
+  if (wantSecond) {
+    var emailResult = r;
+    if (option === 'bare_minimum') emailResult = {route:'Bare Minimum',product:'The Bare Minimum',price:PRICE_BARE_MINIMUM,
+      category:'bare_minimum',qualifyingStages:[],goalMismatch:r.route === SERIES_NAME};
+    try {
+      second = sendResultEmailV3_({email:String(d['Email']||''),firstName:String(d['First Name']||'')}, emailResult, token,
+        String(d['Journey ID']||''), String(d['Submission ID']||''), V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 ? option : '');
+    } catch (e) { second = {ok:false,provider:'none',error:String(e)}; }
+    try {
+      ensureHeaderV3_(sh,'V4 Choice Email Sent');
+      setByHeader_(sh,rowNumber,'V4 Choice Email Sent',second.ok ? Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss') : ('failed: '+String(second.error||'')).slice(0,300));
+    } catch (logErr) { console.error('Choice email log failed: '+logErr); }
+  }
+  var provider = clean_(d['Result Email Provider']);
+  return {ok:true,status:'finalized',finalOfferOption:option,finalOffer:finalTitle,afterResultsEmail:true,
+    choiceEmailSent:!!(second && second.ok),
+    resultEmailSent:provider !== 'dev-suppressed',resultEmailSuppressed:provider === 'dev-suppressed',provider:provider};
 }
 
 /* ============================== JOURNEY EVENTS ============================== */
@@ -613,7 +721,12 @@ var V3_JOURNEY_EVENTS = [
   'pattern_break_click',
   // r3: optional recommendation video and post-result question progress (no answer text, no personal data).
   'recommendation_video_play',
-  'post_result_question_answered'
+  'post_result_question_answered',
+  // r7 (3 Nov 2026, live-funnel repair): events the page already sent but the backend rejected, plus the
+  // offer-selection steps and video engagement that were not measured. IDs and percentages only, no personal data.
+  'result_back_click',
+  'offer_select_click','offer_confirm_click','offer_confirm_cancel','offer_confirm_error',
+  'video_impression','video_start','video_progress_25','video_progress_50','video_progress_75','video_complete'
 ];
 
 // Every journey event (accepted or rejected) is written to this log, one row per event, so failures are visible.
@@ -638,7 +751,8 @@ function logJourneyV3_(stamp, eventType, page, status, identity, rowNumber, valu
     values = values || {};
     getJourneyLogSheetV3_().appendRow([
       stamp, eventType || '', page || '', status, identity.submissionId || '', identity.journeyId || '',
-      identity.resultToken || '', rowNumber || '', clean_(values.step || values.screen || ''),
+      identity.resultToken || '', rowNumber || '',
+      clean_(values.step || values.screen || '') + (clean_(values.option_id) ? ' = ' + clean_(values.option_id) : ''),
       clean_(values.product), clean_(values.route), clean_(values.cta), clean_(values.entry),
       consent || '', clean_(values.clientTime)
     ]);
@@ -741,6 +855,9 @@ function applyJourneyEventV3_(sheet, rowNumber, eventType, identity, values, sta
   var cta = clean_(values.cta || product || route);
   // Stepped sales page (RTY-stepped-mobile-v1): screen views + checkout source screen.
   recordSalesEventV3_(sheet, rowNumber, eventType, identity, values, stamp);
+  if (eventType === 'post_result_question_answered') {
+    v4SaveAnsweredQuestion_(sheet, rowNumber, clean_(values.step), clean_(values.option_id));
+  }
   if (eventType === 'result_view') {
     setFirstByHeader_(sheet,rowNumber,'Result Viewed At',stamp);
   } else if (eventType === 'result_step_view') {
