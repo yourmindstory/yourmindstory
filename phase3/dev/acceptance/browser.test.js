@@ -476,6 +476,22 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await ctx.close();
   }
 
+  {
+    // T8 (r7.1): leaving the page while an event batch is still being saved must not send it twice.
+    const { ctx, page } = await newPage('desktop');
+    await answerAll(page, [5, 5, 4, 3], { email: 'synthetic+t8@example.invalid' });
+    const sid = await sidOf(page);
+    await sleep(3000);
+    srv.state.delayMs = 2500;
+    await page.evaluate(() => { for (let i = 0; i < 5; i++) postJourneyEvent('result_step_view', { step: 'dup-' + i }); flushV4Events(); });
+    await sleep(400);
+    await page.goto(base + '/about.html', { waitUntil: 'domcontentloaded' }).catch(() => {});
+    await sleep(6000); srv.state.delayMs = 0;
+    const n = jlog(sid).filter(r => /^dup-/.test(r[8])).length;
+    check('T8', 'Tracking', 'Leaving the page while a batch is in flight: each event is recorded exactly once (5 queued → 5 recorded, no duplicates)', n === 5, 'recorded ' + n);
+    await ctx.close();
+  }
+
   // ---- Committed page: only ever the V4 DEV web app; never a live deployment ----
   {
     const html = fs.readFileSync(path.resolve(process.env.YMS_REPO || '/home/claude/yourmindstory', 'assessment/v4-preview/start/index.html'), 'utf8');
