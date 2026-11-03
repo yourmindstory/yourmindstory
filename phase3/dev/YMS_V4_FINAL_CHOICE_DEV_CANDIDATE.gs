@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r7c';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r7d';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -287,7 +287,7 @@ function doPost(e) {
     // After post-result choices are complete, save the final offer and send the matching email once.
     // Requires the secret saved-result token, not merely the public journey/submission ID.
     if (body && body.action === 'finalizeResultV4') {
-      var finOut = finalizeResultV4_(body); v4TimingLog_('finalize'); return json_(finOut);
+      var finOut = finalizeResultV4_(body); v4TimingLog_('finalize'); if (v4IsDev_() && V4_TIMING_) finOut._timing = V4_TIMING_.join(' '); return json_(finOut);
     }
     if (body && body.action) {
       return json_({ok:false,status:'error',code:'UNKNOWN_ACTION',message:'Unknown action'});
@@ -353,7 +353,9 @@ function doPost(e) {
     // Purchase matching runs in the dedicated purchase-sync operation, not while
     // the customer is waiting for a result. This avoids holding the script lock.
 
+    v4Mark_('saved');
     return json_({
+      _timing: (v4IsDev_() && V4_TIMING_) ? V4_TIMING_.join(' ') : undefined,
       ok:true,status:'ok',code:'RECORDED',
       submissionId:submissionId,journeyId:journeyId,resultToken:resultToken,
       assessmentVersion:V3_VERSION,backendBuild:V3_BACKEND_BUILD,

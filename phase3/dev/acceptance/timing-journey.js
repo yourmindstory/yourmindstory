@@ -8,6 +8,14 @@
   const click = async (sel, pause) => { (await wait(sel)).click(); await sleep(pause == null ? 700 : pause); };
   const type = (el, v) => { el.focus(); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); };
   const out = { run: cfg.label || '', err: null };
+  // DEV backends return phase timings (_timing); collect them, plus every backend request's duration and action.
+  out.server = []; const of = window.fetch;
+  window.fetch = async function (u, o) {
+    const t = performance.now(); let act = ''; try { act = JSON.parse(o && o.body || '{}').action || 'submit'; } catch (e) {}
+    const res = await of.apply(this, arguments);
+    if (/script\.google/.test(String(u))) res.clone().json().then(j => out.server.push({ act, ms: Math.round(performance.now() - t), at: Math.round(t), timing: j && j._timing })).catch(() => {});
+    return res;
+  };
   try {
     await click('#beginV4');
     const sc = []; [5, 5, 4, 3].forEach(t => { const x = Math.min(3, t); sc.push(x, t - x); });
