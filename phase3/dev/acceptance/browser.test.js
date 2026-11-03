@@ -136,8 +136,8 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     JSON.stringify(st.offers) === JSON.stringify(expect.offers) && st.firstLinkPrice === OFFER_PRICE[expect.offers[0]] &&
     (isBare ? st.videoCount === 0 : (st.videoCount === 1 && st.videoAfterPrimary && st.ctaBeforeVideo && !st.videoAttrs.autoplay && st.videoAttrs.preload === 'none' && st.videoAttrs.controls && st.videoAttrs.paused)) &&
     lockMissing.length === 0 && rrAltClean &&
-    ch.checkout === STAN[choosePrice] && emails.length === 1 && row['V4 Post-Result Question 1 Option ID'] === goal && row['V4 Post-Result Question 2 Option ID'] === (support || '') && errors.length === 0;
-  check(id, 'Journey', `[${vp}] Complete ≥15 (${stages.join(',')}): Q1=${goal}${support ? ', Q2=' + support : ''} → offers ${expect.offers.join(' > ')}; ${isBare ? 'no video' : 'video below first START MY SESSIONS'}; chose £${choosePrice}; 1 saved row, 1 email, checkout`, ok,
+    ch.checkout === STAN[choosePrice] && emails.length === 2 && emails[0][4] === 'Synthia, I’ve looked at your answers' && emails[1][4] === 'Your next step towards feeling like yourself again' && row['V4 Post-Result Question 1 Option ID'] === goal && row['V4 Post-Result Question 2 Option ID'] === (support || '') && errors.length === 0;
+  check(id, 'Journey', `[${vp}] Complete ≥15 (${stages.join(',')}): Q1=${goal}${support ? ', Q2=' + support : ''} → offers ${expect.offers.join(' > ')}; ${isBare ? 'no video' : 'video below first START MY SESSIONS'}; chose £${choosePrice}; 1 saved row, results email at completion + 1 choice email, checkout`, ok,
     JSON.stringify({ resultsOk, findingsShown, k1, k2, kr, offers: st.offers, firstPrice: st.firstLinkPrice, video: st.videoCount, after: st.videoAfterPrimary, attrs: st.videoAttrs, lockMissing, rrAltClean, checkout: ch.checkout, err: ch.error, emails: emails.length, q1: row && row['V4 Post-Result Question 1 Option ID'], q2: row && row['V4 Post-Result Question 2 Option ID'], errors }));
   await ctx.close();
   return { token, email };
@@ -207,7 +207,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     const st = await recState(page);
     const ch = await choose(page, '147');
     const row = rowFor(await tokenOf(page) || '') || srv.state.rt.rows().find(r => r['Email'] === email);
-    check('E20', 'Journey', '[desktop] Complete below 15 (3,3,3,0): locked results (3 findings) → no Q1/Q2 → £117 primary, £147/£197 alternatives, video after first button; chose £147', k0 === 'results' && missing(p0, LOCK.results).length === 0 && JSON.stringify(findings) === '["The Alarm","The Pull","Self-Trust"]' && JSON.stringify(st.offers) === '["self_guided","reality_reset","pattern_break"]' && st.videoAfterPrimary && !st.text.includes("You've also told me") && ch.checkout === STAN[147] && row['V4 Result Email Route'] === 'reality_reset' && emailsFor(email).length === 1 && errors.length === 0,
+    check('E20', 'Journey', '[desktop] Complete below 15 (3,3,3,0): locked results (3 findings) → no Q1/Q2 → £117 primary, £147/£197 alternatives, video after first button; chose £147', k0 === 'results' && missing(p0, LOCK.results).length === 0 && JSON.stringify(findings) === '["The Alarm","The Pull","Self-Trust"]' && JSON.stringify(st.offers) === '["self_guided","reality_reset","pattern_break"]' && st.videoAfterPrimary && !st.text.includes("You've also told me") && ch.checkout === STAN[147] && row['V4 Result Email Route'] === 'reality_reset' && emailsFor(email).length === 2 && errors.length === 0,
       JSON.stringify({ k0, findings, offers: st.offers, after: st.videoAfterPrimary, checkout: ch.checkout, err: ch.error }));
     await page.screenshot({ path: path.join(OUT, 'shots', 'E20-desktop-recommendation.png'), fullPage: true });
     await ctx.close();
@@ -266,7 +266,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     const rf = await page.evaluate(() => ({ goal: (document.querySelector('.v4-choice[data-group="v4Goal"][aria-checked="true"]') || {}).dataset?.value, sup: (document.querySelector('.v4-choice[data-group="v4Support"][aria-checked="true"]') || {}).dataset?.value, offers: [...document.querySelectorAll('#v4FinalRecommendation .v4-offer')].map(x => x.dataset.offer) }));
     check('F5', 'UX', 'Refresh keeps the result, Q1/Q2 answers and the matching recommendation', rf.goal === 'self_work' && rf.sup === 'recommend' && rf.offers.join() === 'self_guided,reality_reset,pattern_break', JSON.stringify(rf));
     const token = await tokenOf(page);
-    check('F6', 'Persistence', 'Refresh/back created no extra assessment rows and sent no email', srv.state.rt.rows().filter(r => r['Email'] === email).length === 1 && emailsFor(email).length === 0, 'rows=1');
+    check('F6', 'Persistence', 'Refresh/back created no extra assessment rows and sent only her one results email', srv.state.rt.rows().filter(r => r['Email'] === email).length === 1 && emailsFor(email).length === 1, 'rows=1');
     // Q1 change to a Bare Minimum answer clears Q2 and skips it
     await next(page); await pick(page, 'v4Goal', 'change_him'); await next(page);
     const bm = await page.evaluate(() => ({ kind: document.querySelector('.result-panel.active').dataset.kind, offers: [...document.querySelectorAll('#v4FinalRecommendation [data-offer]')].map(x => x.dataset.offer), saved: JSON.parse(sessionStorage.getItem('yms_v4_preview_post_result_choice') || '{}') }));
@@ -278,7 +278,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await page.waitForSelector('#v4Checkout', { timeout: 20000 });
     await sleep(500);
     const row = rowFor(token);
-    check('D16', 'Email', 'Triple-clicking Confirm produces one saved choice and one email', emailsFor(email).length === 1 && row['V4 Result Email Route'] === 'self_guided' && row['V4 Post-Result Question 2 Option ID'] === 'independent', 'emails=' + emailsFor(email).length);
+    check('D16', 'Email', 'Triple-clicking Confirm produces one saved choice and one choice email (plus her results email)', emailsFor(email).length === 2 && row['V4 Result Email Route'] === 'self_guided' && row['V4 Post-Result Question 2 Option ID'] === 'independent', 'emails=' + emailsFor(email).length);
     const nav = [];
     page.on('request', r => { if (r.isNavigationRequest()) nav.push(r.url()); });
     await page.click('#v4Checkout').catch(() => {}); await sleep(800);
@@ -294,7 +294,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await page.waitForSelector('#v4Checkout', { timeout: 20000 });
     const v = await page.evaluate(() => ({ text: document.querySelector('#v4Decision').innerText, href: document.querySelector('#v4Checkout').href, goal: (document.querySelector('.v4-choice[data-group="v4Goal"][aria-checked="true"]') || {}).dataset?.value, kind: document.querySelector('.result-panel.active').dataset.kind }));
     await page.screenshot({ path: path.join(OUT, 'shots', 'R1-saved-link-finalized.png') });
-    check('R1', 'Resume', 'Saved-result link for a finalised journey reopens on the recommendation with the saved choice + checkout (no new email)', /The Bare Minimum/.test(v.text) && noUtm(v.href) === STAN['4.99'] && v.goal === 'change_him' && v.kind === 'rec' && emailsFor(e7.email).length === 1 && errors.length === 0, JSON.stringify(v));
+    check('R1', 'Resume', 'Saved-result link for a finalised journey reopens on the recommendation with the saved choice + checkout (no new email)', /The Bare Minimum/.test(v.text) && noUtm(v.href) === STAN['4.99'] && v.goal === 'change_him' && v.kind === 'rec' && emailsFor(e7.email).length === 2 && errors.length === 0, JSON.stringify(v));
     await ctx.close();
   }
   {
@@ -304,7 +304,7 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     const token = await tokenOf(a.page);
     const firstText = await activePanelText(a.page);
     await a.ctx.close();
-    check('D17', 'Email', 'Abandoned after result: no offer email was sent', emailsFor(email).length === 0, 'emails=0');
+    check('D17', 'Email', 'Abandoned after result: she has her results email; no choice email was sent', emailsFor(email).length === 1 && emailsFor(email)[0][4] === 'Synthia, I’ve looked at your answers', 'emails=' + emailsFor(email).length);
     const b = await newPage('mobile');
     await b.page.goto(base + PAGE + '?resultToken=' + token, { waitUntil: 'domcontentloaded' });
     await b.page.waitForFunction(() => window.v4ResultReady === true, { timeout: 20000 });
@@ -312,14 +312,14 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     await next(b.page); await answerQ(b.page, 'unsure', 'additional');
     const ch = await choose(b.page, '147');
     const row = rowFor(token);
-    check('R2', 'Resume', '[mobile, new device] Saved link restores the same locked results (name, findings, exact outcome) and she can finish the unfinished choice', again === firstText && again.includes('I want freedom from constantly thinking, checking, waiting or replaying.') && ch.checkout === STAN[147] && row['V4 Result Email Route'] === 'reality_reset' && emailsFor(email).length === 1 && b.errors.length === 0,
+    check('R2', 'Resume', '[mobile, new device] Saved link restores the same locked results (name, findings, exact outcome) and she can finish the unfinished choice', again === firstText && again.includes('I want freedom from constantly thinking, checking, waiting or replaying.') && ch.checkout === STAN[147] && row['V4 Result Email Route'] === 'reality_reset' && emailsFor(email).length === 2 && b.errors.length === 0,
       JSON.stringify({ same: again === firstText, checkout: ch.checkout, err: ch.error, errors: b.errors }));
     await clickSel(b.page, '#v4Finish');
     await clickSel(b.page, '.result-panel.active a[data-rec-price="197"]');
     await clickSel(b.page, '#v4Confirm');
     await b.page.waitForSelector('#v4Checkout', { timeout: 20000 });
     const lock = await b.page.evaluate(() => ({ t: document.querySelector('#v4Decision').innerText, href: document.querySelector('#v4Checkout').href }));
-    check('R3', 'Resume', 'Choosing a different offer after the email shows her saved £147 choice and checkout, sends nothing new', /already chose/i.test(lock.t) && noUtm(lock.href) === STAN[147] && emailsFor(email).length === 1, JSON.stringify(lock));
+    check('R3', 'Resume', 'Choosing a different offer after the email shows her saved £147 choice and checkout, sends nothing new', /already chose/i.test(lock.t) && noUtm(lock.href) === STAN[147] && emailsFor(email).length === 2, JSON.stringify(lock));
     await b.ctx.close();
   }
   {
@@ -435,8 +435,8 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     const row = rowFor(token);
     const need = ['result_view', 'result_step_view', 'post_result_question_answered', 'recommendation_reveal_click', 'recommendation_shown', 'final_route_shown'];
     const qlog = jlog(sid).filter(r => r[1] === 'post_result_question_answered').map(r => r[8]);
-    check('T1', 'Tracking', '[mobile] Without any final choice, results-stage events reach the Sheet within seconds (none held back), all accepted', need.every(n => ev.includes(n)) && ev.every(x => !x.includes(':')), ev.join(','));
-    check('T2', 'Tracking', 'Her Q1/Q2 answers are kept on her row as soon as she answers (fixed option IDs only), with no decision or email', row['V4 Post-Result Question 1 Option ID'] === 'self_work' && row['V4 Post-Result Question 2 Option ID'] === 'independent' && !row['V4 Decision Saved UTC'] && emailsFor(email).length === 0 && qlog.includes('q1 = self_work') && qlog.includes('q2 = independent'), JSON.stringify({ q1: row['V4 Post-Result Question 1 Option ID'], q2: row['V4 Post-Result Question 2 Option ID'], qlog }));
+    check('T1', 'Tracking', '[mobile] Without any final choice, results-stage events reach the Sheet within seconds (none held back), all accepted', need.every(n => ev.includes(n)) && ev.every(x => !x.includes(':') || /^assessment_[a-z_]+:PRE_SUBMISSION/.test(x)), ev.join(','));
+    check('T2', 'Tracking', 'Her Q1/Q2 answers are kept on her row as soon as she answers (fixed option IDs only), with no decision or choice email', row['V4 Post-Result Question 1 Option ID'] === 'self_work' && row['V4 Post-Result Question 2 Option ID'] === 'independent' && !row['V4 Decision Saved UTC'] && emailsFor(email).length === 1 && !row['V4 Choice Email Status'] && qlog.includes('q1 = self_work') && qlog.includes('q2 = independent'), JSON.stringify({ q1: row['V4 Post-Result Question 1 Option ID'], q2: row['V4 Post-Result Question 2 Option ID'], qlog }));
     // T3: video engagement events.
     await page.evaluate(() => { const v = document.querySelector('#v4FinalRecommendation video'); v.scrollIntoView({ block: 'center' }); });
     await sleep(800);
@@ -500,6 +500,73 @@ async function completeScenario(id, vp, stages, goal, support, expect, choosePri
     const m = await page.evaluate(() => { const rec = document.getElementById('v4FinalRecommendation'); const v = rec.querySelector('video'); const btn = rec.querySelector('a[data-rec-product]'); const price = rec.querySelector('.rec-price'); const vr = v.getBoundingClientRect(), br = btn.getBoundingClientRect(), pr = price.getBoundingClientRect(); return { vh: Math.round(vr.height), gap: Math.round(br.top - vr.bottom), span: Math.round(br.bottom - vr.top), order: pr.top < vr.top && vr.bottom <= br.top, inner: innerHeight }; });
     check('V2', 'Video', '[mobile 390×844] Order is price → video → START MY SESSIONS; video top to button bottom fits on one screen; no autoplay', m.order && m.span <= m.inner && m.gap < 60, JSON.stringify(m));
     await ctx.close();
+  }
+
+  // ---- r8: results email at completion, confirmed-only wording, failure + retry, email-screen tracking ----
+  {
+    const { ctx, page, errors } = await newPage('mobile');
+    await page.goto(base + PAGE, { waitUntil: 'domcontentloaded' });
+    await clickSel(page, '#beginV4');
+    for (let n = 0; n < 8; n++) { await clickSel(page, '.step.active .opt[data-v="3"]'); await sleep(30); }
+    for (const v of [2, 1, 1, 0, 0]) { await clickSel(page, `.step.active .opt[data-v="${v}"]`); await sleep(30); }
+    await clickSel(page, '#next'); await page.waitForSelector('#txt'); await page.type('#txt', 'Synthetic.'); await clickSel(page, '#next');
+    await page.waitForSelector('#fn');
+    const cap = await page.$eval('.step.active', e => e.innerText);
+    check('W1', 'Wording', 'Email screen uses the approved wording (results to her inbox; consent line) and no longer promises an email only after a choice', cap.includes('I’ll send your personalised results to your inbox. You can also explore your recommended next steps here.') && cap.includes('Send me my results and any other information that can help me. I can unsubscribe at any time.') && !cap.includes('after you choose your next step'), cap.slice(0, 400));
+    const sid = await page.evaluate(() => (typeof submissionId === 'function') ? submissionId() : '');
+    await clickSel(page, '#capgo'); await sleep(2500);                       // nothing entered
+    await page.type('#fn', 'Synthia'); await page.type('#em', 'not-an-email'); await clickSel(page, '#capgo'); await sleep(2500);
+    const log = () => srv.state.rt.sheet('V4 Journey Events').rows.slice(1).filter(r => r[4] === sid);
+    const l1 = log();
+    const ve = l1.filter(r => r[1] === 'assessment_capture_validation_error').map(r => r[8]); if (process.env.DBG) console.log('W2DBG', JSON.stringify(l1.map(r => [r[1], r[3], r[8]])));
+    const pii = l1.some(r => r.join('|').includes('Synthia') || r.join('|').includes('not-an-email'));
+    check('W2', 'Tracking', 'Email screen: each validation stop is recorded straight away with a fixed reason (missing_name, invalid_email) and no name or email in the record', JSON.stringify(ve) === '["missing_name","invalid_email"]' && !pii, JSON.stringify({ ve, pii }));
+    // leave while her save is in flight
+    await page.$eval('#em', e => { e.value = ''; }); await page.type('#em', 'synthetic+w3@example.invalid');
+    await clickSel(page, '.consent-opt[data-consent="no"]');
+    srv.state.delayMs = 2500;
+    await clickSel(page, '#capgo'); await sleep(400);
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    await page.waitForFunction(() => window.v4ResultReady === true, { timeout: 30000 }); srv.state.delayMs = 0; await sleep(3500);
+    const l2 = log().map(r => r[1]);
+    check('W3', 'Tracking', 'Submit clicks and leaving the page while her answers are saving are recorded (fixed event names only)', l2.filter(x => x === 'assessment_capture_submit_click').length === 3 && l2.includes('assessment_capture_leave_during_save') && !log().some(r => r.join('|').includes('synthetic+w3')), JSON.stringify(l2.filter(x => /capture/.test(x))));
+    check('W4', 'Wording', 'No page errors on the email screen scenario', errors.length === 0, errors.join(' | '));
+    await ctx.close();
+  }
+  {
+    // Suppressed DEV email (not actually sent): the page must never say it was sent.
+    const { ctx, page } = await newPage('desktop');
+    await answerAll(page, [5, 5, 4, 3], { email: 'synthetic+w5@example.invalid' });
+    await next(page); await answerQ(page, 'self_work', 'independent');
+    const ch = await choose(page, 117);
+    const t = await page.$eval('#v4Decision', e => e.innerText);
+    check('W5', 'Wording', 'When the choice email is not confirmed as sent, the page only says "You can continue to checkout now."', ch.checkout === STAN[117] && t.includes('You can continue to checkout now.') && !/sent/i.test(t), t.slice(0, 200));
+    await ctx.close();
+  }
+  {
+    // Real send path (redirect to the owner inbox): confirmed sent -> approved "sent" wording.
+    srv.state.rt.props.V4_DEV_EMAIL_REDIRECT_TO = 'owner-test@example.invalid';
+    const { ctx, page } = await newPage('mobile');
+    await answerAll(page, [5, 5, 4, 3], { email: 'synthetic+w6@example.invalid' });
+    await next(page); await answerQ(page, 'self_work', 'additional');
+    const ch = await choose(page, 197);
+    const t = await page.$eval('#v4Decision', e => e.innerText);
+    const sent = srv.state.rt.mail.sent.filter(m => /synthetic\+w6@/.test(m.subject)).map(m => m.subject.replace(/^\[V4 DEV for [^\]]+\] /, ''));
+    check('W6', 'Wording', 'When MailApp confirms the choice email, the page shows "I’ve sent the details of your chosen support to your inbox. You can continue to checkout now."; results + choice email both sent', ch.checkout === STAN[197] && t.includes('I’ve sent the details of your chosen support to your inbox. You can continue to checkout now.') && JSON.stringify(sent) === JSON.stringify(['Synthia, I’ve looked at your answers', 'Your next step towards feeling like yourself again']), JSON.stringify({ t: t.slice(0, 160), sent }));
+    await ctx.close();
+    // Failed results email: results still shown; the page retries once and the email then goes once.
+    srv.state.rt.props.V4_DEV_FORCE_EMAIL_FAIL = 'yes';
+    const p2 = await newPage('mobile');
+    await answerAll(p2.page, [5, 0, 0, 0], { email: 'synthetic+w7@example.invalid' });
+    const tok = await tokenOf(p2.page);
+    const failedRow = Object.assign({}, rowFor(tok));
+    delete srv.state.rt.props.V4_DEV_FORCE_EMAIL_FAIL;
+    await sleep(7000);
+    const after = rowFor(tok);
+    const w7 = srv.state.rt.mail.sent.filter(m => /synthetic\+w7@/.test(m.subject));
+    check('W7', 'Email', 'Results email fails at completion: results still shown, row records "failed"; the page asks again after 4 s and the email goes exactly once', failedRow['Result Email Provider'] === 'failed' && /forced failure/.test(failedRow['Result Email Error']) && after['Result Email Provider'] === 'mailapp-dev-redirect' && after['Result Email Sent'] && w7.length === 1, JSON.stringify({ before: failedRow['Result Email Provider'], after: after['Result Email Provider'], n: w7.length }));
+    await p2.ctx.close();
+    delete srv.state.rt.props.V4_DEV_EMAIL_REDIRECT_TO;
   }
 
   // ---- Committed page: only ever the V4 DEV web app; never a live deployment ----

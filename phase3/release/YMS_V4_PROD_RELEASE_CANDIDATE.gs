@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r7g';
+var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r8';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -117,7 +117,10 @@ var V3_EXTRA_HEADERS = [
   'V4 Post-Result Question 1 Option ID','V4 Post-Result Question 1 Answer',
   'V4 Post-Result Question 2 Option ID','V4 Post-Result Question 2 Answer','V4 Existing Barrier Answer',
   'V4 Hesitation Question','V4 Hesitation Option ID','V4 Hesitation Answer',
-  'V4 Final Offer Shown','V4 Result Email Route','V4 Decision Saved UTC','V4 Assessment Build'
+  'V4 Final Offer Shown','V4 Result Email Route','V4 Decision Saved UTC','V4 Assessment Build',
+  // r8 (3 Nov 2026): appended at the end only. 'immediate' marks rows whose results email is sent at completion;
+  // the choice email (Complete route only) has its own delivery record.
+  'V4 Email Flow','V4 Choice Email Status','V4 Choice Email Option','V4 Choice Email Sent','V4 Choice Email Error'
 ];
 
 var V3_PURCHASE_HEADERS = [
@@ -226,7 +229,18 @@ function doGet(e) {
   });
 }
 
+// r8 (3 Nov 2026): her results email is sent at completion. The send happens AFTER the script lock is released
+// (so it never holds up anyone else's save) but inside the same request, so it still goes out if she closes the
+// page straight away. The row is marked 'sending' under the lock before MailApp is called, then 'sent'/'failed'.
+var V4_AFTER_LOCK_ = null;
 function doPost(e) {
+  V4_AFTER_LOCK_ = null;
+  var res = v4DoPostCore_(e);
+  var job = V4_AFTER_LOCK_; V4_AFTER_LOCK_ = null;
+  if (!job) return res;
+  return json_(v4RunEmailJob_(job));
+}
+function v4DoPostCore_(e) {
   var body;
   try {
     body = JSON.parse(e.postData.contents);
@@ -285,6 +299,9 @@ function doPost(e) {
     }
     // After post-result choices are complete, save the final offer and send the matching email once.
     // Requires the secret saved-result token, not merely the public journey/submission ID.
+    if (body && body.action === 'retryResultEmail') {
+      return json_(v4ClaimResultEmailRetry_(body));
+    }
     if (body && body.action === 'finalizeResultV4') {
       var finOut = finalizeResultV4_(body); v4TimingLog_('finalize'); if (v4IsDev_() && V4_TIMING_) finOut._timing = V4_TIMING_.join(' '); return json_(finOut);
     }
@@ -320,16 +337,17 @@ function doPost(e) {
     // r4 performance: every read that follows a write makes Sheets finish recalculating the dashboard
     // formulas first (20-50 s per submission on the V4 workbooks). So: all reads first, then writes only,
     // and no read-back of what was just written. Same values, same columns as before.
-    var deferEmail = true; // V4 always waits for a persisted final offer; client cannot bypass this gate.
+    var hasEmail = !!clean_(body.email);
     var funnelSheet = null, funnelNextRow = 0;
     try { funnelSheet = funnelSheetV3_(); funnelNextRow = funnelSheet.getLastRow() + 1; } catch (fsErr) { console.error('Funnel sheet unavailable: '+fsErr); }
     var rowNumber = sheet.getLastRow() + 1; // safe: the script lock is held for the whole submission
     var row = buildRowV3_(sheet, body, result, journeyId, submissionId, resultToken, now, {
-      'Result Email Sent':'', 'Result Email Provider':deferEmail ? 'pending' : 'none', 'Result Email Error':'',
+      'Result Email Sent':'', 'Result Email Provider':hasEmail ? 'sending' : 'none',
+      'Result Email Error':hasEmail ? 'sending since '+now.toISOString() : '',
+      'V4 Email Flow':V4_EMAIL_FLOW_IMMEDIATE_,
       'Canonical: Furthest Stage':clean_(body.email) ? 'email_captured' : 'assessment_complete'
     });
     sheet.appendRow(row);
-    var emailDelivery = {ok:false,provider:deferEmail ? 'pending' : 'none',error:''};
 
     // Canonical funnel events (tracking repair 22 Oct 2026): completion + email are proven server-side here.
     // A brand-new submission ID cannot already have these events, so no duplicate lookup (a read) is needed.
@@ -353,7 +371,8 @@ function doPost(e) {
     // the customer is waiting for a result. This avoids holding the script lock.
 
     v4Mark_('saved');
-    return json_({
+    try { SpreadsheetApp.flush(); } catch (flushErr0) {}
+    var recorded = {
       _timing: (v4IsDev_() && V4_TIMING_) ? V4_TIMING_.join(' ') : undefined,
       ok:true,status:'ok',code:'RECORDED',
       submissionId:submissionId,journeyId:journeyId,resultToken:resultToken,
@@ -362,12 +381,19 @@ function doPost(e) {
       qualifyingStages:result.qualifyingStages,breadth:result.breadth,
       recommendedRoute:result.route,recommendedProduct:result.product,
       recommendedPrice:result.price,recommendationCategory:result.category,
-      resultEmailSent:emailDelivery.ok === true,
-      resultEmailPending:deferEmail,
-      resultEmailProvider:emailDelivery.provider || 'none',
-      resultEmailError:emailDelivery.error || ''
-    });
+      resultEmailSent:false,
+      resultEmailPending:false,
+      resultEmailProvider:hasEmail ? 'sending' : 'none',
+      resultEmailError:''
+    };
+    if (hasEmail) {
+      V4_AFTER_LOCK_ = {kind:'result', sheet:sheet, rowNumber:rowNumber, token:resultToken, out:recorded,
+        customer:{email:clean_(body.email), firstName:clean_(body.firstName)}, result:result,
+        journeyId:journeyId, submissionId:submissionId};
+    }
+    return json_(recorded);
   } catch (err) {
+    V4_AFTER_LOCK_ = null;
     console.error(err);
     return json_({ok:false,status:'error',code:'SERVER_ERROR',message:'Submission could not be recorded.'});
   } finally {
@@ -444,7 +470,14 @@ function v4DecisionState_(d) {
     question2OptionId:clean_(d['V4 Post-Result Question 2 Option ID']),
     questionsRequired:v4QuestionsRequired_(d),
     resultEmailSent:!!clean_(d['Result Email Sent']) && provider !== 'dev-suppressed',
-    resultEmailSuppressed:!!clean_(d['Result Email Sent']) && provider === 'dev-suppressed'
+    resultEmailSuppressed:!!clean_(d['Result Email Sent']) && provider === 'dev-suppressed',
+    // r8: rows saved by this build send email 1 at completion; the choice email has its own state.
+    emailFlow:clean_(d['V4 Email Flow']),
+    choiceEmailRequired:saved && String(d['Recommended Route']||'') === SERIES_NAME &&
+      (V4_COMPLETE_OPTIONS_.indexOf(clean_(d['V4 Result Email Route'])) !== -1 || clean_(d['V4 Result Email Route']) === 'bare_minimum'),
+    choiceEmailSent:clean_(d['V4 Choice Email Status']) === 'sent' && clean_(d['V4 Choice Email Sent']) !== 'dev-suppressed',
+    choiceEmailSuppressed:clean_(d['V4 Choice Email Status']) === 'sent' && clean_(d['V4 Choice Email Sent']) === 'dev-suppressed',
+    choiceEmailStatus:clean_(d['V4 Choice Email Status'])
   };
 }
 
@@ -542,8 +575,10 @@ function finalizeResultV4_(body) {
   var state = v4DecisionState_(d);
   var emailRecorded = !!clean_(d['Result Email Sent']);
 
-  var afterResultsEmail = emailRecorded && !state.saved && clean_(d['V4 Result Email Route']) === V4_RESULTS_FALLBACK_ROUTE_;
-  if (afterResultsEmail) return v4SaveChoiceAfterResultsEmail_(sh, rowNumber, d, body, v, r, finalTitle, token);
+  // r8: rows saved by this build got their results email at completion; the choice is handled separately.
+  // Rows saved before r8 (results email still 'pending') keep the original behaviour below, unchanged.
+  if (clean_(d['V4 Email Flow']) === V4_EMAIL_FLOW_IMMEDIATE_)
+    return v4FinalizeImmediate_(sh, rowNumber, d, body, v, r, finalTitle, token, state);
   if (emailRecorded) {
     if (state.saved && state.finalOfferOption === option) {
       return {ok:true,status:'finalized',idempotent:true,finalOfferOption:option,finalOffer:finalTitle,
@@ -617,67 +652,53 @@ function finalizeResultV4_(body) {
     resultEmailSent:delivery.ok === true && !suppressed,resultEmailSuppressed:suppressed,
     provider:delivery.provider||'none'};
 }
-// ---- r7 (3 Nov 2026): results-email fallback for women who leave before confirming an offer ----
-// OFF unless the owner turns it on (script property V4_PENDING_FALLBACK = 'on'). Run by a time-driven trigger.
-// Sends her personalised results email using the EXISTING approved copy for her scored route (for the Complete
-// route: the approved email listing all three options). No new copy. Never sends twice, never to rows saved
-// before V4_PENDING_FALLBACK_SINCE (so past customers are only emailed with explicit approval), skips TEST rows
-// unless V4_PENDING_FALLBACK_INCLUDE_TEST = 'yes'.
-var V4_RESULTS_FALLBACK_ROUTE_ = 'results_fallback';
-function sendPendingV4ResultEmails() {
-  var props = PropertiesService.getScriptProperties();
-  if (String(props.getProperty('V4_PENDING_FALLBACK') || '') !== 'on')
-    return {ok:true,sent:0,failed:0,scanned:0,reason:'fallback is off'};
-  var since = Date.parse(String(props.getProperty('V4_PENDING_FALLBACK_SINCE') || ''));
-  if (isNaN(since)) return {ok:false,sent:0,failed:0,scanned:0,reason:'V4_PENDING_FALLBACK_SINCE is not set'};
-  var minAgeMs = Math.max(5, Number(props.getProperty('V4_PENDING_FALLBACK_MINUTES') || 30)) * 60000;
-  var includeTest = String(props.getProperty('V4_PENDING_FALLBACK_INCLUDE_TEST') || '') === 'yes';
-  var lock = LockService.getScriptLock();
-  if (!lock.tryLock(20000)) return {ok:false,sent:0,failed:0,scanned:0,reason:'busy'};
-  var out = {ok:true,sent:0,failed:0,scanned:0,skipped:0,rows:[]};
-  try {
-    var sh = getV3Sheet_(), last = sh.getLastRow();
-    if (last < 2) return out;
-    var map = headerMap_(sh), data = sh.getRange(2,1,last-1,sh.getLastColumn()).getValues();
-    var col = function(row,h){ return map[h] ? row[map[h]-1] : ''; };
-    for (var i = 0; i < data.length && out.sent + out.failed < 20; i++) {
-      var row = data[i], rowNumber = i + 2;
-      if (clean_(col(row,'Result Email Provider')) !== 'pending' || clean_(col(row,'Result Email Sent'))) continue;
-      if (clean_(col(row,'V4 Decision Saved UTC'))) continue;
-      out.scanned++;
-      var submitted = Date.parse(String(col(row,'Submitted UTC') || ''));
-      if (isNaN(submitted) || submitted < since || Date.now() - submitted < minAgeMs) { out.skipped++; continue; }
-      if (!includeTest && String(col(row,'Test Record')) === 'TEST') { out.skipped++; continue; }
-      var email = clean_(col(row,'Email')).toLowerCase(), token = clean_(col(row,'Result Token'));
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !token) { out.skipped++; continue; }
-      setByHeader_(sh,rowNumber,'Result Email Provider','sending');
-      setByHeader_(sh,rowNumber,'Result Email Error','sending since '+new Date().toISOString()+' (results fallback)');
-      try { SpreadsheetApp.flush(); } catch (fe) {}
-      var d = {}; Object.keys(map).forEach(function(h){ d[h] = row[map[h]-1]; });
-      var delivery;
-      try {
-        delivery = sendResultEmailV3_({email:email,firstName:String(d['First Name']||'')}, storedResultV4_(d), token,
-          String(d['Journey ID']||''), String(d['Submission ID']||''), '');
-      } catch (sendErr) { delivery = {ok:false,provider:'none',error:String(sendErr)}; }
-      setByHeader_(sh,rowNumber,'Result Email Provider',delivery.ok ? (delivery.provider||'mailapp') : 'pending');
-      setByHeader_(sh,rowNumber,'Result Email Error',delivery.ok ? '' : ('results fallback failed: '+String(delivery.error||'')).slice(0,1000));
-      if (delivery.ok) {
-        setByHeader_(sh,rowNumber,'Result Email Sent',Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss'));
-        setByHeader_(sh,rowNumber,'V4 Result Email Route',V4_RESULTS_FALLBACK_ROUTE_);
-        out.sent++;
-      } else out.failed++;
-      out.rows.push({row:rowNumber, ok:delivery.ok === true, provider:delivery.provider||'none'});
-      try { SpreadsheetApp.flush(); } catch (fe2) {}
-    }
-  } finally { lock.releaseLock(); }
-  console.log(JSON.stringify(out));
-  return out;
-}
+// ---- r8 (3 Nov 2026): results email at completion + short choice email (owner decisions 3 Nov, 14:40) ----
+// 1. Every route: her personalised results email (existing approved copy, unchanged) is sent when she completes the
+//    assessment. Complete route: the approved email listing £117 / £147 / £197.
+// 2. Complete route only: when she confirms her support choice, a short second email with her chosen option,
+//    price and checkout link. Single, Pair and Bare Minimum get no second email (it would repeat email 1).
+// 3. Every send is recorded in her row: 'sending' (claimed before MailApp is called), then sent or 'failed'.
+//    Only 'failed' sends are ever retried. A send stuck in 'sending' is listed for review, never resent.
+// 4. Transactional only: marketing consent is recorded, never used to decide these two emails.
+// The 30-minute fallback (r7) is removed: nothing is ever sent to rows saved before this build.
+var V4_EMAIL_FLOW_IMMEDIATE_ = 'immediate';
+var V4_CHOICE_EMAIL_SUBJECT_ = 'Your next step towards feeling like yourself again';
+var V4_CHOICE_EMAIL_OPENING_ = 'You’ve chosen how you’d like to begin working on the patterns that have been keeping you stuck. Here’s your next step.';
+var V4_EMAIL_STALE_MS_ = 10 * 60 * 1000;
 
-// She already has her results email (fallback) and now confirms an offer: save the choice. Optionally send the
-// offer-specific email too (V4_CHOICE_EMAIL_AFTER_RESULTS = 'yes'; owner decision, default off).
-function v4SaveChoiceAfterResultsEmail_(sh, rowNumber, d, body, v, r, finalTitle, token) {
-  var option = v.option;
+function v4ChoiceEmailNeeded_(r, option) {
+  return r.route === SERIES_NAME && (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
+}
+function v4SendingFresh_(errText) {
+  var since = Date.parse(String(errText || '').replace(/^sending since /, ''));
+  return !isNaN(since) && Date.now() - since < V4_EMAIL_STALE_MS_;
+}
+function v4ChoiceState_(d) {
+  var status = clean_(d['V4 Choice Email Status']);
+  var suppressed = status === 'sent' && clean_(d['V4 Choice Email Sent']) === 'dev-suppressed';
+  return {status:status, option:clean_(d['V4 Choice Email Option']), sent:status === 'sent' && !suppressed,
+    suppressed:suppressed, required:false};
+}
+function v4Merge_(a, b) { var o = {}; Object.keys(a).forEach(function(k){ o[k] = a[k]; }); Object.keys(b||{}).forEach(function(k){ o[k] = b[k]; }); return o; }
+
+function v4FinalizeImmediate_(sh, rowNumber, d, body, v, r, finalTitle, token, state) {
+  var option = v.option, cs = v4ChoiceState_(d), need = v4ChoiceEmailNeeded_(r, option);
+  var base = {ok:true, status:'finalized', finalOfferOption:option, finalOffer:finalTitle, choiceEmailRequired:need,
+    choiceEmailSent:false, choiceEmailSuppressed:false,
+    resultEmailSent:state.resultEmailSent, resultEmailSuppressed:state.resultEmailSuppressed};
+  if (cs.status === 'sent') {
+    if (cs.option === option) return v4Merge_(base, {idempotent:true, choiceEmailSent:cs.sent, choiceEmailSuppressed:cs.suppressed});
+    return {ok:false, status:'choice_locked_after_email', code:'EMAIL_ALREADY_SENT',
+      savedFinalOfferOption:cs.option, savedFinalOffer:state.finalOffer,
+      message:'The email for the choice you saved has already been sent.'};
+  }
+  if (cs.status === 'sending') {
+    if (v4SendingFresh_(d['V4 Choice Email Error']))
+      return {ok:false, code:'SEND_IN_PROGRESS', message:'Your email is being prepared. Please wait a moment.'};
+    return {ok:false, code:'NEEDS_REVIEW', message:'Your choice is saved. Please contact Your Mind Story if you need the details again.'};
+  }
+  if (!need && state.saved && state.finalOfferOption === option) return v4Merge_(base, {idempotent:true});
+
   var fields = {
     'V4 Final Offer Shown':finalTitle, 'V4 Result Email Route':option, 'V4 Decision Saved UTC':utcV4_(),
     'V4 Assessment Build':V3_BACKEND_BUILD,
@@ -686,31 +707,154 @@ function v4SaveChoiceAfterResultsEmail_(sh, rowNumber, d, body, v, r, finalTitle
     'V4 Existing Barrier Answer':clean_(answerText_(body.barrierAnswer || null))
   };
   if (body.supportPreference && V4_COMPLETE_OPTIONS_.indexOf(option) !== -1) {
-    fields['V4 Support Preference Question']='Final Complete support choice';
-    fields['V4 Support Preference Option ID']=option;
-    fields['V4 Support Preference Answer']=finalTitle;
+    fields['V4 Support Preference Question'] = 'Final Complete support choice';
+    fields['V4 Support Preference Option ID'] = option;
+    fields['V4 Support Preference Answer'] = finalTitle;
   }
-  saveV4DecisionBlock_(sh,rowNumber,fields);
-  var second = null;
-  var wantSecond = v4ScriptProp_('V4_CHOICE_EMAIL_AFTER_RESULTS') === 'yes' &&
-    (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
-  if (wantSecond) {
-    var emailResult = r;
-    if (option === 'bare_minimum') emailResult = {route:'Bare Minimum',product:'The Bare Minimum',price:PRICE_BARE_MINIMUM,
-      category:'bare_minimum',qualifyingStages:[],goalMismatch:r.route === SERIES_NAME};
-    try {
-      second = sendResultEmailV3_({email:String(d['Email']||''),firstName:String(d['First Name']||'')}, emailResult, token,
-        String(d['Journey ID']||''), String(d['Submission ID']||''), V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 ? option : '');
-    } catch (e) { second = {ok:false,provider:'none',error:String(e)}; }
-    try {
-      ensureHeaderV3_(sh,'V4 Choice Email Sent');
-      setByHeader_(sh,rowNumber,'V4 Choice Email Sent',second.ok ? Utilities.formatDate(new Date(),'Europe/London','dd/MM/yyyy HH:mm:ss') : ('failed: '+String(second.error||'')).slice(0,300));
-    } catch (logErr) { console.error('Choice email log failed: '+logErr); }
+  if (need) {
+    // Claimed in the same write as the choice, before anything is sent.
+    fields['V4 Choice Email Status'] = 'sending';
+    fields['V4 Choice Email Option'] = option;
+    fields['V4 Choice Email Error'] = 'sending since ' + new Date().toISOString();
   }
-  var provider = clean_(d['Result Email Provider']);
-  return {ok:true,status:'finalized',finalOfferOption:option,finalOffer:finalTitle,afterResultsEmail:true,
-    choiceEmailSent:!!(second && second.ok),
-    resultEmailSent:provider !== 'dev-suppressed',resultEmailSuppressed:provider === 'dev-suppressed',provider:provider};
+  V3_EXTRA_HEADERS.slice(-4).forEach(function(h){ ensureHeaderV3_(sh, h); });
+  saveV4DecisionBlock_(sh, rowNumber, fields);
+  try { SpreadsheetApp.flush(); } catch (fe) {}
+  if (!need) return base;
+  V4_AFTER_LOCK_ = {kind:'choice', sheet:sh, rowNumber:rowNumber, token:token, out:base, option:option, result:r,
+    customer:{email:String(d['Email']||''), firstName:String(d['First Name']||'')},
+    journeyId:String(d['Journey ID']||''), submissionId:String(d['Submission ID']||'')};
+  return base;
+}
+
+// Page-triggered retry of HER results email (token-gated). Only a recorded failure on an r8 row is retried.
+function v4ClaimResultEmailRetry_(body) {
+  var token = clean_(body.resultToken);
+  if (!token) return {ok:false, code:'MISSING_RESULT_TOKEN'};
+  var sh = getV3Sheet_(), rowNumber = findRowNumber_(sh, {resultToken:token});
+  if (!rowNumber) return {ok:false, code:'NOT_FOUND'};
+  var d = rowObject_(sh, rowNumber), provider = clean_(d['Result Email Provider']);
+  if (clean_(d['V4 Email Flow']) !== V4_EMAIL_FLOW_IMMEDIATE_) return {ok:false, code:'NOT_RETRYABLE', reason:'saved before r8'};
+  if (clean_(d['Result Email Sent'])) return {ok:true, status:'already_sent', resultEmailSent:provider !== 'dev-suppressed', resultEmailSuppressed:provider === 'dev-suppressed'};
+  if (provider === 'sending') return {ok:false, code:v4SendingFresh_(d['Result Email Error']) ? 'SEND_IN_PROGRESS' : 'NEEDS_REVIEW'};
+  if (provider !== 'failed') return {ok:false, code:'NOT_RETRYABLE', reason:provider || 'none'};
+  setByHeader_(sh, rowNumber, 'Result Email Provider', 'sending');
+  setByHeader_(sh, rowNumber, 'Result Email Error', 'sending since ' + new Date().toISOString());
+  try { SpreadsheetApp.flush(); } catch (fe) {}
+  var out = {ok:true, status:'retried', resultEmailSent:false, resultEmailSuppressed:false};
+  V4_AFTER_LOCK_ = {kind:'result', sheet:sh, rowNumber:rowNumber, token:token, out:out, result:storedResultV4_(d),
+    customer:{email:String(d['Email']||''), firstName:String(d['First Name']||'')},
+    journeyId:String(d['Journey ID']||''), submissionId:String(d['Submission ID']||'')};
+  return out;
+}
+
+function v4ForcedFailure_() { return v4IsDev_() && v4ScriptProp_('V4_DEV_FORCE_EMAIL_FAIL') === 'yes'; }
+
+// Runs after the lock is released: one MailApp send, then its outcome is written to her row.
+function v4RunEmailJob_(job) {
+  var out = job.out || {}, delivery;
+  try {
+    if (v4ForcedFailure_()) delivery = {ok:false, provider:'none', error:'DEV forced failure (test only)'};
+    else if (job.kind === 'choice') delivery = v4SendChoiceEmail_(job.customer, job.result, job.option, job.journeyId, job.submissionId);
+    else delivery = sendResultEmailV3_(job.customer, job.result, job.token, job.journeyId, job.submissionId, '');
+  } catch (sendErr) { delivery = {ok:false, provider:'none', error:String(sendErr)}; }
+  var suppressed = delivery.ok && delivery.provider === 'dev-suppressed';
+  var stamp = Utilities.formatDate(new Date(), 'Europe/London', 'dd/MM/yyyy HH:mm:ss');
+  try {
+    // Same request, same row (rows are only ever appended), so no read is needed before these writes.
+    var sh = job.sheet || getV3Sheet_(), row = job.rowNumber;
+    if (row) {
+      if (job.kind === 'choice') {
+        setByHeader_(sh, row, 'V4 Choice Email Status', delivery.ok ? 'sent' : 'failed');
+        setByHeader_(sh, row, 'V4 Choice Email Sent', delivery.ok ? (suppressed ? 'dev-suppressed' : stamp) : '');
+        setByHeader_(sh, row, 'V4 Choice Email Error', String(delivery.error || '').slice(0, 1000));
+      } else {
+        setByHeader_(sh, row, 'Result Email Provider', delivery.ok ? (delivery.provider || 'mailapp') : 'failed');
+        setByHeader_(sh, row, 'Result Email Error', String(delivery.error || '').slice(0, 1000));
+        if (delivery.ok) setByHeader_(sh, row, 'Result Email Sent', stamp);
+      }
+      SpreadsheetApp.flush();
+    }
+  } catch (recErr) { console.error('V4 email record failed (' + job.kind + '): ' + recErr); }
+  if (job.kind === 'choice') {
+    out.choiceEmailSent = delivery.ok && !suppressed; out.choiceEmailSuppressed = suppressed;
+    out.choiceEmailError = delivery.ok ? '' : 'failed';
+    if (delivery.ok) { try { CacheService.getScriptCache().put('v4fin:' + job.token, job.option, 21600); } catch (ce) {} }
+  } else {
+    out.resultEmailSent = delivery.ok && !suppressed; out.resultEmailSuppressed = suppressed;
+    out.resultEmailProvider = delivery.ok ? (delivery.provider || 'mailapp') : 'failed';
+    out.resultEmailError = delivery.ok ? '' : 'failed';
+  }
+  return out;
+}
+
+function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
+  var title, url, label;
+  if (option === 'bare_minimum') {
+    title = BARE_MINIMUM_PRICE_LINE_V3; label = 'START WITH THE BARE MINIMUM';
+    url = withTrackingV3_(BARE_MINIMUM_URL, {category:'bare_minimum'}, journeyId, submissionId);
+  } else {
+    var c = COMPLETE_CHOICES_V3.filter(function(x){ return x.option === option; })[0];
+    if (!c) throw new Error('Unknown Complete option: ' + option);
+    title = c.title; label = 'START MY SESSIONS';
+    url = completeChoiceLinkV3_(c, r, journeyId, submissionId);
+  }
+  url = url.replace('utm_campaign=v4_result_email', 'utm_campaign=v4_choice_email');
+  var e = escapeHtmlV3_, P = '<p style="margin:0 0 18px;">';
+  var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+
+    P+'Hi '+e(firstName)+',</p>'+
+    P+e(V4_CHOICE_EMAIL_OPENING_)+'</p>'+
+    '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(title)+'</p>'+
+    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0 26px;"><tr><td style="background:#111827;border-radius:2px;">'+
+    '<a href="'+e(url)+'" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;line-height:1.3;">'+e(label)+'</a></td></tr></table>'+
+    P+'With care,</p><p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p></div>';
+  var text = 'Hi '+firstName+',\n\n'+V4_CHOICE_EMAIL_OPENING_+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+
+    'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
+  return {subject:V4_CHOICE_EMAIL_SUBJECT_, html:html, text:text, link:url, title:title};
+}
+function v4SendChoiceEmail_(customer, r, option, journeyId, submissionId) {
+  var L = buildChoiceLetterV4_(clean_(customer.firstName), r, option, journeyId, submissionId);
+  return deliverResultEmailV3_(clean_(customer.email).toLowerCase(), clean_(customer.firstName), L.subject, L.html, L.text);
+}
+
+// Owner tools (run from the Apps Script editor; never triggered automatically).
+// listV4EmailProblems: read-only list of r8 rows whose results or choice email failed or is stuck in 'sending'.
+// retryFailedV4Emails: resends ONLY sends recorded as 'failed' on r8 rows. Rows saved before r8 are never touched.
+function listV4EmailProblems() {
+  var sh = getV3Sheet_(), last = sh.getLastRow(); if (last < 2) return [];
+  var H = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0], V = sh.getRange(2,1,last-1,H.length).getValues(), out = [];
+  var ix = function(h){ return H.indexOf(h); };
+  V.forEach(function(row, i){
+    if (String(row[ix('V4 Email Flow')]) !== V4_EMAIL_FLOW_IMMEDIATE_) return;
+    var p = String(row[ix('Result Email Provider')]), c = String(row[ix('V4 Choice Email Status')]);
+    if (p === 'failed' || p === 'sending' || c === 'failed' || c === 'sending')
+      out.push({row:i+2, resultEmail:p, choiceEmail:c, test:String(row[ix('Test Record')])});
+  });
+  console.log(JSON.stringify(out)); return out;
+}
+function retryFailedV4Emails() {
+  var done = [];
+  listV4EmailProblems().forEach(function(p){
+    var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return;
+    var job = null;
+    try {
+      var sh = getV3Sheet_(), d = rowObject_(sh, p.row), token = clean_(d['Result Token']);
+      var base = {customer:{email:String(d['Email']||''), firstName:String(d['First Name']||'')}, result:storedResultV4_(d),
+        journeyId:String(d['Journey ID']||''), submissionId:String(d['Submission ID']||''), rowNumber:p.row, token:token, out:{}};
+      if (clean_(d['Result Email Provider']) === 'failed' && !clean_(d['Result Email Sent'])) {
+        setByHeader_(sh, p.row, 'Result Email Provider', 'sending');
+        setByHeader_(sh, p.row, 'Result Email Error', 'sending since ' + new Date().toISOString());
+        job = v4Merge_(base, {kind:'result'});
+      } else if (clean_(d['V4 Choice Email Status']) === 'failed' && clean_(d['V4 Choice Email Option'])) {
+        setByHeader_(sh, p.row, 'V4 Choice Email Status', 'sending');
+        setByHeader_(sh, p.row, 'V4 Choice Email Error', 'sending since ' + new Date().toISOString());
+        job = v4Merge_(base, {kind:'choice', option:clean_(d['V4 Choice Email Option'])});
+      }
+      SpreadsheetApp.flush();
+    } finally { lock.releaseLock(); }
+    if (job) { var o = v4RunEmailJob_(job); done.push({row:p.row, kind:job.kind, sent:!!(o.resultEmailSent || o.choiceEmailSent || o.resultEmailSuppressed || o.choiceEmailSuppressed)}); }
+  });
+  console.log(JSON.stringify(done)); return done;
 }
 
 /* ============================== JOURNEY EVENTS ============================== */
@@ -721,6 +865,8 @@ var V3_JOURNEY_EVENTS = [
   // V4 question-flow events are legitimate first-party steps (no PII in analytics).
   'assessment_start','assessment_question_view','assessment_option_click',
   'assessment_back_click','assessment_continue_click','assessment_email_capture_view',
+  // r8 (3 Nov 2026): email-screen events. No name, email or free text: only a fixed reason/code.
+  'assessment_capture_submit_click','assessment_capture_validation_error','assessment_capture_submit_error','assessment_capture_leave_during_save',
   'result_view',
   'result_step_view',
   'sales_page_view',

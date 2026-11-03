@@ -63,14 +63,15 @@ const emailLog = r => (r.sheet('V4 DEV Email Log') ? r.sheet('V4 DEV Email Log')
   const r = rt();
   const b = body([4, 4, 4, 3]); const res = r.post(b);
   check('C1', 'Persistence', 'Initial submission writes exactly one row with the client submission ID and result token', res.ok && r.rows().length === 1 && r.rows()[0]['Submission ID'] === b.submissionId && r.rows()[0]['Result Token'] === b.resultToken, JSON.stringify({ code: res.code, rows: r.rows().length }));
-  check('D1', 'Email', 'No email (sent or suppressed) at submission; V4 Result Email Route = pending', r.mail.sent.length === 0 && emailLog(r).length === 0 && r.rows()[0]['V4 Result Email Route'] === 'pending final choice' && !r.rows()[0]['Result Email Sent'], r.rows()[0]['V4 Result Email Route']);
+  const log1 = emailLog(r);
+  check('D1', 'Email', 'r8: her results email goes at submission (one email, the approved Complete email listing £117/£147/£197); row records it as sent with flow "immediate"; no choice email yet', res.resultEmailSuppressed === true && log1.length === 1 && log1[0][4] === 'Synthia, I’ve looked at your answers' && /£117/.test(log1[0][6]) && /£147/.test(log1[0][6]) && /£197/.test(log1[0][6]) && r.rows()[0]['Result Email Sent'] && r.rows()[0]['Result Email Provider'] === 'dev-suppressed' && r.rows()[0]['V4 Email Flow'] === 'immediate' && !r.rows()[0]['V4 Choice Email Status'], JSON.stringify({ sup: res.resultEmailSuppressed, n: log1.length, prov: r.rows()[0]['Result Email Provider'] }));
   const dup = r.post(b);
   check('C2', 'Persistence', 'Resubmitting the same submission returns duplicate and writes no second row', dup.status === 'duplicate' && r.rows().length === 1, dup.status);
   const g = r.get({ action: 'getResult', resultToken: b.resultToken });
   check('C3', 'Persistence', 'getResult returns V4 version, token, scores and an unsaved decision', g.ok && g.assessmentVersion === 'YMS-ASSESSMENT-2026-V4' && g.decision && g.decision.saved === false && g.decision.questionsRequired === true && !('email' in g) && !('Email' in g), JSON.stringify(g.decision));
   // abandonment: journey events only
   r.post({ action: 'recordJourneyEvents', resultToken: b.resultToken, submissionId: b.submissionId, journeyId: b.journeyId, page: 'results', events: [{ eventType: 'result_view', values: {} }, { eventType: 'result_step_view', values: { step: 2 } }] });
-  check('D2', 'Email', 'Abandoned journey (events only, no final choice) sends no offer email', r.mail.sent.length === 0 && emailLog(r).length === 0 && r.call('sendPendingV4ResultEmails').sent === 0, 'sent=0');
+  check('D2', 'Email', 'Abandoned journey (results seen, no final choice): she still has her results email and nothing else is sent; resubmitting sends nothing more', emailLog(r).length === 1 && dup.status === 'duplicate', 'emails=' + emailLog(r).length);
   // missing / invalid answers
   const v1 = r.post(fin(b.resultToken, b.submissionId, 'self_guided', null, null));
   check('B1', 'Routing', 'Final choice without Q1 on qualifying Complete is rejected', v1.code === 'QUESTION_1_REQUIRED', v1.code);
@@ -82,7 +83,7 @@ const emailLog = r => (r.sheet('V4 DEV Email Log') ? r.sheet('V4 DEV Email Log')
   check('C4', 'Persistence', 'Mismatched submission ID cannot finalise another person\'s result', v4.code === 'SUBMISSION_MISMATCH', v4.code);
   const v5 = r.post(fin('nonexistenttoken000000000000000', '', 'self_guided', 'self_work', 'independent'));
   check('C5', 'Persistence', 'Unknown result token is rejected', v5.code === 'NOT_FOUND', v5.code);
-  check('D3', 'Email', 'Rejected requests sent nothing and saved no decision', emailLog(r).length === 0 && !r.rows()[0]['V4 Decision Saved UTC'], 'ok');
+  check('D3', 'Email', 'Rejected requests sent nothing and saved no decision', emailLog(r).length === 1 && !r.rows()[0]['V4 Decision Saved UTC'], 'ok');
 }
 
 // ---------- B. Full Q1/Q2/offer permission matrix (qualifying Complete, total >= 15) ----------
@@ -108,12 +109,12 @@ const emailLog = r => (r.sheet('V4 DEV Email Log') ? r.sheet('V4 DEV Email Log')
       const log = emailLog(r);
       if (row['V4 Post-Result Question 1 Option ID'] !== g || row['V4 Post-Result Question 1 Answer'] !== GOAL[g] ||
           row['V4 Post-Result Question 2 Option ID'] !== (s || '') || row['V4 Post-Result Question 2 Answer'] !== (s ? SUP[s] : '') ||
-          row['V4 Result Email Route'] !== o || !row['V4 Decision Saved UTC'] || log.length !== 1 || r.rows().length !== 1 ||
+          row['V4 Result Email Route'] !== o || !row['V4 Decision Saved UTC'] || log.length !== 2 || r.rows().length !== 1 ||
           row['Quiet Score'] !== 4 || row['Total Score'] !== 15) bad.push(`persist ${g}/${s}/${o}`);
     }
   }
   check('B4', 'Routing', 'Every Q1 x Q2 x offer combination is accepted or refused exactly per the approved rules', bad.length === 0, `${total} combinations, ${okCount} accepted; failures: ${bad.join('; ') || 'none'}`);
-  check('C6', 'Persistence', 'Accepted choices store Q1 and Q2 (ID + approved text) in separate columns, one email, one row, scores unchanged', !bad.some(x => x.startsWith('persist')), 'checked on each accepted combination');
+  check('C6', 'Persistence', 'Accepted choices store Q1 and Q2 (ID + approved text) in separate columns, one results email + one choice email, one row, scores unchanged', !bad.some(x => x.startsWith('persist')), 'checked on each accepted combination');
 }
 
 // ---------- Non-qualifying routes ----------
@@ -142,44 +143,84 @@ const emailLog = r => (r.sheet('V4 DEV Email Log') ? r.sheet('V4 DEV Email Log')
   check('B5', 'Routing', 'Single, Pair, Bare Minimum and below-threshold Complete accept only their own offers and never store Q1/Q2', bad.length === 0, bad.join('; ') || `${cases.length} cases as expected`);
 }
 
-// ---------- D. Email content, idempotency, failure, resume ----------
+// ---------- D. r8 emails: results at completion, choice email (Complete only), idempotency, failure, retry ----------
 {
   const r = rt(); const b = body([4, 4, 4, 3]); r.post(b);
   const f = fin(b.resultToken, b.submissionId, 'reality_reset', 'self_work', 'additional');
   const r1 = r.post(f);
   const r2 = r.post(f); const r3 = r.post(f);
   const log = emailLog(r);
-  check('D4', 'Email', 'Repeated identical final-choice requests produce exactly one email', r1.ok && r2.ok && r2.idempotent && r3.idempotent && log.length === 1, `responses ok=${r1.ok},${r2.ok},${r3.ok}; emails=${log.length}`);
-  const t = String(log[0][6]);
-  check('D5', 'Email', '£147 email contains only the Reality Reset offer, its price and redirect link; no other Complete offer', t.includes('Return to Yourself + Reality Reset | £147') && !t.includes('£117') && !t.includes('£197') && t.includes('/assessment/choice/?o=reality_reset'), t.match(/Return to Yourself[^\n]*/g));
-  check('D6', 'Email', 'Email uses approved Phase 3 copy (subject + opening + sign-off) and the V4 campaign UTM', log[0][4] === 'Synthia, I’ve looked at your answers' && t.includes('I’ve looked at your answers.') && t.includes('With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist') && t.includes('utm_campaign=v4_result_email') && !t.includes('v3_result_email'), log[0][4]);
-  check('D7', 'Email', 'Email includes the saved-result link carrying this result token', t.includes('resultToken=' + b.resultToken), (t.match(/https:[^\s]*resultToken=[^\s]*/) || [''])[0]);
+  check('D4', 'Email', 'Repeated identical choices: exactly one choice email (two emails in total: results + choice)', r1.ok && r1.choiceEmailRequired && r1.choiceEmailSuppressed && r2.ok && r2.idempotent && r3.idempotent && log.length === 2, `responses ok=${r1.ok},${r2.ok},${r3.ok}; emails=${log.length}`);
+  const t = String(log[1][6]);
+  check('D5', 'Email', 'Choice email: approved subject and opening, only the chosen option with its price and checkout link (choice campaign), no other offer, no results text', log[1][4] === 'Your next step towards feeling like yourself again' && t.startsWith('Hi Synthia,\n\nYou’ve chosen how you’d like to begin working on the patterns that have been keeping you stuck. Here’s your next step.\n\nReturn to Yourself + Reality Reset | £147\n\nSTART MY SESSIONS\nhttps://yourmindstory.co.uk/assessment/choice/?o=reality_reset&') && !t.includes('£117') && !t.includes('£197') && t.includes('utm_campaign=v4_choice_email') && !t.includes('looked at your answers') && t.endsWith('With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist'), t.slice(0, 200));
+  const t0 = String(log[0][6]);
+  check('D6', 'Email', 'Results email keeps the approved copy (subject, opening, sign-off) and the V4 result campaign', log[0][4] === 'Synthia, I’ve looked at your answers' && t0.includes('I’ve looked at your answers.') && t0.includes('With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist') && t0.includes('utm_campaign=v4_result_email'), log[0][4]);
+  check('D7', 'Email', 'Results email includes the saved-result link carrying this result token', t0.includes('resultToken=' + b.resultToken), (t0.match(/https:[^\s]*resultToken=[^\s]*/) || [''])[0]);
   const ch = r.post(fin(b.resultToken, b.submissionId, 'pattern_break', 'self_work', 'additional'));
-  check('D8', 'Email', 'A different choice after the email is refused, returns the saved choice, and sends nothing', ch.code === 'EMAIL_ALREADY_SENT' && ch.savedFinalOfferOption === 'reality_reset' && emailLog(r).length === 1 && r.rows()[0]['V4 Result Email Route'] === 'reality_reset', JSON.stringify({ code: ch.code, saved: ch.savedFinalOfferOption }));
+  check('D8', 'Email', 'A different choice after the choice email is refused, returns the saved choice, and sends nothing', ch.code === 'EMAIL_ALREADY_SENT' && ch.savedFinalOfferOption === 'reality_reset' && emailLog(r).length === 2 && r.rows()[0]['V4 Result Email Route'] === 'reality_reset', JSON.stringify({ code: ch.code, saved: ch.savedFinalOfferOption }));
   const g = r.get({ action: 'getResult', resultToken: b.resultToken });
-  check('C7', 'Persistence', 'getResult reports the saved decision (option, Q1, Q2, email state) for resume', g.decision.saved && g.decision.finalOfferOption === 'reality_reset' && g.decision.question1OptionId === 'self_work' && g.decision.question2OptionId === 'additional' && g.decision.resultEmailSuppressed === true, JSON.stringify(g.decision));
+  check('C7', 'Persistence', 'getResult reports the saved decision (option, Q1, Q2) and both email states for resume', g.decision.saved && g.decision.finalOfferOption === 'reality_reset' && g.decision.question1OptionId === 'self_work' && g.decision.question2OptionId === 'additional' && g.decision.resultEmailSuppressed === true && g.decision.choiceEmailRequired === true && g.decision.choiceEmailSuppressed === true && g.decision.emailFlow === 'immediate', JSON.stringify(g.decision));
+  // Single / Pair / Bare Minimum: no second email
+  const singles = [[5, 0, 0, 0], [5, 4, 0, 0], [1, 1, 1, 1]].map(sc => { const rr = rt(); const bb = body(sc); rr.post(bb); const opt = sc[0] === 1 ? 'bare_minimum' : 'scored_route'; const x = rr.post(fin(bb.resultToken, bb.submissionId, opt)); const y = rr.post(fin(bb.resultToken, bb.submissionId, opt)); return { ok: x.ok && !x.choiceEmailRequired && y.idempotent, n: emailLog(rr).length, saved: rr.rows()[0]['V4 Result Email Route'] === opt }; });
+  check('D16', 'Email', 'Single, Pair and Bare Minimum: one results email at completion; confirming (twice) saves the choice and sends no second email', singles.every(x => x.ok && x.n === 1 && x.saved), JSON.stringify(singles));
+  // Complete result, Q1 "understand/change him" -> The Bare Minimum confirmation email
+  const rb = rt(); const bb = body([5, 5, 5, 5]); rb.post(bb);
+  const fb = rb.post(fin(bb.resultToken, bb.submissionId, 'bare_minimum', 'understand_him', null));
+  const lb = emailLog(rb);
+  check('D17', 'Email', 'Complete result choosing The Bare Minimum gets the short choice email with "The Bare Minimum · £4.99" and its Stan link', fb.ok && fb.choiceEmailRequired && lb.length === 2 && lb[1][4] === 'Your next step towards feeling like yourself again' && String(lb[1][6]).includes('The Bare Minimum · £4.99') && String(lb[1][6]).includes('START WITH THE BARE MINIMUM\nhttps://stan.store/Yourmindstory/p/the-bare-minimum?') && !/£117|£147|£197/.test(String(lb[1][6])), String(lb[1] && lb[1][6]).slice(0, 220));
 }
 {
-  // Real MailApp path (redirect mode): failure must not report success; retry sends once; choice can change before success
+  // Real MailApp path (redirect mode): failure recorded, safe retry, never twice.
+  const r = createRuntime({ source: SRC, props: { V4_DEV_EMAIL_REDIRECT_TO: 'owner-test@example.invalid' } });
+  r.mail.failAll = true;
+  const b = body([5, 5, 5, 5]); const s0 = r.post(b);
+  const row0 = r.rows()[0];
+  check('D9', 'Email', 'Failed results email: assessment still saved and results returned; row records "failed" with the error and no sent stamp; response never claims it was sent', s0.ok && s0.code === 'RECORDED' && s0.resultEmailSent === false && s0.resultEmailProvider === 'failed' && row0['Result Email Provider'] === 'failed' && /Simulated MailApp failure/.test(row0['Result Email Error']) && !row0['Result Email Sent'], JSON.stringify({ ok: s0.ok, sent: s0.resultEmailSent, prov: row0['Result Email Provider'] }));
+  r.mail.failAll = false;
+  const t1 = r.post({ action: 'retryResultEmail', resultToken: b.resultToken });
+  const t2 = r.post({ action: 'retryResultEmail', resultToken: b.resultToken });
+  check('D10', 'Email', 'Retry after a failure sends exactly one results email (to the DEV redirect inbox only); a second retry sends nothing', t1.ok && t1.resultEmailSent === true && t2.status === 'already_sent' && r.mail.sent.length === 1 && r.mail.sent[0].to === 'owner-test@example.invalid' && /\[V4 DEV for synthetic\+/.test(r.mail.sent[0].subject) && r.rows()[0]['Result Email Provider'] === 'mailapp-dev-redirect' && r.rows()[0]['Result Email Sent'], JSON.stringify({ t1: t1.status, t2: t2.status, n: r.mail.sent.length }));
+  // stuck 'sending': fresh blocks, stale is flagged for review, never resent
+  const b2 = body([5, 5, 5, 5]); r.post(b2);
+  const sh = r.sheet('V4 Responses'); const H = sh.rows[0]; const rowN = 3;
+  sh.set(rowN, H.indexOf('Result Email Provider') + 1, 'sending'); sh.set(rowN, H.indexOf('Result Email Sent') + 1, ''); sh.set(rowN, H.indexOf('Result Email Error') + 1, 'sending since ' + new Date().toISOString());
+  const u1 = r.post({ action: 'retryResultEmail', resultToken: b2.resultToken });
+  sh.set(rowN, H.indexOf('Result Email Error') + 1, 'sending since ' + new Date(Date.now() - 11 * 60000).toISOString());
+  const before = r.mail.sent.length;
+  const u2 = r.post({ action: 'retryResultEmail', resultToken: b2.resultToken });
+  const probs = r.call('listV4EmailProblems');
+  check('D11', 'Email', 'A send in progress blocks a duplicate; a stuck send (>10 min) is listed for review and never resent automatically', u1.code === 'SEND_IN_PROGRESS' && u2.code === 'NEEDS_REVIEW' && r.mail.sent.length === before && probs.some(p => p.row === 3 && p.resultEmail === 'sending'), JSON.stringify({ u1: u1.code, u2: u2.code, probs }));
+  check('D12', 'Email', 'Transactional emails ignore marketing consent=false (results still delivered)', r.mail.sent.length >= 2, 'marketingConsent:false on all synthetic bodies');
+  // choice email failure -> choice saved, checkout allowed, retry by confirming again sends once
+  const b3 = body([5, 5, 5, 5]); r.post(b3);
+  r.mail.failAll = true;
+  const c1 = r.post(fin(b3.resultToken, b3.submissionId, 'pattern_break', 'unsure', 'recommend'));
+  r.mail.failAll = false;
+  const n0 = r.mail.sent.length;
+  const c2 = r.post(fin(b3.resultToken, b3.submissionId, 'pattern_break', 'unsure', 'recommend'));
+  const c3 = r.post(fin(b3.resultToken, b3.submissionId, 'pattern_break', 'unsure', 'recommend'));
+  const row3 = r.rows().find(x => x['Result Token'] === b3.resultToken);
+  check('D18b', 'Email', 'Failed choice email: choice saved, response ok (checkout can continue) but never claims it was sent; confirming again sends it once; then idempotent', c1.ok && c1.choiceEmailSent === false && c1.choiceEmailError === 'failed' && c2.ok && c2.choiceEmailSent === true && c3.idempotent && r.mail.sent.length === n0 + 1 && row3['V4 Choice Email Status'] === 'sent' && row3['V4 Choice Email Option'] === 'pattern_break' && row3['V4 Choice Email Sent'], JSON.stringify({ c1: [c1.ok, c1.choiceEmailSent], c2: c2.choiceEmailSent, c3: c3.idempotent, st: row3['V4 Choice Email Status'] }));
+  // owner retry tool: retries only failed r8 sends
+  const b4 = body([5, 0, 0, 0]); r.mail.failAll = true; r.post(b4); r.mail.failAll = false;
+  const n1 = r.mail.sent.length;
+  const done = r.call('retryFailedV4Emails');
+  const again = r.call('retryFailedV4Emails');
+  check('D19', 'Email', 'Owner retry tool resends only sends recorded as failed (here one results email), and running it again sends nothing', done.length === 1 && done[0].sent && r.mail.sent.length === n1 + 1 && again.length === 0, JSON.stringify({ done, again }));
+}
+{
+  // Rows saved BEFORE r8 (results email still 'pending'): never emailed by the new code; original choice behaviour kept.
   const r = createRuntime({ source: SRC, props: { V4_DEV_EMAIL_REDIRECT_TO: 'owner-test@example.invalid' } });
   const b = body([5, 5, 5, 5]); r.post(b);
-  r.mail.failAll = true;
-  const f1 = r.post(fin(b.resultToken, b.submissionId, 'self_guided', 'unsure', 'recommend'));
-  const row1 = r.rows()[0];
-  check('D9', 'Email', 'Failed MailApp delivery returns ok:false/email_failed, records the error, no "sent" stamp', f1.ok === false && f1.status === 'email_failed' && !row1['Result Email Sent'] && /Simulated MailApp failure/.test(row1['Result Email Error']) && row1['V4 Result Email Route'] === 'self_guided', JSON.stringify({ ok: f1.ok, status: f1.status, err: row1['Result Email Error'] }));
-  r.mail.failAll = false;
-  const f2 = r.post(fin(b.resultToken, b.submissionId, 'pattern_break', 'unsure', 'recommend'));
-  const f3 = r.post(fin(b.resultToken, b.submissionId, 'pattern_break', 'unsure', 'recommend'));
-  check('D10', 'Email', 'After a failure she can resume (even with a different allowed offer); exactly one email is then sent, to the DEV redirect inbox only', f2.ok && f3.idempotent && r.mail.sent.length === 1 && r.mail.sent[0].to === 'owner-test@example.invalid' && /\[V4 DEV for synthetic\+/.test(r.mail.sent[0].subject) && r.mail.sent[0].body.includes('£197') && r.rows()[0]['V4 Result Email Route'] === 'pattern_break', JSON.stringify({ to: r.mail.sent.map(m => m.to), subj: r.mail.sent.map(m => m.subject) }));
-  // stale "sending" marker
-  const b2 = body([5, 5, 5, 5]); r.post(b2);
-  const rowN = 3; const sh = r.sheet('V4 Responses'); const H = sh.rows[0];
-  sh.set(rowN, H.indexOf('Result Email Provider') + 1, 'sending'); sh.set(rowN, H.indexOf('Result Email Error') + 1, 'sending since ' + new Date().toISOString());
-  const s1 = r.post(fin(b2.resultToken, b2.submissionId, 'self_guided', 'self_work', 'independent'));
-  sh.set(rowN, H.indexOf('Result Email Error') + 1, 'sending since ' + new Date(Date.now() - 11 * 60000).toISOString());
-  const s2 = r.post(fin(b2.resultToken, b2.submissionId, 'self_guided', 'self_work', 'independent'));
-  check('D11', 'Email', 'A send in progress blocks a concurrent duplicate; a stale (>10 min) marker allows recovery', s1.code === 'SEND_IN_PROGRESS' && s2.ok === true, `${s1.code} then ${s2.status}`);
-  check('D12', 'Email', 'Transactional email ignores marketing consent=false (result still delivered)', r.mail.sent.length === 2, 'marketingConsent:false on all synthetic bodies');
+  const sh = r.sheet('V4 Responses'); const H = sh.rows[0];
+  const set = (h, v) => sh.set(2, H.indexOf(h) + 1, v);
+  set('V4 Email Flow', ''); set('Result Email Provider', 'pending'); set('Result Email Sent', ''); set('Result Email Error', ''); set('V4 Result Email Route', 'pending final choice');
+  const n0 = r.mail.sent.length;
+  const rr = r.post({ action: 'retryResultEmail', resultToken: b.resultToken });
+  const probs = r.call('listV4EmailProblems'); const tool = r.call('retryFailedV4Emails');
+  check('L1', 'Legacy rows', 'A row saved before r8 ("pending") is never emailed by the retry action or the owner tools', rr.code === 'NOT_RETRYABLE' && probs.length === 0 && tool.length === 0 && r.mail.sent.length === n0, JSON.stringify({ rr: rr.code, probs: probs.length }));
+  const lf = r.post(fin(b.resultToken, b.submissionId, 'self_guided', 'self_work', 'independent'));
+  check('L2', 'Legacy rows', 'If she herself returns and confirms, the original (live today) behaviour applies: one offer-specific email for her choice', lf.ok && lf.status === 'finalized' && r.mail.sent.length === n0 + 1 && /£117/.test(r.mail.sent[n0].body) && !/£147/.test(r.mail.sent[n0].body), JSON.stringify({ st: lf.status, n: r.mail.sent.length - n0 }));
 }
 
 // ---------- Email previews for every route (no sends) ----------
@@ -187,34 +228,36 @@ const previews = [];
 {
   const r = rt();
   const mk = (s, o, g, sup, label) => {
-    const b = body(s, { firstName: 'Synthia' }); r.post(b);
-    const before = emailLog(r).length;
-    const res = r.post(fin(b.resultToken, b.submissionId, o, g, sup));
-    const log = emailLog(r).slice(before);
-    previews.push({ label, ok: res.ok, subject: log[0] && log[0][4], text: log[0] && log[0][6], html: log[0] && log[0][7], token: b.resultToken });
+    const b = body(s, { firstName: 'Synthia' });
+    const before = emailLog(r).length; r.post(b);
+    const res = o ? r.post(fin(b.resultToken, b.submissionId, o, g, sup)) : { ok: true };
+    const log = emailLog(r).slice(before); const m = o ? log[1] : log[0];
+    previews.push({ label, ok: res.ok, subject: m && m[4], text: m && m[6], html: m && m[7], token: b.resultToken });
   };
-  mk([5, 0, 0, 0], 'scored_route', null, null, 'Single — Quiet the Alarm (£37)');
-  mk([0, 5, 0, 0], 'scored_route', null, null, 'Single — Break the Pull (£37)');
-  mk([0, 0, 5, 0], 'scored_route', null, null, 'Single — Restore Self-Trust (£37)');
-  mk([0, 0, 0, 5], 'scored_route', null, null, 'Single — Return to You (£37)');
-  mk([5, 4, 0, 0], 'scored_route', null, null, 'Pair — Quiet the Alarm + Break the Pull (£74)');
-  mk([5, 0, 4, 0], 'scored_route', null, null, 'Pair — Quiet the Alarm + Restore Self-Trust (£74)');
-  mk([5, 0, 0, 4], 'scored_route', null, null, 'Pair — Quiet the Alarm + Return to You (£74)');
-  mk([0, 5, 4, 0], 'scored_route', null, null, 'Pair — Break the Pull + Restore Self-Trust (£74)');
-  mk([0, 5, 0, 4], 'scored_route', null, null, 'Pair — Break the Pull + Return to You (£74)');
-  mk([0, 0, 5, 4], 'scored_route', null, null, 'Pair — Restore Self-Trust + Return to You (£74)');
-  mk([1, 1, 1, 1], 'bare_minimum', null, null, 'Bare Minimum — scored route (£4.99)');
-  mk([5, 5, 5, 5], 'bare_minimum', 'understand_him', null, 'Bare Minimum — Complete result, Q1 "understand him" (£4.99)');
-  mk([5, 5, 5, 5], 'self_guided', 'self_work', 'independent', 'Complete — Self-Guided (£117)');
-  mk([5, 5, 5, 5], 'reality_reset', 'self_work', 'some_support', 'Complete — Reality Reset (£147)');
-  mk([5, 5, 5, 5], 'pattern_break', 'unsure', 'additional', 'Complete — Pattern Break (£197)');
+  mk([5, 0, 0, 0], null, null, null, 'Results email — Single — Quiet the Alarm (£37)');
+  mk([0, 5, 0, 0], null, null, null, 'Results email — Single — Break the Pull (£37)');
+  mk([0, 0, 5, 0], null, null, null, 'Results email — Single — Restore Self-Trust (£37)');
+  mk([0, 0, 0, 5], null, null, null, 'Results email — Single — Return to You (£37)');
+  mk([5, 4, 0, 0], null, null, null, 'Results email — Pair — Quiet the Alarm + Break the Pull (£74)');
+  mk([5, 0, 4, 0], null, null, null, 'Results email — Pair — Quiet the Alarm + Restore Self-Trust (£74)');
+  mk([5, 0, 0, 4], null, null, null, 'Results email — Pair — Quiet the Alarm + Return to You (£74)');
+  mk([0, 5, 4, 0], null, null, null, 'Results email — Pair — Break the Pull + Restore Self-Trust (£74)');
+  mk([0, 5, 0, 4], null, null, null, 'Results email — Pair — Break the Pull + Return to You (£74)');
+  mk([0, 0, 5, 4], null, null, null, 'Results email — Pair — Restore Self-Trust + Return to You (£74)');
+  mk([1, 1, 1, 1], null, null, null, 'Results email — Bare Minimum (£4.99)');
+  mk([5, 5, 5, 5], 'bare_minimum', 'understand_him', null, 'Choice email — Complete result, chose The Bare Minimum (£4.99)');
+  mk([5, 5, 5, 5], 'self_guided', 'self_work', 'independent', 'Choice email — Complete — Self-Guided (£117)');
+  mk([5, 5, 5, 5], 'reality_reset', 'self_work', 'some_support', 'Choice email — Complete — Reality Reset (£147)');
+  mk([5, 5, 5, 5], 'pattern_break', 'unsure', 'additional', 'Choice email — Complete — Pattern Break (£197)');
+  mk([5, 5, 5, 5], null, null, null, 'Results email — Complete (£117 / £147 / £197)');
   const exp = [['£37', 'stan.store/Yourmindstory/p/quiet-the-alarm?'], ['£37', 'break-the-pull?'], ['£37', 'restore-self-trust?'], ['£37', 'return-to-yourself-7jc9h8lg?'],
     ['£74', 'quiet-the-alarm--break-the-pull?'], ['£74', 'quiet-the-alarm--restore-selftrust?'], ['£74', 'quiet-the-alarm--return-to-yourself?'], ['£74', 'break-the-pull--restore-selftrust?'], ['£74', 'break-the-pull--return-to-yourself?'], ['£74', 'restore-selftrust--return-to-yourself?'],
-    ['The Bare Minimum', 'the-bare-minimum?'], ['The Bare Minimum', 'the-bare-minimum?'], ['£117', 'choice/?o=self_guided'], ['£147', 'choice/?o=reality_reset'], ['£197', 'choice/?o=pattern_break']];
-  const bad = previews.map((p, i) => (p.ok && p.text && p.text.includes(exp[i][0]) && p.text.includes(exp[i][1]) && p.text.includes('resultToken=' + p.token)) ? null : p.label).filter(Boolean);
-  check('D13', 'Email', 'All 15 email variants render with the correct product, checkout link and saved-result link; price shown wherever the approved copy shows one (approved Bare Minimum copy has no price line)', bad.length === 0, bad.join('; ') || '15/15');
-  const complete3 = previews.slice(12);
-  check('D14', 'Email', 'Each Complete email shows only the selected offer', complete3.every((p, i) => ['£117', '£147', '£197'].filter((x, j) => j !== i).every(x => !p.text.includes(x))), 'checked');
+    ['The Bare Minimum', 'the-bare-minimum?'], ['The Bare Minimum · £4.99', 'the-bare-minimum?'], ['£117', 'choice/?o=self_guided'], ['£147', 'choice/?o=reality_reset'], ['£197', 'choice/?o=pattern_break'], ['£197', 'choice/?o=pattern_break']];
+  const isChoice = i => i >= 11 && i <= 14;
+  const bad = previews.map((p, i) => (p.ok && p.text && p.text.includes(exp[i][0]) && p.text.includes(exp[i][1]) && (isChoice(i) || p.text.includes('resultToken=' + p.token))) ? null : p.label).filter(Boolean);
+  check('D13', 'Email', 'All 16 email variants render with the correct product, price and checkout link; every results email has her saved-results link', bad.length === 0, bad.join('; ') || '16/16');
+  const complete3 = previews.slice(12, 15);
+  check('D14', 'Email', 'Each Complete choice email shows only the chosen offer', complete3.every((p, i) => ['£117', '£147', '£197'].filter((x, j) => j !== i).every(x => !p.text.includes(x))), 'checked');
   check('D15', 'Email', 'No Bootcamp or Brevo reference in any email', previews.every(p => !/bootcamp|brevo/i.test(p.text + p.html)), 'checked');
 }
 fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify(previews, null, 1));
@@ -234,7 +277,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const m = r.post({ action: 'rematchPurchases' });
   const ev = r.post({ action: 'recordJourneyEvents', journeyId: 'x', submissionId: 'YMSV4-S-SYN-' + seq, events: [{ eventType: 'purchase_return_view', values: {} }] });
   check('G5', 'Isolation', 'DEV disables purchase sync/maintenance (no production Payhip/Stan data copied into DEV)', sync === 'sync disabled in development' && m.code === 'DEV_ACTION_DISABLED' && r.call('syncAllV3_').code === 'DISABLED_IN_DEV', `${sync} / ${m.code}`);
-  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r7g build', st.env === 'DEV' && /r7g/.test(st.backendBuild), st.backendBuild);
+  const st = r.get({}); check('G6', 'Isolation', 'Status endpoint reports env DEV and the r8 build', st.env === 'DEV' && /r8/.test(st.backendBuild), st.backendBuild);
   const info = r.call('verifyV4Connection'); check('G7', 'Isolation', 'verifyV4Connection reports DEV workbook, suppress email mode and the V4 saved-result page', info.spreadsheetTitle.includes('Synthetic Only') && info.emailMode === 'suppress' && /v4-preview\/start/.test(info.resultPageUrl), JSON.stringify(info));
 }
 
@@ -246,8 +289,8 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
     JSON.stringify(Object.fromEntries(Object.entries(r.ctx.V4_SUPPORT_CHOICES_).map(([k, v]) => [k, v.primary]))));
   const scoredBare = previews[10].text, goalBare = previews[11].text;
   const finding = "isn't standing out strongly enough";
-  check('D18', 'Email', 'Q1 "understand/change him" email omits the "isn\'t standing out" low-score finding (locked rule); scored Bare Minimum email keeps it unchanged',
-    !goalBare.includes(finding) && scoredBare.includes(finding) && goalBare.includes('Based on your answers, this is where I recommend you start:') && goalBare.includes('START WITH THE BARE MINIMUM') && !/\n\n\n/.test(goalBare), goalBare.slice(0, 240));
+  check('D18', 'Email', 'Q1 "understand/change him": her confirmation email makes no low-score claim (locked rule) and links The Bare Minimum; the scored Bare Minimum results email keeps its approved finding unchanged',
+    !goalBare.includes(finding) && !/score/i.test(goalBare) && scoredBare.includes(finding) && goalBare.includes('START WITH THE BARE MINIMUM') && !/\n\n\n/.test(goalBare), goalBare.slice(0, 240));
   const b = body([5, 5, 5, 5]); r.post(b);
   const ev = r.post({ action: 'recordJourneyEvents', resultToken: b.resultToken, submissionId: b.submissionId, events: [{ eventType: 'recommendation_video_play', values: { route: 'self_guided' } }, { eventType: 'post_result_question_answered', values: { step: 'q1' } }] });
   check('G12', 'Analytics', 'Backend accepts the new first-party events (video play, question answered)', ev.ok && ev.results.every(x => x.ok), JSON.stringify(ev.results));
@@ -263,7 +306,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const row = r.rows().find(x => x['Submission ID'] === b.submissionId);
   const fe = r.sheet('Funnel Events').rows.slice(1).filter(x => x[6] === b.submissionId);
   check('S1', 'Performance', 'New submission does all reads before writing: zero reads after the first write (each such read forces a full dashboard recalculation)', res.ok && firstW >= 0 && readsAfter.length === 0, 'ops=' + OPS.log.join(' '));
-  check('S2', 'Persistence', 'Submission row carries email status "pending" and furthest stage; funnel gets assessment_complete + email_captured with the right V4 row', row['Result Email Provider'] === 'pending' && row['Canonical: Furthest Stage'] === 'email_captured' && fe.length === 2 && fe.map(x => x[2]).join() === 'assessment_complete,email_captured' && fe.every(x => +x[28] === r.rows().findIndex(y => y['Submission ID'] === b.submissionId) + 2), JSON.stringify({ prov: row['Result Email Provider'], stage: row['Canonical: Furthest Stage'], fe: fe.map(x => [x[2], x[28]]) }));
+  check('S2', 'Persistence', 'Submission row records the results email as sent and the furthest stage; funnel gets assessment_complete + email_captured with the right V4 row', row['Result Email Provider'] === 'dev-suppressed' && row['Result Email Sent'] && row['Canonical: Furthest Stage'] === 'email_captured' && fe.length === 2 && fe.map(x => x[2]).join() === 'assessment_complete,email_captured' && fe.every(x => +x[28] === r.rows().findIndex(y => y['Submission ID'] === b.submissionId) + 2), JSON.stringify({ prov: row['Result Email Provider'], stage: row['Canonical: Furthest Stage'], fe: fe.map(x => [x[2], x[28]]) }));
 }
 
 // ---------- DEV vs PROD link/transport configuration ----------
@@ -275,7 +318,7 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const b = body([5, 5, 5, 5]); r.post(b);
   const f = r.post(fin(b.resultToken, b.submissionId, 'reality_reset', 'self_work', 'some_support'));
   const m = r.mail.sent[0] || {};
-  check('G10', 'Release config', 'In-memory rehearsal of the PROD configuration: email goes via MailApp to the customer address, with jid/sid tracking, exactly once; DEV log not used', f.ok && f.resultEmailSent && r.mail.sent.length === 1 && m.to === b.email && /[?&]sid=YMSV4-S-SYN/.test(m.body) && !r.sheet('V4 DEV Email Log'), JSON.stringify({ to: m.to, subject: m.subject }));
+  check('G10', 'Release config', 'In-memory rehearsal of the PROD configuration: results email then choice email go via MailApp to the customer address only, with jid/sid tracking, once each; DEV log not used', f.ok && f.resultEmailSent && f.choiceEmailSent && r.mail.sent.length === 2 && r.mail.sent.every(x => x.to === b.email && /[?&]sid=YMSV4-S-SYN/.test(x.body)) && r.mail.sent[1].subject === 'Your next step towards feeling like yourself again' && !r.sheet('V4 DEV Email Log'), JSON.stringify({ to: m.to, subject: m.subject }));
   let e = ''; try { createRuntime({ source: SRC, patch: s => s.replace("var V4_ENV = 'DEV';", "var V4_ENV = 'PROD';") }).call('verifyV4Connection'); } catch (x) { e = x.message; }
   check('G11', 'Release config', 'PROD mode refuses to run against any workbook other than the production V4 workbook', /PROD mode must target/.test(e), e);
 
@@ -288,64 +331,16 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const tb = body([5, 5, 5, 5]); tb.email = 'yourmindstory.co.uk+v4test1@gmail.com';
   const rt = s2.post(tb); const ft = s2.post(fin(tb.resultToken, tb.submissionId, 'pattern_break', 'self_work', 'additional'));
   const mt = s2.mail.sent[s2.mail.sent.length - 1] || {};
-  check('G14', 'Stage 2 guard', 'With the guard on, a +v4test journey saves, finalises and emails only the +v4test inbox, with live tracking IDs', rt.ok && ft.ok && ft.resultEmailSent && s2.mail.sent.length === 1 && mt.to === tb.email, JSON.stringify({ rt: rt.code, ft: ft.status, to: mt.to }));
+  check('G14', 'Stage 2 guard', 'With the guard on, a +v4test journey saves, finalises and emails only the +v4test inbox, with live tracking IDs', rt.ok && rt.resultEmailSent && ft.ok && ft.choiceEmailSent && s2.mail.sent.length === 2 && s2.mail.sent.every(x => x.to === tb.email), JSON.stringify({ rt: rt.code, ft: ft.status, to: mt.to }));
   // Simulate a pre-existing customer row (as the live version would have written) and try to touch it.
-  s2.props.V4_STAGE2_TEST_ONLY = ''; const cust2 = body([5, 5, 5, 5]); s2.post(cust2); s2.props.V4_STAGE2_TEST_ONLY = 'yes';
+  s2.props.V4_STAGE2_TEST_ONLY = ''; const cust2 = body([5, 5, 5, 5]); s2.post(cust2); s2.props.V4_STAGE2_TEST_ONLY = 'yes'; const mailsBefore15 = s2.mail.sent.length;
   const fc = s2.post(fin(cust2.resultToken, cust2.submissionId, 'self_guided', 'self_work', 'independent'));
   const ev = s2.post({ action: 'recordJourneyEvent', eventType: 'result_view', resultToken: cust2.resultToken, submissionId: cust2.submissionId });
-  check('G15', 'Stage 2 guard', 'With the guard on, finalise and journey events against a non-test row are refused; no email to that address', fc.code === 'STAGE2_TEST_ONLY' && ev.code === 'STAGE2_TEST_ONLY' && !s2.mail.sent.some(x => x.to === cust2.email), JSON.stringify({ fc: fc.code, ev: ev.code }));
+  check('G15', 'Stage 2 guard', 'With the guard on, finalise and journey events against a non-test row are refused; no email to that address', fc.code === 'STAGE2_TEST_ONLY' && ev.code === 'STAGE2_TEST_ONLY' && s2.mail.sent.length === mailsBefore15, JSON.stringify({ fc: fc.code, ev: ev.code }));
   void s2off;
 }
 
-// ---------- F. r7 results-email fallback (OFF by default; owner decision) ----------
-{
-  const age = (r, sid, minutes) => { const sh = r.sheet('V4 Responses'); const h = sh.rows[0]; const i = h.indexOf('Submitted UTC'); sh.rows.find(x => x[h.indexOf('Submission ID')] === sid)[i] = new Date(Date.now() - minutes * 60000).toISOString(); };
-  const props = { V4_DEV_EMAIL_REDIRECT_TO: 'owner-test@example.invalid' };
-  // F1: default (no property) -> nothing is sent, behaviour unchanged.
-  { const r = createRuntime({ source: SRC, props: Object.assign({}, props) }); const b = body([5, 5, 5, 5]); r.post(b); age(r, b.submissionId, 120);
-    const out = r.call('sendPendingV4ResultEmails'); check('F1', 'Email fallback', 'Fallback is OFF by default: an abandoned result gets no email and the row stays pending', out.sent === 0 && r.mail.sent.length === 0 && r.rows()[0]['Result Email Provider'] === 'pending', JSON.stringify(out)); }
-  // F2..F6: ON
-  const on = Object.assign({}, props, { V4_PENDING_FALLBACK: 'on', V4_PENDING_FALLBACK_SINCE: new Date(Date.now() - 6 * 3600e3).toISOString(), V4_PENDING_FALLBACK_MINUTES: '30', V4_PENDING_FALLBACK_INCLUDE_TEST: 'yes' });
-  const r = createRuntime({ source: SRC, props: on });
-  const old = body([5, 5, 5, 5]); r.post(old); age(r, old.submissionId, 8 * 60);          // before SINCE: never emailed automatically
-  const fresh = body([5, 5, 5, 5]); r.post(fresh); age(r, fresh.submissionId, 10);         // too recent: she may still be choosing
-  const due = body([5, 5, 5, 5]); r.post(due); age(r, due.submissionId, 45);               // abandoned Complete result
-  const single = body([5, 0, 0, 0]); r.post(single); age(r, single.submissionId, 45);      // abandoned £37 result
-  const chose = body([5, 5, 5, 5]); r.post(chose); r.post(fin(chose.resultToken, chose.submissionId, 'reality_reset', 'self_work', 'some_support')); age(r, chose.submissionId, 45);
-  const sentBefore = r.mail.sent.length;
-  const o1 = r.call('sendPendingV4ResultEmails');
-  const byTok = t => r.rows().find(x => x['Result Token'] === t);
-  const m = r.mail.sent.slice(sentBefore);
-  const dueMail = m.find(x => /\[V4 DEV for synthetic\+\d+@example\.invalid\]/.test(x.subject) && x.body.includes(due.resultToken));
-  check('F2', 'Email fallback', 'ON: only results older than 30 min, after the start date, with no choice and no email are sent (here: the abandoned £117 and £37 results); the too-recent, the pre-start and the already-chosen are left alone', o1.sent === 2 && m.length === 2 && byTok(due.resultToken)['V4 Result Email Route'] === 'results_fallback' && byTok(single.resultToken)['V4 Result Email Route'] === 'results_fallback' && byTok(fresh.resultToken)['Result Email Provider'] === 'pending' && byTok(old.resultToken)['Result Email Provider'] === 'pending', JSON.stringify(o1));
-  const cBody = dueMail ? dueMail.body : '';
-  check('F3', 'Email fallback', 'The fallback for a Complete result is the existing approved Complete email listing all three options (£117, £147, £197) with her saved-results link; no new copy', /£117/.test(cBody) && /£147/.test(cBody) && /£197/.test(cBody) && cBody.includes('resultToken=' + due.resultToken) && cBody.includes('whether he’s in your life or not'), cBody.slice(0, 160));
-  const o2 = r.call('sendPendingV4ResultEmails');
-  check('F4', 'Email fallback', 'Running again never sends a second fallback email', o2.sent === 0 && r.mail.sent.length === sentBefore + 2, JSON.stringify(o2));
-  // F5: she comes back later and confirms £147: choice saved, no extra email by default.
-  const before5 = r.mail.sent.length;
-  const f5 = r.post(fin(due.resultToken, due.submissionId, 'reality_reset', 'self_work', 'some_support'));
-  const row5 = byTok(due.resultToken);
-  check('F5', 'Email fallback', 'After a fallback email she can still confirm an offer: choice saved and finalised (frontend proceeds to checkout); no second email unless the owner turns it on', f5.ok && f5.status === 'finalized' && f5.afterResultsEmail && row5['V4 Result Email Route'] === 'reality_reset' && row5['V4 Decision Saved UTC'] && r.mail.sent.length === before5, JSON.stringify(f5));
-  // F6: with V4_CHOICE_EMAIL_AFTER_RESULTS=yes, the offer-specific email follows.
-  r.props.V4_CHOICE_EMAIL_AFTER_RESULTS = 'yes';
-  const before6 = r.mail.sent.length;
-  const f6 = r.post(fin(single.resultToken, single.submissionId, 'scored_route')); const extraSingle = r.mail.sent.length - before6;
-  const due2 = body([5, 5, 5, 5]); r.post(due2); age(r, due2.submissionId, 45); const o6 = r.call('sendPendingV4ResultEmails');
-  const before6b = r.mail.sent.length;
-  const f6b = r.post(fin(due2.resultToken, due2.submissionId, 'pattern_break', 'self_work', 'additional'));
-  const last = r.mail.sent[r.mail.sent.length - 1] || {};
-  check('F6', 'Email fallback', 'Optional second email: a Single/Pair choice sends nothing extra (same email); a Complete choice sends only the chosen offer (£197) when V4_CHOICE_EMAIL_AFTER_RESULTS=yes', f6.ok && extraSingle === 0 && f6b.ok && f6b.choiceEmailSent && r.mail.sent.length === before6b + 1 && /£197/.test(last.body) && !/£147/.test(last.body), JSON.stringify({ o6, route2: byTok(due2.resultToken)['V4 Result Email Route'], f6: f6.status, extraSingle, f6b, last: (last.body||'').slice(0,80) }));
-  // F7: TEST rows skipped unless included; MailApp failure leaves the row pending with the error.
-  const r2 = createRuntime({ source: SRC, props: Object.assign({}, on, { V4_PENDING_FALLBACK_INCLUDE_TEST: '' }) });
-  const t = body([5, 5, 5, 5]); r2.post(t); age(r2, t.submissionId, 45);
-  const o7 = r2.call('sendPendingV4ResultEmails');
-  const r3 = createRuntime({ source: SRC, props: on }); const t3 = body([5, 5, 5, 5]); r3.post(t3); age(r3, t3.submissionId, 45); r3.mail.failAll = true;
-  const o7b = r3.call('sendPendingV4ResultEmails'); const row7 = r3.rows()[0];
-  check('F7', 'Email fallback', 'TEST rows are skipped unless included; a MailApp failure leaves the row pending with the error recorded, so the next run retries', o7.sent === 0 && o7b.failed === 1 && row7['Result Email Provider'] === 'pending' && /results fallback failed/.test(row7['Result Email Error']), JSON.stringify({ o7, o7b }));
-}
-
-// ---------- r7g: journey batches read her row once; choice fast path via cache ----------
+// ---------- r7e: journey batches read her row once; choice fast path via cache ----------
 {
   const evs = [
     { eventType: 'result_view', values: {} }, { eventType: 'result_view', values: {} },
@@ -383,11 +378,19 @@ fs.writeFileSync(path.join(__dirname, 'out/email-previews.json'), JSON.stringify
   const again = r.post(f);
   const other = r.post(fin(b.resultToken, b.submissionId, 'pattern_break', 'self_work', 'some_support'));
   const cached = r.ctx.CacheService.getScriptCache().get('v4fin:' + b.resultToken);
-  check('G16', 'Choice', 'After her choice email is sent the token is marked in the script cache; repeating the same choice returns idempotent, a different choice is still refused, and only one email is sent', first.ok && cached === 'reality_reset' && again.ok && again.idempotent === true && other.code === 'EMAIL_ALREADY_SENT' && r.mail.sent.length === 1, JSON.stringify({ cached, again: again.status, other: other.code, mails: r.mail.sent.length }));
+  check('G16', 'Choice', 'After her choice email is sent the token is marked in the script cache; repeating the same choice returns idempotent, a different choice is still refused; two emails in total (results + choice)', first.ok && cached === 'reality_reset' && again.ok && again.idempotent === true && other.code === 'EMAIL_ALREADY_SENT' && r.mail.sent.length === 2, JSON.stringify({ cached, again: again.status, other: other.code, mails: r.mail.sent.length }));
   const b2 = body([5, 5, 5, 5]); r.post(b2);
   const before = r.mail.sent.length;
   const ff = r.post(fin(b2.resultToken, b2.submissionId, 'self_guided', 'self_work', 'independent'));
   check('G17', 'Choice', 'A first choice (nothing cached) takes the locked path and is saved and emailed once', ff.ok && ff.status === 'finalized' && r.mail.sent.length === before + 1, JSON.stringify({ st: ff.status, mails: r.mail.sent.length - before }));
+}
+
+{
+  const r = rt();
+  const ev = ['assessment_capture_submit_click', 'assessment_capture_validation_error', 'assessment_capture_submit_error', 'assessment_capture_leave_during_save'];
+  const res = r.post({ action: 'recordJourneyEvents', journeyId: 'YMSV4-J-SYN-cap', submissionId: 'YMSV4-S-SYN-cap', page: 'assessment', events: ev.map(e => ({ eventType: e, values: { step: e === 'assessment_capture_validation_error' ? 'invalid_email' : '' } })) });
+  const log = r.sheet('V4 Journey Events').rows.slice(1).filter(x => x[4] === 'YMSV4-S-SYN-cap');
+  check('E1', 'Analytics', 'The four email-screen events are accepted before a submission exists (logged as pre-submission, not UNKNOWN_EVENT), with only a fixed reason code', log.length === 4 && log.every(x => /PRE_SUBMISSION/.test(x[3])) && log[1][8] === 'invalid_email', JSON.stringify(log.map(x => [x[1], x[3], x[8]])));
 }
 
 fs.writeFileSync(path.join(__dirname, 'out/backend-results.json'), JSON.stringify(results, null, 1));

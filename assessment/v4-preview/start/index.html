@@ -66,28 +66,40 @@ try{
   throw new Error('V4 saved-result verification has not completed');
  })();
  const data=await Promise.any([posted,polled]);
+ // r8: her results email is sent by the save itself. If that send was recorded as failed, ask once more (twice at most).
+ posted.then(d=>{if(d&&d.resultEmailProvider==='failed')v4RetryResultEmail(token,0)}).catch(()=>{});
  if(!(data&&data.ok===true&&data.resultToken===token))throw new Error('V4 save was not verified');
  sessionStorage.setItem('yms_v4_preview_last_submission',JSON.stringify({submissionId:sid,journeyId:payload.journeyId,resultToken:data.resultToken||'',confirmed:true}));tagClarity(sid,payload.journeyId);sessionStorage.setItem('yms_v4_preview_result_state',JSON.stringify({answers:a,lead:lead,submitted:true}));let pending=[];try{pending=JSON.parse(localStorage.getItem('yms_v4_preview_pending_submissions')||'[]')}catch(e){}if(Array.isArray(pending)){pending=pending.filter(x=>x&&x.payload&&x.payload.submissionId!==sid);if(pending.length)localStorage.setItem('yms_v4_preview_pending_submissions',JSON.stringify(pending.slice(-3)));else localStorage.removeItem('yms_v4_preview_pending_submissions')}return payload}catch(err){let pending=[];try{pending=JSON.parse(localStorage.getItem('yms_v4_preview_pending_submissions')||'[]')}catch(e){}if(!Array.isArray(pending))pending=[];pending=pending.filter(x=>x&&x.payload&&x.payload.submissionId!==sid);pending.push({payload:payload,attempts:0,createdAt:Date.now()});localStorage.setItem('yms_v4_preview_pending_submissions',JSON.stringify(pending.slice(-3)));throw err}finally{v4SubmissionInFlight=false;v4CriticalHold=false;scheduleV4Flush()}}
+async function v4RetryResultEmail(token,attempt){
+ await new Promise(r=>setTimeout(r,attempt?20000:4000));
+ try{const resp=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'retryResultEmail',resultToken:token}),keepalive:true});
+  const d=await resp.json();if(d&&d.ok===true&&d.resultEmailSent===false&&d.status==='retried'&&attempt<1)v4RetryResultEmail(token,attempt+1)}catch(e){}
+}
 async function retryPendingV3(){if(!V3_BACKEND)return;let pending=[];try{pending=JSON.parse(localStorage.getItem('yms_v4_preview_pending_submissions')||'[]')}catch(e){return}if(!Array.isArray(pending)||!pending.length)return;let keep=[];for(const item of pending){if(!item||!item.payload||!item.payload.submissionId)continue;if((item.attempts||0)>=3)continue;try{let r=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(item.payload),keepalive:true});if(!r.ok)throw new Error('retry failed');let data=await r.json();if(data&&(data.ok===true||data.status==='ok'||data.status==='duplicate'))continue;throw new Error('retry unconfirmed')}catch(e){keep.push(Object.assign({},item,{attempts:(item.attempts||0)+1}))}}if(keep.length)localStorage.setItem('yms_v4_preview_pending_submissions',JSON.stringify(keep.slice(-3)));else localStorage.removeItem('yms_v4_preview_pending_submissions')}
 retryPendingV3();
 
 function showCapture(){
- v4CriticalHold=true;
+ // r8: everything she did up to the email screen is sent now (so an exit here is visible), then tracking waits for her save.
+ v4CriticalHold=true;if(v4PendingEvents.length){v4ForceNext=true;flushV4Events(true)}
  postJourneyEvent('assessment_email_capture_view');track('assessment_step_view',{step_id:'email_capture'});
  document.getElementById('count').textContent='YOUR RESULT IS READY';
  document.getElementById('fill').style.width='100%';
- document.getElementById('form').innerHTML=`<section class="step active capture"><div class="eyebrow">Your Mind Story</div><h1>Done. Your Result Is Ready.</h1><p>Enter your first name and email so I can prepare your personalised result. I’ll email your final recommendation after you choose your next step.</p><div class="field"><label for="fn">First name</label><input id="fn" autocomplete="given-name" maxlength="80"></div><div class="field"><label for="em">Email address</label><input id="em" type="email" autocomplete="email" maxlength="160"></div><div class="field"><label>What would you like me to send you?</label><div class="options" role="group" aria-label="Email consent"><button type="button" class="opt consent-opt" data-consent="yes"><strong>My result + keep helping me</strong><p>Send me my result plus Your Mind Story emails with support, tools and updates. I can unsubscribe at any time.</p></button><button type="button" class="opt consent-opt" data-consent="no"><strong>Just my result, please</strong><p>Send me my assessment result only.</p></button></div></div><p class="privacy">Your result is available whether or not you consent to marketing. Your responses stay private and are not sent to GA4 or Clarity. <a href="/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</p><p id="caperr" class="error" role="alert"></p><div class="actions"><button type="button" class="back" id="capback">Back</button><button type="button" class="next" id="capgo">SEND ME MY RESULT</button></div></section>`;
+ document.getElementById('form').innerHTML=`<section class="step active capture"><div class="eyebrow">Your Mind Story</div><h1>Done. Your Result Is Ready.</h1><p>Enter your first name and email so I can prepare your personalised result. I’ll send your personalised results to your inbox. You can also explore your recommended next steps here.</p><div class="field"><label for="fn">First name</label><input id="fn" autocomplete="given-name" maxlength="80"></div><div class="field"><label for="em">Email address</label><input id="em" type="email" autocomplete="email" maxlength="160"></div><div class="field"><label>What would you like me to send you?</label><div class="options" role="group" aria-label="Email consent"><button type="button" class="opt consent-opt" data-consent="yes"><strong>My result + keep helping me</strong><p>Send me my results and any other information that can help me. I can unsubscribe at any time.</p></button><button type="button" class="opt consent-opt" data-consent="no"><strong>Just my result, please</strong><p>Send me my assessment result only.</p></button></div></div><p class="privacy">Your result is available whether or not you consent to marketing. Your responses stay private and are not sent to GA4 or Clarity. <a href="/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.</p><p id="caperr" class="error" role="alert"></p><div class="actions"><button type="button" class="back" id="capback">Back</button><button type="button" class="next" id="capgo">SEND ME MY RESULT</button></div></section>`;
  let consent=null;
  document.querySelectorAll('.consent-opt').forEach(b=>b.onclick=()=>{consent=b.dataset.consent==='yes';document.querySelectorAll('.consent-opt').forEach(x=>x.classList.toggle('sel',x===b));});
  document.getElementById('capback').onclick=()=>{i=14;render()};
  document.getElementById('capgo').onclick=async()=>{
   const fn=document.getElementById('fn').value.trim(),em=document.getElementById('em').value.trim(),err=document.getElementById('caperr'),btn=document.getElementById('capgo');
+  // r8: email-screen tracking. Fixed reason codes only: never her name, email or anything she typed.
+  postJourneyEvent('assessment_capture_submit_click');
+  const reason=!fn?'missing_name':!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)?(em?'invalid_email':'missing_email'):consent===null?'no_email_option':'';
+  if(reason){v4SendEventNow('assessment_capture_validation_error',{step:reason})}
   if(!fn){err.textContent='Please enter your first name.';return}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){err.textContent='Please enter a valid email.';return}
   if(consent===null){err.textContent='Please choose one of the two email options.';return}
   err.textContent='';lead={firstName:fn,email:em,marketingConsent:consent};
   btn.disabled=true;btn.textContent='SAVING YOUR ANSWERS...';
-  try{await submitV3();showResult()}catch(e){btn.disabled=false;btn.textContent='SEND ME MY RESULT';err.textContent='Your answers could not be saved. Please try again.'}
+  try{await submitV3();showResult()}catch(e){const m=String((e&&e.message)||'');const code=!navigator.onLine?'offline':/Save failed: (\d+)/.test(m)?'http_'+m.match(/Save failed: (\d+)/)[1]:/verif/i.test(m)?'not_verified':'save_failed';v4SendEventNow('assessment_capture_submit_error',{step:code});btn.disabled=false;btn.textContent='SEND ME MY RESULT';err.textContent='Your answers could not be saved. Please try again.'}
  };
 }
 function showV4Intro(){
@@ -109,7 +121,7 @@ function ymsTouch(){let up=new URLSearchParams(location.search),g=k=>up.get(k)||
 // Sent regardless of analytics-cookie choice; carries only assessment IDs and the step reached. GA4/Clarity stay consent-gated.
 function consentState(){try{let v=localStorage.getItem('yms_analytics_consent');return v==='yes'?'yes':v==='no'?'no':'unset'}catch(e){return 'unset'}}
 // Send first-party journey events in serial batches so tracking never overwhelms assessment saves.
-let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false,v4FinalizeInFlight=false,v4Leaving=false,v4CriticalHold=false;
+let v4PendingEvents=[],v4EventTimer=null,v4EventSending=false,v4SubmissionInFlight=false,v4ResultAwaitingChoice=false,v4FinalizeInFlight=false,v4Leaving=false,v4CriticalHold=false,v4ForceNext=false;
 // r7 (3 Nov 2026, live-funnel repair): events used to wait up to 60 s, were held for the whole results stage and
 // only 10 were sent when the page was hidden, so most results-stage events were lost. Now: sent within ~1.5 s,
 // paused only while her assessment or her final choice is being saved, and everything left is sent with
@@ -130,17 +142,17 @@ function v4EventPayload(batch){
    analyticsConsent:consentState(),page:'results',isTest:ymsIsTest(),experimentVersion:'V4-november-september-flow',
    landingVariant:lv,touch:ymsTouch(),events:batch.map(e=>({eventType:e[0],values:e[1],clientTime:e[2]||new Date().toISOString()}))};
 }
-async function flushV4Events(){
+async function flushV4Events(force){
  if(!V3_BACKEND||v4EventSending||!v4PendingEvents.length)return;
  // r7.2: tracking waits while she is on the email step or the confirm step, so her save never queues behind it.
- if(v4SubmissionInFlight||v4FinalizeInFlight||v4CriticalHold){scheduleV4Flush(1500);return}
+ if(v4SubmissionInFlight||v4FinalizeInFlight||(v4CriticalHold&&!force&&!v4ForceNext)){scheduleV4Flush(1500);return}
  v4EventSending=true;
  const batch=v4PendingEvents.splice(0,10);
  try{
   const r=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(v4EventPayload(batch)),keepalive:true});
   if(!r.ok)throw new Error('HTTP '+r.status);
  }catch(err){console.warn('V4 event batch could not be confirmed',err);/* r7.1: when the page is leaving, an in-flight keepalive request still reaches the server; re-sending it duplicated events */if(!v4Leaving&&document.visibilityState!=='hidden'&&batch.length&&!batch[0][3]){batch.forEach(e=>e[3]=1);v4PendingEvents.unshift(...batch)}}
- finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(600)}
+ finally{v4EventSending=false;if(v4PendingEvents.length)scheduleV4Flush(600);else v4ForceNext=false}
 }
 // Page hidden or closing (app switch, tab close, link to the sales page): send everything that is left.
 function beaconV4Events(){
@@ -154,10 +166,14 @@ function beaconV4Events(){
  }
 }
 function postJourneyEvent(eventType,values={}){postJourneyEvents([[eventType,values]])}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){if(v4PendingEvents.length)beaconV4Events()}else v4Leaving=false});
+// r8: a few events must not wait (she may leave right after): sent at once, unless her save is already in flight.
+function v4SendEventNow(eventType,values={}){v4PendingEvents.push([eventType,values,new Date().toISOString()]);v4ForceNext=true;if(v4SubmissionInFlight||v4FinalizeInFlight){scheduleV4Flush();return}flushV4Events(true)}
+let v4LeaveLogged=false;
+function v4NoteLeaveDuringSave(){if(v4SubmissionInFlight&&!v4LeaveLogged){v4LeaveLogged=true;v4PendingEvents.push(['assessment_capture_leave_during_save',{},new Date().toISOString()])}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){v4NoteLeaveDuringSave();if(v4PendingEvents.length)beaconV4Events()}else v4Leaving=false});
 window.addEventListener('pageshow',()=>{v4Leaving=false});
 window.addEventListener('beforeunload',()=>{v4Leaving=true});
-window.addEventListener('pagehide',()=>{if(v4PendingEvents.length)beaconV4Events()});
+window.addEventListener('pagehide',()=>{v4NoteLeaveDuringSave();if(v4PendingEvents.length)beaconV4Events()});
 
 
 function loadAnalytics(){if(!analyticsAllowed()||window.YMSQuiz||document.querySelector('script[src*="/assets/yms-quiz-shared.js"]'))return;let s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;s.onload=()=>{try{YMSQuiz.captureAttribution()}catch(e){}};document.head.appendChild(s)}
@@ -175,6 +191,9 @@ function v4ShowTakenStep(overlay,link,handoff,msg){const price=link.dataset.recP
 // r7: Stan only sees where a visitor came from through UTM tags. IDs only, never personal data.
 function v4WithUtm(url){try{const u=new URL(url);if(!/stan\.store$/.test(u.hostname)||u.searchParams.has('utm_source'))return url;u.searchParams.set('utm_source','yms_assessment');u.searchParams.set('utm_medium','website');u.searchParams.set('utm_campaign','v4_results');return u.toString()}catch(e){return url}}
 function v4Overlay(label){const previous=document.getElementById('v4Decision');if(previous)previous.remove();const overlay=document.createElement('div');overlay.id='v4Decision';overlay.style.cssText='position:fixed;z-index:9999;inset:0;overflow:auto;background:rgba(15,28,24,.87);padding:20px';overlay.innerHTML=`<div role="dialog" aria-modal="true" aria-label="${label}" style="max-width:620px;margin:25px auto;background:white;padding:25px;color:#111827;border-radius:5px"></div>`;overlay.addEventListener('keydown',e=>{if(e.key==='Escape'){v4CriticalHold=false;overlay.remove()}});document.body.append(overlay);return overlay}
+// r8 wording (owner, 3 Nov 2026). The "sent" line is shown only when the sending system confirmed delivery.
+const V4_SENT_CHOICE_MSG='I’ve sent the details of your chosen support to your inbox. You can continue to checkout now.';
+const V4_CONTINUE_MSG='You can continue to checkout now.';
 async function v4OfferDecision(link,handoff){
  let r={};try{r=JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}')}catch(e){}
  if(!r.resultToken){alert('We could not find your saved result. Please refresh and contact us if this continues.');return}
@@ -211,12 +230,12 @@ async function v4OfferDecision(link,handoff){
    for(let attempt=0;attempt<6;attempt++){
     const resp=await fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     data=await resp.json();
-    if(data.ok&&data.status==='finalized'&&(data.resultEmailSent||data.resultEmailSuppressed))break;
+    if(data.ok&&data.status==='finalized'&&(data.choiceEmailRequired!==undefined||data.resultEmailSent||data.resultEmailSuppressed))break;
     if(data.code==='EMAIL_ALREADY_SENT'){
      // Her email already went out for an earlier saved choice: show that choice, never a contradictory one.
      const savedPrice=V4_OPTION_PRICE[data.savedFinalOfferOption];
      const savedLink=savedPrice?document.querySelector('#result a[data-rec-price="'+savedPrice+'"]'):document.querySelector('#result .rec-offer a[data-rec-product]');
-     if(savedLink){v4ShowTakenStep(overlay,savedLink,handoff,'You already chose <strong>'+v4Esc(data.savedFinalOffer||savedLink.dataset.recProduct)+'</strong> and your result email has been sent. Check your inbox.');return}
+     if(savedLink){v4ShowTakenStep(overlay,savedLink,handoff,'You already chose <strong>'+v4Esc(data.savedFinalOffer||savedLink.dataset.recProduct)+'</strong>. '+V4_SENT_CHOICE_MSG);return}
      throw Error(data.message||'Your choice is already saved.');
     }
     if(data.code!=='BUSY'&&data.code!=='SERVER_ERROR'&&data.code!=='SEND_IN_PROGRESS')throw Error(data.message||'Your choice could not be saved. Please try again.');
@@ -224,10 +243,13 @@ async function v4OfferDecision(link,handoff){
     if(attempt===5)throw Error('The server is still busy. Please try your choice again.');
     await new Promise(resolve=>setTimeout(resolve,1800+attempt*800));
    }
-   if(!data||!data.ok||data.status!=='finalized'||!(data.resultEmailSent||data.resultEmailSuppressed))throw Error('Your final choice and matching email could not both be verified. Please try again or contact support.');
+   // r8: her choice is saved; checkout never waits for the email. Say it was sent ONLY when MailApp confirmed it.
+   const r8=data&&data.choiceEmailRequired!==undefined;
+   if(!data||!data.ok||data.status!=='finalized'||(!r8&&!(data.resultEmailSent||data.resultEmailSuppressed)))throw Error('Your choice could not be confirmed. Please try again or contact support.');
+   const sentConfirmed=r8?data.choiceEmailSent===true:data.resultEmailSent===true;
    try{sessionStorage.setItem('yms_v4_preview_final_choice',JSON.stringify({resultToken:r.resultToken,option:option}))}catch(e){}
    v4ResultAwaitingChoice=false; scheduleV4Flush(1400); // After choice is safely saved, flush buffered events.
-   v4ShowTakenStep(overlay,link,handoff,'Your personalised result email has been submitted for delivery. Check your inbox.');
+   v4ShowTakenStep(overlay,link,handoff,sentConfirmed?V4_SENT_CHOICE_MSG:V4_CONTINUE_MSG);
   }catch(err){overlay.querySelector('#v4DecError').textContent=String(err.message||err);button.disabled=false;button.textContent='TRY AGAIN';postJourneyEvent('offer_confirm_error',{step:option})}
   finally{v4FinalizeInFlight=false;v4CriticalHold=false;scheduleV4Flush(800)}
  }
@@ -533,10 +555,11 @@ async function v4RestoreFromToken(token){
   sessionStorage.setItem('yms_v4_preview_last_submission',JSON.stringify({submissionId:'',journeyId:journeyId(),resultToken:token,confirmed:true,restored:true}));
   if(dec.question1OptionId){const gs={self_work:'I want help understanding myself, breaking the cycle and getting my mind back.',understand_him:'I mainly want to understand him and what his behaviour means.',change_him:'I mainly want help getting him back or changing his behaviour.',unsure:"I'm not sure yet."},ss={independent:"I'm happy to work independently",additional:'I want additional support',some_support:'I think some support would help me with this',recommend:"I'm not sure where to start. I'd like you to recommend what would help me most."};sessionStorage.setItem('yms_v4_preview_post_result_choice',JSON.stringify({goal:dec.question1OptionId,goalAnswer:gs[dec.question1OptionId]||'',support:dec.question2OptionId||'',supportAnswer:ss[dec.question2OptionId]||'',resultToken:token}))}
   showResult();
-  if(dec.saved&&(dec.resultEmailSent||dec.resultEmailSuppressed)){
+  const r8=dec.emailFlow==='immediate';
+  if(dec.saved&&(r8?(dec.choiceEmailSent||dec.choiceEmailSuppressed||!dec.choiceEmailRequired):(dec.resultEmailSent||dec.resultEmailSuppressed))){
    const price=V4_OPTION_PRICE[dec.finalOfferOption];
    const link=price?document.querySelector('#result a[data-rec-price="'+price+'"]'):document.querySelector('#result a[data-rec-product]');
-   if(link){const panels=document.querySelectorAll('.result-panel');panels.forEach((p,j)=>p.classList.toggle('active',j===panels.length-1));const ov=v4Overlay('Your saved choice');v4ShowTakenStep(ov,link,recommendationHandoffGlobal,'You chose <strong>'+v4Esc(dec.finalOffer||link.dataset.recProduct)+'</strong>. Your result email has been sent.')}
+   if(link){const panels=document.querySelectorAll('.result-panel');panels.forEach((p,j)=>p.classList.toggle('active',j===panels.length-1));const ov=v4Overlay('Your saved choice');v4ShowTakenStep(ov,link,recommendationHandoffGlobal,'You chose <strong>'+v4Esc(dec.finalOffer||link.dataset.recProduct)+'</strong>. '+(r8?(dec.choiceEmailSent?V4_SENT_CHOICE_MSG:V4_CONTINUE_MSG):'Your result email has been sent.'))}
   }
  }catch(err){const m=document.getElementById('v4RestoreMsg');if(m)m.textContent=String(err.message||err)}
 }
