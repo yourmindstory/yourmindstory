@@ -44,7 +44,7 @@ function setupBuyerStep(f,p,btn){
   second.innerHTML='<p class="checkin-step">STEP 2 OF 2</p>'+
    '<h2 class="research-heading">Help me understand why you made this decision</h2>'+
    '<p class="research-intro">These questions help me understand how I can better support people going through what you’re going through.</p>'+
-   '<div class="field"><label class="label" for="purchase_moment">What was happening when you decided it was time to buy these Cognitive Behavioural Hypnotherapy audio sessions?</label><textarea class="textarea" id="purchase_moment" name="purchase_moment" maxlength="2000"></textarea></div>'+
+   '<div class="field"><label class="label" for="purchase_moment">What was happening when you decided it was time to invest in these Cognitive Behavioural Hypnotherapy audio sessions?</label><textarea class="textarea" id="purchase_moment" name="purchase_moment" maxlength="2000"></textarea></div>'+
    '<div class="field"><label class="label" for="choice_reason">What made you choose these Cognitive Behavioural Hypnotherapy audio sessions instead of another option or continuing with what you were already doing?</label><textarea class="textarea" id="choice_reason" name="choice_reason" maxlength="2000"></textarea></div>'+
    '<div class="field"><label class="label" for="purchase_hesitation">Was there anything that nearly stopped you buying? If so, what was it?</label><textarea class="textarea" id="purchase_hesitation" name="purchase_hesitation" maxlength="2000"></textarea></div>'+
    '<button class="back-button" type="button" id="research-back">BACK TO MY STARTING POINT</button>';
