@@ -15,6 +15,25 @@
   function track(name,params){if(read(analyticsKey)!=='yes')return;if(window.YMSQuiz&&window.YMSQuiz.track)window.YMSQuiz.track(name,params||{});else{queue(name,params);loadAnalytics()}}
   window.YMSTracking=window.YMSTracking||{};
   window.YMSTracking.track=track;
+  // First-party attribution (repair 2026-11-07). Keeps, for this browser tab only (sessionStorage), the campaign
+  // link (UTMs), the first outside site that referred her and the first page she landed on, so her assessment
+  // record shows where she came from even if she never answers the cookie banner. Read only by Your Mind Story's
+  // own assessment page; never sent to Google, Clarity or Meta. Choosing "Reject" clears it and stops it.
+  var ATTR_PREFIX='yms_v4_preview_',ATTR_KEYS=['utm_source','utm_medium','utm_campaign','utm_id','utm_term','utm_content'];
+  function ssGet(k){try{return sessionStorage.getItem(k)}catch(e){return null}}
+  function ssSet(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}
+  function clearFirstPartyAttribution(){try{ATTR_KEYS.concat(['landing_url','referrer']).forEach(function(k){sessionStorage.removeItem(ATTR_PREFIX+k)})}catch(e){}}
+  function captureFirstPartyAttribution(){
+    if(read(analyticsKey)==='no')return;
+    try{
+      var p=new URLSearchParams(location.search),ref=document.referrer||'',external=false;
+      try{external=!!ref&&new URL(ref).hostname.replace(/^www\./,'')!==location.hostname.replace(/^www\./,'')}catch(e){}
+      if(!ssGet(ATTR_PREFIX+'landing_url')){ssSet(ATTR_PREFIX+'landing_url',location.href);ssSet(ATTR_PREFIX+'referrer',external?ref:'')}
+      else if(external&&!ssGet(ATTR_PREFIX+'referrer'))ssSet(ATTR_PREFIX+'referrer',ref);
+      if(ATTR_KEYS.some(function(k){return p.get(k)}))ATTR_KEYS.forEach(function(k){ssSet(ATTR_PREFIX+k,p.get(k)||'')});
+    }catch(e){}
+  }
+  captureFirstPartyAttribution();
   function loadAnalytics(){
     if(read(analyticsKey)!=='yes')return;
     if(window.YMSQuiz){try{if(window.YMSQuiz.enableAnalytics)window.YMSQuiz.enableAnalytics();if(window.YMSQuiz.captureAttribution)window.YMSQuiz.captureAttribution()}catch(e){};flush();return}
@@ -60,6 +79,7 @@
     params.transport_type='beacon';if(read(analyticsKey)==='yes'&&!a.hasAttribute('data-rec-product'))track('offer_cta_click',params);
     var attr=window.YMSQuiz&&window.YMSQuiz.getAttribution?window.YMSQuiz.getAttribution():null;
     if(!attr){try{attr={};['utm_source','utm_medium','utm_campaign','utm_id','utm_term','utm_content'].forEach(function(k){attr[k]=sessionStorage.getItem('yms_quiz_'+k)||''})}catch(e){}}
+    if(attr&&!attr.utm_source&&read(analyticsKey)!=='no'){try{ATTR_KEYS.forEach(function(k){if(!attr[k])attr[k]=ssGet(ATTR_PREFIX+k)||''})}catch(e){}}
     if(attr){
       ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'].forEach(function(k){if(attr[k]&&!url.searchParams.has(k))url.searchParams.set(k,attr[k])});
       a.href=url.toString();
@@ -74,7 +94,7 @@
       var c=button.getAttribute('data-choice');
       if(c==='settings'){var more=banner.querySelector('.yms-consent-more');if(more)more.hidden=!more.hidden;return}
       var oldA=read(analyticsKey),oldD=read(adsKey);write(analyticsKey,c==='reject'?'no':'yes');write(adsKey,c==='all'?'yes':'no');window.__ymsPendingEvents=[];window.dataLayer=(window.dataLayer||[]).filter(function(x){return !x||x[0]!=='event'});
-      if(c==='reject'||(c==='analytics'&&oldD==='yes'))clearFirstPartyTrackingCookies();
+      if(c==='reject'||(c==='analytics'&&oldD==='yes'))clearFirstPartyTrackingCookies();if(c==='reject')clearFirstPartyAttribution();
       banner.hidden=true;
       if(oldA!==null&&(oldA!==(c==='reject'?'no':'yes')||oldD!==(c==='all'?'yes':'no'))){location.reload();return}
       if(c!=='reject'){document.dispatchEvent(new Event('ymsConsentAnalyticsGranted'));loadAnalytics();setTimeout(function(){track('tracking_consent_updated',{analytics_consent:'yes',advertising_consent:c==='all'?'yes':'no'})},0)}

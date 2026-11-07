@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { createRuntime } = require('./gas-mock');
 const REPO = '/home/claude/yourmindstory';
-const SRC = path.join(REPO, 'phase3/dev/YMS_V4_FINAL_CHOICE_DEV_CANDIDATE.gs');
+const SRC = process.env.YMS_GS || path.join(REPO, 'phase3/dev/YMS_V4_FINAL_CHOICE_DEV_CANDIDATE.gs');
 const TYPES = { '.mp4': 'video/mp4', '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
 
 function start(port, opts = {}) {
