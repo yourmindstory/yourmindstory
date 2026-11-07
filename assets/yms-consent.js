@@ -34,6 +34,32 @@
     }catch(e){}
   }
   captureFirstPartyAttribution();
+  // Cookie-free visit count (repair 2026-11-07). One line per page per browser tab in the V4 sheet's
+  // "V4 Journey Events" tab: Event = assessment_entry_page_view, Step = page, Entry = where she came from.
+  // Uses its own visit ID (YMSV4-V-...) so it can never match or change an assessment row. No name, email
+  // or answers. Not sent to Google, Clarity or Meta. Skipped after "Reject" and on the assessment/result pages.
+  function recordFirstPartyVisit(){
+    try{
+      if(read(analyticsKey)==='no')return;
+      var path=location.pathname;
+      if(/^\/(assessment\/(start|v3|v4-preview|result|choice)|preview)(\/|$)/.test(path))return;
+      var seenKey='yms_visit_logged_'+path;if(ssGet(seenKey))return;ssSet(seenKey,'1');
+      var vid=ssGet('yms_visit_id');if(!vid){vid='YMSV4-V-'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));ssSet('yms_visit_id',vid)}
+      var p=new URLSearchParams(location.search),test=false;
+      try{if(p.get('yms_test')==='1')localStorage.setItem('yms_test','1');if(p.get('yms_test')==='0')localStorage.removeItem('yms_test');test=localStorage.getItem('yms_test')==='1'}catch(e){}
+      var ref=ssGet(ATTR_PREFIX+'referrer')||'',src=ssGet(ATTR_PREFIX+'utm_source')||'';
+      if(!src&&ref){try{src=new URL(ref).hostname.replace(/^(www|m|l|lm)\./,'')}catch(e){}}
+      if(!src&&p.get('yms_ref'))src=p.get('yms_ref');
+      var touch={landingUrl:ssGet(ATTR_PREFIX+'landing_url')||location.href,referrer:ref,userAgent:navigator.userAgent};
+      ATTR_KEYS.forEach(function(k){touch[k]=ssGet(ATTR_PREFIX+k)||''});
+      var body=JSON.stringify({action:'recordJourneyEvents',submissionId:'',journeyId:vid,resultToken:'',analyticsConsent:read(analyticsKey)==='yes'?'yes':'unset',page:'visit',isTest:test,touch:touch,
+        events:[{eventType:'assessment_entry_page_view',values:{step:path.slice(0,80),entry:((test?'TEST ':'')+(src||'direct')).slice(0,60)},clientTime:new Date().toISOString()}]});
+      var url=window.__YMS_V4_BACKEND||'https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec';
+      var sent=false;try{sent=!!(navigator.sendBeacon&&navigator.sendBeacon(url,new Blob([body],{type:'text/plain;charset=utf-8'})))}catch(e){}
+      if(!sent){try{fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body,keepalive:true}).catch(function(){})}catch(e){}}
+    }catch(e){}
+  }
+  recordFirstPartyVisit();
   function loadAnalytics(){
     if(read(analyticsKey)!=='yes')return;
     if(window.YMSQuiz){try{if(window.YMSQuiz.enableAnalytics)window.YMSQuiz.enableAnalytics();if(window.YMSQuiz.captureAttribution)window.YMSQuiz.captureAttribution()}catch(e){};flush();return}

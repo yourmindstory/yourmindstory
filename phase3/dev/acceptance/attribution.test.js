@@ -75,6 +75,28 @@ function check(id, desc, cond, ev) { results.push(!!cond); console.log((cond ? '
   check('D1', 'Clicking Reject clears the kept campaign/referral details', before === 'instagram' && after === 0, JSON.stringify({ before, after }));
   await ctx.close();
 
+  // E: cookie-free visit count on entry pages
+  {
+    const ctx = await browser.createBrowserContext(); const page = await ctx.newPage();
+    await page.setRequestInterception(true); page.on('request', r => r.url().startsWith(base) ? r.continue() : r.abort());
+    await page.evaluateOnNewDocument(b => { window.__YMS_V4_BACKEND = b; try { if (location.pathname === '/' && !sessionStorage.getItem('__ref')) { sessionStorage.setItem('__ref', '1'); Object.defineProperty(document, 'referrer', { get: () => 'https://lm.facebook.com/' }); } } catch (e) {} }, base + '/exec');
+    const n0 = srv.state.requests.length;
+    await page.goto(base + '/', { waitUntil: 'domcontentloaded' }); await sleep(800);
+    await page.reload({ waitUntil: 'domcontentloaded' }); await sleep(800);
+    await page.goto(base + '/assessment/', { waitUntil: 'domcontentloaded' }); await sleep(800);
+    await page.goto(base + '/assessment/start/', { waitUntil: 'domcontentloaded' }); await sleep(2500);
+    const visits = srv.state.requests.slice(n0).map(r => { try { return JSON.parse(r.body) } catch (e) { return null } }).filter(b => b && b.page === 'visit');
+    const paths = visits.map(v => v.events[0].values.step + ':' + v.events[0].values.entry);
+    check('E1', 'Homepage and quiz page each log one cookie-free visit (reload not double-counted), source = facebook, own visit ID, no assessment ID', paths.join(',') === '/:facebook.com,/assessment/:facebook.com' && visits.every(v => /^YMSV4-V-/.test(v.journeyId) && !v.submissionId && !v.resultToken), paths.join(',') + ' ' + visits.map(v => v.journeyId).join(','));
+    check('E2', 'Assessment start page is not double-logged by the visit counter (it has its own events)', !paths.some(p => /start/.test(p)), paths.join(','));
+    await page.click('#yms-consent-banner button[data-choice="reject"]').catch(() => {}); await sleep(200);
+    const n1 = srv.state.requests.length;
+    await page.goto(base + '/about.html', { waitUntil: 'domcontentloaded' }); await page.goto(base + '/privacy.html', { waitUntil: 'domcontentloaded' }); await sleep(800);
+    const after = srv.state.requests.slice(n1).filter(r => /"page":"visit"/.test(r.body)).length;
+    check('E3', 'After Reject, no visits are logged', after === 0, after);
+    await ctx.close();
+  }
+
   await browser.close(); srv.server.close();
   console.log(`\n${results.filter(Boolean).length}/${results.length} passed`);
   process.exit(results.every(Boolean) ? 0 : 1);
