@@ -111,7 +111,7 @@ function showV4Intro(){
 
 function track(n,p={}){try{if(localStorage.getItem('yms_analytics_consent')!=='yes')return;let q=Object.assign({assessment_version:'YMS-ASSESSMENT-2026-V4'},p||{});if(window.YMSQuiz&&window.YMSQuiz.track)window.YMSQuiz.track(n,q);else{window.__ymsPendingEvents=window.__ymsPendingEvents||[];window.__ymsPendingEvents.push({name:n,params:q})}}catch(e){}}
 function analyticsAllowed(){return localStorage.getItem('yms_analytics_consent')==='yes'}
-function loadAnalytics(){if(!analyticsAllowed()||window.YMSQuiz||document.querySelector('script[src*="/assets/yms-quiz-shared.js"]'))return;let s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;s.onload=()=>{try{YMSQuiz.captureAttribution()}catch(e){};try{track('assessment_start',{source:'v4_quiz_engine'})}catch(e){}};document.head.appendChild(s)}
+function loadAnalytics(){if(!analyticsAllowed()||window.YMSQuiz||document.querySelector('script[src*="/assets/yms-quiz-shared.js"]'))return;let s=document.createElement('script');s.src='/assets/yms-quiz-shared.js';s.async=true;s.onload=()=>{try{YMSQuiz.captureAttribution()}catch(e){}};document.head.appendChild(s)}
 loadAnalytics();
 function journeyIdentity(){let x={};try{x=JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}')}catch(e){}return{submissionId:x.submissionId||submissionId(),journeyId:x.journeyId||journeyId(),resultToken:x.resultToken||''}}
 // Tracking repair 2026-10-22: explicit test flag. Visit any YMS page with ?yms_test=1 to mark this browser as a test browser (?yms_test=0 clears it).
