@@ -358,7 +358,7 @@ function v4BareMinimumCard(nameSuffix){
 // Recommendation screen for the Complete route. options: ordered list, first = primary.
 function v4CompleteRecommendation(options,ctx){
  const primary=options[0];
- if(primary==='bootcamp')return v4CompleteCard('bootcamp','primary',ctx)+v4VideoBlock('bootcamp')+'<div class="v4-evidence">'+ctx.evidence+ctx.kimberly+'</div>'+v4CompleteCard('self_guided','private',ctx);
+ if(primary==='bootcamp')return v4CompleteCard('bootcamp','primary',ctx)+v4VideoBlock('bootcamp')+'<div class="v4-evidence">'+ctx.guarantee+ctx.evidence+ctx.kimberly+'</div>'+v4CompleteCard('self_guided','private',ctx);
  return v4CompleteCard(primary,'primary',ctx)+v4VideoBlock(primary)+'<div class="v4-evidence">'+ctx.guarantee+ctx.evidence+ctx.kimberly+'</div>'+
   options.slice(1).map(o=>v4CompleteCard(o,'alternative',ctx)).join('');
 }

@@ -99,11 +99,11 @@ async function scenario(id, vp, stages, goal, commit, expect) {
   for (const [id, vp, commit] of [['B1', 'desktop', 'yes'], ['B2', 'mobile', 'think_so']]) {
     const r = await scenario(id, vp, [5, 5, 4, 3], 'self_work', commit, { click: '117' });
     const t = r.st.text;
-    check(id, `[${vp}] total 17, "self_work" + ${commit}: Bootcamp first (locked copy, £497, 29 Nov, checkout switched off), £117 underneath, no £147/£197, no guarantee under the Bootcamp`,
+    check(id, `[${vp}] total 17, "self_work" + ${commit}: Bootcamp first (locked copy, £497, 29 Nov, checkout switched off), £117 underneath, no £147/£197, 21-day guarantee shown`,
       JSON.stringify(r.st.offers) === '["bootcamp","self_guided"]' && r.st.bootcampLinks === 0 && r.st.checkoutOff &&
       t.includes('Return to Yourself Bootcamp') && t.includes('£497') && t.includes('Starts Sunday 29 November 2026') && t.includes("You know what you need to do. Now you're ready to follow through.") &&
       t.includes('Five live group sessions with me') && t.includes('Prefer to work privately?') && t.includes('See the self-guided option – £117') &&
-      !/£147|£197|Reality Reset|Pattern Break/.test(t) && !/21-day|money-back/i.test(t) && JSON.stringify(r.st.prices) === '["117"]',
+      !/£147|£197|Reality Reset|Pattern Break/.test(t) && /21-day money-back guarantee/i.test(t) && JSON.stringify(r.st.prices) === '["117"]',
       JSON.stringify({ offers: r.st.offers, prices: r.st.prices, off: r.st.checkoutOff, t: t.slice(0, 300) }));
     check(id + 'c', `[${vp}] Tapping "See the self-guided option – £117" goes straight to Stan (no pop-up), saves the £117 choice with her answers, sends the choice email once, records the clicks`,
       r.clicked && r.clicked.startsWith(STAN[117]) && /utm_source=yms_assessment/.test(r.clicked) && r.row && r.row['V4 Result Email Route'] === 'self_guided' &&
