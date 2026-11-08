@@ -52,7 +52,10 @@ async function toRec(page, goal, commit) {
     const kd = await kind(page);
     if (kd === 'rec') return;
     if (kd === 'q1') await pick(page, 'v4Goal', goal);
-    if (kd === 'q2') await pick(page, 'v4Support', commit);
+    if (kd === 'q2') {
+      if (await page.$('.result-panel.active .v4-choice[data-group="v4Goal"]')) await pick(page, 'v4Goal', goal);
+      if (commit) await pick(page, 'v4Support', commit);
+    }
     await next(page);
   }
 }
@@ -75,6 +78,7 @@ async function scenario(id, vp, stages, goal, commit, expect) {
   const { ctx, page, external, errors } = await newPage(vp, expect.consent || 'no');
   const email = `synthetic+${id.toLowerCase()}@example.invalid`;
   await answerAll(page, stages, email, expect.query || '');
+  const flow = await page.evaluate(() => ({ kinds: [...document.querySelectorAll('.result-panel')].map(p => p.dataset.kind), first: (document.querySelector('.result-panel.active') || {}).innerText || '' }));
   await toRec(page, goal, commit);
   const st = await recState(page);
   await page.screenshot({ path: path.join(OUT, 'shots', `two-${id}-${vp}.png`), fullPage: true });
@@ -89,7 +93,7 @@ async function scenario(id, vp, stages, goal, commit, expect) {
   await sleep(600);
   const row = rowFor(token), emails = emailsFor(email), jl = journeyFor(token);
   await ctx.close();
-  return { st, clicked, row, emails, jl, errors, external, email, overlay: false };
+  return { st, clicked, row, emails, jl, errors, external, email, flow, overlay: false };
 }
 
 (async () => {
@@ -141,6 +145,13 @@ async function scenario(id, vp, stages, goal, commit, expect) {
     const r = await scenario(id, vp, stages, 'self_work', 'yes', { click: price });
     check(id, `[${vp}] ${price === '37' ? 'single stage' : price === '74' ? 'two stages' : 'no stage'} -> £${price}, button goes straight to Stan, no Bootcamp`, r.clicked && r.clicked.startsWith(STAN[price]) && !/Bootcamp/.test(r.st.text) && r.errors.length === 0, JSON.stringify({ clicked: r.clicked, err: r.errors, t: r.st.text.slice(0, 120) }));
   }
+  // F1: September layout - results and both questions on ONE page, one button, then the offer
+  { const r = await scenario('F1', 'mobile', [5, 5, 4, 3], 'self_work', 'yes', {});
+    const f = r.flow.first;
+    check('F1', '[mobile] Total 15+: two screens only (results + both questions with SHOW ME WHERE I’D START, then the offer)',
+      JSON.stringify(r.flow.kinds) === '["q2","rec"]' && /YOUR PERSONALISED RESULTS/.test(f) && /1 OF 2/.test(f) && /Which sounds most like what you want now\?/.test(f) && /2 OF 2/.test(f) && /Can you commit to 12 weeks of support\?/.test(f) && /SHOW ME WHERE I’D START/.test(f) &&
+      JSON.stringify(r.st.offers) === '["bootcamp","self_guided"]',
+      JSON.stringify({ kinds: r.flow.kinds, offers: r.st.offers, f: f.slice(0, 200) })); }
   // C1: "Book a free 15-minute call" opens TidyCal and is recorded
   { const { ctx, page, external, errors } = await newPage('mobile');
     await answerAll(page, [5, 5, 4, 3], 'synthetic+c1@example.invalid'); await toRec(page, 'self_work', 'yes');

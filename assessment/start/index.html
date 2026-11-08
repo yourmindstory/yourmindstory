@@ -374,6 +374,8 @@ function v4OptionButtons(group,map,selected){
  return '<div class="options" role="radiogroup" aria-labelledby="'+group+'Label">'+Object.keys(map).map(k=>'<button type="button" class="opt v4-choice" role="radio" data-group="'+group+'" data-value="'+k+'" aria-checked="'+(selected===k)+'">'+map[k]+'</button>').join('')+'</div>';
 }
 function v4Q1Screen(sel){return '<div class="eyebrow">YOUR NEXT STEP</div><h2 class="q" id="v4GoalLabel">Which sounds most like what you want now?</h2>'+v4OptionButtons('v4Goal',V4_GOALS,sel)+'<p class="error v4-choice-error" role="alert"></p>'}
+// September layout (owner 8 Nov 2026): her results and both questions on ONE page, one button, then the offer.
+function v4CombinedQuestions(goalSel,supportSel){return '<div class="v4-block" style="margin-top:34px"><div class="eyebrow">BEFORE WE LOOK AT YOUR RECOMMENDATION</div><p><strong>Before I recommend the best way for you to work through it, I need to know two things.</strong></p></div><p class="eyebrow" style="margin-top:22px">1 OF 2</p>'+v4Q1Screen(goalSel).replace('<div class="eyebrow">YOUR NEXT STEP</div>','')+'<p class="eyebrow" style="margin-top:30px">2 OF 2</p>'+v4Q2Screen(supportSel)}
 function v4Q2Screen(sel){return '<h2 class="q">One more thing.</h2><p>Changing how you respond to this takes practice, so we work on it over 12 weeks, with support along the way.</p><p>Your main job is to press play each day and complete a short weekly check-in.</p><p class="v4-ask" id="v4SupportLabel"><strong>Can you commit to 12 weeks of support?</strong></p>'+v4OptionButtons('v4Support',V4_SUPPORTS,sel)+'<p class="error v4-choice-error" role="alert"></p>'}
 
 function showResult(){
@@ -500,11 +502,11 @@ if(qual.length===0){
  v4Spec.push({kind:'rec',html:'<div class="eyebrow">'+namedHeading+'</div>'+recognition+'<div class="rec rec-offer">'+recommendation+route+cta+'</div>'});
 }else if(isComplete){
  needsPostResultQuestions=total>=15;
- v4Spec.push({kind:'results',html:v4ResultsScreen(v4Ctx),next:'CONTINUE TO MY NEXT STEP'});
  if(needsPostResultQuestions){
   const pc=v4PostChoice();
-  v4Spec.push({kind:'q1',html:v4Q1Screen(pc.goal||''),next:'Continue'});
-  v4Spec.push({kind:'q2',html:v4Q2Screen(pc.support||''),next:'Continue'});
+  v4Spec.push({kind:'q2',html:v4ResultsScreen(v4Ctx)+v4CombinedQuestions(pc.goal||'',pc.support||''),next:'SHOW ME WHERE I’D START'});
+ }else{
+  v4Spec.push({kind:'results',html:v4ResultsScreen(v4Ctx),next:'CONTINUE TO MY NEXT STEP'});
  }
  v4Spec.push({kind:'rec',html:'<div class="rec rec-offer v4-rec" id="v4FinalRecommendation">'+(needsPostResultQuestions?'':v4CompleteRecommendation(V4_Q2_ROUTING.recommend,v4Ctx))+'</div>'});
 }else{
@@ -559,11 +561,12 @@ el.addEventListener('click',e=>{const b=e.target.closest('.v4-choice');if(!b)ret
 const v4Selected=g=>{const x=el.querySelector('.v4-choice[data-group="'+g+'"][aria-checked="true"]');return x?x.dataset.value:''};
 el.addEventListener('click',e=>{if(navLocked)return;let next=e.target.closest('.result-next'),back=e.target.closest('.result-back');if(!next&&!back)return;navLocked=true;{const cur=[...el.querySelectorAll('.result-panel')].findIndex(p=>p.classList.contains('active'));if(cur>=0)rp=cur}
 if(next){let to=rp+1;const kind=v4Spec[rp]&&v4Spec[rp].kind;
- if(kind==='q1'||kind==='q2'){const goal=v4Selected('v4Goal'),support=v4Selected('v4Support');const val=kind==='q1'?goal:support;
-  if(!val){const err=el.querySelectorAll('.result-panel')[rp].querySelector('.v4-choice-error');if(err)err.textContent='Please choose an answer before continuing.';navLocked=false;return}
+ if(kind==='q1'||kind==='q2'){const goal=v4Selected('v4Goal'),support=v4Selected('v4Support');const pnl=el.querySelectorAll('.result-panel')[rp];const both=kind==='q2'&&!!pnl.querySelector('.v4-choice[data-group="v4Goal"]');
   const bare=['understand_him','change_him'].includes(goal);
+  const missGoal=(kind==='q1'||both)&&!goal,missSupport=kind==='q2'&&!bare&&!support;
+  if(missGoal||missSupport){const errs=pnl.querySelectorAll('.v4-choice-error');const err=errs[missGoal?0:errs.length-1];if(err){err.textContent='Please choose an answer before continuing.';try{err.scrollIntoView({block:'center'})}catch(x){}}navLocked=false;return}
   if(kind==='q1'){postJourneyEvent('post_result_question_answered',{step:'q1',option_id:goal});if(bare){v4SaveChoice(goal,'');applyPostResultOffer(goal,'');to=panelIndex('rec')}}
-  else{postJourneyEvent('post_result_question_answered',{step:'q2',option_id:support});v4SaveChoice(goal,support);applyPostResultOffer(goal,support)}}
+  else{if(both)postJourneyEvent('post_result_question_answered',{step:'q1',option_id:goal});if(!bare)postJourneyEvent('post_result_question_answered',{step:'q2',option_id:support});v4SaveChoice(goal,bare?'':support);applyPostResultOffer(goal,bare?'':support)}}
  track('result_next_click',{from_step:rp+1,to_step:to+1});let np=el.querySelectorAll('.result-panel')[to];if(np&&np.dataset.kind==='rec')postJourneyEvent('recommendation_reveal_click',{step:to+1,total_steps:v4Spec.length});showPanel(Math.min(to,v4Spec.length-1),'push')}
 else{postJourneyEvent('result_back_click',{step:rp+1});track('result_back_click',{from_step:rp+1,to_step:Math.max(1,rp)});history.back()}setTimeout(()=>navLocked=false,350)});
 // Optional video: never autoplays; record a play only (no personal data), consent-gated for GA4.
