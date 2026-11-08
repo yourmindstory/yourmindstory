@@ -420,21 +420,23 @@ var V4_GOAL_CHOICES_ = {
 };
 // Owner decision, 2 Nov 2026 (final): "recommend" -> £117 Self-Guided primary, £147 and £197 as alternatives.
 var V4_RECOMMEND_PRIMARY_ = 'self_guided';
+// Two-offer preview (8 Nov 2026): Q2 is the September commitment question. "Yes" / "I think so" (with the
+// 'self_work' goal) -> Return to Yourself Bootcamp first, Self-Guided underneath. Otherwise Self-Guided only.
 var V4_SUPPORT_CHOICES_ = {
-  independent:{answer:"I'm happy to work independently",allowed:['self_guided'],primary:'self_guided'},
-  additional:{answer:'I want additional support',allowed:['reality_reset','pattern_break'],primary:'reality_reset'},
-  some_support:{answer:'I think some support would help me with this',allowed:['reality_reset','pattern_break'],primary:'reality_reset'},
-  recommend:{answer:"I'm not sure where to start. I'd like you to recommend what would help me most.",
-    allowed:['reality_reset','self_guided','pattern_break'],primary:V4_RECOMMEND_PRIMARY_}
+  yes:{answer:'Yes.',allowed:['bootcamp','self_guided'],primary:'bootcamp'},
+  think_so:{answer:'I think so, but consistency is something I struggle with.',allowed:['bootcamp','self_guided'],primary:'bootcamp'},
+  not_sure:{answer:"I'm not sure.",allowed:['self_guided'],primary:'self_guided'},
+  no:{answer:'No.',allowed:['self_guided'],primary:'self_guided'}
 };
-var V4_COMPLETE_OPTIONS_ = ['self_guided','reality_reset','pattern_break'];
+var V4_COMPLETE_OPTIONS_ = ['self_guided','bootcamp','reality_reset','pattern_break']; // every Complete option ever saved (old rows keep working)
+var V4_DIRECT_COMPLETE_OPTIONS_ = ['self_guided']; // two-offer preview: total under 15 -> Self-Guided only (September)
 var V4_SEND_STALE_MS_ = 10 * 60 * 1000;
 
 function v4NormText_(s) {
   return String(s == null ? '' : s).replace(/[‘’]/g,"'").replace(/\s+/g,' ').trim();
 }
 function validFinalOfferV4_(option) {
-  return ['self_guided','reality_reset','pattern_break','bare_minimum','scored_route'].indexOf(clean_(option)) !== -1;
+  return ['bootcamp','self_guided','reality_reset','pattern_break','bare_minimum','scored_route'].indexOf(clean_(option)) !== -1;
 }
 function choiceIdV4_(obj, explicit) {
   if (explicit) return clean_(explicit);
@@ -443,6 +445,7 @@ function choiceIdV4_(obj, explicit) {
 }
 function finalOfferTitleV4_(result, option) {
   if (option === 'bare_minimum') return 'The Bare Minimum — £4.99';
+  if (option === 'bootcamp') return 'Return to Yourself Bootcamp | £497';
   if (result.route === SERIES_NAME && V4_COMPLETE_OPTIONS_.indexOf(option) !== -1) {
     var c = COMPLETE_CHOICES_V3.filter(function(x){ return x.option === option; })[0];
     if (c) return c.title;
@@ -518,6 +521,8 @@ function validateV4Decision_(d, body) {
     if (!support) return {ok:false,code:'QUESTION_2_REQUIRED',message:'Please answer the support question.'};
     if (v4NormText_(answerText_(question2)) !== v4NormText_(support.answer))
       return {ok:false,code:'INVALID_QUESTION_2',message:'Please choose an answer from the list.'};
+    if (q1Id !== 'self_work' && option !== 'self_guided')
+      return {ok:false,code:'OFFER_MISMATCH',message:'Please select an offer available for your answer.'};
     if (support.allowed.indexOf(option) === -1)
       return {ok:false,code:'OFFER_MISMATCH',message:'Please select an offer available for your answer.'};
     return {ok:true,option:option,q1Id:q1Id,q1Answer:V4_GOAL_CHOICES_[q1Id],q2Id:q2Id,q2Answer:support.answer};
@@ -525,7 +530,7 @@ function validateV4Decision_(d, body) {
   // Every other route: the post-result questions are never asked, so they must not be stored.
   if (q1Id || q2Id) return {ok:false,code:'QUESTIONS_NOT_APPLICABLE',message:'These questions do not apply to this result.'};
   if (route === SERIES_NAME) {
-    if (V4_COMPLETE_OPTIONS_.indexOf(option) === -1)
+    if (V4_DIRECT_COMPLETE_OPTIONS_.indexOf(option) === -1)
       return {ok:false,code:'OFFER_MISMATCH',message:'Choose one of the Complete support options.'};
   } else if (route === 'Bare Minimum') {
     if (option !== 'bare_minimum') return {ok:false,code:'OFFER_MISMATCH',message:'This result must use The Bare Minimum.'};
@@ -667,7 +672,8 @@ var V4_CHOICE_EMAIL_OPENING_ = 'You’ve chosen how you’d like to begin workin
 var V4_EMAIL_STALE_MS_ = 10 * 60 * 1000;
 
 function v4ChoiceEmailNeeded_(r, option) {
-  return r.route === SERIES_NAME && (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
+  // Bootcamp choice email waits until its checkout and wording are approved (no Stan link yet).
+  return r.route === SERIES_NAME && option !== 'bootcamp' && (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
 }
 function v4SendingFresh_(errText) {
   var since = Date.parse(String(errText || '').replace(/^sending since /, ''));
@@ -1767,13 +1773,13 @@ var COMPLETE_CHOICES_V3 = [
   { option:'reality_reset', event:'reality_reset_click', price:147,
     stan:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',
     quote:'“I just need to speak to somebody who understands what I’m going through.”',
-    title:'Return to Yourself + Reality Reset | £147',
+    title:'Return to Yourself + Reality Reset | £147', retired:true,
     desc:'Everything in the self-guided programme, plus the workbook and a private 20-minute conversation with me to talk about what’s happening, ask the questions going around in your head and get some clarity.',
     button:'I WANT TO SPEAK TO ONYE' },
   { option:'pattern_break', event:'pattern_break_click', price:197,
     stan:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break',
     quote:'“I want to talk through what’s happening with me.”',
-    title:'Return to Yourself + Pattern Break Session | £197',
+    title:'Return to Yourself + Pattern Break Session | £197', retired:true,
     desc:'Everything in the self-guided programme, plus the workbook and a private 50-minute solution-focused CBT session with me to properly talk through what’s been happening, the patterns you keep getting pulled into and what you need to work on.',
     button:'I WANT THE PATTERN BREAK SESSION' }
 ];
@@ -1906,7 +1912,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
   var posHtml = '<p style="margin:0 0 18px;font-weight:700;">'+e(RESULT_EMAIL_POSITIONING_V3)+'</p>', posText = RESULT_EMAIL_POSITIONING_V3+'\n\n';
   if (plan.kind === 'complete') {
     recHtml += posHtml; recText += posText;
-    var choices = finalOfferOption ? plan.choices.filter(function(c){return c.option === finalOfferOption;}) : plan.choices;
+    var choices = finalOfferOption ? plan.choices.filter(function(c){return c.option === finalOfferOption;}) : plan.choices.filter(function(c){return !c.retired;});
     if (!choices.length) throw new Error('Unknown final Complete offer: '+finalOfferOption);
     choices.forEach(function(c) {
       var href = completeChoiceLinkV3_(c,result,journeyId,submissionId);
