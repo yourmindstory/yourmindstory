@@ -666,6 +666,8 @@ function finalizeResultV4_(body) {
 //    Only 'failed' sends are ever retried. A send stuck in 'sending' is listed for review, never resent.
 // 4. Transactional only: marketing consent is recorded, never used to decide these two emails.
 // The 30-minute fallback (r7) is removed: nothing is ever sent to rows saved before this build.
+// Email header (8 Nov 2026, owner approved): matches the website logo (ink, letter-spaced) + brass tagline.
+var V4_EMAIL_HEADER_HTML_ = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 26px;border-bottom:1px solid #e7e8e6;"><tr><td style="padding:18px 0 16px;"><div style="font-family:\'DM Sans\',Arial,Helvetica,sans-serif;font-weight:700;letter-spacing:3px;font-size:13px;color:#111827;">YOUR MIND STORY</div><div style="font-family:Georgia,\'Times New Roman\',serif;font-size:15px;color:#9b7a45;margin-top:6px;">Break the cycle. Take your life back.</div></td></tr></table>';
 var V4_EMAIL_FLOW_IMMEDIATE_ = 'immediate';
 var V4_CHOICE_EMAIL_SUBJECT_ = 'Your next step towards feeling like yourself again';
 var V4_CHOICE_EMAIL_OPENING_ = 'You’ve chosen how you’d like to begin working on the patterns that have been keeping you stuck. Here’s your next step.';
@@ -807,7 +809,7 @@ function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
   var title, url, label, subject = V4_CHOICE_EMAIL_SUBJECT_, paras = [V4_CHOICE_EMAIL_OPENING_], closing = '', callUrl = '';
   if (option === 'bootcamp') {
     title = 'Return to Yourself Bootcamp | £497'; label = 'JOIN THE BOOTCAMP'; subject = V4_BOOTCAMP_EMAIL_SUBJECT_;
-    paras = V4_BOOTCAMP_EMAIL_PARAS_; closing = 'Break the cycle. Take your life back.'; callUrl = V4_BOOTCAMP_CALL_URL_;
+    paras = V4_BOOTCAMP_EMAIL_PARAS_; closing = ''; callUrl = V4_BOOTCAMP_CALL_URL_;
     url = withTrackingV3_(V4_BOOTCAMP_URL_, {category:'bootcamp'}, journeyId, submissionId);
   } else if (option === 'bare_minimum') {
     title = BARE_MINIMUM_PRICE_LINE_V3; label = 'START WITH THE BARE MINIMUM';
@@ -820,7 +822,7 @@ function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
   }
   url = url.replace('utm_campaign=v4_result_email', 'utm_campaign=v4_choice_email');
   var e = escapeHtmlV3_, P = '<p style="margin:0 0 18px;">';
-  var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+
+  var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+V4_EMAIL_HEADER_HTML_+
     P+'Hi '+e(firstName)+',</p>'+
     paras.map(function(p){ return P+e(p)+'</p>'; }).join('')+
     '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(title)+'</p>'+
@@ -828,9 +830,9 @@ function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
     '<a href="'+e(url)+'" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;line-height:1.3;">'+e(label)+'</a></td></tr></table>'+
     (callUrl ? P+'Some women like to speak to me before they join. <a href="'+e(callUrl)+'" style="color:#111827;font-weight:700;">Book a free 15-minute chat.</a></p>' : '')+
     (closing ? P+'<strong>'+e(closing)+'</strong></p>' : '')+
-    P+'With care,</p><p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p></div>';
+    P+'With care,</p><p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioural Hypnotherapist</p></div>';
   var text = 'Hi '+firstName+',\n\n'+paras.join('\n\n')+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+(callUrl ? 'Some women like to speak to me before they join. Book a free 15-minute chat:\n'+callUrl+'\n\n' : '')+(closing ? closing+'\n\n' : '')+
-    'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
+    'With care,\nOnye\nYour Mind Story\nCognitive Behavioural Hypnotherapist';
   return {subject:subject, html:html, text:text, link:url, title:title};
 }
 function v4SendChoiceEmail_(customer, r, option, journeyId, submissionId) {
@@ -1649,7 +1651,7 @@ function sendResultEmailLegacyV3_(body,result,resultToken,journeyId,submissionId
       (resultLink ? 'VIEW MY PERSONALISED RESULTS\n'+resultLink+'\n\n' : '')+
       'With care,\nOnye';
     var htmlBody=
-      '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#111827;font-size:16px;line-height:1.65;">'+
+      '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#111827;font-size:16px;line-height:1.65;">'+V4_EMAIL_HEADER_HTML_+
       '<p>Hi '+escapeHtmlV3_(firstName)+',</p>'+
       '<p>Thank you for taking the Your Mind Story assessment.</p>'+
       '<p style="font-size:12px;font-weight:700;letter-spacing:2px;margin-top:32px;margin-bottom:18px;">YOUR RESULT</p>'+
@@ -1957,7 +1959,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
   var savedResultText=resultLink?'VIEW MY PERSONALISED RESULTS\n'+resultLink+'\n\n':''; // same label as the HTML button
   var html =
     preheader+
-    '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+
+    '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+V4_EMAIL_HEADER_HTML_+
     P+'Hi '+e(firstName)+',</p>'+
     P+'I’ve looked at your answers.</p>'+
     paras(plan.result)+
@@ -1965,7 +1967,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     paras(RESULT_EMAIL_MIDDLE_V3)+
     savedResultHtml+
     P+'With care,</p>'+
-    '<p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p>'+
+    '<p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioural Hypnotherapist</p>'+
     '</div>';
 
   var text =
@@ -1975,7 +1977,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
     recText+
     RESULT_EMAIL_MIDDLE_V3.join('\n\n')+'\n\n'+
     savedResultText+
-    'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
+    'With care,\nOnye\nYour Mind Story\nCognitive Behavioural Hypnotherapist';
 
   return {subject:resultEmailSubjectV3_(firstName), html:html, text:text, link:links[0].url, links:links, plan:plan};
 }

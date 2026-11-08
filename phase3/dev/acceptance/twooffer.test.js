@@ -118,6 +118,7 @@ async function scenario(id, vp, stages, goal, commit, expect) {
   }
   // B3: taps JOIN THE BOOTCAMP -> straight to the £497 Stan page, choice saved as bootcamp, no choice email (results email only)
   { const r = await scenario('B3', 'mobile', [5, 5, 4, 3], 'self_work', 'not_sure', { click: '497' });
+    if (process.env.YMS_DUMP && r.emails[1]) { fs.writeFileSync('/tmp/bootcamp_email.html', String(r.emails[1][7])); fs.writeFileSync('/tmp/results_email.html', String(r.emails[0][7])); }
     check('B3', '[mobile] "JOIN THE BOOTCAMP" goes straight to the £497 Stan page with UTMs, saves the Bootcamp choice and her answers, sends the Bootcamp email with the £497 link',
       r.clicked && r.clicked.startsWith(STAN[497]) && /utm_source=yms_assessment/.test(r.clicked) && r.row && r.row['V4 Result Email Route'] === 'bootcamp' &&
       r.row['V4 Post-Result Question 2 Option ID'] === 'not_sure' && r.emails.length === 2 && r.emails[1][4] === 'Your place in the Return to Yourself Bootcamp' && String(r.emails[1][6] + r.emails[1][7]).includes(STAN[497]) && /Sunday 29 November/.test(String(r.emails[1][6] + r.emails[1][7])) && String(r.emails[1][6] + r.emails[1][7]).includes('bootcamp-fit-call') && r.errors.length === 0,
