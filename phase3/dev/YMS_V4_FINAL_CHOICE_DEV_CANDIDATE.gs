@@ -421,11 +421,11 @@ var V4_GOAL_CHOICES_ = {
 // Owner decision, 2 Nov 2026 (final): "recommend" -> £117 Self-Guided primary, £147 and £197 as alternatives.
 var V4_RECOMMEND_PRIMARY_ = 'self_guided';
 // Two-offer preview (8 Nov 2026): Q2 is the September commitment question. "Yes" / "I think so" (with the
-// 'self_work' goal) -> Return to Yourself Bootcamp first, Self-Guided underneath. Otherwise Self-Guided only.
+// 'self_work' goal) -> Return to Yourself Bootcamp first, Self-Guided underneath ("I'm not sure" too, owner 8 Nov). "No" -> Self-Guided only.
 var V4_SUPPORT_CHOICES_ = {
   yes:{answer:'Yes.',allowed:['bootcamp','self_guided'],primary:'bootcamp'},
   think_so:{answer:'I think so, but consistency is something I struggle with.',allowed:['bootcamp','self_guided'],primary:'bootcamp'},
-  not_sure:{answer:"I'm not sure.",allowed:['self_guided'],primary:'self_guided'},
+  not_sure:{answer:"I'm not sure.",allowed:['bootcamp','self_guided'],primary:'bootcamp'},
   no:{answer:'No.',allowed:['self_guided'],primary:'self_guided'}
 };
 var V4_COMPLETE_OPTIONS_ = ['self_guided','bootcamp','reality_reset','pattern_break']; // every Complete option ever saved (old rows keep working)

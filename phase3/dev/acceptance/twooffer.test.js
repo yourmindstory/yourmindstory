@@ -111,10 +111,10 @@ async function scenario(id, vp, stages, goal, commit, expect) {
       ['offer_select_click', 'primary_cta_click', 'outbound_stan_click'].every(e => r.jl.some(x => x.startsWith(e + ':OK'))) && r.errors.length === 0,
       JSON.stringify({ clicked: r.clicked, route: r.row && r.row['V4 Result Email Route'], q2: r.row && r.row['V4 Post-Result Question 2 Option ID'], emails: r.emails.length, jl: r.jl.filter(x => /offer|cta|outbound/.test(x)), err: r.errors }));
   }
-  // S1/S2: wants to work on herself but can't commit / not sure -> £117 only
-  for (const [id, vp, commit] of [['S1', 'desktop', 'not_sure'], ['S2', 'mobile', 'no']]) {
+  // S1: not sure she can commit -> Bootcamp first, £117 underneath (owner 8 Nov). S2: can't commit -> £117 only
+  for (const [id, vp, commit, want] of [['S1', 'desktop', 'not_sure', '["bootcamp","self_guided"]'], ['S2', 'mobile', 'no', '["self_guided"]']]) {
     const r = await scenario(id, vp, [5, 5, 4, 3], 'self_work', commit, { click: '117' });
-    check(id, `[${vp}] "self_work" + ${commit}: Self-Guided £117 only, straight to Stan, choice saved`, JSON.stringify(r.st.offers) === '["self_guided"]' && !/Bootcamp|£147|£197/.test(r.st.text) && r.clicked && r.clicked.startsWith(STAN[117]) && r.row && r.row['V4 Result Email Route'] === 'self_guided' && r.emails.length === 2,
+    check(id, `[${vp}] "self_work" + ${commit}: ${want}, £117 goes straight to Stan, choice saved`, JSON.stringify(r.st.offers) === want && (commit !== 'no' || !/Bootcamp/.test(r.st.text)) && !/£147|£197/.test(r.st.text) && r.clicked && r.clicked.startsWith(STAN[117]) && r.row && r.row['V4 Result Email Route'] === 'self_guided' && r.emails.length === 2,
       JSON.stringify({ offers: r.st.offers, clicked: r.clicked, route: r.row && r.row['V4 Result Email Route'], emails: r.emails.length }));
   }
   // U1: not sure what she wants, even with "Yes" -> £117 only (September: private self-guided)
