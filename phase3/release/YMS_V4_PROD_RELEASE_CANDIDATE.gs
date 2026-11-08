@@ -27,7 +27,7 @@
  * Permissions are pinned in appsscript.json: spreadsheets + script.send_mail only.
  */
 var V3_VERSION = 'YMS-ASSESSMENT-2026-V4'; // API variable name retained for existing website integration
-var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-prod-release-candidate-r8';
+var V3_BACKEND_BUILD = '2026-11-08-v4-two-offer-prod-r9';
 
 // ---- Environment (2 Nov 2026, r2) ----
 // 'DEV'  : synthetic-only workbook; purchase sync / maintenance actions disabled; transactional email
@@ -420,21 +420,23 @@ var V4_GOAL_CHOICES_ = {
 };
 // Owner decision, 2 Nov 2026 (final): "recommend" -> £117 Self-Guided primary, £147 and £197 as alternatives.
 var V4_RECOMMEND_PRIMARY_ = 'self_guided';
+// Two-offer preview (8 Nov 2026): Q2 is the September commitment question. "Yes" / "I think so" (with the
+// 'self_work' goal) -> Return to Yourself Bootcamp first, Self-Guided underneath ("I'm not sure" too, owner 8 Nov). "No" -> Self-Guided only.
 var V4_SUPPORT_CHOICES_ = {
-  independent:{answer:"I'm happy to work independently",allowed:['self_guided'],primary:'self_guided'},
-  additional:{answer:'I want additional support',allowed:['reality_reset','pattern_break'],primary:'reality_reset'},
-  some_support:{answer:'I think some support would help me with this',allowed:['reality_reset','pattern_break'],primary:'reality_reset'},
-  recommend:{answer:"I'm not sure where to start. I'd like you to recommend what would help me most.",
-    allowed:['reality_reset','self_guided','pattern_break'],primary:V4_RECOMMEND_PRIMARY_}
+  yes:{answer:'Yes.',allowed:['bootcamp','self_guided'],primary:'bootcamp'},
+  think_so:{answer:'I think so, but consistency is something I struggle with.',allowed:['bootcamp','self_guided'],primary:'bootcamp'},
+  not_sure:{answer:"I'm not sure.",allowed:['bootcamp','self_guided'],primary:'bootcamp'},
+  no:{answer:'No.',allowed:['self_guided'],primary:'self_guided'}
 };
-var V4_COMPLETE_OPTIONS_ = ['self_guided','reality_reset','pattern_break'];
+var V4_COMPLETE_OPTIONS_ = ['self_guided','bootcamp','reality_reset','pattern_break']; // every Complete option ever saved (old rows keep working)
+var V4_DIRECT_COMPLETE_OPTIONS_ = ['self_guided']; // two-offer preview: total under 15 -> Self-Guided only (September)
 var V4_SEND_STALE_MS_ = 10 * 60 * 1000;
 
 function v4NormText_(s) {
   return String(s == null ? '' : s).replace(/[‘’]/g,"'").replace(/\s+/g,' ').trim();
 }
 function validFinalOfferV4_(option) {
-  return ['self_guided','reality_reset','pattern_break','bare_minimum','scored_route'].indexOf(clean_(option)) !== -1;
+  return ['bootcamp','self_guided','reality_reset','pattern_break','bare_minimum','scored_route'].indexOf(clean_(option)) !== -1;
 }
 function choiceIdV4_(obj, explicit) {
   if (explicit) return clean_(explicit);
@@ -443,6 +445,7 @@ function choiceIdV4_(obj, explicit) {
 }
 function finalOfferTitleV4_(result, option) {
   if (option === 'bare_minimum') return 'The Bare Minimum — £4.99';
+  if (option === 'bootcamp') return 'Return to Yourself Bootcamp | £497';
   if (result.route === SERIES_NAME && V4_COMPLETE_OPTIONS_.indexOf(option) !== -1) {
     var c = COMPLETE_CHOICES_V3.filter(function(x){ return x.option === option; })[0];
     if (c) return c.title;
@@ -518,6 +521,8 @@ function validateV4Decision_(d, body) {
     if (!support) return {ok:false,code:'QUESTION_2_REQUIRED',message:'Please answer the support question.'};
     if (v4NormText_(answerText_(question2)) !== v4NormText_(support.answer))
       return {ok:false,code:'INVALID_QUESTION_2',message:'Please choose an answer from the list.'};
+    if (q1Id !== 'self_work' && option !== 'self_guided')
+      return {ok:false,code:'OFFER_MISMATCH',message:'Please select an offer available for your answer.'};
     if (support.allowed.indexOf(option) === -1)
       return {ok:false,code:'OFFER_MISMATCH',message:'Please select an offer available for your answer.'};
     return {ok:true,option:option,q1Id:q1Id,q1Answer:V4_GOAL_CHOICES_[q1Id],q2Id:q2Id,q2Answer:support.answer};
@@ -525,7 +530,7 @@ function validateV4Decision_(d, body) {
   // Every other route: the post-result questions are never asked, so they must not be stored.
   if (q1Id || q2Id) return {ok:false,code:'QUESTIONS_NOT_APPLICABLE',message:'These questions do not apply to this result.'};
   if (route === SERIES_NAME) {
-    if (V4_COMPLETE_OPTIONS_.indexOf(option) === -1)
+    if (V4_DIRECT_COMPLETE_OPTIONS_.indexOf(option) === -1)
       return {ok:false,code:'OFFER_MISMATCH',message:'Choose one of the Complete support options.'};
   } else if (route === 'Bare Minimum') {
     if (option !== 'bare_minimum') return {ok:false,code:'OFFER_MISMATCH',message:'This result must use The Bare Minimum.'};
@@ -666,6 +671,15 @@ var V4_CHOICE_EMAIL_SUBJECT_ = 'Your next step towards feeling like yourself aga
 var V4_CHOICE_EMAIL_OPENING_ = 'You’ve chosen how you’d like to begin working on the patterns that have been keeping you stuck. Here’s your next step.';
 var V4_EMAIL_STALE_MS_ = 10 * 60 * 1000;
 
+// Return to Yourself Bootcamp (8 Nov 2026): its own choice email with the Stan £497 link.
+var V4_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/p/your-mind-story-bootcamp-';
+var V4_BOOTCAMP_EMAIL_SUBJECT_ = 'Your place in the Return to Yourself Bootcamp';
+var V4_BOOTCAMP_EMAIL_PARAS_ = [
+  'You’ve chosen the Return to Yourself Bootcamp. We start on Sunday 29 November.',
+  'Over 12 weeks we work through all four stages together, in a small group of like-minded women. You’ll have five live group sessions with me, one private 50-minute session on the stage you choose, your guided audios, the Guided Reflection Workbook and your weekly check-ins.',
+  'Your 21-day money-back guarantee applies. If you genuinely follow the programme and feel you’ve received no value from it, contact me.',
+  'If you haven’t secured your place yet, you can do it here:'
+];
 function v4ChoiceEmailNeeded_(r, option) {
   return r.route === SERIES_NAME && (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
 }
@@ -789,8 +803,12 @@ function v4RunEmailJob_(job) {
 }
 
 function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
-  var title, url, label;
-  if (option === 'bare_minimum') {
+  var title, url, label, subject = V4_CHOICE_EMAIL_SUBJECT_, paras = [V4_CHOICE_EMAIL_OPENING_], closing = '';
+  if (option === 'bootcamp') {
+    title = 'Return to Yourself Bootcamp | £497'; label = 'JOIN THE BOOTCAMP'; subject = V4_BOOTCAMP_EMAIL_SUBJECT_;
+    paras = V4_BOOTCAMP_EMAIL_PARAS_; closing = 'Break the cycle. Take your life back.';
+    url = withTrackingV3_(V4_BOOTCAMP_URL_, {category:'bootcamp'}, journeyId, submissionId);
+  } else if (option === 'bare_minimum') {
     title = BARE_MINIMUM_PRICE_LINE_V3; label = 'START WITH THE BARE MINIMUM';
     url = withTrackingV3_(BARE_MINIMUM_URL, {category:'bare_minimum'}, journeyId, submissionId);
   } else {
@@ -803,14 +821,15 @@ function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
   var e = escapeHtmlV3_, P = '<p style="margin:0 0 18px;">';
   var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+
     P+'Hi '+e(firstName)+',</p>'+
-    P+e(V4_CHOICE_EMAIL_OPENING_)+'</p>'+
+    paras.map(function(p){ return P+e(p)+'</p>'; }).join('')+
     '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(title)+'</p>'+
     '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0 26px;"><tr><td style="background:#111827;border-radius:2px;">'+
     '<a href="'+e(url)+'" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;line-height:1.3;">'+e(label)+'</a></td></tr></table>'+
+    (closing ? P+'<strong>'+e(closing)+'</strong></p>' : '')+
     P+'With care,</p><p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p></div>';
-  var text = 'Hi '+firstName+',\n\n'+V4_CHOICE_EMAIL_OPENING_+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+
+  var text = 'Hi '+firstName+',\n\n'+paras.join('\n\n')+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+(closing ? closing+'\n\n' : '')+
     'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
-  return {subject:V4_CHOICE_EMAIL_SUBJECT_, html:html, text:text, link:url, title:title};
+  return {subject:subject, html:html, text:text, link:url, title:title};
 }
 function v4SendChoiceEmail_(customer, r, option, journeyId, submissionId) {
   var L = buildChoiceLetterV4_(clean_(customer.firstName), r, option, journeyId, submissionId);
@@ -891,7 +910,9 @@ var V3_JOURNEY_EVENTS = [
   // offer-selection steps and video engagement that were not measured. IDs and percentages only, no personal data.
   'result_back_click',
   'offer_select_click','offer_confirm_click','offer_confirm_cancel','offer_confirm_error',
-  'video_impression','video_start','video_progress_25','video_progress_50','video_progress_75','video_complete'
+  'video_impression','video_start','video_progress_25','video_progress_50','video_progress_75','video_complete',
+  // 8 Nov 2026: Bootcamp "Book a free 15-minute call" link (click only, opens TidyCal).
+  'bootcamp_call_click'
 ];
 
 // Every journey event (accepted or rejected) is written to this log, one row per event, so failures are visible.
@@ -1767,13 +1788,13 @@ var COMPLETE_CHOICES_V3 = [
   { option:'reality_reset', event:'reality_reset_click', price:147,
     stan:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',
     quote:'“I just need to speak to somebody who understands what I’m going through.”',
-    title:'Return to Yourself + Reality Reset | £147',
+    title:'Return to Yourself + Reality Reset | £147', retired:true,
     desc:'Everything in the self-guided programme, plus the workbook and a private 20-minute conversation with me to talk about what’s happening, ask the questions going around in your head and get some clarity.',
     button:'I WANT TO SPEAK TO ONYE' },
   { option:'pattern_break', event:'pattern_break_click', price:197,
     stan:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break',
     quote:'“I want to talk through what’s happening with me.”',
-    title:'Return to Yourself + Pattern Break Session | £197',
+    title:'Return to Yourself + Pattern Break Session | £197', retired:true,
     desc:'Everything in the self-guided programme, plus the workbook and a private 50-minute solution-focused CBT session with me to properly talk through what’s been happening, the patterns you keep getting pulled into and what you need to work on.',
     button:'I WANT THE PATTERN BREAK SESSION' }
 ];
@@ -1906,7 +1927,7 @@ function buildResultLetterV3_(firstName,result,journeyId,submissionId,resultToke
   var posHtml = '<p style="margin:0 0 18px;font-weight:700;">'+e(RESULT_EMAIL_POSITIONING_V3)+'</p>', posText = RESULT_EMAIL_POSITIONING_V3+'\n\n';
   if (plan.kind === 'complete') {
     recHtml += posHtml; recText += posText;
-    var choices = finalOfferOption ? plan.choices.filter(function(c){return c.option === finalOfferOption;}) : plan.choices;
+    var choices = finalOfferOption ? plan.choices.filter(function(c){return c.option === finalOfferOption;}) : plan.choices.filter(function(c){return !c.retired;});
     if (!choices.length) throw new Error('Unknown final Complete offer: '+finalOfferOption);
     choices.forEach(function(c) {
       var href = completeChoiceLinkV3_(c,result,journeyId,submissionId);

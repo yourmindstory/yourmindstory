@@ -17,7 +17,7 @@ const STAN = {
   37: 'https://stan.store/Yourmindstory/p/quiet-the-alarm',
   74: 'https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull',
   '4.99': 'https://stan.store/Yourmindstory/p/the-bare-minimum',
-  497: process.env.YMS_BOOTCAMP_URL || 'https://stan.store/Yourmindstory/p/PLACEHOLDER'
+  497: process.env.YMS_BOOTCAMP_URL || 'https://stan.store/Yourmindstory/p/your-mind-story-bootcamp-'
 };
 let browser, srv, base;
 
@@ -103,7 +103,7 @@ async function scenario(id, vp, stages, goal, commit, expect) {
     check(id, `[${vp}] total 17, "self_work" + ${commit}: Bootcamp first (locked copy, £497, 29 Nov, Join button goes to the £497 Stan page), £117 underneath, no £147/£197, 21-day guarantee shown`,
       JSON.stringify(r.st.offers) === '["bootcamp","self_guided"]' && r.st.bootcampLinks === 1 && !r.st.checkoutOff &&
       t.includes('Return to Yourself Bootcamp') && t.includes('£497') && t.includes('Starts Sunday 29 November 2026') && t.includes("You know what you need to do. Now you're ready to follow through.") &&
-      t.includes('Five live group sessions with me') && t.includes('Prefer to work privately?') && t.includes('See the self-guided option – £117') &&
+      t.includes('Five live group sessions with me') && t.includes('12-week support') && t.includes('Book a free 15-minute call with me') && t.includes('Prefer to work privately?') && t.includes('See the self-guided option – £117') &&
       !/£147|£197|Reality Reset|Pattern Break/.test(t) && /21-day money-back guarantee/i.test(t) && JSON.stringify(r.st.prices) === '["497","117"]',
       JSON.stringify({ offers: r.st.offers, prices: r.st.prices, off: r.st.checkoutOff, t: t.slice(0, 300) }));
     check(id + 'c', `[${vp}] Tapping "See the self-guided option – £117" goes straight to Stan (no pop-up), saves the £117 choice with her answers, sends the choice email once, records the clicks`,
@@ -141,6 +141,15 @@ async function scenario(id, vp, stages, goal, commit, expect) {
     const r = await scenario(id, vp, stages, 'self_work', 'yes', { click: price });
     check(id, `[${vp}] ${price === '37' ? 'single stage' : price === '74' ? 'two stages' : 'no stage'} -> £${price}, button goes straight to Stan, no Bootcamp`, r.clicked && r.clicked.startsWith(STAN[price]) && !/Bootcamp/.test(r.st.text) && r.errors.length === 0, JSON.stringify({ clicked: r.clicked, err: r.errors, t: r.st.text.slice(0, 120) }));
   }
+  // C1: "Book a free 15-minute call" opens TidyCal and is recorded
+  { const { ctx, page, external, errors } = await newPage('mobile');
+    await answerAll(page, [5, 5, 4, 3], 'synthetic+c1@example.invalid'); await toRec(page, 'self_work', 'yes');
+    const token = await tokenOf(page);
+    const href = await page.$eval('.result-panel.active a[href*="tidycal.com"]', a => a.href);
+    await page.$eval('.result-panel.active a[href*="tidycal.com"]', a => { a.removeAttribute('target'); a.click(); });
+    await sleep(2500); await ctx.close();
+    const jl = journeyFor(token);
+    check('C1', 'Fit call link goes to the free TidyCal Bootcamp Fit Call and the click is recorded', href === 'https://tidycal.com/yourmindstory/bootcamp-fit-call' && jl.includes('bootcamp_call_click:OK'), JSON.stringify({ href, jl: jl.slice(-6), errors })); }
   // T1/T2: tracking on the two-offer journey
   { const r = await scenario('T1', 'desktop', [5, 5, 4, 3], 'self_work', 'yes', { click: '497', consent: 'yes', query: '?utm_source=tiktok&utm_medium=social&utm_campaign=t1_test' });
     const tags = r.external.filter(u => /googletagmanager|google-analytics|clarity\.ms|facebook\.(net|com)/.test(u));

@@ -672,7 +672,7 @@ var V4_CHOICE_EMAIL_OPENING_ = 'You’ve chosen how you’d like to begin workin
 var V4_EMAIL_STALE_MS_ = 10 * 60 * 1000;
 
 // Return to Yourself Bootcamp (8 Nov 2026): its own choice email with the Stan £497 link.
-var V4_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/p/PLACEHOLDER';
+var V4_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/p/your-mind-story-bootcamp-';
 var V4_BOOTCAMP_EMAIL_SUBJECT_ = 'Your place in the Return to Yourself Bootcamp';
 var V4_BOOTCAMP_EMAIL_PARAS_ = [
   'You’ve chosen the Return to Yourself Bootcamp. We start on Sunday 29 November.',
@@ -910,7 +910,9 @@ var V3_JOURNEY_EVENTS = [
   // offer-selection steps and video engagement that were not measured. IDs and percentages only, no personal data.
   'result_back_click',
   'offer_select_click','offer_confirm_click','offer_confirm_cancel','offer_confirm_error',
-  'video_impression','video_start','video_progress_25','video_progress_50','video_progress_75','video_complete'
+  'video_impression','video_start','video_progress_25','video_progress_50','video_progress_75','video_complete',
+  // 8 Nov 2026: Bootcamp "Book a free 15-minute call" link (click only, opens TidyCal).
+  'bootcamp_call_click'
 ];
 
 // Every journey event (accepted or rejected) is written to this log, one row per event, so failures are visible.

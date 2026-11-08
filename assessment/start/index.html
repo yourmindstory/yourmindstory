@@ -27,7 +27,7 @@ const DISPLAY_QUESTION_COUNT=Q.length-1;
 // pasted here it fails closed (no request is sent), so it can never write to the production workbook.
 const V4_BACKEND='https://script.google.com/macros/s/AKfycbyHiHPdmsFDIw4d0-JwKU9CkqNZBK1Sm0jC0bp57nQIVCBPQaLq4jLnpBpiD5MMaEWK-w/exec'; // V4 production web app (released 3 Nov 2026)
 const V3_BACKEND=/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(V4_BACKEND)&&V4_BACKEND.indexOf('AKfycbzDtA92')===-1?V4_BACKEND:''; // never the V3 backend
-const V4_OPTION_PRICE={bare_minimum:'4.99',self_guided:'117',reality_reset:'147',pattern_break:'197'};
+const V4_OPTION_PRICE={bare_minimum:'4.99',bootcamp:'497',self_guided:'117',reality_reset:'147',pattern_break:'197'};
 let a=Array(15).fill(null),i=0,lead=null;
 try{if(window.YMSQuiz&&YMSQuiz.captureAttribution)YMSQuiz.captureAttribution()}catch(e){}
 (function(){try{if(localStorage.getItem('yms_analytics_consent')==='no')return;let p=new URLSearchParams(location.search),keys=['utm_source','utm_medium','utm_campaign','utm_id','utm_term','utm_content','landing_variant'];if(!sessionStorage.getItem('yms_v4_preview_landing_url')){sessionStorage.setItem('yms_v4_preview_landing_url',location.href);sessionStorage.setItem('yms_v4_preview_referrer',document.referrer||'')}keys.forEach(k=>{if(p.get(k))sessionStorage.setItem('yms_v4_preview_'+k,p.get(k))})}catch(e){}})();
@@ -186,7 +186,7 @@ document.getElementById('back').onclick=()=>{if(i){postJourneyEvent('assessment_
 
 function v4Esc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function v4PostChoice(){let c={};try{c=JSON.parse(sessionStorage.getItem('yms_v4_preview_post_result_choice')||'{}')}catch(e){}const r=journeyIdentity();if(c.resultToken&&r.resultToken&&c.resultToken!==r.resultToken)return {};return c||{}}
-function v4OptionFor(link){const price=Number(link.dataset.recPrice||0);return price===147?'reality_reset':price===197?'pattern_break':price===117?'self_guided':price===4.99?'bare_minimum':'scored_route'}
+function v4OptionFor(link){const price=Number(link.dataset.recPrice||0);return price===497?'bootcamp':price===147?'reality_reset':price===197?'pattern_break':price===117?'self_guided':price===4.99?'bare_minimum':'scored_route'}
 function v4ShowTakenStep(overlay,link,handoff,msg){const price=link.dataset.recPrice;overlay.querySelector('div[role=dialog]').innerHTML=`<h2>You've taken your next step</h2><p>${msg}</p><p><a id="v4Checkout" class="next" href="${v4WithUtm(link.href)}" rel="noopener">CONTINUE TO MY £${price} OPTION</a></p><p><button type="button" class="back" id="v4Finish">Return to results</button></p>`;overlay.querySelector('#v4Checkout').addEventListener('click',()=>handoff(link));overlay.querySelector('#v4Finish').onclick=()=>overlay.remove();overlay.querySelector('#v4Checkout').focus()}
 // r7: Stan only sees where a visitor came from through UTM tags. IDs only, never personal data.
 function v4WithUtm(url){try{const u=new URL(url);if(!/stan\.store$/.test(u.hostname)||u.searchParams.has('utm_source'))return url;u.searchParams.set('utm_source','yms_assessment');u.searchParams.set('utm_medium','website');u.searchParams.set('utm_campaign','v4_results');return u.toString()}catch(e){return url}}
@@ -254,6 +254,31 @@ async function v4OfferDecision(link,handoff){
   finally{v4FinalizeInFlight=false;v4CriticalHold=false;scheduleV4Flush(800)}
  }
 }
+// Two-offer preview (8 Nov 2026): September flow. The offer button goes straight to Stan, no confirm pop-up.
+// Her choice is still saved (same finalizeResultV4 call, sent with keepalive so it completes after she leaves) and every click is recorded.
+function v4DirectChoice(link,handoff){
+ let r={};try{r=JSON.parse(sessionStorage.getItem('yms_v4_preview_last_submission')||'{}')}catch(e){}
+ const price=Number(link.dataset.recPrice||0),option=v4OptionFor(link),complete=[117,497].includes(price);
+ const label=option==='bootcamp'?'Return to Yourself Bootcamp':option==='self_guided'?'The self-guided four-stage journey':link.dataset.recProduct;
+ const scores=v4StageScores(),total=scores.reduce((x,y)=>x+y,0),needsReadiness=scores.filter(x=>x>=3).length>=3&&total>=15;
+ const postChoice=v4PostChoice(),goal=needsReadiness?(postChoice.goal||''):'',asksQ2=needsReadiness&&!['understand_him','change_him'].includes(goal);
+ const ev={step:option,product:link.dataset.recProduct||'',route:link.dataset.recRoute||'',price:link.dataset.recPrice||''};
+ postJourneyEvent('offer_select_click',ev);postJourneyEvent('offer_confirm_click',ev);
+ track('offer_select_click',{option:option,price:link.dataset.recPrice||'',currency:'GBP'});
+ if(r.resultToken&&V3_BACKEND){
+  const barrier=sessionStorage.getItem('yms_v4_preview_existing_barrier')||'';
+  const payload={action:'finalizeResultV4',resultToken:r.resultToken,submissionId:r.submissionId||'',finalOfferOption:option,readinessRequired:false,
+   question1:goal?{id:'post_result_goal',optionId:goal,answer:postChoice.goalAnswer||''}:null,
+   question2:(asksQ2&&postChoice.support)?{id:'support_level',optionId:postChoice.support,answer:postChoice.supportAnswer||''}:null,
+   barrierAnswer:barrier||null,supportPreference:complete?{id:option,answer:label}:null,hesitation:null};
+  try{fetch(V3_BACKEND,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),keepalive:true}).catch(()=>{})}catch(e){}
+  try{sessionStorage.setItem('yms_v4_preview_final_choice',JSON.stringify({resultToken:r.resultToken,option:option}))}catch(e){}
+ }
+ v4ResultAwaitingChoice=false;
+ try{handoff(link)}catch(e){}
+ const dest=v4WithUtm(link.href);
+ setTimeout(()=>{location.assign(dest)},150);
+}
 // Stage scores: from live answers, or from the saved result when she returns through her result link.
 let v4RestoredScores=null;
 function v4StageScores(){return v4RestoredScores?v4RestoredScores.slice():[a[0]+a[1],a[2]+a[3],a[4]+a[5],a[6]+a[7]]}
@@ -264,7 +289,7 @@ function v4StageScores(){return v4RestoredScores?v4RestoredScores.slice():[a[0]+
 const V4_VIDEO_SRC='/assets/video/yms-v4-recommendation.mp4';
 const V4_VIDEO_POSTER='/assets/video/yms-v4-recommendation-poster.jpg';
 // Routes that show the optional video. Owner instruction (2 Nov): all five hypnotherapy offers, never The Bare Minimum.
-const V4_VIDEO_ROUTES={single:true,pair:true,self_guided:true,reality_reset:true,pattern_break:true};
+const V4_VIDEO_ROUTES={single:true,pair:true,bootcamp:true,self_guided:true,reality_reset:true,pattern_break:true};
 const V4_FINDINGS=[
  ['The Alarm','When something happens with him, anxiety can rise quickly and affect how you feel long after the moment has passed.'],
  ['The Pull','Even when you\'ve decided not to check, reach out or search for reassurance, the urge can return and pull your attention back towards him.'],
@@ -272,11 +297,11 @@ const V4_FINDINGS=[
  ['Losing Yourself','So much of your attention and energy can become focused on him that there\'s less left for your own plans, needs and enjoyment.']
 ];
 const V4_GOALS={self_work:'I want help understanding myself, breaking the cycle and getting my mind back.',understand_him:'I mainly want to understand him and what his behaviour means.',change_him:'I mainly want help getting him back or changing his behaviour.',unsure:"I'm not sure yet."};
-const V4_SUPPORTS={independent:"I'm happy to work independently",additional:'I want additional support',some_support:'I think some support would help me with this',recommend:"I'm not sure where to start. I'd like you to recommend what would help me most."};
+const V4_SUPPORTS={yes:'Yes.',think_so:'I think so, but consistency is something I struggle with.',not_sure:'I’m not sure.',no:'No.'}; // Two-offer preview (8 Nov 2026): September commitment question
 // Final Q2 routing (owner decision, 2 Nov 2026): primary first, alternatives after.
-const V4_Q2_ROUTING={independent:['self_guided'],additional:['reality_reset','pattern_break'],some_support:['reality_reset','pattern_break'],recommend:['self_guided','reality_reset','pattern_break']};
-const V4_COMPLETE_URL={self_guided:'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx',reality_reset:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',pattern_break:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break'};
-const V4_COMPLETE_META={self_guided:['Return to Yourself — Self-Guided','Self-Guided','117'],reality_reset:['Return to Yourself + Reality Reset','Reality Reset','147'],pattern_break:['Return to Yourself + Pattern Break Session','Pattern Break Session','197']};
+const V4_Q2_ROUTING={yes:['bootcamp','self_guided'],think_so:['bootcamp','self_guided'],not_sure:['bootcamp','self_guided'],no:['self_guided'],recommend:['self_guided']}; // September routing: Bootcamp first only for 'self_work' + Yes / I think so; total under 15 = Self-Guided only
+const V4_COMPLETE_URL={bootcamp:'https://stan.store/Yourmindstory/p/your-mind-story-bootcamp-',self_guided:'https://stan.store/Yourmindstory/p/return-to-yourself-eli637kx',reality_reset:'https://stan.store/Yourmindstory/p/return-to-yourself-reality-reset',pattern_break:'https://stan.store/Yourmindstory/p/return-to-yourself-pattern-break'};
+const V4_COMPLETE_META={bootcamp:['Return to Yourself Bootcamp','Bootcamp','497'],self_guided:['Return to Yourself — Self-Guided','Self-Guided','117'],reality_reset:['Return to Yourself + Reality Reset','Reality Reset','147'],pattern_break:['Return to Yourself + Pattern Break Session','Pattern Break Session','197']};
 function v4Paras(list){return list.map(t=>'<p>'+t+'</p>').join('')}
 function v4Bullets(list){return '<ul class="v4-list">'+list.map(t=>'<li>'+t+'</li>').join('')+'</ul>'}
 function v4StartButton(option){const m=V4_COMPLETE_META[option];return '<p class="v4-cta"><a class="next" href="'+V4_COMPLETE_URL[option]+'" data-rec-product="'+m[0]+'" data-rec-route="'+m[1]+'" data-rec-price="'+m[2]+'" aria-label="START MY SESSIONS: '+m[0]+', £'+m[2]+'">START MY SESSIONS</a></p>'}
@@ -288,6 +313,27 @@ function v4Includes(items){return '<p><strong>Your programme includes:</strong><
 function v4CompleteCard(option,role,ctx){
  // role: 'primary' (full locked copy) or 'alternative'
  const nm=ctx.first;
+ if(option==='bootcamp'){
+  // Two-offer preview (8 Nov 2026). Opening lines: the September Bootcamp screen Buyer A saw. Then the locked Bootcamp description (handover 8 Nov, section 2).
+  // Checkout live (owner approved 8 Nov 2026): Stan £497 Bootcamp page.
+  return '<div class="v4-offer v4-offer-primary" data-offer="bootcamp"><div class="eyebrow">HERE\'S WHERE I RECOMMEND YOU START</div><h2>Return to Yourself Bootcamp</h2><p class="v4-sub" style="margin-top:-6px"><strong>12-week support</strong></p>'+
+  v4Paras(['Based on your answers, this isn\'t just affecting you in one place.','And when I asked what you want, you chose working on <strong>yourself, breaking the cycle and getting your mind back</strong>.','Not another twelve weeks of researching him.'])+
+  '<p class="v4-sub"><strong>You know what you need to do. Now you\'re ready to follow through.</strong></p>'+
+  v4Paras(['You\'ve already done the work of understanding the pattern.','Now you\'re ready to detach, rebuild your self-trust and start putting your energy back into yourself.','The Return to Yourself Bootcamp gives you 12 weeks to work through the complete four-stage hypnotherapy programme, with direct support from me.','Alongside your guided audios, workbook and progress check-ins, you\'ll have:'])+
+  v4Bullets(['Five live group sessions with me','One private 50-minute session, focused on the stage you choose','A small group of like-minded women who are ready to do the work'])+
+  '<p>Because knowing what you need to do and being able to do it are two different things.</p>'+
+  '<p class="rec-proof">“The most incredible result was getting out of the loop. The hypnotherapy helped me ground my energy back to the amazing person that I am.”<br>— Jan</p>'+
+  '<p><a href="/preview/return-to-yourself-bootcamp-29-november-2026/" target="_blank" rel="noopener" style="color:#e6c980;font-weight:600">See everything included in the Bootcamp →</a></p>'+
+  '<p><strong>Starts Sunday 29 November 2026</strong></p><p class="rec-price"><strong>£497</strong></p>'+
+  '<p class="v4-cta"><a class="next" href="'+V4_COMPLETE_URL.bootcamp+'" data-rec-product="Return to Yourself Bootcamp" data-rec-route="Bootcamp" data-rec-price="497" aria-label="JOIN THE BOOTCAMP: Return to Yourself Bootcamp, £497">JOIN THE BOOTCAMP</a></p>'+
+  '<p style="font-size:.92em;margin-top:-4px">Not sure it’s the right fit? <a href="https://tidycal.com/yourmindstory/bootcamp-fit-call" target="_blank" rel="noopener" style="color:#e6c980;font-weight:600" onclick="try{postJourneyEvent(\'bootcamp_call_click\',{step:\'bootcamp\',product:\'Bootcamp Fit Call\'})}catch(e){}">Book a free 15-minute call with me</a></p>'+
+  '<p><strong>Break the cycle. Take your life back.</strong></p></div>';
+ }
+ if(option==='self_guided'&&role==='private'){
+  // September layout: the self-guided option as a quieter line under the Bootcamp (Buyer A chose this link and paid 84 seconds later).
+  const m=V4_COMPLETE_META.self_guided;
+  return '<div class="v4-offer v4-offer-alternative" data-offer="self_guided" style="margin-top:42px;padding-top:22px;border-top:1px solid rgba(36,61,46,.12)"><p style="margin-bottom:8px"><strong>Prefer to work privately?</strong></p><p style="margin-top:0">Return to Yourself Self-Guided gives you the same four-stage programme, guided audios and weekly check-ins, without the live group sessions or the private session.</p><p style="margin-bottom:0"><a href="'+V4_COMPLETE_URL.self_guided+'" data-rec-product="'+m[0]+'" data-rec-route="'+m[1]+'" data-rec-price="'+m[2]+'" style="color:#e6c980;text-decoration:underline;text-underline-offset:3px;font-weight:600" aria-label="See the self-guided option, £117">See the self-guided option – £117</a></p></div>';
+ }
  if(option==='self_guided'){
   return '<div class="v4-offer v4-offer-'+role+'" data-offer="self_guided">'+(role==='primary'?'<div class="eyebrow">HERE\'S WHERE I RECOMMEND YOU START</div>':'')+'<h2>Return to Yourself</h2><p class="v4-sub">A 12-week journey of guided Cognitive Behavioural Hypnotherapy sessions</p>'+
   v4Paras([(nm?nm+', your':'Your')+' answers suggest that this pattern is affecting several areas of your life.','And you\'ve told me that you want to '+ctx.outcome+'.','That\'s why I recommend working through the complete programme rather than focusing on just one response.','Over 12 weeks, you\'ll work through four stages designed to help you:'])+
@@ -313,6 +359,7 @@ function v4BareMinimumCard(nameSuffix){
 // Recommendation screen for the Complete route. options: ordered list, first = primary.
 function v4CompleteRecommendation(options,ctx){
  const primary=options[0];
+ if(primary==='bootcamp')return v4CompleteCard('bootcamp','primary',ctx)+v4VideoBlock('bootcamp')+'<div class="v4-evidence">'+ctx.guarantee+ctx.evidence+ctx.kimberly+'</div>'+v4CompleteCard('self_guided','private',ctx);
  return v4CompleteCard(primary,'primary',ctx)+v4VideoBlock(primary)+'<div class="v4-evidence">'+ctx.guarantee+ctx.evidence+ctx.kimberly+'</div>'+
   options.slice(1).map(o=>v4CompleteCard(o,'alternative',ctx)).join('');
 }
@@ -327,7 +374,7 @@ function v4OptionButtons(group,map,selected){
  return '<div class="options" role="radiogroup" aria-labelledby="'+group+'Label">'+Object.keys(map).map(k=>'<button type="button" class="opt v4-choice" role="radio" data-group="'+group+'" data-value="'+k+'" aria-checked="'+(selected===k)+'">'+map[k]+'</button>').join('')+'</div>';
 }
 function v4Q1Screen(sel){return '<div class="eyebrow">YOUR NEXT STEP</div><h2 class="q" id="v4GoalLabel">Which sounds most like what you want now?</h2>'+v4OptionButtons('v4Goal',V4_GOALS,sel)+'<p class="error v4-choice-error" role="alert"></p>'}
-function v4Q2Screen(sel){return '<h2 class="q">One more thing.</h2><p>This pattern didn\'t develop overnight, and changing how you respond to it takes practice.</p><p>Meaningful change happens through small, consistent steps. That\'s why Return to Yourself is designed to guide you over the next 12 weeks, helping you build new responses and stay on track as you return to yourself.</p><p>Your main job is simple: press play each day and complete a short weekly check-in with me.</p><p class="v4-ask" id="v4SupportLabel"><strong>Would you like more personal support than this?</strong></p>'+v4OptionButtons('v4Support',V4_SUPPORTS,sel)+'<p class="error v4-choice-error" role="alert"></p>'}
+function v4Q2Screen(sel){return '<h2 class="q">One more thing.</h2><p>Changing how you respond to this takes practice, so we work on it over 12 weeks, with support along the way.</p><p>Your main job is to press play each day and complete a short weekly check-in.</p><p class="v4-ask" id="v4SupportLabel"><strong>Can you commit to 12 weeks of support?</strong></p>'+v4OptionButtons('v4Support',V4_SUPPORTS,sel)+'<p class="error v4-choice-error" role="alert"></p>'}
 
 function showResult(){
 v4ResultAwaitingChoice=true; // r7: kept for compatibility only; results-stage events are no longer held.
@@ -493,7 +540,7 @@ if(firstResultPanel){
 }
 
 function recommendationHandoff(link){let last=journeyIdentity(),route=link.dataset.recRoute||'',productType=route==='Single Stage'?'single_stage':route==='Two-Stage Pair'?'two_stage_pair':route==='Bare Minimum'?'bare_minimum':'return_to_you_series';let p={product:link.dataset.recProduct||'',route:route,recommendation_category:recommendationCategory,product_type:productType,submission_id:last.submissionId||'',journey_id:last.journeyId||'',destination:(link.hostname||location.hostname||'').toLowerCase()};let external=link.origin&&link.origin!==location.origin;let jv={product:p.product,route:p.route,recommendation_category:p.recommendation_category,cta:p.product,destination:p.destination,product_clicked:p.product,price:link.dataset.recPrice||'',currency:'GBP',destination_url:(link.href||'').slice(0,200)};postJourneyEvents(external?[['primary_cta_click',jv],[p.destination.includes('stan.store')?'outbound_stan_click':'outbound_payhip_click',jv]]:[['primary_cta_click',jv]]);if(external)beaconV4Events();let analyticsParams={product:p.product,route:p.route,recommendation_category:p.recommendation_category,product_type:p.product_type,destination:p.destination,transport_type:'beacon'};track('recommendation_click',analyticsParams);track('primary_cta_click',analyticsParams);if(external){track('checkout_click',analyticsParams);try{sessionStorage.setItem('yms_v4_preview_last_checkout',JSON.stringify(Object.assign({clickedAt:new Date().toISOString()},p)))}catch(e){}}}
-recommendationHandoffGlobal=recommendationHandoff;el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link){e.preventDefault();v4OfferDecision(link,recommendationHandoff)}});
+recommendationHandoffGlobal=recommendationHandoff;el.addEventListener('click',e=>{let link=e.target.closest('a[data-rec-product]');if(link){e.preventDefault();v4DirectChoice(link,recommendationHandoff)}});
 let rp=-1,navLocked=false;const showPanel=(n,historyMode)=>{rp=n;el.querySelectorAll('.result-panel').forEach((p,j)=>p.classList.toggle('active',j===n));document.getElementById('count').textContent='YOUR RESULT';document.getElementById('fill').style.width=((n+1)/panels.length*100)+'%';if(historyMode==='push')history.pushState({ymsResult:true,resultStep:n},'',location.href);else if(historyMode==='replace')history.replaceState({ymsResult:true,resultStep:n},'',location.href);window.scrollTo({top:0,behavior:'smooth'});let panel=el.querySelectorAll('.result-panel')[n],batch=[];if(panel&&panel.querySelector('.rec-offer a[data-rec-product]')){let link=panel.querySelector('.rec-offer a[data-rec-product]'),vals={product:link?link.dataset.recProduct:'',route:link?link.dataset.recRoute:'',recommendation_category:recommendationCategory,price:link?link.dataset.recPrice||'':'',currency:'GBP'};if(!panel.dataset.offerTracked){panel.dataset.offerTracked='1';batch.push(['recommendation_shown',vals],['final_route_shown',vals]);track('recommendation_shown',vals)}}if(panel&&!panel.dataset.journeyViewTracked){panel.dataset.journeyViewTracked='1';batch.push(['result_step_view',{step:n+1,total_steps:panels.length}])}batch.forEach(e=>postJourneyEvent(e[0],e[1]));track('result_step_view',{step:n+1,step_number:n+1,step_id:'result_'+(n+1),step_name:'Result step '+(n+1),total_steps:panels.length});track('yms_result_screen_'+(n+1)+'_view',{step_number:n+1})};
 const panelIndex=kind=>v4Spec.findIndex(x=>x.kind===kind);
 const v4Nm=safeName?', '+safeName:'';
@@ -501,7 +548,7 @@ const applyPostResultOffer=(goal,support)=>{
  if(!needsPostResultQuestions)return;
  const target=el.querySelector('#v4FinalRecommendation');if(!target)return;
  if(goal==='understand_him'||goal==='change_him'){target.innerHTML=v4BareMinimumCard(v4Nm);return}
- const options=V4_Q2_ROUTING[support];if(!options)return;
+ const options=goal==='self_work'?V4_Q2_ROUTING[support]:(support?['self_guided']:null);if(!options)return;
  target.innerHTML=v4CompleteRecommendation(options,v4Ctx);
  const vals={product:V4_COMPLETE_META[options[0]][0],route:V4_COMPLETE_META[options[0]][1],recommendation_category:recommendationCategory,price:V4_COMPLETE_META[options[0]][2],currency:'GBP',support_choice_id:support};
  const recPanel=target.closest('.result-panel');if(recPanel)delete recPanel.dataset.offerTracked;
