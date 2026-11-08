@@ -674,6 +674,7 @@ var V4_EMAIL_STALE_MS_ = 10 * 60 * 1000;
 // Return to Yourself Bootcamp (8 Nov 2026): its own choice email with the Stan £497 link.
 var V4_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/p/your-mind-story-bootcamp-';
 var V4_BOOTCAMP_EMAIL_SUBJECT_ = 'Your place in the Return to Yourself Bootcamp';
+var V4_BOOTCAMP_CALL_URL_ = 'https://tidycal.com/yourmindstory/bootcamp-fit-call';
 var V4_BOOTCAMP_EMAIL_PARAS_ = [
   'You’ve chosen the Return to Yourself Bootcamp. We start on Sunday 29 November.',
   'Over 12 weeks we work through all four stages together, in a small group of like-minded women. You’ll have five live group sessions with me, one private 50-minute session on the stage you choose, your guided audios, the Guided Reflection Workbook and your weekly check-ins.',
@@ -803,10 +804,10 @@ function v4RunEmailJob_(job) {
 }
 
 function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
-  var title, url, label, subject = V4_CHOICE_EMAIL_SUBJECT_, paras = [V4_CHOICE_EMAIL_OPENING_], closing = '';
+  var title, url, label, subject = V4_CHOICE_EMAIL_SUBJECT_, paras = [V4_CHOICE_EMAIL_OPENING_], closing = '', callUrl = '';
   if (option === 'bootcamp') {
     title = 'Return to Yourself Bootcamp | £497'; label = 'JOIN THE BOOTCAMP'; subject = V4_BOOTCAMP_EMAIL_SUBJECT_;
-    paras = V4_BOOTCAMP_EMAIL_PARAS_; closing = 'Break the cycle. Take your life back.';
+    paras = V4_BOOTCAMP_EMAIL_PARAS_; closing = 'Break the cycle. Take your life back.'; callUrl = V4_BOOTCAMP_CALL_URL_;
     url = withTrackingV3_(V4_BOOTCAMP_URL_, {category:'bootcamp'}, journeyId, submissionId);
   } else if (option === 'bare_minimum') {
     title = BARE_MINIMUM_PRICE_LINE_V3; label = 'START WITH THE BARE MINIMUM';
@@ -825,9 +826,10 @@ function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
     '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(title)+'</p>'+
     '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0 26px;"><tr><td style="background:#111827;border-radius:2px;">'+
     '<a href="'+e(url)+'" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;line-height:1.3;">'+e(label)+'</a></td></tr></table>'+
+    (callUrl ? P+'Not sure it’s the right fit? <a href="'+e(callUrl)+'" style="color:#111827;font-weight:700;">Book a free 15-minute call with me</a>.</p>' : '')+
     (closing ? P+'<strong>'+e(closing)+'</strong></p>' : '')+
     P+'With care,</p><p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p></div>';
-  var text = 'Hi '+firstName+',\n\n'+paras.join('\n\n')+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+(closing ? closing+'\n\n' : '')+
+  var text = 'Hi '+firstName+',\n\n'+paras.join('\n\n')+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+(callUrl ? 'Not sure it’s the right fit? Book a free 15-minute call with me:\n'+callUrl+'\n\n' : '')+(closing ? closing+'\n\n' : '')+
     'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
   return {subject:subject, html:html, text:text, link:url, title:title};
 }

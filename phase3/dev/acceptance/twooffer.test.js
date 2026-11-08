@@ -116,7 +116,7 @@ async function scenario(id, vp, stages, goal, commit, expect) {
   { const r = await scenario('B3', 'mobile', [5, 5, 4, 3], 'self_work', 'not_sure', { click: '497' });
     check('B3', '[mobile] "JOIN THE BOOTCAMP" goes straight to the £497 Stan page with UTMs, saves the Bootcamp choice and her answers, sends the Bootcamp email with the £497 link',
       r.clicked && r.clicked.startsWith(STAN[497]) && /utm_source=yms_assessment/.test(r.clicked) && r.row && r.row['V4 Result Email Route'] === 'bootcamp' &&
-      r.row['V4 Post-Result Question 2 Option ID'] === 'not_sure' && r.emails.length === 2 && r.emails[1][4] === 'Your place in the Return to Yourself Bootcamp' && String(r.emails[1][6] + r.emails[1][7]).includes(STAN[497]) && /Sunday 29 November/.test(String(r.emails[1][6] + r.emails[1][7])) && r.errors.length === 0,
+      r.row['V4 Post-Result Question 2 Option ID'] === 'not_sure' && r.emails.length === 2 && r.emails[1][4] === 'Your place in the Return to Yourself Bootcamp' && String(r.emails[1][6] + r.emails[1][7]).includes(STAN[497]) && /Sunday 29 November/.test(String(r.emails[1][6] + r.emails[1][7])) && String(r.emails[1][6] + r.emails[1][7]).includes('bootcamp-fit-call') && r.errors.length === 0,
       JSON.stringify({ clicked: r.clicked, route: r.row && r.row['V4 Result Email Route'], q2: r.row && r.row['V4 Post-Result Question 2 Option ID'], emails: r.emails.length, err: r.errors })); }
   // S1: not sure she can commit -> Bootcamp first, £117 underneath (owner 8 Nov). S2: can't commit -> £117 only
   for (const [id, vp, commit, want] of [['S1', 'desktop', 'not_sure', '["bootcamp","self_guided"]'], ['S2', 'mobile', 'no', '["self_guided"]']]) {
