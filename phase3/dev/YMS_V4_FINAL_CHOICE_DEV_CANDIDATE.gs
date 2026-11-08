@@ -826,10 +826,10 @@ function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
     '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(title)+'</p>'+
     '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0 26px;"><tr><td style="background:#111827;border-radius:2px;">'+
     '<a href="'+e(url)+'" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;line-height:1.3;">'+e(label)+'</a></td></tr></table>'+
-    (callUrl ? P+'Not sure it’s the right fit? <a href="'+e(callUrl)+'" style="color:#111827;font-weight:700;">Book a free 15-minute call with me</a>.</p>' : '')+
+    (callUrl ? P+'Some women like to speak to me before they join. <a href="'+e(callUrl)+'" style="color:#111827;font-weight:700;">Book a free 15-minute chat.</a></p>' : '')+
     (closing ? P+'<strong>'+e(closing)+'</strong></p>' : '')+
     P+'With care,</p><p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p></div>';
-  var text = 'Hi '+firstName+',\n\n'+paras.join('\n\n')+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+(callUrl ? 'Not sure it’s the right fit? Book a free 15-minute call with me:\n'+callUrl+'\n\n' : '')+(closing ? closing+'\n\n' : '')+
+  var text = 'Hi '+firstName+',\n\n'+paras.join('\n\n')+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+(callUrl ? 'Some women like to speak to me before they join. Book a free 15-minute chat:\n'+callUrl+'\n\n' : '')+(closing ? closing+'\n\n' : '')+
     'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
   return {subject:subject, html:html, text:text, link:url, title:title};
 }

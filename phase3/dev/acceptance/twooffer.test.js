@@ -103,7 +103,7 @@ async function scenario(id, vp, stages, goal, commit, expect) {
     check(id, `[${vp}] total 17, "self_work" + ${commit}: Bootcamp first (locked copy, £497, 29 Nov, Join button goes to the £497 Stan page), £117 underneath, no £147/£197, 21-day guarantee shown`,
       JSON.stringify(r.st.offers) === '["bootcamp","self_guided"]' && r.st.bootcampLinks === 1 && !r.st.checkoutOff &&
       t.includes('Return to Yourself Bootcamp') && t.includes('£497') && t.includes('Starts Sunday 29 November 2026') && t.includes("You know what you need to do. Now you're ready to follow through.") &&
-      t.includes('Five live group sessions with me') && t.includes('12-week support') && t.includes('Book a free 15-minute call with me') && t.includes('Prefer to work privately?') && t.includes('See the self-guided option – £117') &&
+      t.includes('Five live group sessions with me') && t.includes('12-week support') && t.includes('Some women like to speak to me before they join.') && t.includes('Book a free 15-minute chat.') && t.includes('Prefer to work privately?') && t.includes('See the self-guided option – £117') &&
       !/£147|£197|Reality Reset|Pattern Break/.test(t) && /21-day money-back guarantee/i.test(t) && JSON.stringify(r.st.prices) === '["497","117"]',
       JSON.stringify({ offers: r.st.offers, prices: r.st.prices, off: r.st.checkoutOff, t: t.slice(0, 300) }));
     check(id + 'c', `[${vp}] Tapping "See the self-guided option – £117" goes straight to Stan (no pop-up), saves the £117 choice with her answers, sends the choice email once, records the clicks`,
