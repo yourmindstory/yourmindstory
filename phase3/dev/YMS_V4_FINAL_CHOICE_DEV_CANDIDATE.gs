@@ -671,9 +671,17 @@ var V4_CHOICE_EMAIL_SUBJECT_ = 'Your next step towards feeling like yourself aga
 var V4_CHOICE_EMAIL_OPENING_ = 'You’ve chosen how you’d like to begin working on the patterns that have been keeping you stuck. Here’s your next step.';
 var V4_EMAIL_STALE_MS_ = 10 * 60 * 1000;
 
+// Return to Yourself Bootcamp (8 Nov 2026): its own choice email with the Stan £497 link.
+var V4_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/p/PLACEHOLDER';
+var V4_BOOTCAMP_EMAIL_SUBJECT_ = 'Your place in the Return to Yourself Bootcamp';
+var V4_BOOTCAMP_EMAIL_PARAS_ = [
+  'You’ve chosen the Return to Yourself Bootcamp. We start on Sunday 29 November.',
+  'Over 12 weeks we work through all four stages together, in a small group of like-minded women. You’ll have five live group sessions with me, one private 50-minute session on the stage you choose, your guided audios, the Guided Reflection Workbook and your weekly check-ins.',
+  'Your 21-day money-back guarantee applies. If you genuinely follow the programme and feel you’ve received no value from it, contact me.',
+  'If you haven’t secured your place yet, you can do it here:'
+];
 function v4ChoiceEmailNeeded_(r, option) {
-  // Bootcamp choice email waits until its checkout and wording are approved (no Stan link yet).
-  return r.route === SERIES_NAME && option !== 'bootcamp' && (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
+  return r.route === SERIES_NAME && (V4_COMPLETE_OPTIONS_.indexOf(option) !== -1 || option === 'bare_minimum');
 }
 function v4SendingFresh_(errText) {
   var since = Date.parse(String(errText || '').replace(/^sending since /, ''));
@@ -795,8 +803,12 @@ function v4RunEmailJob_(job) {
 }
 
 function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
-  var title, url, label;
-  if (option === 'bare_minimum') {
+  var title, url, label, subject = V4_CHOICE_EMAIL_SUBJECT_, paras = [V4_CHOICE_EMAIL_OPENING_], closing = '';
+  if (option === 'bootcamp') {
+    title = 'Return to Yourself Bootcamp | £497'; label = 'JOIN THE BOOTCAMP'; subject = V4_BOOTCAMP_EMAIL_SUBJECT_;
+    paras = V4_BOOTCAMP_EMAIL_PARAS_; closing = 'Break the cycle. Take your life back.';
+    url = withTrackingV3_(V4_BOOTCAMP_URL_, {category:'bootcamp'}, journeyId, submissionId);
+  } else if (option === 'bare_minimum') {
     title = BARE_MINIMUM_PRICE_LINE_V3; label = 'START WITH THE BARE MINIMUM';
     url = withTrackingV3_(BARE_MINIMUM_URL, {category:'bare_minimum'}, journeyId, submissionId);
   } else {
@@ -809,14 +821,15 @@ function buildChoiceLetterV4_(firstName, r, option, journeyId, submissionId) {
   var e = escapeHtmlV3_, P = '<p style="margin:0 0 18px;">';
   var html = '<div style="font-family:Arial,Helvetica,sans-serif;max-width:600px;margin:0 auto;padding:0 4px;color:#111827;font-size:16px;line-height:1.65;">'+
     P+'Hi '+e(firstName)+',</p>'+
-    P+e(V4_CHOICE_EMAIL_OPENING_)+'</p>'+
+    paras.map(function(p){ return P+e(p)+'</p>'; }).join('')+
     '<p style="font-family:Georgia,serif;font-size:20px;font-weight:700;line-height:1.35;margin:4px 0 6px;">'+e(title)+'</p>'+
     '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:14px 0 26px;"><tr><td style="background:#111827;border-radius:2px;">'+
     '<a href="'+e(url)+'" style="display:inline-block;padding:15px 22px;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.5px;line-height:1.3;">'+e(label)+'</a></td></tr></table>'+
+    (closing ? P+'<strong>'+e(closing)+'</strong></p>' : '')+
     P+'With care,</p><p style="margin:0 0 18px;">Onye<br>Your Mind Story<br>Cognitive Behavioral Hypnotherapist</p></div>';
-  var text = 'Hi '+firstName+',\n\n'+V4_CHOICE_EMAIL_OPENING_+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+
+  var text = 'Hi '+firstName+',\n\n'+paras.join('\n\n')+'\n\n'+title+'\n\n'+label+'\n'+url+'\n\n'+(closing ? closing+'\n\n' : '')+
     'With care,\nOnye\nYour Mind Story\nCognitive Behavioral Hypnotherapist';
-  return {subject:V4_CHOICE_EMAIL_SUBJECT_, html:html, text:text, link:url, title:title};
+  return {subject:subject, html:html, text:text, link:url, title:title};
 }
 function v4SendChoiceEmail_(customer, r, option, journeyId, submissionId) {
   var L = buildChoiceLetterV4_(clean_(customer.firstName), r, option, journeyId, submissionId);
