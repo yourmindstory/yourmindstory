@@ -265,7 +265,8 @@ function v4DirectChoice(link,handoff){
  const ev={step:option,product:link.dataset.recProduct||'',route:link.dataset.recRoute||'',price:link.dataset.recPrice||''};
  postJourneyEvent('offer_select_click',ev);postJourneyEvent('offer_confirm_click',ev);
  track('offer_select_click',{option:option,price:link.dataset.recPrice||'',currency:'GBP'});
- if(r.resultToken&&V3_BACKEND){
+ // Start-here £37 line (10 Nov 2026): record the click and go to Stan, but do not save it as her final offer.
+ if(r.resultToken&&V3_BACKEND&&!link.dataset.v4Starter){
   const barrier=sessionStorage.getItem('yms_v4_preview_existing_barrier')||'';
   const payload={action:'finalizeResultV4',resultToken:r.resultToken,submissionId:r.submissionId||'',finalOfferOption:option,readinessRequired:false,
    question1:goal?{id:'post_result_goal',optionId:goal,answer:postChoice.goalAnswer||''}:null,
@@ -338,7 +339,7 @@ function v4CompleteCard(option,role,ctx){
   return '<div class="v4-offer v4-offer-'+role+'" data-offer="self_guided">'+(role==='primary'?'<div class="eyebrow">HERE\'S WHERE I RECOMMEND YOU START</div>':'')+'<h2>Return to Yourself</h2><p class="v4-sub">A 12-week journey of guided Cognitive Behavioural Hypnotherapy sessions</p>'+
   v4Paras([(nm?nm+', your':'Your')+' answers suggest that this pattern is affecting several areas of your life.','And you\'ve told me that you want to '+ctx.outcome+'.','That\'s why I recommend working through the complete programme rather than focusing on just one response.','Over 12 weeks, you\'ll work through four stages designed to help you:'])+
   v4Bullets(['Quiet the anxiety that gets triggered by what\'s happening with him.','Break the automatic urge to check, chase or search for reassurance.','Rebuild trust in your own decisions and boundaries.','Bring your attention and energy back to yourself and your life.'])+
-  '<p>Through guided Cognitive Behavioural Hypnotherapy sessions, daily practice and weekly check-ins, you\'ll work towards feeling like yourself again, whether he\'s in your life or not.</p><p class="rec-price"><strong>Return to Yourself: £117</strong></p>'+v4StartButton('self_guided')+'</div>';
+  '<p>Through guided Cognitive Behavioural Hypnotherapy sessions, daily practice and weekly check-ins, you\'ll work towards feeling like yourself again, whether he\'s in your life or not.</p><p class="rec-price"><strong>Return to Yourself: £117</strong></p>'+v4StartButton('self_guided')+'<p class="v4-starter" style="font-size:.95em;margin-top:6px"><strong>Just need some relief tonight?</strong> Start with your first hypnotherapy audio session, <a href="https://stan.store/Yourmindstory/p/quiet-the-alarm" data-v4-starter="1" data-rec-product="Quiet the Alarm" data-rec-route="Start Here" data-rec-price="37" style="color:#e6c980;text-decoration:underline;text-underline-offset:3px;font-weight:600" aria-label="Start with Quiet the Alarm, £37">Quiet the Alarm, for £37</a>.</p></div>';
  }
  const rrIncludes=['Return to Yourself: a 12-week journey of guided Cognitive Behavioural Hypnotherapy sessions.','Guided Cognitive Behavioural Hypnotherapy sessions and weekly check-ins.','The accompanying workbook.','A private 20-minute Reality Reset conversation.'];
  if(option==='reality_reset'){
