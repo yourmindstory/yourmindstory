@@ -157,11 +157,11 @@ async function scenario(id, vp, stages, goal, commit, expect) {
   { const { ctx, page, external, errors } = await newPage('mobile');
     await answerAll(page, [5, 5, 4, 3], 'synthetic+c1@example.invalid'); await toRec(page, 'self_work', 'yes');
     const token = await tokenOf(page);
-    const href = await page.$eval('.result-panel.active a[href*="tidycal.com"]', a => a.href);
-    await page.$eval('.result-panel.active a[href*="tidycal.com"]', a => { a.removeAttribute('target'); a.click(); });
+    const href = await page.$eval('.result-panel.active a[href^="mailto:"][onclick*="bootcamp_call_click"]', a => a.getAttribute('href'));
+    await page.$eval('.result-panel.active a[href^="mailto:"][onclick*="bootcamp_call_click"]', a => { a.addEventListener('click', e => e.preventDefault()); a.click(); });
     await sleep(2500); await ctx.close();
     const jl = journeyFor(token);
-    check('C1', 'Fit call link goes to the free TidyCal Bootcamp Fit Call and the click is recorded', href === 'https://tidycal.com/yourmindstory/bootcamp-fit-call' && jl.includes('bootcamp_call_click:OK'), JSON.stringify({ href, jl: jl.slice(-6), errors })); }
+    check('C1', 'Fit call link opens an email request to Onye (subject: free 15-minute chat) and the click is recorded', href.startsWith('mailto:yourmindstory.co.uk@gmail.com?subject=Free%2015-minute%20chat') && jl.includes('bootcamp_call_click:OK'), JSON.stringify({ href, jl: jl.slice(-6), errors })); }
   // T1/T2: tracking on the two-offer journey
   { const r = await scenario('T1', 'desktop', [5, 5, 4, 3], 'self_work', 'yes', { click: '497', consent: 'yes', query: '?utm_source=tiktok&utm_medium=social&utm_campaign=t1_test' });
     const tags = r.external.filter(u => /googletagmanager|google-analytics|clarity\.ms|facebook\.(net|com)/.test(u));
