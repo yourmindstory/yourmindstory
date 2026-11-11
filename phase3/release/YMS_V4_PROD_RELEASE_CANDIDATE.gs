@@ -674,7 +674,7 @@ var V4_CHOICE_EMAIL_OPENING_ = 'You’ve chosen how you’d like to begin workin
 var V4_EMAIL_STALE_MS_ = 10 * 60 * 1000;
 
 // Return to Yourself Bootcamp (8 Nov 2026): its own choice email with the Stan £497 link.
-var V4_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/p/your-mind-story-bootcamp-';
+var V4_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/Yourmindstory_store/page/5633898';
 var V4_BOOTCAMP_EMAIL_SUBJECT_ = 'Your place in the Return to Yourself Bootcamp';
 var V4_BOOTCAMP_CALL_URL_ = 'https://tidycal.com/yourmindstory/bootcamp-fit-call';
 var V4_BOOTCAMP_EMAIL_PARAS_ = [

@@ -17,7 +17,7 @@ const STAN = {
   37: 'https://stan.store/Yourmindstory/p/quiet-the-alarm',
   74: 'https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull',
   '4.99': 'https://stan.store/Yourmindstory/p/the-bare-minimum',
-  497: process.env.YMS_BOOTCAMP_URL || 'https://stan.store/Yourmindstory/p/your-mind-story-bootcamp-'
+  497: process.env.YMS_BOOTCAMP_URL || 'https://stan.store/Yourmindstory/Yourmindstory_store/page/5633898'
 };
 let browser, srv, base;
 
