@@ -59,7 +59,8 @@ function normaliseMobileQuizCTA(){
 normaliseMobileQuizCTA();
 
 var excluded=['/quiz','/result','/no-result','/low-result','/mixed-result','/guide','/hook-preview','/guide-interactive-preview','/checkout','/quiet-the-alarm','/break-the-pull','/restore-self-trust','/return-to-yourself','/calm-the-spiral','/checkin-'];
-if(excluded.some(function(x){return path.indexOf(x)!==-1;}))return;
+var isBootcampPage=(path==='/return-to-yourself-bootcamp/'||path==='/return-to-yourself-bootcamp');
+if(!isBootcampPage&&excluded.some(function(x){return path.indexOf(x)!==-1;}))return;
 if(!CONFIG.enabled||!CONFIG.brevoFormUrl)return;
 if(!testMode){
   try{if(localStorage.getItem(CONFIG.requestStorageKey)==='1')return;}catch(e){}
