@@ -20,7 +20,7 @@ body{
   margin:0;
   background:var(--light-sage);
   color:var(--ink);
-  font-family:'Inter',sans-serif;
+  font-family:'DM Sans',sans-serif;
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
 }
@@ -181,7 +181,7 @@ a{color:inherit;}
   padding:13px 14px;
   border:1.5px solid var(--sage-soft);
   border-radius:10px;
-  font-family:'Inter',sans-serif;
+  font-family:'DM Sans',sans-serif;
   font-size:0.9375rem;
   background:var(--soft-white);
   color:var(--ink);
@@ -211,7 +211,7 @@ a{color:inherit;}
   margin-top:28px;
 }
 button{
-  font-family:'Inter',sans-serif;
+  font-family:'DM Sans',sans-serif;
   font-size:0.9375rem;
   font-weight:600;
   border-radius:99px;
@@ -302,7 +302,7 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 .fc-hint{font-size:0.7812rem; color:var(--ink); opacity:.55; margin:-2px 0 16px;}
 .fc-other-field{margin-top:4px; margin-bottom:10px; display:none;}
 .fc-other-field.show{display:block;}
-.fc-other-input{width:100%; padding:13px 14px; border:1.5px solid var(--sage-soft); border-radius:8px; font-family:'Inter',sans-serif; font-size:0.9375rem; background:var(--warm-cream); color:var(--ink);}
+.fc-other-input{width:100%; padding:13px 14px; border:1.5px solid var(--sage-soft); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.9375rem; background:var(--warm-cream); color:var(--ink);}
 .fc-nav{display:flex; justify-content:space-between; align-items:center; margin-top:26px;}
 
 /* ---------------- Legacy recommendation section (result pages) ---------------- */
@@ -314,7 +314,7 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 .price-card{background:var(--sage-soft); border-radius:var(--radius); padding:30px 26px; text-align:center; margin:8px 0 6px;}
 .price-start{font-size:0.9062rem; color:var(--ink); opacity:.8; margin:0 0 18px;}
 .price-figure{font-family:'Fraunces',serif; font-size:2.25rem; color:var(--ink); margin:0 0 4px; line-height:1.2;}
-.price-figure .price-unit{font-family:'Inter',sans-serif; font-size:0.9375rem; opacity:.7; font-weight:500;}
+.price-figure .price-unit{font-family:'DM Sans',sans-serif; font-size:0.9375rem; opacity:.7; font-weight:500;}
 .price-or{font-size:0.7812rem; color:var(--ink); opacity:.6; margin:8px 0; text-transform:uppercase; letter-spacing:.06em;}
 .price-installments{font-family:'Fraunces',serif; font-size:1.3125rem; color:var(--ink); margin:0 0 18px;}
 .price-note{font-size:0.7812rem; color:var(--ink); opacity:.72; margin:0; line-height:1.5;}
@@ -327,7 +327,7 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 .og-accordion-toggle{
   display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
   background:var(--warm-cream); border:1.5px solid var(--sage-soft); border-radius:99px;
-  cursor:pointer; padding:13px 20px; font-family:'Inter',sans-serif; font-size:0.7812rem; font-weight:600;
+  cursor:pointer; padding:13px 20px; font-family:'DM Sans',sans-serif; font-size:0.7812rem; font-weight:600;
   letter-spacing:.05em; text-transform:uppercase; color:var(--ink);
   transition:border-color .15s ease;
 }
@@ -341,7 +341,7 @@ button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 .og-accordion-content .og-label:not(:first-child){margin-top:22px;}
 
 /* Stepped recommendation UX — mirrors Return to You Series purchase flow */
-.yms-stepped-offer{font-family:'Inter',sans-serif;color:var(--ink);scroll-margin-top:18px}
+.yms-stepped-offer{font-family:'DM Sans',sans-serif;color:var(--ink);scroll-margin-top:18px}
 .yms-step-progress{display:flex;align-items:center;gap:12px;margin:4px 0 24px;font-size:0.75rem;font-weight:700;color:#62666d}
 .yms-step-track{height:5px;background:#ececea;flex:1;border-radius:99px;overflow:hidden}
 .yms-step-bar{height:100%;background:#9b7a45;transition:width .25s ease}

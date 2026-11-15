@@ -204,11 +204,11 @@
   // ---------------- YMS-REC-2026-V1 recommendation router ----------------
   var QUIZ_BACKEND_URL_V1 = "https://script.google.com/macros/s/AKfycbwN0cFau2YiQ932ZvEjbCaiu1N-iJHMfJ7c3CY7abH8dsYCfyHne3-aRy5AwWh6WUOV/exec";
   var AUDIO_PRODUCTS_V1 = {
-    'Quiet the Alarm': {url:'https://payhip.com/b/53N2B', description:'Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again.'},
-    'Break the Pull': {url:'https://payhip.com/b/N8hbz', description:"You keep getting pulled back into him or the situation: checking, texting, replaying, analysing, looking for signs or trying to understand what is happening."},
-    'Restore Self Trust': {url:'https://payhip.com/b/3RlF7', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
-    'Restore Self-Trust': {url:'https://payhip.com/b/3RlF7', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
-    'Return to Yourself': {url:'https://payhip.com/b/6pE8S', description:"You have started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."}
+    'Quiet the Alarm': {url:'https://stan.store/Yourmindstory/p/quiet-the-alarm', description:'Your body is reacting to what happens, and once that alarm starts it can be difficult to fully settle again.'},
+    'Break the Pull': {url:'https://stan.store/Yourmindstory/p/break-the-pull', description:"You keep getting pulled back into him or the situation: checking, texting, replaying, analysing, looking for signs or trying to understand what is happening."},
+    'Restore Self Trust': {url:'https://stan.store/Yourmindstory/p/restore-self-trust', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
+    'Restore Self-Trust': {url:'https://stan.store/Yourmindstory/p/restore-self-trust', description:'What happens with him is making it harder to trust your own read of things and the decisions you make for yourself.'},
+    'Return to Yourself': {url:'https://stan.store/Yourmindstory/p/return-to-yourself-7jc9h8lg', description:"You have started losing connection with yourself, or parts of your own life, needs and priorities have moved into the background."}
   };
 
   function renderAudioRecommendationV1(container, stageName){
@@ -242,7 +242,7 @@
       container.innerHTML='<div class="divider"></div><span class="og-label">YOUR UPDATED RESULT</span><p class="result-lede">I need the current quiz version to give you the right recommendation.</p><p>Your browser has carried over an older result session, so I will not guess which support level is right for you.</p><div class="cta-row"><a class="btn-cta" href="/assessment?v=20260910-rec2">RETAKE THE UPDATED QUIZ</a></div>';
       return;
     }
-    if(level==='bare_minimum'){ container.innerHTML='<div class="divider"></div><span class="og-label">YOUR RECOMMENDED NEXT STEP</span><p class="result-lede">Start with The Bare Minimum.</p><div class="cta-row"><a class="btn-cta" href="https://payhip.com/b/ZcdmX">START WITH THE BARE MINIMUM</a></div>'; return; }
+    if(level==='bare_minimum'){ container.innerHTML='<div class="divider"></div><span class="og-label">YOUR RECOMMENDED NEXT STEP</span><p class="result-lede">Start with The Bare Minimum.</p><div class="cta-row"><a class="btn-cta" href="https://stan.store/Yourmindstory/p/the-bare-minimum">START WITH THE BARE MINIMUM</a></div>'; return; }
     if(level==='audio_first'){
       if(data.resultType==='mixed' && data.mixedClarificationRequired && !data.mixedClarificationSelection){ renderMixedClarificationV1(container,data); return; }
       renderAudioRecommendationV1(container,data.mixedClarificationSelection||data.recommendedStage||data.primaryResult||''); return;

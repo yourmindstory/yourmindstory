@@ -30,19 +30,19 @@
 
   var SINGLES = {
     "Quiet the Alarm": {
-      url: "https://payhip.com/b/53N2B",
+      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm",
       description: "When something shifts with him, your body goes with it. The alarm comes on fast and takes too long to switch off."
     },
     "Break the Pull": {
-      url: "https://payhip.com/b/N8hbz",
+      url: "https://stan.store/Yourmindstory/p/break-the-pull",
       description: "You can know you need to stop checking, replaying or reaching out and still feel yourself getting pulled straight back in."
     },
     "Restore Self-Trust": {
-      url: "https://payhip.com/b/3RlF7",
+      url: "https://stan.store/Yourmindstory/p/restore-self-trust",
       description: "You know what happened. Then you question yourself, change your mind and start wondering if you got it wrong."
     },
     "Return to You": {
-      url: "https://payhip.com/b/6pE8S",
+      url: "https://stan.store/Yourmindstory/p/return-to-yourself-7jc9h8lg",
       description: "Too much of your attention is ending up with him, while your own plans, needs and life get pushed further into the background."
     }
   };
@@ -50,27 +50,27 @@
   var PAIRS = {
     "Quiet the Alarm|Break the Pull": {
       name: "Quiet the Alarm → Break the Pull",
-      url: "https://payhip.com/b/vatYk"
+      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--break-the-pull"
     },
     "Quiet the Alarm|Restore Self-Trust": {
       name: "Quiet the Alarm → Restore Self-Trust",
-      url: "https://payhip.com/b/01XGD"
+      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--restore-selftrust"
     },
     "Quiet the Alarm|Return to You": {
       name: "Quiet the Alarm → Return to You",
-      url: "https://payhip.com/b/n1BOZ"
+      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm--return-to-yourself"
     },
     "Break the Pull|Restore Self-Trust": {
       name: "Break the Pull → Restore Self-Trust",
-      url: "https://payhip.com/b/UQJXA"
+      url: "https://stan.store/Yourmindstory/p/break-the-pull--restore-selftrust"
     },
     "Break the Pull|Return to You": {
       name: "Break the Pull → Return to You",
-      url: "https://payhip.com/b/1PGuN"
+      url: "https://stan.store/Yourmindstory/p/break-the-pull--return-to-yourself"
     },
     "Restore Self-Trust|Return to You": {
       name: "Restore Self-Trust → Return to You",
-      url: "https://payhip.com/b/Ft7Pw"
+      url: "https://stan.store/Yourmindstory/p/restore-selftrust--return-to-yourself"
     }
   };
 
@@ -78,7 +78,7 @@
     name: "Return to Yourself",
     url: "/return-to-yourself-journey/"
   };
-  var BARE_MINIMUM = "https://payhip.com/b/ZcdmX";
+  var BARE_MINIMUM = "https://stan.store/Yourmindstory/p/the-bare-minimum";
 
   function recordJourney(eventType, values) {
     if (Y.recordJourneyEvent) Y.recordJourneyEvent(eventType, values || {});

@@ -17,7 +17,7 @@
 
   var AUDIO_RESULTS = {
     "Quiet the Alarm": {
-      url: "https://payhip.com/b/53N2B",
+      url: "https://stan.store/Yourmindstory/p/quiet-the-alarm",
       cta: "START WITH QUIET THE ALARM",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Quiet the Alarm.</p>' +
@@ -32,7 +32,7 @@
         '<p>You\'ll work with Quiet the Alarm for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Break the Pull": {
-      url: "https://payhip.com/b/N8hbz",
+      url: "https://stan.store/Yourmindstory/p/break-the-pull",
       cta: "START WITH BREAK THE PULL",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Break the Pull.</p>' +
@@ -49,7 +49,7 @@
         '<p>You\'ll work with Break the Pull for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Restore Self-Trust": {
-      url: "https://payhip.com/b/3RlF7",
+      url: "https://stan.store/Yourmindstory/p/restore-self-trust",
       cta: "START WITH RESTORE SELF-TRUST",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Restore Self-Trust.</p>' +
@@ -64,7 +64,7 @@
         '<p>You\'ll work with Restore Self-Trust for <strong>21 days</strong>, with simple check-ins along the way so you can notice what\'s changing rather than having to guess whether it\'s helping.</p>'
     },
     "Return to You": {
-      url: "https://payhip.com/b/6pE8S",
+      url: "https://stan.store/Yourmindstory/p/return-to-yourself-7jc9h8lg",
       cta: "START WITH RETURN TO YOU",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Return to You.</p>' +

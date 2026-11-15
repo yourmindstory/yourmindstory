@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/yms-quiz-shared.css">
 <script src="assets/yms-quiz-shared.js?v=20260922-feedback1"></script>
 <style>
@@ -15,34 +15,34 @@
   body{background:var(--cream);color:var(--ink)}
   .feedback-wrap{max-width:720px;margin:0 auto;padding:28px 18px 56px}
   .feedback-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 22px}
-  .feedback-brand{font:600 12px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:18px}
-  .feedback-card h1{font:500 clamp(30px,7vw,46px)/1.04 Fraunces,serif;margin:0 0 18px}
-  .feedback-card p{font:400 16px/1.55 Inter,sans-serif;margin:0 0 13px}
+  .feedback-brand{font:600 0.75rem/1 DM Sans,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:18px}
+  .feedback-card h1{font:500 clamp(1.875rem,7vw,2.875rem)/1.04 Fraunces,serif;margin:0 0 18px}
+  .feedback-card p{font:400 1rem/1.55 DM Sans,sans-serif;margin:0 0 13px}
   .reward-copy{padding:16px 17px;border-left:4px solid var(--sage);background:#F3F0E7;border-radius:0 12px 12px 0;margin:20px 0 6px}
   .reward-copy strong{font-weight:600}
   .start-row,.action-row{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
-  .fb-btn{border:0;border-radius:999px;background:var(--sage);color:#fff;padding:14px 20px;font:600 13px/1.2 Inter,sans-serif;letter-spacing:.035em;text-transform:uppercase;cursor:pointer}
+  .fb-btn{border:0;border-radius:999px;background:var(--sage);color:#fff;padding:14px 20px;font:600 0.8125rem/1.2 DM Sans,sans-serif;letter-spacing:.035em;text-transform:uppercase;cursor:pointer}
   .fb-btn[disabled]{opacity:.45;cursor:not-allowed}
   .fb-btn.secondary{background:transparent;color:var(--sage);border:1px solid rgba(36,61,46,.25)}
   .fb-step{display:none}.fb-step.active{display:block}
-  .fb-kicker{font:600 11px/1.2 Inter,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--sage);margin-bottom:12px}
-  .fb-question{font:500 27px/1.15 Fraunces,serif;margin:0 0 18px}
+  .fb-kicker{font:600 0.6875rem/1.2 DM Sans,sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--sage);margin-bottom:12px}
+  .fb-question{font:500 1.6875rem/1.15 Fraunces,serif;margin:0 0 18px}
   .fb-options{display:grid;gap:10px}
-  .fb-option{display:flex;align-items:flex-start;gap:11px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;font:500 14px/1.42 Inter,sans-serif}
+  .fb-option{display:flex;align-items:flex-start;gap:11px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;font:500 0.875rem/1.42 DM Sans,sans-serif}
   .fb-option:has(input:checked){border-color:var(--sage);box-shadow:0 0 0 1px var(--sage)}
   .fb-option input{margin-top:2px}
-  textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font:400 16px/1.45 Inter,sans-serif;background:#fff;color:var(--ink);box-sizing:border-box}
+  textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font:400 1rem/1.45 DM Sans,sans-serif;background:#fff;color:var(--ink);box-sizing:border-box}
   .fb-branch{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
-  .fb-branch label{display:block;font:600 14px/1.35 Inter,sans-serif;margin-bottom:8px}
-  .fb-note{font:400 13px/1.45 Inter,sans-serif;color:var(--muted);margin-top:8px}
-  .fb-error{display:none;color:#8A2C2C;font:600 13px/1.35 Inter,sans-serif;margin-top:10px}
+  .fb-branch label{display:block;font:600 0.875rem/1.35 DM Sans,sans-serif;margin-bottom:8px}
+  .fb-note{font:400 0.8125rem/1.45 DM Sans,sans-serif;color:var(--muted);margin-top:8px}
+  .fb-error{display:none;color:#8A2C2C;font:600 0.8125rem/1.35 DM Sans,sans-serif;margin-top:10px}
   .fb-error.show{display:block}
   .progress{height:6px;background:#E9E3D7;border-radius:99px;overflow:hidden;margin-bottom:18px}
   .progress span{display:block;height:100%;background:var(--sage);width:0;transition:width .2s ease}
   .reward-screen{text-align:left}
-  .reward-screen h2{font:500 34px/1.08 Fraunces,serif;margin:0 0 15px}
+  .reward-screen h2{font:500 2.125rem/1.08 Fraunces,serif;margin:0 0 15px}
   .reward-screen .fb-btn{display:inline-block;text-decoration:none;margin-top:10px}
-  .save-note{display:none;font:500 13px/1.4 Inter,sans-serif;color:var(--muted);margin-top:12px}
+  .save-note{display:none;font:500 0.8125rem/1.4 DM Sans,sans-serif;color:var(--muted);margin-top:12px}
   @media(max-width:560px){.feedback-card{padding:22px 17px}.fb-question{font-size:1.5rem}.action-row{justify-content:space-between}.fb-btn{padding:13px 16px}}
 </style>
 </head>
