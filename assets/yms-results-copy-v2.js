@@ -21,7 +21,7 @@
       cta: "START WITH QUIET THE ALARM",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Quiet the Alarm.</p>' +
-        '<p>Quiet the Alarm is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts and emotional responses underneath that alarm.</strong></p>' +
+        '<p>Quiet the Alarm is a guided Cognitive Behavioural Hypnotherapy audio designed to help you work on the <strong>thoughts and emotional responses underneath that alarm.</strong></p>' +
         '<p>Because the goal isn\'t to understand him better or force yourself to stop thinking about him.</p>' +
         '<p>It\'s being able to think about him, remember something, or notice something has changed <strong>without it taking the next few hours of your day with it.</strong></p>' +
         '<p><strong>Less spiralling. Less searching for an answer. Less of your peace depending on him.</strong></p>' +
@@ -36,7 +36,7 @@
       cta: "START WITH BREAK THE PULL",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Break the Pull.</p>' +
-        '<p>Break the Pull is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts, urges and learned responses underneath that pull.</strong></p>' +
+        '<p>Break the Pull is a guided Cognitive Behavioural Hypnotherapy audio designed to help you work on the <strong>thoughts, urges and learned responses underneath that pull.</strong></p>' +
         '<p>Because the problem isn\'t that you don\'t know you should leave it alone.</p>' +
         '<p><strong>It\'s what happens in the moment when the pull feels stronger than what you know.</strong></p>' +
         '<p>The goal is being able to feel that urge <strong>without automatically having to follow it.</strong></p>' +
@@ -53,7 +53,7 @@
       cta: "START WITH RESTORE SELF-TRUST",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Restore Self-Trust.</p>' +
-        '<p>Restore Self-Trust is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts, beliefs and emotional responses underneath the second-guessing.</strong></p>' +
+        '<p>Restore Self-Trust is a guided Cognitive Behavioural Hypnotherapy audio designed to help you work on the <strong>thoughts, beliefs and emotional responses underneath the second-guessing.</strong></p>' +
         '<p>Because the goal isn\'t to have somebody else tell you whether you\'re right or wrong.</p>' +
         '<p><strong>It\'s being able to hear yourself, make a decision and still trust yourself when something changes.</strong></p>' +
         '<p>Less explaining things away. Less wondering whether you\'re asking too much. Less needing what he does next to tell you whether you were right.</p>' +
@@ -68,7 +68,7 @@
       cta: "START WITH RETURN TO YOU",
       html:
         '<p class="result-lede" style="margin-top:0;">I recommend Return to You.</p>' +
-        '<p>Return to You is a guided Cognitive Behavioral Hypnotherapy audio designed to help you work on the <strong>thoughts and learned responses that keep pulling your attention, energy and sense of self back towards him.</strong></p>' +
+        '<p>Return to You is a guided Cognitive Behavioural Hypnotherapy audio designed to help you work on the <strong>thoughts and learned responses that keep pulling your attention, energy and sense of self back towards him.</strong></p>' +
         '<p>Because the goal isn\'t to force yourself to stop caring or never think about him again.</p>' +
         '<p><strong>It\'s being able to think about him without losing yourself.</strong></p>' +
         '<p>Less waiting. Less organising your day around what he might do. Less putting your plans, needs and happiness on hold.</p>' +
