@@ -36,7 +36,7 @@ var V3_BACKEND_BUILD = '2026-11-02-v4-final-choice-dev-candidate-r8';
 // 'PROD' : set ONLY at the approved production release, together with V4_SHEET_ID (see release checklist).
 var V4_ENV = 'DEV';
 var V4_PROD_SHEET_ID_ = '1jO33mGOLAwxDuBxsEsJMsxW5ONa78rgjkMmlAqsZoGM';
-var V4_V3_HISTORY_SHEET_ID_ = '1MRK7_t-_HN8OCHpK8tm1E8QWXexo8ACLMTdsqZjaoXE'; // V3 history: never opened by this script
+var V4_V3_HISTORY_SHEET_ID_ = '1MRK7_t-_HN8OCHpK8tm1E8QWXexo8ACLMTdsqZjaoXE'; // V3 history: never written by this script; read-only lookup for purchase matching (v3HistoryByEmail_)
 var V4_DEV_SHEET_TITLE_ = 'YMS V4 DEV Assessment - Synthetic Only - 2026-11-02';
 // Saved-result link in the transactional email. The V4 page restores the progressive result
 // from ?resultToken=. Override per deployment with the V4_RESULT_PAGE_URL script property.
@@ -2610,6 +2610,27 @@ function syncPayhipPurchasesV3_() {
   return {ok:true, paid:stats.paid, refunded:stats.refunded, created:stats.created};
 }
 
+// READ-ONLY: V3 history assessments by email, so a purchase by a woman who took the V3 quiz
+// is not reported as unmatched. Never writes to the V3 workbook. Returns {} on any error.
+function v3HistoryByEmail_() {
+  var out = {};
+  try {
+    if (v4IsDev_()) return out;
+    var sh = SpreadsheetApp.openById(V4_V3_HISTORY_SHEET_ID_).getSheetByName('V3 Responses');
+    if (!sh || sh.getLastRow() < 2) return out;
+    var v = sh.getDataRange().getValues(), h = v[0].map(String);
+    v.slice(1).forEach(function(r, i){
+      var o = {}; h.forEach(function(k,j){ o[k] = r[j]; });
+      var e = String(o['Email']||'').toLowerCase().trim();
+      var t = toDate_(o['Submitted UTC']) || toDate_(o['Date & Time']);
+      if (!e || !t) return;
+      (out[e] = out[e] || []).push({row:i+2, data:o, time:t});
+    });
+    Object.keys(out).forEach(function(k){ out[k].sort(function(a,b){ return a.time-b.time; }); });
+  } catch (err) { console.warn('v3HistoryByEmail_ failed: ' + err); }
+  return out;
+}
+
 /* Unified purchase matching (Stan legacy + Payhip). Deterministic only:
  *  1. 'email'  : purchaser email = assessment email, most recent assessment at or before the purchase.
  *  2. 'journey (returned from Payhip, single candidate)' : Payhip only. The buyer's browser landed on our welcome page
@@ -2677,8 +2698,9 @@ function rematchAllUnifiedV3_() {
 
   var perRow = {};
   var counted = 0, unmatched = [];
+  var v3Hist = null;
   purchases.forEach(function(p){
-    var target = null, method = '';
+    var target = null, method = '', v3Match = null, v3Method = '';
     var list = byEmail[p.email] || [];
     if (p.time) for (var i = list.length-1; i >= 0; i--) { if (list[i].time <= p.time) { target = list[i]; method = 'email'; break; } }
     if (!target && p.kind === 'payhip' && p.time) {
@@ -2707,6 +2729,18 @@ function rematchAllUnifiedV3_() {
         'Checkout Clicked':d['Checkout Clicked']||'','Checkout Clicked At':d['Checkout Clicked At']||''};
       if (method.indexOf('bought before') === -1) { (perRow[target.row] = perRow[target.row] || []).push({p:p, matchesRec:matchesRec}); counted++; }
       else unmatched.push(p);
+    } else if (p.time && (v3Hist = v3Hist || v3HistoryByEmail_()) && (v3Match = (function(l){ for (var q = l.length-1; q >= 0; q--) if (l[q].time <= p.time) return l[q]; return null; })(v3Hist[p.email] || []))) {
+      // Took the V3 quiz (before V4 existed) and bought later: matched, recorded here only, V3 untouched.
+      var d3 = v3Match.data, rec3 = String(d3['Recommended Product']||'');
+      v3Method = 'email (V3 assessment)';
+      upd = {'Match Method':v3Method,'Matched Submission ID':d3['Submission ID']||'','Matched Journey ID':d3['Journey ID']||'','Matched Row':'V3 row ' + v3Match.row,
+        'Assessment Date':d3['Date & Time'],'Recommended Route':d3['Recommended Route']||'','Recommended Product':rec3,
+        'Recommended Price':d3['Recommended Price']||'','Matches Recommendation':!rec3 ? '' : (p.product === rec3 ? 'Yes' : 'No'),
+        'Source (Derived v2)':d3['Source (Derived v2)']||'','Source / Journey':d3['Source / Journey']||'',
+        'First Touch Source':d3['First Touch Source']||'','First Touch Medium':d3['First Touch Medium']||'','First Touch Campaign':d3['First Touch Campaign']||'',
+        'Assessment Touch Source':d3['Assessment Touch Source']||'','Assessment Touch Medium':d3['Assessment Touch Medium']||'','Assessment Touch Campaign':d3['Assessment Touch Campaign']||'',
+        'Experiment Version':d3['Experiment Version']||''};
+      counted++;
     } else {
       upd = {'Match Method':'unmatched (no assessment with this email; no single journey return)','Matched Submission ID':'','Matched Journey ID':'','Matched Row':'',
         'Assessment Date':'','Recommended Route':'','Recommended Product':'','Recommended Price':'','Matches Recommendation':'','Source (Derived v2)':'','Experiment Version':''};
@@ -2718,8 +2752,10 @@ function rematchAllUnifiedV3_() {
     // Canonical purchase (and refund) events, upserted so a later match refreshes attribution.
     var ptime = p.time || new Date();
     var row = target && method.indexOf('bought before') === -1 ? target.data : null;
-    var ids = row ? {submissionId:String(row['Submission ID']||''), journeyId:String(row['Journey ID']||'')} : {submissionId:'', journeyId:''};
-    var evidence = p.kind === 'payhip' ? 'Payhip paid webhook, transaction ' + p.id + ' (match: ' + (row ? method : 'unmatched') + ')' : 'Stan purchase confirmation email, order ' + p.id + ' (match: ' + (row ? method : 'unmatched') + ')';
+    var ids = row ? {submissionId:String(row['Submission ID']||''), journeyId:String(row['Journey ID']||'')} :
+      (v3Match ? {submissionId:String(v3Match.data['Submission ID']||''), journeyId:String(v3Match.data['Journey ID']||'')} : {submissionId:'', journeyId:''});
+    var mlabel = row ? method : (v3Method || 'unmatched');
+    var evidence = p.kind === 'payhip' ? 'Payhip paid webhook, transaction ' + p.id + ' (match: ' + mlabel + ')' : 'Stan purchase confirmation email, order ' + p.id + ' (match: ' + mlabel + ')';
     var prec = funnelRecordV3_('purchase', ptime, evidence, ids, row, {product_clicked:p.product, currency:p.currency}, null, p.test,
       {orderId:p.id, amount:p.amount, dedupeSuffix:p.key, v3Row: row ? target.row : '', email:p.email, era: eraOfV3_(ptime)});
     prec['Product Clicked'] = p.product;
