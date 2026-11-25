@@ -9,6 +9,8 @@
   var analyticsKey='yms_analytics_consent',adsKey='yms_ads_consent',bannerId='yms-consent-banner';
   function read(key){try{return localStorage.getItem(key)}catch(e){return null}}
   function write(key,value){try{localStorage.setItem(key,value)}catch(e){}}
+  // 25 Nov 2026 (owner decision): back to the September setup. No banner; analytics on unless she chose Reject before.
+  if(read(analyticsKey)===null)write(analyticsKey,'yes');
   function clearFirstPartyTrackingCookies(){['_ga','_gid','_gat','_gcl_au','_fbp','_fbc'].forEach(function(n){document.cookie=n+'=; Max-Age=0; path=/; SameSite=Lax';document.cookie=n+'=; Max-Age=0; path=/; domain=.yourmindstory.co.uk; SameSite=Lax'})}
   function queue(name,params){window.__ymsPendingEvents=window.__ymsPendingEvents||[];window.__ymsPendingEvents.push({name:name,params:params||{}})}
   function flush(){if(!window.YMSQuiz||!window.YMSQuiz.track)return;var pending=window.__ymsPendingEvents||[];window.__ymsPendingEvents=[];pending.forEach(function(e){window.YMSQuiz.track(e.name,e.params)})}
@@ -127,8 +129,6 @@
     })});
     return banner;
   }
-  var settings=document.createElement('button');settings.id='yms-consent-settings';settings.type='button';settings.textContent='Cookie settings';settings.addEventListener('click',openSettings);document.body.appendChild(settings);
-  if(choice!=='yes'&&choice!=='no')openSettings();
-  else if(choice==='no'){} 
+  // No banner and no floating 'Cookie settings' button (September setup). window.YMSConsent.open() still shows the choices.
   window.YMSConsent={open:openSettings,load:loadAnalytics};
 })();
