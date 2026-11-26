@@ -235,6 +235,7 @@ function doGet(e) {
 var V4_AFTER_LOCK_ = null;
 function doPost(e) {
   V4_AFTER_LOCK_ = null;
+  try { v5BeforePost_(e); } catch (v5PreErr) { console.error('V5 answer mark failed: ' + v5PreErr); }
   var res = v4DoPostCore_(e);
   var job = V4_AFTER_LOCK_; V4_AFTER_LOCK_ = null;
   // V5 (26 Nov 2026): one Brevo results email per journey. Runs after the request's lock is released.
@@ -3196,11 +3197,12 @@ var V5_TEMPLATES_ = {
 var V5_STAGE_CODES_ = {'Quiet the Alarm':'qa','Break the Pull':'bp','Restore Self-Trust':'rs','Return to Yourself':'ry'};
 var V5_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/Yourmindstory_store/page/5633898';
 var V5_FALLBACK_MS_ = 10 * 60 * 1000;   // no final answer after 10 minutes -> results-only email
+var V5_SETTLE_MS_ = 3 * 60 * 1000;      // 26 Nov fix: wait until her answers have stopped changing for 3 minutes
 var V5_STALE_SENDING_MS_ = 15 * 60 * 1000;
 var V5_MAX_ATTEMPTS_ = 3;
 var V5_SUMMARY_TO_ = 'yourmindstory.co.uk@gmail.com';
 var V5_TEST_RE_ = /\+v5test[a-z0-9._-]*@/i;
-var V5_HEADERS_ = ['V5 Email Template','V5 Email Sent UTC','V5 Brevo Message ID','V5 Email Attempts','V5 Email Trigger'];
+var V5_HEADERS_ = ['V5 Email Template','V5 Email Sent UTC','V5 Brevo Message ID','V5 Email Attempts','V5 Email Trigger','V5 Last Answer UTC'];
 
 function v5Mode_() { var m = v4ScriptProp_('V5_RESULTS_EMAIL'); return (m === 'on' || m === 'test') ? m : 'off'; }
 function v5Enabled_(email) {
@@ -3312,6 +3314,12 @@ function v5Process_(token, reason, offer, hint, rowHint) {
       if (hint.q2 && !clean_(d['V4 Post-Result Question 2 Option ID']) && V4_SUPPORT_CHOICES_[hint.q2]) d['V4 Post-Result Question 2 Option ID'] = hint.q2;
     }
     var key = retry ? clean_(d['V5 Email Template']) : v5TemplateKey_(d, offer);
+    // Answers on the results screen: never send on the tap itself (she may change her mind). The sweep sends once
+    // her last answer is 3 minutes old. A buy-button click (offer) is her explicit choice and sends straight away.
+    if (key && !retry && !offer && reason !== 'submit') {
+      var lastAns = Date.parse(String(d['V5 Last Answer UTC']||''));
+      if (reason === 'answer' || (!isNaN(lastAns) && Date.now() - lastAns < V5_SETTLE_MS_)) return {ok:true, status:'settling'};
+    }
     if (!key) {
       if (reason === 'sweep' && Date.now() - v5RowTimeMs_(d) >= V5_FALLBACK_MS_) key = 'results_only';
       else return {ok:true, status:'waiting'};
@@ -3357,9 +3365,31 @@ function v5AfterPost_(e, job) {
       if (clean_(v.step) === 'q1') hint.q1 = clean_(v.option_id);
       if (clean_(v.step) === 'q2') hint.q2 = clean_(v.option_id);
     });
-    if (found) return v5Process_(body.resultToken, 'answer', '', hint);
+    if (found) return {ok:true, status:'answer_noted_before'};
   }
   return null;
+}
+
+// Runs BEFORE the request is processed, so the 'last answer' time is always written before her new answer is saved
+// (the 5-minute sweep can then never send on an answer that is seconds old).
+function v5BeforePost_(e) {
+  var body; try { body = JSON.parse(e.postData.contents); } catch (pe) { return; }
+  if (!body || !body.resultToken || (body.action !== 'recordJourneyEvent' && body.action !== 'recordJourneyEvents')) return;
+  var evs = Array.isArray(body.events) ? body.events : [{eventType:body.eventType}];
+  if (evs.some(function(ev){ return ev && ev.eventType === 'post_result_question_answered'; })) v5MarkAnswer_(body.resultToken);
+}
+// Records when she last changed an answer (no email is sent here).
+function v5MarkAnswer_(token) {
+  token = clean_(token); if (!token) return null;
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(15000)) return {ok:false, code:'BUSY'};
+  try {
+    var sh = getV3Sheet_(), row = findRowNumber_(sh, {resultToken:token}); if (!row) return null;
+    if (clean_(getByHeaderV3_(sh, row, 'V4 Email Flow')) !== V5_FLOW_) return null;
+    ensureHeaderV3_(sh, 'V5 Last Answer UTC');
+    setByHeader_(sh, row, 'V5 Last Answer UTC', new Date().toISOString());
+    SpreadsheetApp.flush();
+    return {ok:true, status:'answer_noted'};
+  } finally { lock.releaseLock(); }
 }
 
 // Time-driven, every 5 minutes: results-only fallback after 10 minutes, and Brevo retries (max 3 attempts).

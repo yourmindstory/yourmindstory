@@ -24,3 +24,4 @@ Params: FIRSTNAME, CHECKOUT_URL, RESULTS_URL, PRICE (self_guided only). Sender: 
 - Triggers: v5SweepPending every 5 min, v5SendSummary every 4 h (summary to yourmindstory.co.uk@gmail.com).
 - Brevo: templates 152–167 activated; API key "yms v4 sync" given Transactional email permission (26 Nov 02:27).
 - Test 26 Nov: 17 journeys through the real quiz (mobile viewport) → correct template on all 16 routes + fallback, one email each, duplicate submit/finalize sent nothing extra, all delivered to Primary inbox.
+- V5.1 (web app version 16, 26 Nov 2026 08:46 UK): answers on the results screen no longer send the email on the tap. Her last answer time is recorded first ("V5 Last Answer UTC"); the 5-minute sweep sends once her answers have been unchanged for 3 minutes. A buy-button click still sends straight away. Tested: changed answer understand→change got bm_change (sweep, ~4 min); buy click got bm_understand immediately.
