@@ -3282,6 +3282,9 @@ function v5SendBrevo_(email, firstName, key, params) {
 }
 
 function v5RowTimeMs_(d) {
+  var u = d['Submitted UTC'];
+  if (u instanceof Date) return u.getTime();
+  var um = Date.parse(String(u||'')); if (!isNaN(um)) return um;
   var v = d['Date & Time'];
   if (v instanceof Date) return v.getTime();
   try { return Utilities.parseDate(String(v), 'Europe/London', 'dd/MM/yyyy HH:mm:ss').getTime(); } catch (e) { return 0; }
@@ -3376,41 +3379,88 @@ function v5SweepPending() {
   return done;
 }
 
-// Time-driven, every 4 hours: summary to the owner's Gmail.
+// Time-driven, every 4 hours: a plain-English report to the owner's Gmail (owner request 26 Nov 2026 07:35).
+// Real women only (test records excluded). Opens/clicks come from Brevo's event log; purchases from the sheet.
+var V5_SWITCH_UTC_ = '2026-11-26T02:34:00Z';
+var V5_TEST_EMAIL_RE_ = /\+(v5test|v4test|livecheck)/i;
+function v5IsTestRow_(d) {
+  var e = clean_(d['Email']).toLowerCase();
+  return String(d['Test Record']||'') === 'TEST' || V5_TEST_EMAIL_RE_.test(e) || (typeof isTestEmailV3_ === 'function' && isTestEmailV3_(e));
+}
+function v5BrevoEvents_(eventName, startDate) {
+  var key = v4ScriptProp_('BREVO_API_KEY'), out = {};
+  if (!key) return null;
+  var end = Utilities.formatDate(new Date(), 'UTC', 'yyyy-MM-dd');
+  for (var page = 0; page < 4; page++) {
+    var url = 'https://api.brevo.com/v3/smtp/statistics/events?limit=2500&offset=' + (page*2500) + '&startDate=' + startDate +
+      '&endDate=' + end + '&event=' + eventName + '&sort=desc';
+    try {
+      var res = UrlFetchApp.fetch(url, {headers:{'api-key':key, accept:'application/json'}, muteHttpExceptions:true});
+      if (res.getResponseCode() !== 200) return page ? out : null;
+      var ev = (JSON.parse(res.getContentText() || '{}').events) || [];
+      ev.forEach(function(x){ if (x.messageId) out[x.messageId] = true; });
+      if (ev.length < 2500) break;
+    } catch (e) { return page ? out : null; }
+  }
+  return out;
+}
 function v5SendSummary() {
-  var sh = getV3Sheet_(), last = sh.getLastRow(), since = Date.now() - 4*3600*1000;
-  var H = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0], ix = function(h){ return H.indexOf(h); };
-  var start = Math.max(2, last - 600), V = last >= 2 ? sh.getRange(start,1,last-start+1,H.length).getValues() : [];
-  var c = {completed:0, withEmail:0, brevo:0, gmail:0, failed:0, waiting:0, stuck:0}, byKey = {}, problems = [];
+  var sh = getV3Sheet_(), last = sh.getLastRow(), now = Date.now(), since4h = now - 4*3600*1000, switchMs = Date.parse(V5_SWITCH_UTC_);
+  var H = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+  var start = Math.max(2, last - 1500), V = last >= 2 ? sh.getRange(start,1,last-start+1,H.length).getValues() : [];
+  var opened = v5BrevoEvents_('opened', '2026-11-26'), clicked = v5BrevoEvents_('clicks', '2026-11-26');
+  var names = {self_guided:'Self-Guided', bootcamp:'Bootcamp', bm_understand:'Bare Minimum (understand him)', bm_change:'Bare Minimum (change him)',
+    bm_low:'Bare Minimum (low scores)', results_only:'Results only (left before answering)',
+    single_qa:'Quiet the Alarm', single_bp:'Break the Pull', single_rs:'Restore Self-Trust', single_ry:'Return to Yourself',
+    pair_qa_bp:'Quiet the Alarm + Break the Pull', pair_qa_rs:'Quiet the Alarm + Restore Self-Trust', pair_qa_ry:'Quiet the Alarm + Return to Yourself',
+    pair_bp_rs:'Break the Pull + Restore Self-Trust', pair_bp_ry:'Break the Pull + Return to Yourself', pair_rs_ry:'Restore Self-Trust + Return to Yourself'};
+  function blank(){ return {quiz:0, sent:0, waiting:0, opened:0, clicked:0, buyClick:0, bought:0, value:0}; }
+  var all = blank(), recent = blank(), people = [], problems = [];
   V.forEach(function(r, i){
     var d = {}; H.forEach(function(h, j){ d[h] = r[j]; });
-    var t = v5RowTimeMs_(d), flow = String(d['V4 Email Flow']||''), p = String(d['Result Email Provider']||'');
-    var sentUtc = Date.parse(String(d['V5 Email Sent UTC']||''));
-    if (flow === V5_FLOW_) {
-      if (!isNaN(sentUtc) && sentUtc >= since) { c.brevo++; var k = String(d['V5 Email Template']||''); byKey[k] = (byKey[k]||0) + 1; }
-      if (p === 'v5-failed') { c.failed++; problems.push('Row '+(start+i)+': failed ('+String(d['Result Email Error']||'').slice(0,120)+')'); }
-      if (p === 'v5-pending') c.waiting++;
-      if (p === 'v5-sending' && Date.now() - Date.parse(String(d['Result Email Error']||'').replace(/^sending since /,'')) > V5_STALE_SENDING_MS_) { c.stuck++; problems.push('Row '+(start+i)+': stuck while sending, check Brevo logs before resending'); }
-    }
-    if (t < since) return;
-    c.completed++;
-    if (clean_(d['Email'])) c.withEmail++;
-    if (flow !== V5_FLOW_ && /^mailapp/.test(p)) c.gmail++;
+    var t = v5RowTimeMs_(d);
+    if (t < switchMs || v5IsTestRow_(d)) return;
+    var p = String(d['Result Email Provider']||''), mid = String(d['V5 Brevo Message ID']||'');
+    var row = {t:t, name:clean_(d['First Name']) || '(no name)', email:names[String(d['V5 Email Template']||'')] || '',
+      sent:!!clean_(d['Result Email Sent']), waiting:p === 'v5-pending',
+      opened:!!(mid && opened && opened[mid]), clicked:!!(mid && clicked && clicked[mid]),
+      buyClick:!!clean_(d['Checkout Clicked']) || !!clean_(d['Checkout Clicked At']),
+      bought:/^Purchased/.test(String(d['Purchase Status']||'')), product:clean_(d['Purchased Product']), value:Number(d['Purchase Value']||0)};
+    if (p === 'v5-failed') problems.push(row.name + ' (' + Utilities.formatDate(new Date(t),'Europe/London','d MMM HH:mm') + '): her email failed to send. ' + String(d['Result Email Error']||'').slice(0,100));
+    if (p === 'v5-sending' && now - Date.parse(String(d['Result Email Error']||'').replace(/^sending since /,'')) > V5_STALE_SENDING_MS_)
+      problems.push(row.name + ': her email got stuck while sending. Check the Brevo log before resending.');
+    [all].concat(t >= since4h ? [recent] : []).forEach(function(c){
+      c.quiz++; if (row.sent) c.sent++; if (row.waiting) c.waiting++; if (row.opened) c.opened++; if (row.clicked) c.clicked++;
+      if (row.buyClick) c.buyClick++; if (row.bought) { c.bought++; c.value += row.value; }
+    });
+    people.push(row);
   });
-  var names = {self_guided:'Self-Guided', bootcamp:'Bootcamp', bm_understand:'Bare Minimum (understand him)', bm_change:'Bare Minimum (change him)',
-    bm_low:'Bare Minimum (low scores)', results_only:'Results only (left before answering)'};
-  var lines = Object.keys(byKey).sort().map(function(k){ return '  ' + (names[k] || k.replace('single_','Single: ').replace('pair_','Pair: ')) + ': ' + byKey[k]; });
-  var body = 'Results emails, last 4 hours\n\n' +
-    'Quizzes completed: ' + c.completed + ' (' + c.withEmail + ' gave an email)\n' +
-    'Sent by Brevo: ' + c.brevo + '\n' + (lines.length ? lines.join('\n') + '\n' : '') +
-    'Sent by Gmail (old system): ' + c.gmail + '\n' +
-    'Waiting for her final answer: ' + c.waiting + '\n' +
-    'Failed: ' + c.failed + '\nStuck: ' + c.stuck + '\n' +
-    (problems.length ? '\nNeeds a look:\n' + problems.join('\n') + '\n' : '\nNothing needs your attention.\n') +
-    '\nNew system mode: ' + v5Mode_() + '\nBrevo log: https://app.brevo.com/transactional/email/logs\n';
-  var subject = 'YMS results emails: ' + c.brevo + ' sent' + (c.gmail ? ', ' + c.gmail + ' via Gmail' : '') +
-    (c.failed || c.stuck ? ' | ' + (c.failed + c.stuck) + ' need a look' : ' | all fine');
-  MailApp.sendEmail({to:V5_SUMMARY_TO_, subject:subject, body:body, name:'YMS system'});
+  people.sort(function(a,b){ return b.t - a.t; });
+  var e = escapeHtmlV3_, td = 'style="padding:6px 8px;border-bottom:1px solid #e7e8e6;font-size:13px;vertical-align:top;"';
+  var yes = function(v){ return v ? '<b style="color:#1d7a3a;">Yes</b>' : '<span style="color:#9aa3ab;">No</span>'; };
+  function block(title, c) {
+    var line = function(label, n, note){ return '<tr><td '+td+'>'+label+'</td><td '+td+'><b>'+n+'</b>'+(note ? ' <span style="color:#6b7280;">'+note+'</span>' : '')+'</td></tr>'; };
+    return '<h3 style="font-family:Georgia,serif;margin:22px 0 8px;font-size:17px;">'+title+'</h3><table cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-family:Arial,sans-serif;">'+
+      line('Took the quiz', c.quiz)+line('Got her results email', c.sent, c.waiting ? '('+c.waiting+' still answering)' : '')+
+      line('Opened the email', opened ? c.opened : '?', opened ? '' : '(Brevo log unavailable)')+line('Clicked a link in the email', clicked ? c.clicked : '?')+
+      line('Clicked buy on the results page', c.buyClick)+line('Bought', c.bought, c.bought ? '(£'+c.value.toFixed(2)+')' : '')+'</table>';
+  }
+  var rows = people.slice(0, 60).map(function(p){
+    return '<tr><td '+td+'>'+Utilities.formatDate(new Date(p.t),'Europe/London','d MMM HH:mm')+'</td><td '+td+'>'+e(p.name)+'</td><td '+td+'>'+e(p.email || (p.waiting ? 'Waiting for her answers' : '-'))+'</td><td '+td+'>'+yes(p.opened)+'</td><td '+td+'>'+yes(p.clicked)+'</td><td '+td+'>'+yes(p.buyClick)+'</td><td '+td+'>'+(p.bought ? '<b style="color:#1d7a3a;">'+e(p.product||'Yes')+'</b>' : yes(false))+'</td></tr>';
+  }).join('');
+  var th = 'style="padding:6px 8px;text-align:left;font-size:12px;color:#6b7280;border-bottom:2px solid #111827;"';
+  var html = '<div style="font-family:Arial,sans-serif;color:#111827;max-width:720px;">'+
+    '<div style="font-weight:700;letter-spacing:3px;font-size:13px;">YOUR MIND STORY</div><div style="font-family:Georgia,serif;color:#9b7a45;font-size:15px;margin:4px 0 6px;">Quiz and results email report</div>'+
+    '<p style="font-size:13px;color:#6b7280;margin:0;">Real people only. Your test entries are left out.</p>'+
+    block('Since the switch (26 Nov, 02:34)', all)+block('Last 4 hours', recent)+
+    (problems.length ? '<h3 style="font-family:Georgia,serif;color:#b42318;font-size:17px;margin:22px 0 8px;">Needs a look</h3><p style="font-size:13px;">'+problems.map(e).join('<br>')+'</p>' : '<p style="font-size:13px;margin:18px 0 0;">Nothing needs your attention.</p>')+
+    '<h3 style="font-family:Georgia,serif;margin:22px 0 8px;font-size:17px;">Everyone since the switch (newest first)</h3>'+
+    (people.length ? '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-family:Arial,sans-serif;width:100%;"><tr><th '+th+'>When</th><th '+th+'>Name</th><th '+th+'>Email she got</th><th '+th+'>Opened</th><th '+th+'>Clicked email</th><th '+th+'>Clicked buy</th><th '+th+'>Bought</th></tr>'+rows+'</table>' : '<p style="font-size:13px;">Nobody yet.</p>')+
+    '<p style="font-size:12px;color:#6b7280;margin-top:18px;">"Opened" is a rough guide: some phones (especially iPhones) open emails automatically, and some people read without it registering. Clicks and purchases are reliable. Purchases appear once Stan\'s confirmation has been matched (checked hourly).</p>'+
+    '<p style="font-size:12px;"><a href="https://app.brevo.com/transactional/email/logs">Brevo email log</a> · <a href="https://docs.google.com/spreadsheets/d/'+V4_SHEET_ID+'/edit">V4 sheet</a></p></div>';
+  var text = 'Since the switch: ' + all.quiz + ' took the quiz, ' + all.sent + ' got their email, ' + all.opened + ' opened, ' + all.clicked + ' clicked, ' + all.bought + ' bought.';
+  var subject = 'YMS report: ' + all.quiz + ' quizzes, ' + all.clicked + ' clicked, ' + all.bought + ' bought since the switch' + (problems.length ? ' | ' + problems.length + ' need a look' : '');
+  MailApp.sendEmail({to:V5_SUMMARY_TO_, subject:subject, body:text, htmlBody:html, name:'YMS system'});
   return {subject:subject};
 }
 
