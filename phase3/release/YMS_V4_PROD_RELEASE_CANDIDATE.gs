@@ -237,6 +237,8 @@ function doPost(e) {
   V4_AFTER_LOCK_ = null;
   var res = v4DoPostCore_(e);
   var job = V4_AFTER_LOCK_; V4_AFTER_LOCK_ = null;
+  // V5 (26 Nov 2026): one Brevo results email per journey. Runs after the request's lock is released.
+  try { var v5 = v5AfterPost_(e, job); if (job && job.v5) return res; } catch (v5Err) { console.error('V5 email step failed: ' + v5Err); if (job && job.v5) return res; }
   if (!job) return res;
   return json_(v4RunEmailJob_(job));
 }
@@ -338,13 +340,14 @@ function v4DoPostCore_(e) {
     // formulas first (20-50 s per submission on the V4 workbooks). So: all reads first, then writes only,
     // and no read-back of what was just written. Same values, same columns as before.
     var hasEmail = !!clean_(body.email);
+    var v5 = hasEmail && v5Enabled_(body.email);
     var funnelSheet = null, funnelNextRow = 0;
     try { funnelSheet = funnelSheetV3_(); funnelNextRow = funnelSheet.getLastRow() + 1; } catch (fsErr) { console.error('Funnel sheet unavailable: '+fsErr); }
     var rowNumber = sheet.getLastRow() + 1; // safe: the script lock is held for the whole submission
     var row = buildRowV3_(sheet, body, result, journeyId, submissionId, resultToken, now, {
-      'Result Email Sent':'', 'Result Email Provider':hasEmail ? 'sending' : 'none',
-      'Result Email Error':hasEmail ? 'sending since '+now.toISOString() : '',
-      'V4 Email Flow':V4_EMAIL_FLOW_IMMEDIATE_,
+      'Result Email Sent':'', 'Result Email Provider':v5 ? 'v5-pending' : (hasEmail ? 'sending' : 'none'),
+      'Result Email Error':(hasEmail && !v5) ? 'sending since '+now.toISOString() : '',
+      'V4 Email Flow':v5 ? V5_FLOW_ : V4_EMAIL_FLOW_IMMEDIATE_,
       'Canonical: Furthest Stage':clean_(body.email) ? 'email_captured' : 'assessment_complete'
     });
     sheet.appendRow(row);
@@ -383,13 +386,13 @@ function v4DoPostCore_(e) {
       recommendedPrice:result.price,recommendationCategory:result.category,
       resultEmailSent:false,
       resultEmailPending:false,
-      resultEmailProvider:hasEmail ? 'sending' : 'none',
+      resultEmailProvider:v5 ? 'v5-pending' : (hasEmail ? 'sending' : 'none'),
       resultEmailError:''
     };
     if (hasEmail) {
       V4_AFTER_LOCK_ = {kind:'result', sheet:sheet, rowNumber:rowNumber, token:resultToken, out:recorded,
         customer:{email:clean_(body.email), firstName:clean_(body.firstName)}, result:result,
-        journeyId:journeyId, submissionId:submissionId};
+        journeyId:journeyId, submissionId:submissionId, v5:v5};
     }
     return json_(recorded);
   } catch (err) {
@@ -582,7 +585,7 @@ function finalizeResultV4_(body) {
 
   // r8: rows saved by this build got their results email at completion; the choice is handled separately.
   // Rows saved before r8 (results email still 'pending') keep the original behaviour below, unchanged.
-  if (clean_(d['V4 Email Flow']) === V4_EMAIL_FLOW_IMMEDIATE_)
+  if (clean_(d['V4 Email Flow']) === V4_EMAIL_FLOW_IMMEDIATE_ || clean_(d['V4 Email Flow']) === V5_FLOW_)
     return v4FinalizeImmediate_(sh, rowNumber, d, body, v, r, finalTitle, token, state);
   if (emailRecorded) {
     if (state.saved && state.finalOfferOption === option) {
@@ -699,7 +702,8 @@ function v4ChoiceState_(d) {
 function v4Merge_(a, b) { var o = {}; Object.keys(a).forEach(function(k){ o[k] = a[k]; }); Object.keys(b||{}).forEach(function(k){ o[k] = b[k]; }); return o; }
 
 function v4FinalizeImmediate_(sh, rowNumber, d, body, v, r, finalTitle, token, state) {
-  var option = v.option, cs = v4ChoiceState_(d), need = v4ChoiceEmailNeeded_(r, option);
+  // V5 rows never get a choice email: their one results email is sent by v5AfterPost_.
+  var option = v.option, cs = v4ChoiceState_(d), need = v4ChoiceEmailNeeded_(r, option) && clean_(d['V4 Email Flow']) !== V5_FLOW_;
   var base = {ok:true, status:'finalized', finalOfferOption:option, finalOffer:finalTitle, choiceEmailRequired:need,
     choiceEmailSent:false, choiceEmailSuppressed:false,
     resultEmailSent:state.resultEmailSent, resultEmailSuppressed:state.resultEmailSuppressed};
@@ -3175,3 +3179,239 @@ function buildFunnelReportV3() {
   g.getRange(1,1,rows.length,4).setWrap(true).setVerticalAlignment('top');
   return 'Funnel Report, Unmatched Purchases and Tracking Guide built.';
 }
+
+/* ===================== V5 RESULTS EMAIL (Brevo, one email per completed journey) =====================
+   Owner decision 25 Nov 2026 (option 2): every woman gets ONE approved results email for her final
+   recommendation route. No choice email. Marketing follow-ups live in Brevo automations (not here).
+   Script property V5_RESULTS_EMAIL: 'off' (default) | 'test' (only +v5test addresses) | 'on' (everyone).
+   Script property BREVO_API_KEY: already used by BrevoSync. Never logged.                                   */
+var V5_FLOW_ = 'v5-brevo';
+var V5_BUILD_ = 'v5-results-email-2026-11-26';
+var V5_TEMPLATES_ = {
+  self_guided:152, bootcamp:153,
+  single_qa:154, single_bp:155, single_rs:156, single_ry:157,
+  pair_qa_bp:158, pair_qa_rs:159, pair_qa_ry:160, pair_bp_rs:161, pair_bp_ry:162, pair_rs_ry:163,
+  bm_understand:164, bm_change:165, bm_low:166, results_only:167
+};
+var V5_STAGE_CODES_ = {'Quiet the Alarm':'qa','Break the Pull':'bp','Restore Self-Trust':'rs','Return to Yourself':'ry'};
+var V5_BOOTCAMP_URL_ = 'https://stan.store/Yourmindstory/Yourmindstory_store/page/5633898';
+var V5_FALLBACK_MS_ = 10 * 60 * 1000;   // no final answer after 10 minutes -> results-only email
+var V5_STALE_SENDING_MS_ = 15 * 60 * 1000;
+var V5_MAX_ATTEMPTS_ = 3;
+var V5_SUMMARY_TO_ = 'yourmindstory.co.uk@gmail.com';
+var V5_TEST_RE_ = /\+v5test[a-z0-9._-]*@/i;
+var V5_HEADERS_ = ['V5 Email Template','V5 Email Sent UTC','V5 Brevo Message ID','V5 Email Attempts','V5 Email Trigger'];
+
+function v5Mode_() { var m = v4ScriptProp_('V5_RESULTS_EMAIL'); return (m === 'on' || m === 'test') ? m : 'off'; }
+function v5Enabled_(email) {
+  var m = v5Mode_(), e = clean_(email).toLowerCase();
+  if (!e) return false;
+  return m === 'on' || (m === 'test' && V5_TEST_RE_.test(e));
+}
+function v5SelfGuidedPrice_() { return Date.now() >= Date.UTC(2026,10,29,0,0,0) ? '127' : '117'; }
+
+// The final recommendation from her SAVED row (+ optional offer she clicked). null = not final yet.
+function v5TemplateKey_(d, offer) {
+  var route = String(d['Recommended Route']||''), product = String(d['Recommended Product']||'');
+  if (route === 'Single Stage') { var c = V5_STAGE_CODES_[product]; return c ? 'single_'+c : 'results_only'; }
+  if (route === 'Two-Stage Pair') {
+    var p = product.split(' → ').map(function(s){ return V5_STAGE_CODES_[s.trim()]; });
+    var k = (p.length === 2 && p[0] && p[1]) ? 'pair_'+p[0]+'_'+p[1] : '';
+    return V5_TEMPLATES_[k] ? k : 'results_only';
+  }
+  if (route === 'Bare Minimum') return 'bm_low';
+  if (route !== SERIES_NAME) return 'results_only';
+  if (!v4QuestionsRequired_(d)) return 'self_guided';
+  var q1 = clean_(d['V4 Post-Result Question 1 Option ID']), q2 = clean_(d['V4 Post-Result Question 2 Option ID']);
+  if (offer === 'self_guided') return 'self_guided';
+  if (offer === 'bootcamp') return 'bootcamp';
+  if (offer === 'bare_minimum') return q1 === 'change_him' ? 'bm_change' : 'bm_understand';
+  if (q1 === 'understand_him') return 'bm_understand';
+  if (q1 === 'change_him') return 'bm_change';
+  if (q1 === 'self_work' && V4_SUPPORT_CHOICES_[q2]) return V4_SUPPORT_CHOICES_[q2].primary;
+  if (q1 === 'unsure' && V4_SUPPORT_CHOICES_[q2]) return 'self_guided';
+  return null;
+}
+
+function v5Link_(url, key, slot, jid, sid) {
+  var params = {utm_source:'yms_assessment', utm_medium:'email', utm_campaign:'v5_result_email', utm_content:key+(slot ? '_'+slot : '')};
+  if (url.indexOf('yourmindstory.co.uk') !== -1) { params.jid = jid || ''; params.sid = sid || ''; }
+  var q = Object.keys(params).filter(function(k){ return params[k]; }).map(function(k){ return k+'='+encodeURIComponent(params[k]); }).join('&');
+  return url + (url.indexOf('?') === -1 ? '?' : '&') + q;
+}
+function v5CheckoutBase_(key, d) {
+  if (key === 'self_guided') return RESULT_CHOICE_REDIRECT_URL_V3 + '?o=self_guided'; // logs the click, then Stan
+  if (key === 'bootcamp') return V5_BOOTCAMP_URL_;
+  if (key.indexOf('bm_') === 0) return BARE_MINIMUM_URL;
+  if (key.indexOf('single_') === 0) return SINGLE_URLS[String(d['Recommended Product']||'')] || '';
+  if (key.indexOf('pair_') === 0) return PAIR_URLS[String(d['Recommended Product']||'')] || '';
+  return '';
+}
+function v5Params_(key, d) {
+  var jid = String(d['Journey ID']||''), sid = String(d['Submission ID']||''), token = clean_(d['Result Token']);
+  var p = {};
+  var fn = clean_(d['First Name']); if (fn) p.FIRSTNAME = fn;
+  var base = v5CheckoutBase_(key, d);
+  if (base) { p.CHECKOUT_URL_TOP = v5Link_(base, key, 'early', jid, sid); p.CHECKOUT_URL_BOTTOM = v5Link_(base, key, 'late', jid, sid); }
+  if (key === 'self_guided') p.PRICE = v5SelfGuidedPrice_();
+  var rl = v5Link_(v4ResultPageUrl_(), key, 'results', jid, sid);
+  p.RESULTS_URL = rl + '&resultToken=' + encodeURIComponent(token);
+  return p;
+}
+
+function v5SendBrevo_(email, firstName, key, params) {
+  if (v4IsDev_()) {
+    var mode = v4EmailMode_();
+    if (mode === 'suppress') return {ok:true, provider:'dev-suppressed', messageId:'', error:''};
+    email = v4ScriptProp_('V4_DEV_EMAIL_REDIRECT_TO') || email;
+  }
+  var apiKey = v4ScriptProp_('BREVO_API_KEY');
+  if (!apiKey) return {ok:false, provider:'none', error:'BREVO_API_KEY script property missing'};
+  var payload = {templateId:V5_TEMPLATES_[key], to:[firstName ? {email:email, name:firstName} : {email:email}],
+    params:params, tags:['yms-results-v5', key]};
+  try {
+    var res = UrlFetchApp.fetch('https://api.brevo.com/v3/smtp/email', {method:'post', contentType:'application/json',
+      headers:{'api-key':apiKey, accept:'application/json'}, payload:JSON.stringify(payload), muteHttpExceptions:true});
+    var code = res.getResponseCode(), txt = res.getContentText() || '';
+    if (code >= 200 && code < 300) {
+      var id = ''; try { id = JSON.parse(txt).messageId || ''; } catch (pe) {}
+      return {ok:true, provider:'brevo', messageId:id, error:''};
+    }
+    return {ok:false, provider:'none', error:'Brevo HTTP '+code+': '+txt.slice(0,300)};
+  } catch (err) { return {ok:false, provider:'none', error:'Brevo fetch error: '+String(err).slice(0,300)}; }
+}
+
+function v5RowTimeMs_(d) {
+  var v = d['Date & Time'];
+  if (v instanceof Date) return v.getTime();
+  try { return Utilities.parseDate(String(v), 'Europe/London', 'dd/MM/yyyy HH:mm:ss').getTime(); } catch (e) { return 0; }
+}
+
+// Decide + claim under the script lock, send after releasing it, record the outcome.
+// reason: submit | answer | offer | sweep. Returns a small status object (never customer data).
+function v5Process_(token, reason, offer, hint, rowHint) {
+  token = clean_(token); if (!token) return {ok:false, code:'NO_TOKEN'};
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) return {ok:false, code:'BUSY'};
+  var job = null, sh;
+  try {
+    sh = getV3Sheet_();
+    var row = rowHint || findRowNumber_(sh, {resultToken:token});
+    if (!row) return {ok:false, code:'NOT_FOUND'};
+    var d = rowObject_(sh, row);
+    if (clean_(d['Result Token']) !== token) return {ok:false, code:'TOKEN_MISMATCH'};
+    if (clean_(d['V4 Email Flow']) !== V5_FLOW_) return {ok:true, status:'not_v5'};
+    var prov = clean_(d['Result Email Provider']);
+    var retry = prov === 'v5-failed' && reason === 'sweep' && Number(d['V5 Email Attempts']||0) < V5_MAX_ATTEMPTS_;
+    if (prov !== 'v5-pending' && !retry) return {ok:true, status:'already_'+prov};
+    if (hint) {
+      if (hint.q1 && !clean_(d['V4 Post-Result Question 1 Option ID']) && V4_GOAL_CHOICES_.hasOwnProperty(hint.q1)) d['V4 Post-Result Question 1 Option ID'] = hint.q1;
+      if (hint.q2 && !clean_(d['V4 Post-Result Question 2 Option ID']) && V4_SUPPORT_CHOICES_[hint.q2]) d['V4 Post-Result Question 2 Option ID'] = hint.q2;
+    }
+    var key = retry ? clean_(d['V5 Email Template']) : v5TemplateKey_(d, offer);
+    if (!key) {
+      if (reason === 'sweep' && Date.now() - v5RowTimeMs_(d) >= V5_FALLBACK_MS_) key = 'results_only';
+      else return {ok:true, status:'waiting'};
+    }
+    if (!V5_TEMPLATES_[key]) key = 'results_only';
+    V5_HEADERS_.forEach(function(h){ ensureHeaderV3_(sh, h); });
+    setByHeader_(sh, row, 'Result Email Provider', 'v5-sending');
+    setByHeader_(sh, row, 'Result Email Error', 'sending since ' + new Date().toISOString());
+    setByHeader_(sh, row, 'V5 Email Template', key);
+    setByHeader_(sh, row, 'V5 Email Trigger', reason);
+    setByHeader_(sh, row, 'V5 Email Attempts', Number(d['V5 Email Attempts']||0) + 1);
+    SpreadsheetApp.flush();
+    job = {row:row, key:key, email:clean_(d['Email']).toLowerCase(), firstName:clean_(d['First Name']), params:v5Params_(key, d)};
+  } finally { lock.releaseLock(); }
+
+  var del = v5SendBrevo_(job.email, job.firstName, job.key, job.params);
+  try {
+    var stampUk = Utilities.formatDate(new Date(), 'Europe/London', 'dd/MM/yyyy HH:mm:ss');
+    setByHeader_(sh, job.row, 'Result Email Provider', del.ok ? del.provider : 'v5-failed');
+    setByHeader_(sh, job.row, 'Result Email Error', String(del.error||'').slice(0,1000));
+    if (del.ok) {
+      setByHeader_(sh, job.row, 'Result Email Sent', stampUk);
+      setByHeader_(sh, job.row, 'V5 Email Sent UTC', utcV4_());
+      setByHeader_(sh, job.row, 'V5 Brevo Message ID', del.messageId || '');
+    }
+    SpreadsheetApp.flush();
+  } catch (recErr) { console.error('V5 record failed: ' + recErr); }
+  return {ok:del.ok, status:del.ok ? 'sent' : 'failed', template:job.key};
+}
+
+// Called from doPost after the normal request has finished and released its lock.
+function v5AfterPost_(e, job) {
+  if (job && job.v5) return v5Process_(job.token, 'submit', '', null, job.rowNumber);
+  var body; try { body = JSON.parse(e.postData.contents); } catch (pe) { return null; }
+  if (!body) return null;
+  if (body.action === 'finalizeResultV4' && body.resultToken) return v5Process_(body.resultToken, 'offer', clean_(body.finalOfferOption), null);
+  if ((body.action === 'recordJourneyEvent' || body.action === 'recordJourneyEvents') && body.resultToken) {
+    var evs = Array.isArray(body.events) ? body.events : [{eventType:body.eventType, values:body.values||{}}];
+    var hint = {}, found = false;
+    evs.forEach(function(ev){
+      if (!ev || ev.eventType !== 'post_result_question_answered') return;
+      var v = ev.values || {}; found = true;
+      if (clean_(v.step) === 'q1') hint.q1 = clean_(v.option_id);
+      if (clean_(v.step) === 'q2') hint.q2 = clean_(v.option_id);
+    });
+    if (found) return v5Process_(body.resultToken, 'answer', '', hint);
+  }
+  return null;
+}
+
+// Time-driven, every 5 minutes: results-only fallback after 10 minutes, and Brevo retries (max 3 attempts).
+function v5SweepPending() {
+  var sh = getV3Sheet_(), last = sh.getLastRow(); if (last < 2) return [];
+  var H = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0], ix = function(h){ return H.indexOf(h); };
+  if (ix('V4 Email Flow') < 0) return [];
+  var start = Math.max(2, last - 400), V = sh.getRange(start,1,last-start+1,H.length).getValues(), done = [];
+  V.forEach(function(r, i){
+    if (String(r[ix('V4 Email Flow')]) !== V5_FLOW_) return;
+    var p = String(r[ix('Result Email Provider')]);
+    if (p !== 'v5-pending' && p !== 'v5-failed') return;
+    var out = v5Process_(String(r[ix('Result Token')]), 'sweep', '', null, start + i);
+    done.push({row:start+i, status:out.status||out.code, template:out.template||''});
+  });
+  console.log('V5 sweep ' + JSON.stringify(done));
+  return done;
+}
+
+// Time-driven, every 4 hours: summary to the owner's Gmail.
+function v5SendSummary() {
+  var sh = getV3Sheet_(), last = sh.getLastRow(), since = Date.now() - 4*3600*1000;
+  var H = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0], ix = function(h){ return H.indexOf(h); };
+  var start = Math.max(2, last - 600), V = last >= 2 ? sh.getRange(start,1,last-start+1,H.length).getValues() : [];
+  var c = {completed:0, withEmail:0, brevo:0, gmail:0, failed:0, waiting:0, stuck:0}, byKey = {}, problems = [];
+  V.forEach(function(r, i){
+    var d = {}; H.forEach(function(h, j){ d[h] = r[j]; });
+    var t = v5RowTimeMs_(d), flow = String(d['V4 Email Flow']||''), p = String(d['Result Email Provider']||'');
+    var sentUtc = Date.parse(String(d['V5 Email Sent UTC']||''));
+    if (flow === V5_FLOW_) {
+      if (!isNaN(sentUtc) && sentUtc >= since) { c.brevo++; var k = String(d['V5 Email Template']||''); byKey[k] = (byKey[k]||0) + 1; }
+      if (p === 'v5-failed') { c.failed++; problems.push('Row '+(start+i)+': failed ('+String(d['Result Email Error']||'').slice(0,120)+')'); }
+      if (p === 'v5-pending') c.waiting++;
+      if (p === 'v5-sending' && Date.now() - Date.parse(String(d['Result Email Error']||'').replace(/^sending since /,'')) > V5_STALE_SENDING_MS_) { c.stuck++; problems.push('Row '+(start+i)+': stuck while sending, check Brevo logs before resending'); }
+    }
+    if (t < since) return;
+    c.completed++;
+    if (clean_(d['Email'])) c.withEmail++;
+    if (flow !== V5_FLOW_ && /^mailapp/.test(p)) c.gmail++;
+  });
+  var names = {self_guided:'Self-Guided', bootcamp:'Bootcamp', bm_understand:'Bare Minimum (understand him)', bm_change:'Bare Minimum (change him)',
+    bm_low:'Bare Minimum (low scores)', results_only:'Results only (left before answering)'};
+  var lines = Object.keys(byKey).sort().map(function(k){ return '  ' + (names[k] || k.replace('single_','Single: ').replace('pair_','Pair: ')) + ': ' + byKey[k]; });
+  var body = 'Results emails, last 4 hours\n\n' +
+    'Quizzes completed: ' + c.completed + ' (' + c.withEmail + ' gave an email)\n' +
+    'Sent by Brevo: ' + c.brevo + '\n' + (lines.length ? lines.join('\n') + '\n' : '') +
+    'Sent by Gmail (old system): ' + c.gmail + '\n' +
+    'Waiting for her final answer: ' + c.waiting + '\n' +
+    'Failed: ' + c.failed + '\nStuck: ' + c.stuck + '\n' +
+    (problems.length ? '\nNeeds a look:\n' + problems.join('\n') + '\n' : '\nNothing needs your attention.\n') +
+    '\nNew system mode: ' + v5Mode_() + '\nBrevo log: https://app.brevo.com/transactional/email/logs\n';
+  var subject = 'YMS results emails: ' + c.brevo + ' sent' + (c.gmail ? ', ' + c.gmail + ' via Gmail' : '') +
+    (c.failed || c.stuck ? ' | ' + (c.failed + c.stuck) + ' need a look' : ' | all fine');
+  MailApp.sendEmail({to:V5_SUMMARY_TO_, subject:subject, body:body, name:'YMS system'});
+  return {subject:subject};
+}
+
+// Triggers (set in the Triggers page): v5SweepPending every 5 minutes, v5SendSummary every 4 hours.
